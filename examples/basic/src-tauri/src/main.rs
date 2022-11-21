@@ -14,10 +14,11 @@ mod plugin {
         async: false
     });
 
+    #[derive(Clone, Copy)]
     struct Ctx;
 
     impl greet::Greet for Ctx {
-        fn greet(&self, name: String) -> host::anyhow::Result<String> {
+        fn greet(&self, name: String) -> tauri_bindgen_host::anyhow::Result<String> {
             Ok(format!("Hello, {}! You've been greeted from code-generated Rust!", name))
         }
     }

@@ -132,10 +132,10 @@ impl<'a> InterfaceGenerator<'a> {
         uwriteln!(
             self.src,
             r#"
-        #[::tauri_bindgen_guest_rust::wasm_bindgen::prelude::wasm_bindgen]
+        #[::wasm_bindgen::prelude::wasm_bindgen]
         extern "C" {{
-            #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
-            pub async fn invoke(cmd: ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue, args: ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue) -> ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue;
+            #[::wasm_bindgen::prelude::wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
+            pub async fn invoke(cmd: ::wasm_bindgen::prelude::JsValue, args: ::wasm_bindgen::prelude::JsValue) -> ::wasm_bindgen::prelude::JsValue;
         }}
         "#
         );
@@ -157,7 +157,7 @@ impl<'a> InterfaceGenerator<'a> {
         self.src.push_str("{\n");
 
         if !func.params.is_empty() {
-            self.push_str("#[derive(::tauri_bindgen_guest_rust::serde::Serialize)]\n");
+            self.push_str("#[derive(::serde::Serialize)]\n");
             self.push_str("#[serde(rename_all = \"camelCase\")]\n");
 
             let print_lifetime = func.params.iter().any(|(_, ty)| match ty {
@@ -175,10 +175,6 @@ impl<'a> InterfaceGenerator<'a> {
             self.src.push_str(" {\n");
 
             for (param, ty) in func.params.iter() {
-                // if self.needs_borrow(ty, TypeMode::AllBorrowed("'a")) {
-                //     self.src.push_str("#[serde(borrow)]\n")
-                // }
-
                 self.src.push_str(&param.to_snake_case());
                 self.src.push_str(" : ");
                 self.print_ty(ty, TypeMode::AllBorrowed("'a"));
@@ -199,21 +195,21 @@ impl<'a> InterfaceGenerator<'a> {
 
         uwrite!(
             self.src,
-            r#"let raw = invoke(::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str("plugin:{}|{}"),"#,
+            r#"let raw = invoke(::wasm_bindgen::JsValue::from_str("plugin:{}|{}"),"#,
             mod_name.to_snake_case(),
             func.name.to_snake_case()
         );
 
         if func.params.is_empty() {
-            self.push_str("::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL");
+            self.push_str("::wasm_bindgen::JsValue::NULL");
         } else {
-            self.push_str("::tauri_bindgen_guest_rust::serde_wasm_bindgen::to_value(&params).unwrap()");
+            self.push_str("::serde_wasm_bindgen::to_value(&params).unwrap()");
         }
 
         self.push_str(").await;\n");
 
         self.src
-            .push_str("::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()\n");
+            .push_str("::serde_wasm_bindgen::from_value(raw).unwrap()\n");
 
         self.src.push_str("}\n");
 
@@ -338,23 +334,23 @@ fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<S
 
     match (info.param, info.result) {
         (true, false) => {
-            attrs.push("::tauri_bindgen_guest_rust::serde::Serialize");
+            attrs.push("::serde::Serialize");
         }
         (true, true) if uses_two_names && name.ends_with("Param") => {
-            attrs.push("::tauri_bindgen_guest_rust::serde::Serialize");
+            attrs.push("::serde::Serialize");
         }
         (false, true) => {
-            attrs.push("::tauri_bindgen_guest_rust::serde::Deserialize");
+            attrs.push("::serde::Deserialize");
         }
         (true, true) if uses_two_names && name.ends_with("Result") => {
-            attrs.push("::tauri_bindgen_guest_rust::serde::Deserialize");
+            attrs.push("::serde::Deserialize");
         }
         (true, true) => {
-            attrs.push("::tauri_bindgen_guest_rust::serde::Serialize");
-            attrs.push("::tauri_bindgen_guest_rust::serde::Deserialize");
+            attrs.push("::serde::Serialize");
+            attrs.push("::serde::Deserialize");
         }
         _ => return None,
     }
-    
+
     Some(format!("#[derive({})]\n", attrs.join(", ")))
 }

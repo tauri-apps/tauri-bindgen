@@ -1,48 +1,30 @@
 #[allow(clippy::all, unused)]
 pub mod imports {
 
-    #[::tauri_bindgen_guest_rust::wasm_bindgen::prelude::wasm_bindgen]
+    #[::wasm_bindgen::prelude::wasm_bindgen]
     extern "C" {
-        #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
+        #[::wasm_bindgen::prelude::wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
         pub async fn invoke(
-            cmd: ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue,
-            args: ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue,
-        ) -> ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue;
+            cmd: ::wasm_bindgen::prelude::JsValue,
+            args: ::wasm_bindgen::prelude::JsValue,
+        ) -> ::wasm_bindgen::prelude::JsValue;
     }
 
     #[repr(u8)]
-    #[derive(
-        Debug,
-        Clone,
-        Copy,
-        ::tauri_bindgen_guest_rust::serde::Serialize,
-        ::tauri_bindgen_guest_rust::serde::Deserialize,
-    )]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum E1 {
         A,
     }
-    #[derive(
-        Debug,
-        Clone,
-        Copy,
-        ::tauri_bindgen_guest_rust::serde::Serialize,
-        ::tauri_bindgen_guest_rust::serde::Deserialize,
-    )]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum U1 {
         U32(u32),
         F32(f32),
     }
     #[repr(C)]
-    #[derive(
-        Debug,
-        Copy,
-        Clone,
-        ::tauri_bindgen_guest_rust::serde::Serialize,
-        ::tauri_bindgen_guest_rust::serde::Deserialize,
-    )]
+    #[derive(Debug, Copy, Clone, ::serde::Serialize, ::serde::Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Empty {}
-    #[derive(Debug, Clone, ::tauri_bindgen_guest_rust::serde::Serialize)]
+    #[derive(Debug, Clone, ::serde::Serialize)]
     pub enum V1Param<'a> {
         A,
         B(U1),
@@ -52,7 +34,7 @@ pub mod imports {
         F,
         G(u32),
     }
-    #[derive(Debug, Clone, ::tauri_bindgen_guest_rust::serde::Deserialize)]
+    #[derive(Debug, Clone, ::serde::Deserialize)]
     pub enum V1Result {
         A,
         B(U1),
@@ -62,178 +44,140 @@ pub mod imports {
         F,
         G(u32),
     }
-    #[derive(
-        Debug,
-        Clone,
-        Copy,
-        ::tauri_bindgen_guest_rust::serde::Serialize,
-        ::tauri_bindgen_guest_rust::serde::Deserialize,
-    )]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum Casts1 {
         A(i32),
         B(f32),
     }
-    #[derive(
-        Debug,
-        Clone,
-        Copy,
-        ::tauri_bindgen_guest_rust::serde::Serialize,
-        ::tauri_bindgen_guest_rust::serde::Deserialize,
-    )]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum Casts2 {
         A(f64),
         B(f32),
     }
-    #[derive(
-        Debug,
-        Clone,
-        Copy,
-        ::tauri_bindgen_guest_rust::serde::Serialize,
-        ::tauri_bindgen_guest_rust::serde::Deserialize,
-    )]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum Casts3 {
         A(f64),
         B(u64),
     }
-    #[derive(
-        Debug,
-        Clone,
-        Copy,
-        ::tauri_bindgen_guest_rust::serde::Serialize,
-        ::tauri_bindgen_guest_rust::serde::Deserialize,
-    )]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum Casts4 {
         A(u32),
         B(i64),
     }
-    #[derive(
-        Debug,
-        Clone,
-        Copy,
-        ::tauri_bindgen_guest_rust::serde::Serialize,
-        ::tauri_bindgen_guest_rust::serde::Deserialize,
-    )]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum Casts5 {
         A(f32),
         B(i64),
     }
-    #[derive(
-        Debug,
-        Clone,
-        Copy,
-        ::tauri_bindgen_guest_rust::serde::Serialize,
-        ::tauri_bindgen_guest_rust::serde::Deserialize,
-    )]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum Casts6 {
         A((f32, u32)),
         B((u32, u32)),
     }
     #[repr(u8)]
-    #[derive(Debug, Clone, Copy, ::tauri_bindgen_guest_rust::serde::Deserialize)]
+    #[derive(Debug, Clone, Copy, ::serde::Deserialize)]
     pub enum MyErrno {
         Bad1,
         Bad2,
     }
-    #[derive(Debug, Clone, ::tauri_bindgen_guest_rust::serde::Serialize)]
+    #[derive(Debug, Clone, ::serde::Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct IsCloneParam<'a> {
         #[serde(borrow)]
         pub v1: V1Param<'a>,
     }
-    #[derive(Debug, Clone, ::tauri_bindgen_guest_rust::serde::Deserialize)]
+    #[derive(Debug, Clone, ::serde::Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct IsCloneResult {
         pub v1: V1Result,
     }
     pub async fn e1_arg(x: E1) -> () {
-        #[derive(::tauri_bindgen_guest_rust::serde::Serialize)]
+        #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params {
             x: E1,
         }
         let params = Params { x };
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str("plugin:imports|e1_arg"),
-            ::tauri_bindgen_guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|e1_arg"),
+            ::serde_wasm_bindgen::to_value(&params).unwrap(),
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn e1_result() -> E1 {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str("plugin:imports|e1_result"),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|e1_result"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn u1_arg(x: U1) -> () {
-        #[derive(::tauri_bindgen_guest_rust::serde::Serialize)]
+        #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params {
             x: U1,
         }
         let params = Params { x };
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str("plugin:imports|u1_arg"),
-            ::tauri_bindgen_guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|u1_arg"),
+            ::serde_wasm_bindgen::to_value(&params).unwrap(),
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn u1_result() -> U1 {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str("plugin:imports|u1_result"),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|u1_result"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn v1_arg(x: V1Param<'_>) -> () {
-        #[derive(::tauri_bindgen_guest_rust::serde::Serialize)]
+        #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params<'a> {
             x: V1Param<'a>,
         }
         let params = Params { x };
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str("plugin:imports|v1_arg"),
-            ::tauri_bindgen_guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|v1_arg"),
+            ::serde_wasm_bindgen::to_value(&params).unwrap(),
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn v1_result() -> V1Result {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str("plugin:imports|v1_result"),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|v1_result"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn bool_arg(x: bool) -> () {
-        #[derive(::tauri_bindgen_guest_rust::serde::Serialize)]
+        #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params {
             x: bool,
         }
         let params = Params { x };
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str("plugin:imports|bool_arg"),
-            ::tauri_bindgen_guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|bool_arg"),
+            ::serde_wasm_bindgen::to_value(&params).unwrap(),
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn bool_result() -> bool {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|bool_result",
-            ),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|bool_result"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn option_arg(
         a: Option<bool>,
@@ -244,7 +188,7 @@ pub mod imports {
         f: Option<U1>,
         g: Option<Option<bool>>,
     ) -> () {
-        #[derive(::tauri_bindgen_guest_rust::serde::Serialize)]
+        #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params {
             a: Option<bool>,
@@ -265,13 +209,11 @@ pub mod imports {
             g,
         };
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|option_arg",
-            ),
-            ::tauri_bindgen_guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|option_arg"),
+            ::serde_wasm_bindgen::to_value(&params).unwrap(),
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn option_result() -> (
         Option<bool>,
@@ -283,13 +225,11 @@ pub mod imports {
         Option<Option<bool>>,
     ) {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|option_result",
-            ),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|option_result"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn casts(
         a: Casts1,
@@ -299,7 +239,7 @@ pub mod imports {
         e: Casts5,
         f: Casts6,
     ) -> (Casts1, Casts2, Casts3, Casts4, Casts5, Casts6) {
-        #[derive(::tauri_bindgen_guest_rust::serde::Serialize)]
+        #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params {
             a: Casts1,
@@ -311,11 +251,11 @@ pub mod imports {
         }
         let params = Params { a, b, c, d, e, f };
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str("plugin:imports|casts"),
-            ::tauri_bindgen_guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|casts"),
+            ::serde_wasm_bindgen::to_value(&params).unwrap(),
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn result_arg(
         a: Result<(), ()>,
@@ -325,7 +265,7 @@ pub mod imports {
         e: Result<u32, V1Param<'_>>,
         f: Result<&str, &[u8]>,
     ) -> () {
-        #[derive(::tauri_bindgen_guest_rust::serde::Serialize)]
+        #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params<'a> {
             a: Result<(), ()>,
@@ -337,13 +277,11 @@ pub mod imports {
         }
         let params = Params { a, b, c, d, e, f };
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|result_arg",
-            ),
-            ::tauri_bindgen_guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|result_arg"),
+            ::serde_wasm_bindgen::to_value(&params).unwrap(),
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn result_result() -> (
         Result<(), ()>,
@@ -354,128 +292,104 @@ pub mod imports {
         Result<String, Vec<u8>>,
     ) {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|result_result",
-            ),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|result_result"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn return_result_sugar() -> Result<i32, MyErrno> {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|return_result_sugar",
-            ),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|return_result_sugar"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn return_result_sugar2() -> Result<(), MyErrno> {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|return_result_sugar2",
-            ),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|return_result_sugar2"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn return_result_sugar3() -> Result<MyErrno, MyErrno> {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|return_result_sugar3",
-            ),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|return_result_sugar3"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn return_result_sugar4() -> Result<(i32, u32), MyErrno> {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|return_result_sugar4",
-            ),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|return_result_sugar4"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn return_option_sugar() -> Option<i32> {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|return_option_sugar",
-            ),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|return_option_sugar"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn return_option_sugar2() -> Option<MyErrno> {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|return_option_sugar2",
-            ),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|return_option_sugar2"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn result_simple() -> Result<u32, i32> {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|result_simple",
-            ),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|result_simple"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn is_clone_arg(a: IsCloneParam<'_>) -> () {
-        #[derive(::tauri_bindgen_guest_rust::serde::Serialize)]
+        #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params<'a> {
             a: IsCloneParam<'a>,
         }
         let params = Params { a };
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|is_clone_arg",
-            ),
-            ::tauri_bindgen_guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|is_clone_arg"),
+            ::serde_wasm_bindgen::to_value(&params).unwrap(),
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn is_clone_return() -> IsCloneResult {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|is_clone_return",
-            ),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|is_clone_return"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn return_named_option() -> Option<u8> {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|return_named_option",
-            ),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|return_named_option"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
     pub async fn return_named_result() -> Result<u8, MyErrno> {
         let raw = invoke(
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str(
-                "plugin:imports|return_named_result",
-            ),
-            ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL,
+            ::wasm_bindgen::JsValue::from_str("plugin:imports|return_named_result"),
+            ::wasm_bindgen::JsValue::NULL,
         )
         .await;
-        ::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::serde_wasm_bindgen::from_value(raw).unwrap()
     }
 }

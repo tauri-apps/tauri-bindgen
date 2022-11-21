@@ -2559,6 +2559,7 @@ dependencies = [
  "heck 0.4.0",
  "js-sys",
  "serde",
+ "serde-wasm-bindgen",
  "tauri-bindgen-core",
  "tauri-bindgen-gen-rust",
  "tauri-bindgen-guest-rust",
