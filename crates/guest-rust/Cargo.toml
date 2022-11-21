@@ -8,6 +8,5 @@ edition.workspace = true
 [dependencies]
 bitflags.workspace = true
 guest-rust-macro = { path = "../guest-rust-macro" }
-serde = { version = "1.0.140", features = ["derive"] }
 serde-wasm-bindgen = "0.4.5"
 wasm-bindgen = { version = "0.2.82", features = ["serde-serialize"] }

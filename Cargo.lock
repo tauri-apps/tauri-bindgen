@@ -852,7 +852,12 @@ dependencies = [
  "bindgen-core",
  "clap",
  "gen-rust",
+ "guest-rust",
  "heck 0.4.0",
+ "js-sys",
+ "serde",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
  "wit-component",
  "wit-parser",
 ]
@@ -1115,7 +1120,6 @@ version = "0.1.0"
 dependencies = [
  "bitflags",
  "guest-rust-macro",
- "serde",
  "serde-wasm-bindgen",
  "wasm-bindgen",
 ]
@@ -3125,6 +3129,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "wasm-bindgen-futures"
+version = "0.4.33"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "23639446165ca5a5de86ae1d8896b737ae80319560fbaa4c2887b7da6e7ebd7d"
+dependencies = [
+ "cfg-if",
+ "js-sys",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
 name = "wasm-bindgen-macro"
 version = "0.2.83"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3168,6 +3184,16 @@ source = "git+https://github.com/bytecodealliance/wasm-tools#b70ae633b93cc3335cf
 dependencies = [
  "indexmap",
  "url",
+]
+
+[[package]]
+name = "web-sys"
+version = "0.3.60"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bcda906d8be16e728fd5adc5b729afad4e444e106ab28cd1c7256e54fa61510f"
+dependencies = [
+ "js-sys",
+ "wasm-bindgen",
 ]
 
 [[package]]
