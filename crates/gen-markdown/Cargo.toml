@@ -1,5 +1,5 @@
 [package]
-name = "gen-markdown"
+name = "tauri-bindgen-gen-markdown"
 version.workspace = true
 edition.workspace = true
 
@@ -11,7 +11,7 @@ test = false
 heck.workspace = true
 pulldown-cmark.workspace = true
 clap = { workspace = true, optional = true }
-bindgen-core.workspace = true
+tauri-bindgen-core.workspace = true
 wit-component.workspace = true
 wit-parser.workspace = true
 

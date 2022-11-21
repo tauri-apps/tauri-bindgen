@@ -103,14 +103,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
 
 [[package]]
-name = "bindgen-core"
-version = "0.1.0"
-dependencies = [
- "wit-component",
- "wit-parser",
-]
-
-[[package]]
 name = "bitflags"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -833,83 +825,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gen-guest-js"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bindgen-core",
- "clap",
- "heck 0.4.0",
- "wit-component",
- "wit-parser",
-]
-
-[[package]]
-name = "gen-guest-rust"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bindgen-core",
- "clap",
- "gen-rust",
- "guest-rust",
- "heck 0.4.0",
- "js-sys",
- "serde",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "wit-component",
- "wit-parser",
-]
-
-[[package]]
-name = "gen-guest-ts"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bindgen-core",
- "clap",
- "heck 0.4.0",
- "wit-component",
- "wit-parser",
-]
-
-[[package]]
-name = "gen-host"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bindgen-core",
- "clap",
- "gen-rust",
- "heck 0.4.0",
- "host",
- "wit-component",
- "wit-parser",
-]
-
-[[package]]
-name = "gen-markdown"
-version = "0.1.0"
-dependencies = [
- "bindgen-core",
- "clap",
- "heck 0.4.0",
- "pulldown-cmark",
- "wit-component",
- "wit-parser",
-]
-
-[[package]]
-name = "gen-rust"
-version = "0.1.0"
-dependencies = [
- "bindgen-core",
- "heck 0.4.0",
- "wit-parser",
-]
-
-[[package]]
 name = "generator"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1128,10 +1043,10 @@ dependencies = [
 name = "guest-rust-macro"
 version = "0.1.0"
 dependencies = [
- "gen-guest-rust",
  "proc-macro2",
  "rust-macro-shared",
  "syn",
+ "tauri-bindgen-gen-guest-rust",
 ]
 
 [[package]]
@@ -1168,24 +1083,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "host"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "bitflags",
- "host-macro",
- "tauri",
-]
-
-[[package]]
 name = "host-macro"
 version = "0.1.0"
 dependencies = [
- "gen-host",
  "proc-macro2",
  "rust-macro-shared",
  "syn",
+ "tauri-bindgen-gen-host",
 ]
 
 [[package]]
@@ -2167,9 +2071,9 @@ dependencies = [
 name = "rust-macro-shared"
 version = "0.1.0"
 dependencies = [
- "bindgen-core",
  "proc-macro2",
  "syn",
+ "tauri-bindgen-core",
  "wit-component",
  "wit-parser",
 ]
@@ -2645,15 +2549,112 @@ name = "tauri-bindgen-cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "bindgen-core",
  "clap",
- "gen-guest-js",
- "gen-guest-rust",
- "gen-guest-ts",
- "gen-host",
- "gen-markdown",
+ "tauri-bindgen-core",
+ "tauri-bindgen-gen-guest-js",
+ "tauri-bindgen-gen-guest-rust",
+ "tauri-bindgen-gen-guest-ts",
+ "tauri-bindgen-gen-host",
+ "tauri-bindgen-gen-markdown",
  "wit-component",
  "wit-parser",
+]
+
+[[package]]
+name = "tauri-bindgen-core"
+version = "0.1.0"
+dependencies = [
+ "wit-component",
+ "wit-parser",
+]
+
+[[package]]
+name = "tauri-bindgen-gen-guest-js"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "heck 0.4.0",
+ "tauri-bindgen-core",
+ "wit-component",
+ "wit-parser",
+]
+
+[[package]]
+name = "tauri-bindgen-gen-guest-rust"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "guest-rust",
+ "heck 0.4.0",
+ "js-sys",
+ "serde",
+ "tauri-bindgen-core",
+ "tauri-bindgen-gen-rust",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "wit-component",
+ "wit-parser",
+]
+
+[[package]]
+name = "tauri-bindgen-gen-guest-ts"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "heck 0.4.0",
+ "tauri-bindgen-core",
+ "wit-component",
+ "wit-parser",
+]
+
+[[package]]
+name = "tauri-bindgen-gen-host"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "heck 0.4.0",
+ "serde",
+ "tauri-bindgen-core",
+ "tauri-bindgen-gen-rust",
+ "tauri-bindgen-host",
+ "wit-component",
+ "wit-parser",
+]
+
+[[package]]
+name = "tauri-bindgen-gen-markdown"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "heck 0.4.0",
+ "pulldown-cmark",
+ "tauri-bindgen-core",
+ "wit-component",
+ "wit-parser",
+]
+
+[[package]]
+name = "tauri-bindgen-gen-rust"
+version = "0.1.0"
+dependencies = [
+ "heck 0.4.0",
+ "tauri-bindgen-core",
+ "wit-parser",
+]
+
+[[package]]
+name = "tauri-bindgen-host"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bitflags",
+ "host-macro",
+ "tauri",
 ]
 
 [[package]]

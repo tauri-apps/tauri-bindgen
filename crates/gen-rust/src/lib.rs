@@ -1,4 +1,4 @@
-use bindgen_core::TypeInfo;
+use tauri_bindgen_core::TypeInfo;
 use heck::*;
 use std::collections::HashMap;
 use std::fmt::Write;

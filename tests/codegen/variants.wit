@@ -139,7 +139,7 @@ interface variants {
   return-named-result: func() -> (a: result<u8, my-errno>)
 }
 
-world my-world {
+world variants {
   import imports: variants
   export exports: variants
   default export variants

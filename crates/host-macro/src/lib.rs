@@ -1,4 +1,4 @@
-use gen_host::Opts;
+use tauri_bindgen_gen_host::Opts;
 use proc_macro::TokenStream;
 use syn::parse::{Parse, ParseStream, Result};
 use syn::Token;

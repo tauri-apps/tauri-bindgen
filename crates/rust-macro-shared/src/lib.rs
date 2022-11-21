@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use syn::parse::{Error, Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
 use syn::{token, Token};
-use bindgen_core::{Files, WorldGenerator};
+use tauri_bindgen_core::{Files, WorldGenerator};
 use wit_component::ComponentInterfaces;
 
 pub fn generate<F, O>(

@@ -1,5 +1,5 @@
 use anyhow::{bail, Context};
-use bindgen_core::{Files, WorldGenerator};
+use tauri_bindgen_core::{Files, WorldGenerator};
 use clap::Parser;
 use std::path::{Path, PathBuf};
 use wit_component::ComponentInterfaces;
@@ -30,7 +30,7 @@ enum Category {
     /// This generator outputs a Markdown file describing an interface.
     Markdown {
         #[clap(flatten)]
-        opts: gen_markdown::Opts,
+        opts: tauri_bindgen_gen_markdown::Opts,
         #[clap(flatten)]
         world: WorldOpt,
     },
@@ -39,7 +39,7 @@ enum Category {
 #[derive(Debug, Parser)]
 struct HostGenerator {
     #[clap(flatten)]
-    opts: gen_host::Opts,
+    opts: tauri_bindgen_gen_host::Opts,
     #[clap(flatten)]
     world: WorldOpt,
 }
@@ -49,21 +49,21 @@ enum GuestGenerator {
     /// Generates bindings for Rust guest modules using wasm-bindgen.
     Rust {
         #[clap(flatten)]
-        opts: gen_guest_rust::Opts,
+        opts: tauri_bindgen_gen_guest_rust::Opts,
         #[clap(flatten)]
         world: WorldOpt,
     },
     /// Generates bindings for JavaScript guest modules.
     Javascript {
         #[clap(flatten)]
-        opts: gen_guest_js::Opts,
+        opts: tauri_bindgen_gen_guest_js::Opts,
         #[clap(flatten)]
         world: WorldOpt,
     },
     /// Generates bindings for TypeScript guest modules.
     Typescript {
         #[clap(flatten)]
-        opts: gen_guest_ts::Opts,
+        opts: tauri_bindgen_gen_guest_ts::Opts,
         #[clap(flatten)]
         world: WorldOpt,
     },

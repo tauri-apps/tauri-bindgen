@@ -1,5 +1,0 @@
-world the-world {
-  default export interface {
-    y: func()
-  }
-}

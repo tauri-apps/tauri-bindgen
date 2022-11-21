@@ -58,7 +58,7 @@ interface unions {
   identify-distinguishable-num: func(num: distinguishable-num) -> u8
 }
 
-world the-unions {
+world unions {
   import import-unions: unions
   export export-unions: unions
   default export unions

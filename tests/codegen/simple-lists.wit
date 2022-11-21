@@ -6,7 +6,7 @@ interface simple-lists {
   simple-list4: func(l: list<list<u32>>) -> list<list<u32>>
 }
 
-world my-world {
+world simple-lists {
   import imports: simple-lists
   export exports: simple-lists
   default export simple-lists

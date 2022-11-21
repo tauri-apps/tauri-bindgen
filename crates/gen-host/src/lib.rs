@@ -1,7 +1,7 @@
-use bindgen_core::{
+use tauri_bindgen_core::{
     uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types, WorldGenerator,
 };
-use gen_rust::{FnSig, RustGenerator, TypeMode};
+use tauri_bindgen_gen_rust::{FnSig, RustGenerator, TypeMode};
 use heck::*;
 use std::{
     fmt::Write as _,
@@ -64,7 +64,7 @@ impl WorldGenerator for Host {
         self.imports.push(snake); // TODO
     }
 
-    fn finish(&mut self, name: &str, files: &mut bindgen_core::Files) {
+    fn finish(&mut self, name: &str, files: &mut Files) {
         let mut src = mem::take(&mut self.src);
         if self.opts.rustfmt {
             let mut child = Command::new("rustfmt")
@@ -123,7 +123,7 @@ impl<'a> InterfaceGenerator<'a> {
         let camel = name.to_upper_camel_case();
 
         if self.gen.opts.async_ {
-            uwriteln!(self.src, "#[host::async_trait]")
+            uwriteln!(self.src, "#[::tauri_bindgen_host::async_trait]")
         }
 
         uwriteln!(self.src, "pub trait {camel}: Sized {{");
@@ -138,7 +138,7 @@ impl<'a> InterfaceGenerator<'a> {
             self.print_docs_and_params(func, TypeMode::Owned, &fnsig);
             self.push_str(" -> ");
 
-            self.push_str("host::anyhow::Result<");
+            self.push_str("::tauri_bindgen_host::anyhow::Result<");
             self.print_result_ty(&func.results, TypeMode::Owned);
             self.push_str(">;\n");
         }
@@ -148,10 +148,10 @@ impl<'a> InterfaceGenerator<'a> {
         uwriteln!(
             self.src,
             "
-                pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::host::tauri::Invoke<R>)
+                pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
                 where
                     U: {camel} + Send + Sync + 'static,
-                    R: ::host::tauri::Runtime
+                    R: ::tauri_bindgen_host::tauri::Runtime
                 {{
             "
         );
@@ -169,7 +169,7 @@ impl<'a> InterfaceGenerator<'a> {
 
             uwriteln!(self.src, "
             #[allow(unused_variables)]
-            let ::tauri::Invoke {{
+            let ::tauri_bindgen_host::tauri::Invoke {{
                 message: __tauri_message__,
                 resolver: __tauri_resolver__,
             }} = invoke;
@@ -187,7 +187,7 @@ impl<'a> InterfaceGenerator<'a> {
             for (param, _) in func.params.iter() {
                 uwriteln!(
                     self.src,
-                    "match ::host::tauri::command::CommandArg::from_command(::tauri::command::CommandItem {{
+                    "match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {{
                         name: \"{}\",
                         key: \"{}\",
                         message: &__tauri_message__,
@@ -211,9 +211,7 @@ impl<'a> InterfaceGenerator<'a> {
                 ")
             } else {
                 uwriteln!(self.src, "
-                    // let kind = (&result).blocking_kind();
-                    // kind.block(result, __tauri_resolver__);
-                    __tauri_resolver__.respond(result.map_err(tauri::InvokeError::from_anyhow));
+                    __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
                 ")
             }
 
@@ -317,7 +315,7 @@ impl<'a> RustGenerator<'a> for InterfaceGenerator<'a> {
     }
 }
 
-impl<'a> bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
+impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     fn iface(&self) -> &'a Interface {
         self.iface
     }

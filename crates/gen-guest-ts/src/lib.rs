@@ -1,4 +1,4 @@
-use bindgen_core::{uwriteln, InterfaceGenerator as _, Source, WorldGenerator};
+use tauri_bindgen_core::{uwriteln, InterfaceGenerator as _, Source, WorldGenerator, Files};
 use heck::ToUpperCamelCase;
 use heck::*;
 use std::collections::HashSet;
@@ -40,7 +40,7 @@ impl WorldGenerator for JavaScript {
         &mut self,
         name: &str,
         iface: &wit_parser::Interface,
-        _files: &mut bindgen_core::Files,
+        _files: &mut Files,
     ) {
         let mut gen = InterfaceGenerator::new(self, iface);
 
@@ -70,7 +70,7 @@ impl WorldGenerator for JavaScript {
         // uwriteln!(self.import_object, "export const {name}: typeof {camel};");
     }
 
-    fn finish(&mut self, name: &str, files: &mut bindgen_core::Files) {
+    fn finish(&mut self, name: &str, files: &mut Files) {
         let mut src = mem::take(&mut self.src);
         if self.opts.prettier {
             let mut child = Command::new("prettier")
@@ -374,7 +374,7 @@ impl<'a> InterfaceGenerator<'a> {
     }
 }
 
-impl<'a> bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
+impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     fn iface(&self) -> &'a wit_parser::Interface {
         self.iface
     }

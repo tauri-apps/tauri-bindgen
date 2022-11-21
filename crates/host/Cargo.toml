@@ -1,5 +1,5 @@
 [package]
-name = "host"
+name = "tauri-bindgen-host"
 version.workspace = true
 edition.workspace = true
 

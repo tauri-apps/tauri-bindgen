@@ -32,7 +32,7 @@ interface conventions {
   %bool: func()
 }
 
-world the-world {
+world conventions {
   import imports: conventions
   export exports: conventions
   default export conventions

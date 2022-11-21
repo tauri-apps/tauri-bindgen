@@ -1,7 +1,7 @@
 use std::path::Path;
 
-use bindgen_core::{Files, WorldGenerator};
-use gen_host::*;
+use tauri_bindgen_core::{Files, WorldGenerator};
+use tauri_bindgen_gen_host::*;
 use wit_component::ComponentInterfaces;
 use wit_parser::World;
 
@@ -19,7 +19,7 @@ fn gen_world(mut gen: Box<dyn WorldGenerator>, name: impl AsRef<str>, path: impl
 }
 
 #[test]
-fn char() {
+fn chars() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
@@ -27,10 +27,10 @@ fn char() {
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "char", "../../tests/codegen/char.wit");
+    let (filename, contents) = gen_world(gen, "chars", "../../tests/codegen/chars.wit");
 
-    assert_eq!(filename, "char.rs");
-    assert_eq!(contents, include_str!("./char.rs"));
+    assert_eq!(filename, "chars.rs");
+    assert_eq!(contents, include_str!("./chars.rs"));
 }
 
 #[test]
@@ -91,6 +91,21 @@ fn integers() {
 
     assert_eq!(filename, "integers.rs");
     assert_eq!(contents, include_str!("./integers.rs"));
+}
+
+#[test]
+fn lists() {
+    let opts = Opts {
+        rustfmt: true,
+        tracing: false,
+        async_: true,
+    };
+    let gen = opts.build();
+
+    let (filename, contents) = gen_world(gen, "lists", "../../tests/codegen/lists.wit");
+
+    assert_eq!(filename, "lists.rs");
+    assert_eq!(contents, include_str!("./lists.rs"));
 }
 
 #[test]

@@ -53,7 +53,7 @@ interface records {
   typedef-inout: func(e: tuple-typedef2) -> s32
 }
 
-world the-world {
+world records {
   import imports: records
   export exports: records
   default export records

@@ -1,4 +1,4 @@
-use gen_guest_rust::Opts;
+use tauri_bindgen_gen_guest_rust::Opts;
 use proc_macro::TokenStream;
 use syn::parse::{Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;

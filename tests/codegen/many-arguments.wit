@@ -44,7 +44,7 @@ interface manyarg {
   big-argument: func(x: big-struct)
 }
 
-world the-world {
+world many-arguments {
   import imports: manyarg
   export exports: manyarg
   default export manyarg

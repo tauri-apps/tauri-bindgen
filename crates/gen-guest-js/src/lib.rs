@@ -1,4 +1,4 @@
-use bindgen_core::{uwriteln, Source, WorldGenerator};
+use tauri_bindgen_core::{uwriteln, Source, WorldGenerator, Files};
 use heck::*;
 use std::collections::HashSet;
 use std::fmt::Write as _;
@@ -39,7 +39,7 @@ impl WorldGenerator for JavaScript {
         &mut self,
         name: &str,
         iface: &wit_parser::Interface,
-        _files: &mut bindgen_core::Files,
+        _files: &mut Files,
     ) {
         let mut gen = InterfaceGenerator::new(self, iface);
 
@@ -53,7 +53,7 @@ impl WorldGenerator for JavaScript {
         uwriteln!(self.src, "{module}");
     }
 
-    fn finish(&mut self, name: &str, files: &mut bindgen_core::Files) {
+    fn finish(&mut self, name: &str, files: &mut Files) {
         let mut src = mem::take(&mut self.src);
         if self.opts.prettier {
             let mut child = Command::new("prettier")

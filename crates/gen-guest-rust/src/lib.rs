@@ -1,5 +1,5 @@
-use bindgen_core::{InterfaceGenerator as _, *};
-use gen_rust::{FnSig, RustGenerator, TypeMode};
+use tauri_bindgen_core::{InterfaceGenerator as _, *};
+use tauri_bindgen_gen_rust::{FnSig, RustGenerator, TypeMode};
 use heck::*;
 use std::fmt::Write as _;
 use std::{
@@ -52,7 +52,7 @@ impl WorldGenerator for RustWasm {
         &mut self,
         name: &str,
         iface: &wit_parser::Interface,
-        _files: &mut bindgen_core::Files,
+        _files: &mut Files,
     ) {
         let mut gen = InterfaceGenerator::new(self, iface, TypeMode::AllBorrowed("'a"));
         gen.generate_invoke_bindings();
@@ -76,7 +76,7 @@ impl WorldGenerator for RustWasm {
         );
     }
 
-    fn finish(&mut self, name: &str, files: &mut bindgen_core::Files) {
+    fn finish(&mut self, name: &str, files: &mut Files) {
         let mut src = mem::take(&mut self.src);
         if self.opts.rustfmt {
             let mut child = Command::new("rustfmt")
@@ -254,7 +254,7 @@ impl<'a> RustGenerator<'a> for InterfaceGenerator<'a> {
     }
 }
 
-impl<'a> bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
+impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     fn iface(&self) -> &'a Interface {
         self.iface
     }

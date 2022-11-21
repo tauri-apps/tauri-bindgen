@@ -1,7 +1,7 @@
 #[allow(clippy::all)]
 pub mod import_unions {
     /// A union of all of the integral types
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum AllIntegers {
         /// Bool is equivalent to a 1 bit integer
         /// and is treated that way in some languages
@@ -15,17 +15,17 @@ pub mod import_unions {
         I32(i32),
         I64(i64),
     }
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum AllFloats {
         F32(f32),
         F64(f64),
     }
-    #[derive(Debug, Clone)]
+    #[derive(Debug, Clone, ::serde::Serialize, ::serde::Deserialize)]
     pub enum AllText {
         Char(char),
         String(String),
     }
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum DuplicatedS32 {
         /// The first s32
         I320(i32),
@@ -35,46 +35,292 @@ pub mod import_unions {
         I322(i32),
     }
     /// A type containing numeric types that are distinct in most languages
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum DistinguishableNum {
         /// A Floating Point Number
         F64(f64),
         /// A Signed Integer
         I64(i64),
     }
-    #[host::async_trait]
     pub trait ImportUnions: Sized {
-        async fn add_one_integer(&mut self, num: AllIntegers) -> anyhow::Result<AllIntegers>;
-        async fn add_one_float(&mut self, num: AllFloats) -> anyhow::Result<AllFloats>;
-        async fn replace_first_char(
-            &mut self,
+        fn add_one_integer(
+            &self,
+            num: AllIntegers,
+        ) -> ::tauri_bindgen_host::anyhow::Result<AllIntegers>;
+        fn add_one_float(&self, num: AllFloats) -> ::tauri_bindgen_host::anyhow::Result<AllFloats>;
+        fn replace_first_char(
+            &self,
             text: AllText,
             letter: char,
-        ) -> anyhow::Result<AllText>;
-        async fn identify_integer(&mut self, num: AllIntegers) -> anyhow::Result<u8>;
-        async fn identify_float(&mut self, num: AllFloats) -> anyhow::Result<u8>;
-        async fn identify_text(&mut self, text: AllText) -> anyhow::Result<u8>;
-        async fn add_one_duplicated(&mut self, num: DuplicatedS32)
-            -> anyhow::Result<DuplicatedS32>;
-        async fn identify_duplicated(&mut self, num: DuplicatedS32) -> anyhow::Result<u8>;
-        async fn add_one_distinguishable_num(
-            &mut self,
+        ) -> ::tauri_bindgen_host::anyhow::Result<AllText>;
+        fn identify_integer(&self, num: AllIntegers) -> ::tauri_bindgen_host::anyhow::Result<u8>;
+        fn identify_float(&self, num: AllFloats) -> ::tauri_bindgen_host::anyhow::Result<u8>;
+        fn identify_text(&self, text: AllText) -> ::tauri_bindgen_host::anyhow::Result<u8>;
+        fn add_one_duplicated(
+            &self,
+            num: DuplicatedS32,
+        ) -> ::tauri_bindgen_host::anyhow::Result<DuplicatedS32>;
+        fn identify_duplicated(
+            &self,
+            num: DuplicatedS32,
+        ) -> ::tauri_bindgen_host::anyhow::Result<u8>;
+        fn add_one_distinguishable_num(
+            &self,
             num: DistinguishableNum,
-        ) -> anyhow::Result<DistinguishableNum>;
-        async fn identify_distinguishable_num(
-            &mut self,
+        ) -> ::tauri_bindgen_host::anyhow::Result<DistinguishableNum>;
+        fn identify_distinguishable_num(
+            &self,
             num: DistinguishableNum,
-        ) -> anyhow::Result<u8>;
+        ) -> ::tauri_bindgen_host::anyhow::Result<u8>;
     }
 
-    pub fn add_to_linker<T, U>(
-        _linker: &mut (),
-        _get: impl Fn(&mut T) -> &mut U + Send + Sync + Copy + 'static,
-    ) -> anyhow::Result<()>
+    pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        T: Send,
-        U: ImportUnions + Send,
+        U: ImportUnions + Send + Sync + 'static,
+        R: ::tauri_bindgen_host::tauri::Runtime,
     {
-        todo!()
+        move |invoke| match invoke.message.command() {
+            "add-one-integer" => {
+                #[allow(unused_variables)]
+                let ::tauri_bindgen_host::tauri::Invoke {
+                    message: __tauri_message__,
+                    resolver: __tauri_resolver__,
+                } = invoke;
+
+                let result = ctx.add_one_integer(
+                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "add-one-integer",
+                            key: "num",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                    },
+                );
+
+                __tauri_resolver__
+                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+            }
+            "add-one-float" => {
+                #[allow(unused_variables)]
+                let ::tauri_bindgen_host::tauri::Invoke {
+                    message: __tauri_message__,
+                    resolver: __tauri_resolver__,
+                } = invoke;
+
+                let result = ctx.add_one_float(
+                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "add-one-float",
+                            key: "num",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                    },
+                );
+
+                __tauri_resolver__
+                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+            }
+            "replace-first-char" => {
+                #[allow(unused_variables)]
+                let ::tauri_bindgen_host::tauri::Invoke {
+                    message: __tauri_message__,
+                    resolver: __tauri_resolver__,
+                } = invoke;
+
+                let result = ctx.replace_first_char(
+                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "replace-first-char",
+                            key: "text",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                    },
+                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "replace-first-char",
+                            key: "letter",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                    },
+                );
+
+                __tauri_resolver__
+                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+            }
+            "identify-integer" => {
+                #[allow(unused_variables)]
+                let ::tauri_bindgen_host::tauri::Invoke {
+                    message: __tauri_message__,
+                    resolver: __tauri_resolver__,
+                } = invoke;
+
+                let result = ctx.identify_integer(
+                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "identify-integer",
+                            key: "num",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                    },
+                );
+
+                __tauri_resolver__
+                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+            }
+            "identify-float" => {
+                #[allow(unused_variables)]
+                let ::tauri_bindgen_host::tauri::Invoke {
+                    message: __tauri_message__,
+                    resolver: __tauri_resolver__,
+                } = invoke;
+
+                let result = ctx.identify_float(
+                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "identify-float",
+                            key: "num",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                    },
+                );
+
+                __tauri_resolver__
+                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+            }
+            "identify-text" => {
+                #[allow(unused_variables)]
+                let ::tauri_bindgen_host::tauri::Invoke {
+                    message: __tauri_message__,
+                    resolver: __tauri_resolver__,
+                } = invoke;
+
+                let result = ctx.identify_text(
+                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "identify-text",
+                            key: "text",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                    },
+                );
+
+                __tauri_resolver__
+                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+            }
+            "add-one-duplicated" => {
+                #[allow(unused_variables)]
+                let ::tauri_bindgen_host::tauri::Invoke {
+                    message: __tauri_message__,
+                    resolver: __tauri_resolver__,
+                } = invoke;
+
+                let result = ctx.add_one_duplicated(
+                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "add-one-duplicated",
+                            key: "num",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                    },
+                );
+
+                __tauri_resolver__
+                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+            }
+            "identify-duplicated" => {
+                #[allow(unused_variables)]
+                let ::tauri_bindgen_host::tauri::Invoke {
+                    message: __tauri_message__,
+                    resolver: __tauri_resolver__,
+                } = invoke;
+
+                let result = ctx.identify_duplicated(
+                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "identify-duplicated",
+                            key: "num",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                    },
+                );
+
+                __tauri_resolver__
+                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+            }
+            "add-one-distinguishable-num" => {
+                #[allow(unused_variables)]
+                let ::tauri_bindgen_host::tauri::Invoke {
+                    message: __tauri_message__,
+                    resolver: __tauri_resolver__,
+                } = invoke;
+
+                let result = ctx.add_one_distinguishable_num(
+                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "add-one-distinguishable-num",
+                            key: "num",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                    },
+                );
+
+                __tauri_resolver__
+                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+            }
+            "identify-distinguishable-num" => {
+                #[allow(unused_variables)]
+                let ::tauri_bindgen_host::tauri::Invoke {
+                    message: __tauri_message__,
+                    resolver: __tauri_resolver__,
+                } = invoke;
+
+                let result = ctx.identify_distinguishable_num(
+                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "identify-distinguishable-num",
+                            key: "num",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                    },
+                );
+
+                __tauri_resolver__
+                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+            }
+            _ => invoke.resolver.reject("Not Found"),
+        }
     }
 }

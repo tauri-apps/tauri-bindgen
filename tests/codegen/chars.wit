@@ -5,7 +5,7 @@ interface chars {
   return-char: func() -> char
 }
 
-world the-world {
+world chars {
   import imports: chars
   export exports: chars
   default export chars

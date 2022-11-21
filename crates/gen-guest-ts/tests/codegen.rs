@@ -1,7 +1,7 @@
 use std::path::Path;
 
-use bindgen_core::{Files, WorldGenerator};
-use gen_guest_ts::*;
+use tauri_bindgen_core::{Files, WorldGenerator};
+use tauri_bindgen_gen_guest_ts::*;
 use wit_component::ComponentInterfaces;
 use wit_parser::World;
 
@@ -19,17 +19,17 @@ fn gen_world(mut gen: Box<dyn WorldGenerator>, name: impl AsRef<str>, path: impl
 }
 
 #[test]
-fn char() {
+fn chars() {
     let opts = Opts {
         prettier: true,
         skip: vec![]
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "char", "../../tests/codegen/char.wit");
+    let (filename, contents) = gen_world(gen, "chars", "../../tests/codegen/chars.wit");
 
-    assert_eq!(filename, "char.ts");
-    assert_eq!(contents, include_str!("./char.ts"));
+    assert_eq!(filename, "chars.ts");
+    assert_eq!(contents, include_str!("./chars.ts"));
 }
 
 #[test]

@@ -2,7 +2,7 @@ use heck::*;
 use pulldown_cmark::{html, Event, LinkType, Parser, Tag};
 use std::collections::HashMap;
 use std::fmt::Write;
-use bindgen_core::{
+use tauri_bindgen_core::{
     uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator,
 };
 use wit_parser::*;
@@ -284,7 +284,7 @@ impl InterfaceGenerator<'_> {
     }
 }
 
-impl<'a> bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
+impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     fn iface(&self) -> &'a Interface {
         self.iface
     }

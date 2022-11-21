@@ -1,11 +1,11 @@
 [package]
-name = "gen-host"
+name = "tauri-bindgen-gen-host"
 version.workspace = true
 edition.workspace = true
 
 [dependencies]
-gen-rust.workspace = true
-bindgen-core.workspace = true
+tauri-bindgen-gen-rust.workspace = true
+tauri-bindgen-core.workspace = true
 wit-parser.workspace = true
 heck.workspace = true
 clap = { workspace = true, optional = true }
@@ -13,7 +13,8 @@ clap = { workspace = true, optional = true }
 [dev-dependencies]
 wit-component.workspace = true
 anyhow.workspace = true
-host = { path = "../host" }
+tauri-bindgen-host = { path = "../host" }
+serde = { version = "1.0.140", features = ["derive"] }
 
 [features]
 clap = ["dep:clap"]

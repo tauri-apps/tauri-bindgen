@@ -1,24 +1,36 @@
 #[allow(clippy::all)]
 pub mod imports {
     #[repr(u8)]
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum Error {
         Success,
         Failure,
     }
-    #[host::async_trait]
     pub trait Imports: Sized {
-        async fn option_test(&mut self) -> anyhow::Result<Result<Option<String>, Error>>;
+        fn option_test(
+            &self,
+        ) -> ::tauri_bindgen_host::anyhow::Result<Result<Option<String>, Error>>;
     }
 
-    pub fn add_to_linker<T, U>(
-        _linker: &mut (),
-        _get: impl Fn(&mut T) -> &mut U + Send + Sync + Copy + 'static,
-    ) -> anyhow::Result<()>
+    pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        T: Send,
-        U: Imports + Send,
+        U: Imports + Send + Sync + 'static,
+        R: ::tauri_bindgen_host::tauri::Runtime,
     {
-        todo!()
+        move |invoke| match invoke.message.command() {
+            "option-test" => {
+                #[allow(unused_variables)]
+                let ::tauri_bindgen_host::tauri::Invoke {
+                    message: __tauri_message__,
+                    resolver: __tauri_resolver__,
+                } = invoke;
+
+                let result = ctx.option_test();
+
+                __tauri_resolver__
+                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+            }
+            _ => invoke.resolver.reject("Not Found"),
+        }
     }
 }
