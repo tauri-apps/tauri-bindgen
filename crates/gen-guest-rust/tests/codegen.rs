@@ -35,7 +35,7 @@ fn char() {
 }
 
 #[test]
-fn convention() {
+fn conventions() {
     let opts = Opts {
         rustfmt: true,
         no_std: false,

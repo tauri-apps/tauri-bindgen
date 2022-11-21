@@ -1,7 +1,17 @@
 #[allow(clippy::all, unused)]
 pub mod import_unions {
+
+    #[::guest_rust::wasm_bindgen::prelude::wasm_bindgen]
+    extern "C" {
+        #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
+        pub async fn invoke(
+            cmd: ::guest_rust::wasm_bindgen::JsValue,
+            args: ::guest_rust::wasm_bindgen::JsValue,
+        ) -> ::guest_rust::wasm_bindgen::JsValue;
+    }
+
     /// A union of all of the integral types
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum AllIntegers {
         /// Bool is equivalent to a 1 bit integer
         /// and is treated that way in some languages
@@ -15,22 +25,22 @@ pub mod import_unions {
         I32(i32),
         I64(i64),
     }
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum AllFloats {
         F32(f32),
         F64(f64),
     }
-    #[derive(Debug, Clone)]
+    #[derive(Debug, Clone, ::serde::Serialize, ::serde::Deserialize)]
     pub enum AllTextParam<'a> {
         Char(char),
         String(&'a str),
     }
-    #[derive(Debug, Clone)]
+    #[derive(Debug, Clone, ::serde::Serialize, ::serde::Deserialize)]
     pub enum AllTextResult {
         Char(char),
         String(String),
     }
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum DuplicatedS32 {
         /// The first s32
         I320(i32),
@@ -40,41 +50,162 @@ pub mod import_unions {
         I322(i32),
     }
     /// A type containing numeric types that are distinct in most languages
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum DistinguishableNum {
         /// A Floating Point Number
         F64(f64),
         /// A Signed Integer
         I64(i64),
     }
-    pub fn add_one_integer(num: AllIntegers) -> AllIntegers {
-        todo!()
+    pub async fn add_one_integer(num: AllIntegers) -> AllIntegers {
+        #[derive(::serde::Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct Params {
+            num: AllIntegers,
+        }
+        let params = Params { num };
+        let raw = invoke(
+            ::guest_rust::wasm_bindgen::JsValue::from_str("plugin:import_unions|add_one_integer"),
+            ::guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+        )
+        .await;
+        ::guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
     }
-    pub fn add_one_float(num: AllFloats) -> AllFloats {
-        todo!()
+    pub async fn add_one_float(num: AllFloats) -> AllFloats {
+        #[derive(::serde::Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct Params {
+            num: AllFloats,
+        }
+        let params = Params { num };
+        let raw = invoke(
+            ::guest_rust::wasm_bindgen::JsValue::from_str("plugin:import_unions|add_one_float"),
+            ::guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+        )
+        .await;
+        ::guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
     }
-    pub fn replace_first_char(text: AllTextParam<'_>, letter: char) -> AllTextResult {
-        todo!()
+    pub async fn replace_first_char(text: AllTextParam<'_>, letter: char) -> AllTextResult {
+        #[derive(::serde::Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct Params<'a> {
+            text: AllTextParam<'a>,
+            letter: char,
+        }
+        let params = Params { text, letter };
+        let raw = invoke(
+            ::guest_rust::wasm_bindgen::JsValue::from_str(
+                "plugin:import_unions|replace_first_char",
+            ),
+            ::guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+        )
+        .await;
+        ::guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
     }
-    pub fn identify_integer(num: AllIntegers) -> u8 {
-        todo!()
+    pub async fn identify_integer(num: AllIntegers) -> u8 {
+        #[derive(::serde::Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct Params {
+            num: AllIntegers,
+        }
+        let params = Params { num };
+        let raw = invoke(
+            ::guest_rust::wasm_bindgen::JsValue::from_str("plugin:import_unions|identify_integer"),
+            ::guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+        )
+        .await;
+        ::guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
     }
-    pub fn identify_float(num: AllFloats) -> u8 {
-        todo!()
+    pub async fn identify_float(num: AllFloats) -> u8 {
+        #[derive(::serde::Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct Params {
+            num: AllFloats,
+        }
+        let params = Params { num };
+        let raw = invoke(
+            ::guest_rust::wasm_bindgen::JsValue::from_str("plugin:import_unions|identify_float"),
+            ::guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+        )
+        .await;
+        ::guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
     }
-    pub fn identify_text(text: AllTextParam<'_>) -> u8 {
-        todo!()
+    pub async fn identify_text(text: AllTextParam<'_>) -> u8 {
+        #[derive(::serde::Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct Params<'a> {
+            text: AllTextParam<'a>,
+        }
+        let params = Params { text };
+        let raw = invoke(
+            ::guest_rust::wasm_bindgen::JsValue::from_str("plugin:import_unions|identify_text"),
+            ::guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+        )
+        .await;
+        ::guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
     }
-    pub fn add_one_duplicated(num: DuplicatedS32) -> DuplicatedS32 {
-        todo!()
+    pub async fn add_one_duplicated(num: DuplicatedS32) -> DuplicatedS32 {
+        #[derive(::serde::Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct Params {
+            num: DuplicatedS32,
+        }
+        let params = Params { num };
+        let raw = invoke(
+            ::guest_rust::wasm_bindgen::JsValue::from_str(
+                "plugin:import_unions|add_one_duplicated",
+            ),
+            ::guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+        )
+        .await;
+        ::guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
     }
-    pub fn identify_duplicated(num: DuplicatedS32) -> u8 {
-        todo!()
+    pub async fn identify_duplicated(num: DuplicatedS32) -> u8 {
+        #[derive(::serde::Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct Params {
+            num: DuplicatedS32,
+        }
+        let params = Params { num };
+        let raw = invoke(
+            ::guest_rust::wasm_bindgen::JsValue::from_str(
+                "plugin:import_unions|identify_duplicated",
+            ),
+            ::guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+        )
+        .await;
+        ::guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
     }
-    pub fn add_one_distinguishable_num(num: DistinguishableNum) -> DistinguishableNum {
-        todo!()
+    pub async fn add_one_distinguishable_num(num: DistinguishableNum) -> DistinguishableNum {
+        #[derive(::serde::Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct Params {
+            num: DistinguishableNum,
+        }
+        let params = Params { num };
+        let raw = invoke(
+            ::guest_rust::wasm_bindgen::JsValue::from_str(
+                "plugin:import_unions|add_one_distinguishable_num",
+            ),
+            ::guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+        )
+        .await;
+        ::guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
     }
-    pub fn identify_distinguishable_num(num: DistinguishableNum) -> u8 {
-        todo!()
+    pub async fn identify_distinguishable_num(num: DistinguishableNum) -> u8 {
+        #[derive(::serde::Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct Params {
+            num: DistinguishableNum,
+        }
+        let params = Params { num };
+        let raw = invoke(
+            ::guest_rust::wasm_bindgen::JsValue::from_str(
+                "plugin:import_unions|identify_distinguishable_num",
+            ),
+            ::guest_rust::serde_wasm_bindgen::to_value(&params).unwrap(),
+        )
+        .await;
+        ::guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()
     }
 }
