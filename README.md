@@ -3,7 +3,7 @@
     <code>tauri-bindgen</code>
   </h1>
   <p>
-    <strong>Typesafe language bindings generator for Tauris IPC bridge</strong>
+    <strong>Typesafe language bindings generator for the Tauri IPC bridge</strong>
   </p>
 </div>
 
