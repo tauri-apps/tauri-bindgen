@@ -1,9 +1,0 @@
-interface greet {
-  greet: func(name: string) -> string
-}
-
-world the-world {
-  import greet: greet
-  export greet: greet
-  default export greet
-}
