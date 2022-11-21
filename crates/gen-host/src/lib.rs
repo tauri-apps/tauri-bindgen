@@ -321,7 +321,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     }
 
     fn type_record(&mut self, id: TypeId, _name: &str, record: &wit_parser::Record, docs: &Docs) {
-        self.print_typedef_record(id, record, docs);
+        self.print_typedef_record(id, record, docs, get_serde_attrs);
     }
 
     fn type_flags(&mut self, _id: TypeId, name: &str, flags: &wit_parser::Flags, docs: &Docs) {
@@ -363,7 +363,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         variant: &wit_parser::Variant,
         docs: &Docs,
     ) {
-        self.print_typedef_variant(id, variant, docs);
+        self.print_typedef_variant(id, variant, docs, get_serde_attrs);
     }
 
     fn type_option(&mut self, id: TypeId, _name: &str, payload: &Type, docs: &Docs) {
@@ -375,11 +375,11 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     }
 
     fn type_union(&mut self, id: TypeId, _name: &str, union: &wit_parser::Union, docs: &Docs) {
-        self.print_typedef_union(id, union, docs);
+        self.print_typedef_union(id, union, docs, get_serde_attrs);
     }
 
     fn type_enum(&mut self, id: TypeId, _name: &str, enum_: &wit_parser::Enum, docs: &Docs) {
-        self.print_typedef_enum(id, enum_, docs);
+        self.print_typedef_enum(id, enum_, docs, get_serde_attrs);
     }
 
     fn type_alias(&mut self, id: TypeId, _name: &str, ty: &Type, docs: &Docs) {
@@ -398,4 +398,30 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.print_ty(ty, TypeMode::Owned);
         self.src.push_str(";\n");
     }
+}
+
+fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<String> {
+    let mut attrs = vec![];
+
+    match (info.param, info.result) {
+        (true, false) => {
+            attrs.push("::tauri_bindgen_host::serde::Deserialize");
+        }
+        (true, true) if uses_two_names && name.ends_with("Param") => {
+            attrs.push("::tauri_bindgen_host::serde::Deserialize");
+        }
+        (false, true) => {
+            attrs.push("::tauri_bindgen_host::serde::Serialize");
+        }
+        (true, true) if uses_two_names && name.ends_with("Result") => {
+            attrs.push("::tauri_bindgen_host::serde::Serialize");
+        }
+        (true, true) => {
+            attrs.push("::tauri_bindgen_host::serde::Serialize");
+            attrs.push("::tauri_bindgen_host::serde::Deserialize");
+        }
+        _ => return None,
+    }
+
+    Some(format!("#[derive({})]\n", attrs.join(", ")))
 }

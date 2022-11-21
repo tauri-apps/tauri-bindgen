@@ -16,7 +16,7 @@ anyhow.workspace = true
 wasm-bindgen = { version = "0.2.82", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4.32"
 js-sys = "0.3.59" 
-guest-rust = { path = "../guest-rust" }
+tauri-bindgen-guest-rust = { path = "../guest-rust" }
 serde = { version = "1.0.140", features = ["derive"] }
 
 [features]

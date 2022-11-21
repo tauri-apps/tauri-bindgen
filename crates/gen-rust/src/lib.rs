@@ -1,7 +1,7 @@
-use tauri_bindgen_core::TypeInfo;
 use heck::*;
 use std::collections::HashMap;
 use std::fmt::Write;
+use tauri_bindgen_core::TypeInfo;
 use wit_parser::*;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -180,7 +180,13 @@ pub trait RustGenerator<'a> {
         self.push_str(">");
     }
 
-    fn print_typedef_record(&mut self, id: TypeId, record: &Record, docs: &Docs) {
+    fn print_typedef_record(
+        &mut self,
+        id: TypeId,
+        record: &Record,
+        docs: &Docs,
+        attrs: impl Fn(&str, bool, TypeInfo) -> Option<String>,
+    ) {
         let info = self.info(id);
         for (name, mode) in self.modes_of(id) {
             let lt = self.lifetime_for(&info, mode);
@@ -188,13 +194,12 @@ pub trait RustGenerator<'a> {
 
             if !info.owns_data() {
                 self.push_str("#[repr(C)]\n");
-                self.push_str(
-                    "#[derive(Debug, Copy, Clone, ::serde::Serialize, ::serde::Deserialize)]\n",
-                );
+                self.push_str("#[derive(Debug, Copy, Clone)]\n");
             } else {
-                self.push_str(
-                    "#[derive(Debug, Clone, ::serde::Serialize, ::serde::Deserialize)]\n",
-                );
+                self.push_str("#[derive(Debug, Clone)]\n");
+            }
+            if let Some(attrs) = attrs(&name, self.uses_two_names(&info), info) {
+                self.push_str(&attrs);
             }
             self.push_str("#[serde(rename_all = \"camelCase\")]\n");
             self.push_str(&format!("pub struct {}", name));
@@ -300,8 +305,13 @@ pub trait RustGenerator<'a> {
         }
     }
 
-    fn print_typedef_variant(&mut self, id: TypeId, variant: &Variant, docs: &Docs)
-    where
+    fn print_typedef_variant(
+        &mut self,
+        id: TypeId,
+        variant: &Variant,
+        docs: &Docs,
+        attrs: impl Fn(&str, bool, TypeInfo) -> Option<String>,
+    ) where
         Self: Sized,
     {
         self.print_rust_enum(
@@ -311,11 +321,17 @@ pub trait RustGenerator<'a> {
                 .iter()
                 .map(|c| (c.name.to_upper_camel_case(), &c.docs, c.ty.as_ref())),
             docs,
+            attrs,
         );
     }
 
-    fn print_typedef_union(&mut self, id: TypeId, union: &Union, docs: &Docs)
-    where
+    fn print_typedef_union(
+        &mut self,
+        id: TypeId,
+        union: &Union,
+        docs: &Docs,
+        attrs: impl Fn(&str, bool, TypeInfo) -> Option<String>,
+    ) where
         Self: Sized,
     {
         self.print_rust_enum(
@@ -325,6 +341,7 @@ pub trait RustGenerator<'a> {
                 .zip(&union.cases)
                 .map(|(name, case)| (name, &case.docs, Some(&case.ty))),
             docs,
+            attrs,
         );
     }
 
@@ -333,24 +350,24 @@ pub trait RustGenerator<'a> {
         id: TypeId,
         cases: impl IntoIterator<Item = (String, &'b Docs, Option<&'b Type>)> + Clone,
         docs: &Docs,
+        attrs: impl Fn(&str, bool, TypeInfo) -> Option<String>,
     ) where
         Self: Sized,
     {
         let info = self.info(id);
 
-        for (name, mode) in self.modes_of(id) {
-            let lt = self.lifetime_for(&info, mode);
+        for (name, type_mode) in self.modes_of(id) {
+            let lt = self.lifetime_for(&info, type_mode);
             let name = name.to_upper_camel_case();
 
             self.print_rustdoc(docs);
             if !info.owns_data() {
-                self.push_str(
-                    "#[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]\n",
-                );
+                self.push_str("#[derive(Debug, Clone, Copy)]\n");
             } else {
-                self.push_str(
-                    "#[derive(Debug, Clone, ::serde::Serialize, ::serde::Deserialize)]\n",
-                );
+                self.push_str("#[derive(Debug, Clone)]\n");
+            }
+            if let Some(attrs) = attrs(&name, self.uses_two_names(&info), info) {
+                self.push_str(&attrs);
             }
             self.push_str(&format!("pub enum {name}"));
             self.print_generics(lt);
@@ -362,7 +379,7 @@ pub trait RustGenerator<'a> {
 
                 if let Some(payload) = payload {
                     self.push_str("(");
-                    self.print_ty(payload, mode);
+                    self.print_ty(payload, type_mode);
                     self.push_str(")");
                 }
 
@@ -372,24 +389,29 @@ pub trait RustGenerator<'a> {
         }
     }
 
-    fn print_typedef_enum(&mut self, id: TypeId, enum_: &Enum, docs: &Docs) {
+    fn print_typedef_enum(
+        &mut self,
+        id: TypeId,
+        enum_: &Enum,
+        docs: &Docs,
+        attrs: impl Fn(&str, bool, TypeInfo) -> Option<String>,
+    ) {
         let info = self.info(id);
 
-        for (name, mode) in self.modes_of(id) {
-            let lt = self.lifetime_for(&info, mode);
+        for (name, type_mode) in self.modes_of(id) {
+            let lt = self.lifetime_for(&info, type_mode);
 
             self.print_rustdoc(docs);
             self.push_str("#[repr(");
             self.int_repr(enum_.tag());
             self.push_str(")]\n");
             if !info.owns_data() {
-                self.push_str(
-                    "#[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]\n",
-                );
+                self.push_str("#[derive(Debug, Clone, Copy)]\n");
             } else {
-                self.push_str(
-                    "#[derive(Debug, Clone, ::serde::Serialize, ::serde::Deserialize)]\n",
-                );
+                self.push_str("#[derive(Debug, Clone)]\n");
+            }
+            if let Some(attrs) = attrs(&name, self.uses_two_names(&info), info) {
+                self.push_str(&attrs);
             }
             self.push_str(&format!("pub enum {name}"));
             self.print_generics(lt);
@@ -614,7 +636,10 @@ pub trait RustGenerator<'a> {
         let info = self.info(ty);
         let mut result = Vec::new();
         if info.param {
-            result.push((self.param_name(ty), self.default_param_mode()));
+            result.push((
+                self.param_name(ty),
+                self.default_param_mode(),
+            ));
         }
         if info.result && (!info.param || self.uses_two_names(&info)) {
             result.push((self.result_name(ty), TypeMode::Owned));

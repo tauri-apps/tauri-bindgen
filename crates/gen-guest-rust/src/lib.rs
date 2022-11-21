@@ -132,10 +132,10 @@ impl<'a> InterfaceGenerator<'a> {
         uwriteln!(
             self.src,
             r#"
-        #[::guest_rust::wasm_bindgen::prelude::wasm_bindgen]
+        #[::tauri_bindgen_guest_rust::wasm_bindgen::prelude::wasm_bindgen]
         extern "C" {{
             #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
-            pub async fn invoke(cmd: ::guest_rust::wasm_bindgen::JsValue, args: ::guest_rust::wasm_bindgen::JsValue) -> ::guest_rust::wasm_bindgen::JsValue;
+            pub async fn invoke(cmd: ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue, args: ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue) -> ::tauri_bindgen_guest_rust::wasm_bindgen::JsValue;
         }}
         "#
         );
@@ -157,7 +157,7 @@ impl<'a> InterfaceGenerator<'a> {
         self.src.push_str("{\n");
 
         if !func.params.is_empty() {
-            self.push_str("#[derive(::serde::Serialize)]\n");
+            self.push_str("#[derive(::tauri_bindgen_guest_rust::serde::Serialize)]\n");
             self.push_str("#[serde(rename_all = \"camelCase\")]\n");
 
             let print_lifetime = func.params.iter().any(|(_, ty)| match ty {
@@ -199,21 +199,21 @@ impl<'a> InterfaceGenerator<'a> {
 
         uwrite!(
             self.src,
-            r#"let raw = invoke(::guest_rust::wasm_bindgen::JsValue::from_str("plugin:{}|{}"),"#,
+            r#"let raw = invoke(::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::from_str("plugin:{}|{}"),"#,
             mod_name.to_snake_case(),
             func.name.to_snake_case()
         );
 
         if func.params.is_empty() {
-            self.push_str("::guest_rust::wasm_bindgen::JsValue::NULL");
+            self.push_str("::tauri_bindgen_guest_rust::wasm_bindgen::JsValue::NULL");
         } else {
-            self.push_str("::guest_rust::serde_wasm_bindgen::to_value(&params).unwrap()");
+            self.push_str("::tauri_bindgen_guest_rust::serde_wasm_bindgen::to_value(&params).unwrap()");
         }
 
         self.push_str(").await;\n");
 
         self.src
-            .push_str("::guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()\n");
+            .push_str("::tauri_bindgen_guest_rust::serde_wasm_bindgen::from_value(raw).unwrap()\n");
 
         self.src.push_str("}\n");
 
@@ -260,7 +260,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     }
 
     fn type_record(&mut self, id: TypeId, _name: &str, record: &Record, docs: &Docs) {
-        self.print_typedef_record(id, record, docs);
+        self.print_typedef_record(id, record, docs, get_serde_attrs);
     }
 
     fn type_tuple(&mut self, id: TypeId, _name: &str, tuple: &Tuple, docs: &Docs) {
@@ -268,7 +268,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     }
 
     fn type_flags(&mut self, _id: TypeId, name: &str, flags: &Flags, docs: &Docs) {
-        self.push_str("guest_rust::bitflags! {{\n");
+        self.push_str("::tauri_bindgen_guest_rust::bitflags! {{\n");
         self.print_rustdoc(docs);
         self.push_str(&format!("struct {}: ", name));
 
@@ -296,11 +296,11 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     }
 
     fn type_variant(&mut self, id: TypeId, _name: &str, variant: &Variant, docs: &Docs) {
-        self.print_typedef_variant(id, variant, docs);
+        self.print_typedef_variant(id, variant, docs, get_serde_attrs);
     }
 
     fn type_union(&mut self, id: TypeId, _name: &str, union: &Union, docs: &Docs) {
-        self.print_typedef_union(id, union, docs);
+        self.print_typedef_union(id, union, docs, get_serde_attrs);
     }
 
     fn type_option(&mut self, id: TypeId, _name: &str, payload: &Type, docs: &Docs) {
@@ -312,7 +312,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     }
 
     fn type_enum(&mut self, id: TypeId, _name: &str, enum_: &Enum, docs: &Docs) {
-        self.print_typedef_enum(id, enum_, docs);
+        self.print_typedef_enum(id, enum_, docs, get_serde_attrs);
     }
 
     fn type_alias(&mut self, id: TypeId, _name: &str, ty: &Type, docs: &Docs) {
@@ -331,4 +331,30 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.print_ty(ty, TypeMode::Owned);
         self.src.push_str(";\n");
     }
+}
+
+fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<String> {
+    let mut attrs = vec![];
+
+    match (info.param, info.result) {
+        (true, false) => {
+            attrs.push("::tauri_bindgen_guest_rust::serde::Serialize");
+        }
+        (true, true) if uses_two_names && name.ends_with("Param") => {
+            attrs.push("::tauri_bindgen_guest_rust::serde::Serialize");
+        }
+        (false, true) => {
+            attrs.push("::tauri_bindgen_guest_rust::serde::Deserialize");
+        }
+        (true, true) if uses_two_names && name.ends_with("Result") => {
+            attrs.push("::tauri_bindgen_guest_rust::serde::Deserialize");
+        }
+        (true, true) => {
+            attrs.push("::tauri_bindgen_guest_rust::serde::Serialize");
+            attrs.push("::tauri_bindgen_guest_rust::serde::Deserialize");
+        }
+        _ => return None,
+    }
+    
+    Some(format!("#[derive({})]\n", attrs.join(", ")))
 }
