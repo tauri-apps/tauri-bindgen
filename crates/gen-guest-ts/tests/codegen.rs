@@ -61,6 +61,20 @@ fn empty() {
 }
 
 #[test]
+fn flags() {
+    let opts = Opts {
+        prettier: true,
+        skip: vec![]
+    };
+    let gen = opts.build();
+
+    let (filename, contents) = gen_world(gen, "flags", "../../tests/codegen/flags.wit");
+
+    assert_eq!(filename, "flags.ts");
+    assert_eq!(contents, include_str!("./flags.ts"));
+}
+
+#[test]
 fn floats() {
     let opts = Opts {
         prettier: true,
@@ -158,19 +172,19 @@ fn simple_lists() {
     assert_eq!(contents, include_str!("./simple-lists.ts"));
 }
 
-// #[test]
-// fn small_anonymous() {
-//     let opts = Opts {
-//         prettier: true,
-//         skip: vec![]
-//     };
-//     let gen = opts.build();
+#[test]
+fn small_anonymous() {
+    let opts = Opts {
+        prettier: true,
+        skip: vec![]
+    };
+    let gen = opts.build();
 
-//     let (filename, contents) = gen_world(gen, "small-anonymous", "../../tests/codegen/small-anonymous.wit");
+    let (filename, contents) = gen_world(gen, "small-anonymous", "../../tests/codegen/small-anonymous.wit");
 
-//     assert_eq!(filename, "small-anonymous.ts");
-//     assert_eq!(contents, include_str!("./small-anonymous.ts"));
-// }
+    assert_eq!(filename, "small-anonymous.ts");
+    assert_eq!(contents, include_str!("./small-anonymous.ts"));
+}
 
 #[test]
 fn strings() {
@@ -200,16 +214,16 @@ fn unions() {
     assert_eq!(contents, include_str!("./unions.ts"));
 }
 
-// #[test]
-// fn variants() {
-//     let opts = Opts {
-//         prettier: true,
-//         skip: vec![]
-//     };
-//     let gen = opts.build();
+#[test]
+fn variants() {
+    let opts = Opts {
+        prettier: true,
+        skip: vec![]
+    };
+    let gen = opts.build();
 
-//     let (filename, contents) = gen_world(gen, "variants", "../../tests/codegen/variants.wit");
+    let (filename, contents) = gen_world(gen, "variants", "../../tests/codegen/variants.wit");
 
-//     assert_eq!(filename, "variants.ts");
-//     assert_eq!(contents, include_str!("./variants.ts"));
-// }
+    assert_eq!(filename, "variants.ts");
+    assert_eq!(contents, include_str!("./variants.ts"));
+}

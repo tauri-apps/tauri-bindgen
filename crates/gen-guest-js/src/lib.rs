@@ -228,8 +228,23 @@ impl<'a> InterfaceGenerator<'a> {
                     TypeDefKind::Tuple(ty) => self.print_tuple(ty),
                     TypeDefKind::Variant(_) => todo!(),
                     TypeDefKind::Enum(_) => todo!(),
-                    TypeDefKind::Option(_) => todo!(),
-                    TypeDefKind::Result(_) => todo!(),
+                    TypeDefKind::Option(t) => {
+                        if self.is_nullable(t) {
+                            self.push_str("Option<");
+                            self.print_ty(t);
+                            self.push_str(">");
+                        } else {
+                            self.print_ty(t);
+                            self.push_str(" | null");
+                        }
+                    }
+                    TypeDefKind::Result(r) => {
+                        // self.push_str("Result<");
+                        self.print_optional_ty(r.ok.as_ref());
+                        // self.push_str(", ");
+                        // self.print_optional_ty(r.err.as_ref());
+                        // self.push_str(">");
+                    }
                     TypeDefKind::Union(_) => todo!(),
                     TypeDefKind::List(ty) => self.print_list(ty),
                     TypeDefKind::Future(_) => todo!(),
@@ -237,6 +252,13 @@ impl<'a> InterfaceGenerator<'a> {
                     TypeDefKind::Type(ty) => self.print_ty(ty),
                 }
             }
+        }
+    }
+
+    fn print_optional_ty(&mut self, ty: Option<&Type>) {
+        match ty {
+            Some(ty) => self.print_ty(ty),
+            None => self.push_str("void"),
         }
     }
 
@@ -280,6 +302,33 @@ impl<'a> InterfaceGenerator<'a> {
                 TypeDefKind::Type(t) => self.array_ty(iface, t),
                 _ => None,
             },
+        }
+    }
+
+    fn is_nullable(&self, ty: &Type) -> bool {
+        let id = match ty {
+            Type::Id(id) => *id,
+            _ => return false,
+        };
+        match &self.iface.types[id].kind {
+            // If `ty` points to an `option<T>`, then `ty` can be represented
+            // with `null` if `t` itself can't be represented with null. For
+            // example `option<option<u32>>` can't be represented with `null`
+            // since that's ambiguous if it's `none` or `some(none)`.
+            //
+            // Note, oddly enough, that `option<option<option<u32>>>` can be
+            // represented as `null` since:
+            //
+            // * `null` => `none`
+            // * `{ tag: "none" }` => `some(none)`
+            // * `{ tag: "some", val: null }` => `some(some(none))`
+            // * `{ tag: "some", val: 1 }` => `some(some(some(1)))`
+            //
+            // It's doubtful anyone would actually rely on that though due to
+            // how confusing it is.
+            TypeDefKind::Option(ty) => !self.is_nullable(ty),
+            TypeDefKind::Type(t) => self.is_nullable(t),
+            _ => false,
         }
     }
 }

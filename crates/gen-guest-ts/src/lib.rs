@@ -1,11 +1,11 @@
-use tauri_bindgen_core::{uwriteln, InterfaceGenerator as _, Source, WorldGenerator, Files};
 use heck::ToUpperCamelCase;
 use heck::*;
 use std::collections::HashSet;
 use std::fmt::Write as _;
-use std::io::{Write, Read};
+use std::io::{Read, Write};
 use std::mem;
 use std::process::{Command, Stdio};
+use tauri_bindgen_core::{uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator};
 use wit_parser::*;
 
 #[derive(Debug, Clone, Default)]
@@ -36,17 +36,12 @@ struct JavaScript {
 }
 
 impl WorldGenerator for JavaScript {
-    fn import(
-        &mut self,
-        name: &str,
-        iface: &wit_parser::Interface,
-        _files: &mut Files,
-    ) {
+    fn import(&mut self, name: &str, iface: &wit_parser::Interface, _files: &mut Files) {
         let mut gen = InterfaceGenerator::new(self, iface);
 
         gen.print_intro();
         gen.types();
-    
+
         for func in iface.functions.iter() {
             gen.generate_guest_import(name, func);
         }
@@ -137,7 +132,8 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn print_intro(&mut self) {
-        self.push_str("
+        self.push_str(
+            "
         interface Tauri {
             invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T>
         }
@@ -147,7 +143,8 @@ impl<'a> InterfaceGenerator<'a> {
             }
         }
         const { invoke } = window.__TAURI__.tauri;
-        ");
+        ",
+        );
     }
 
     fn print_outro(&mut self) {
@@ -210,7 +207,7 @@ impl<'a> InterfaceGenerator<'a> {
         }
 
         self.push_str("await invoke<");
-        
+
         if let Some((ok_ty, _)) = func.results.throws(self.iface) {
             self.print_optional_ty(ok_ty);
         } else {
@@ -284,8 +281,25 @@ impl<'a> InterfaceGenerator<'a> {
                     TypeDefKind::Tuple(ty) => self.print_tuple(ty),
                     TypeDefKind::Variant(_) => todo!(),
                     TypeDefKind::Enum(_) => todo!(),
-                    TypeDefKind::Option(_) => todo!(),
-                    TypeDefKind::Result(_) => todo!(),
+                    TypeDefKind::Option(t) => {
+                        if self.is_nullable(t) {
+                            self.needs_ty_option = true;
+                            self.push_str("Option<");
+                            self.print_ty(t);
+                            self.push_str(">");
+                        } else {
+                            self.print_ty(t);
+                            self.push_str(" | null");
+                        }
+                    }
+                    TypeDefKind::Result(r) => {
+                        self.needs_ty_result = true;
+                        self.push_str("Result<");
+                        self.print_optional_ty(r.ok.as_ref());
+                        self.push_str(", ");
+                        self.print_optional_ty(r.err.as_ref());
+                        self.push_str(">");
+                    }
                     TypeDefKind::Union(_) => todo!(),
                     TypeDefKind::List(ty) => self.print_list(ty),
                     TypeDefKind::Future(_) => todo!(),
@@ -407,14 +421,41 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str("};\n");
     }
 
-    fn type_flags(
-        &mut self,
-        _id: wit_parser::TypeId,
-        _name: &str,
-        _flags: &wit_parser::Flags,
-        _docs: &wit_parser::Docs,
-    ) {
-        todo!()
+    fn type_flags(&mut self, _id: TypeId, name: &str, flags: &Flags, docs: &Docs) {
+        self.print_typedoc(docs);
+
+        match flags.repr() {
+            FlagsRepr::U8 | FlagsRepr::U16 => {
+                self.push_str(&format!("export enum {} {{\n", name.to_upper_camel_case()))
+            }
+            FlagsRepr::U32(_) => {
+                self.push_str(&format!("export type {} = typeof {};", name.to_upper_camel_case(), name.to_upper_camel_case()));
+                    self.push_str(&format!(
+                    "export const {} = {{\n",
+                    name.to_upper_camel_case()
+                ))
+            },
+        }
+
+        let base: usize = 1;
+        for (i, flag) in flags.flags.iter().enumerate() {
+            self.print_typedoc(&flag.docs);
+
+            match flags.repr() {
+                FlagsRepr::U8 | FlagsRepr::U16 => self.push_str(&format!(
+                    "{} = {},\n",
+                    flag.name.to_upper_camel_case(),
+                    base << i
+                )),
+                FlagsRepr::U32(_) => self.push_str(&format!(
+                    "{}: BigInt({}),\n",
+                    flag.name.to_upper_camel_case(),
+                    base << i
+                )),
+            }
+        }
+
+        self.push_str("}\n");
     }
 
     fn type_tuple(

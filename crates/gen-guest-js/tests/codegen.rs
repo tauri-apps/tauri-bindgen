@@ -61,6 +61,20 @@ fn empty() {
 }
 
 #[test]
+fn flags() {
+    let opts = Opts {
+        prettier: true,
+        skip: vec![]
+    };
+    let gen = opts.build();
+
+    let (filename, contents) = gen_world(gen, "flags", "../../tests/codegen/flags.wit");
+
+    assert_eq!(filename, "flags.js");
+    assert_eq!(contents, include_str!("./flags.js"));
+}
+
+#[test]
 fn floats() {
     let opts = Opts {
         prettier: true,
@@ -158,19 +172,19 @@ fn simple_lists() {
     assert_eq!(contents, include_str!("./simple-lists.js"));
 }
 
-// #[test]
-// fn small_anonymous() {
-//     let opts = Opts {
-//         prettier: true,
-//         skip: vec![]
-//     };
-//     let gen = opts.build();
+#[test]
+fn small_anonymous() {
+    let opts = Opts {
+        prettier: true,
+        skip: vec![]
+    };
+    let gen = opts.build();
 
-//     let (filename, contents) = gen_world(gen, "small-anonymous", "../../tests/codegen/small-anonymous.wit");
+    let (filename, contents) = gen_world(gen, "small-anonymous", "../../tests/codegen/small-anonymous.wit");
 
-//     assert_eq!(filename, "small-anonymous.js");
-//     assert_eq!(contents, include_str!("./small-anonymous.js"));
-// }
+    assert_eq!(filename, "small-anonymous.js");
+    assert_eq!(contents, include_str!("./small-anonymous.js"));
+}
 
 #[test]
 fn strings() {
@@ -200,16 +214,16 @@ fn unions() {
     assert_eq!(contents, include_str!("./unions.js"));
 }
 
-// #[test]
-// fn variants() {
-//     let opts = Opts {
-//         prettier: true,
-//         skip: vec![]
-//     };
-//     let gen = opts.build();
+#[test]
+fn variants() {
+    let opts = Opts {
+        prettier: true,
+        skip: vec![]
+    };
+    let gen = opts.build();
 
-//     let (filename, contents) = gen_world(gen, "variants", "../../tests/codegen/variants.wit");
+    let (filename, contents) = gen_world(gen, "variants", "../../tests/codegen/variants.wit");
 
-//     assert_eq!(filename, "variants.js");
-//     assert_eq!(contents, include_str!("./variants.js"));
-// }
+    assert_eq!(filename, "variants.js");
+    assert_eq!(contents, include_str!("./variants.js"));
+}
