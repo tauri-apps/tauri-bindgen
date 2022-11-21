@@ -8,6 +8,7 @@ edition.workspace = true
 [dependencies]
 anyhow.workspace = true
 bitflags.workspace = true
-host-macro = { path = "../host-macro" }
+tauri-bindgen-host-macro = { path = "../host-macro" }
 async-trait = "0.1.57"
 tauri.workspace = true
+serde = { version = "1.0.140", features = ["derive"] }

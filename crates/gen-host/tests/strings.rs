@@ -1,14 +1,15 @@
 #[allow(clippy::all)]
 pub mod imports {
+    #[::tauri_bindgen_host::async_trait]
     pub trait Imports: Sized {
-        fn a(&self, x: String) -> ::tauri_bindgen_host::anyhow::Result<()>;
-        fn b(&self) -> ::tauri_bindgen_host::anyhow::Result<String>;
-        fn c(&self, a: String, b: String) -> ::tauri_bindgen_host::anyhow::Result<String>;
+        async fn a(&self, x: String) -> ::tauri_bindgen_host::anyhow::Result<()>;
+        async fn b(&self) -> ::tauri_bindgen_host::anyhow::Result<String>;
+        async fn c(&self, a: String, b: String) -> ::tauri_bindgen_host::anyhow::Result<String>;
     }
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: Imports + Send + Sync + 'static,
+        U: Imports + Copy + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime,
     {
         move |invoke| match invoke.message.command() {
@@ -19,21 +20,24 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.a(
-                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                        ::tauri_bindgen_host::tauri::command::CommandItem {
-                            name: "a",
-                            key: "x",
-                            message: &__tauri_message__,
-                        },
-                    ) {
-                        Ok(arg) => arg,
-                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                    ::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "a",
+                        key: "x",
+                        message: &__tauri_message__,
                     },
-                );
+                ) {
+                    Ok(arg) => arg,
+                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                };
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.a(x);
+
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "b" => {
                 #[allow(unused_variables)]
@@ -42,10 +46,13 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.b();
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.b();
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "c" => {
                 #[allow(unused_variables)]
@@ -54,31 +61,35 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.c(
-                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                        ::tauri_bindgen_host::tauri::command::CommandItem {
-                            name: "c",
-                            key: "a",
-                            message: &__tauri_message__,
-                        },
-                    ) {
-                        Ok(arg) => arg,
-                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                let a = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                    ::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "c",
+                        key: "a",
+                        message: &__tauri_message__,
                     },
-                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                        ::tauri_bindgen_host::tauri::command::CommandItem {
-                            name: "c",
-                            key: "b",
-                            message: &__tauri_message__,
-                        },
-                    ) {
-                        Ok(arg) => arg,
-                        Err(err) => return __tauri_resolver__.invoke_error(err),
-                    },
-                );
+                ) {
+                    Ok(arg) => arg,
+                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                };
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                let b = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                    ::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "c",
+                        key: "b",
+                        message: &__tauri_message__,
+                    },
+                ) {
+                    Ok(arg) => arg,
+                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                };
+
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.c(a, b);
+
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             _ => invoke.resolver.reject("Not Found"),
         }

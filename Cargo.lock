@@ -1030,26 +1030,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "guest-rust"
-version = "0.1.0"
-dependencies = [
- "bitflags",
- "guest-rust-macro",
- "serde-wasm-bindgen",
- "wasm-bindgen",
-]
-
-[[package]]
-name = "guest-rust-macro"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "rust-macro-shared",
- "syn",
- "tauri-bindgen-gen-guest-rust",
-]
-
-[[package]]
 name = "hashbrown"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1080,16 +1060,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62b467343b94ba476dcb2500d242dadbb39557df889310ac77c5d99100aaac33"
 dependencies = [
  "libc",
-]
-
-[[package]]
-name = "host-macro"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "rust-macro-shared",
- "syn",
- "tauri-bindgen-gen-host",
 ]
 
 [[package]]
@@ -2586,12 +2556,12 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
- "guest-rust",
  "heck 0.4.0",
  "js-sys",
  "serde",
  "tauri-bindgen-core",
  "tauri-bindgen-gen-rust",
+ "tauri-bindgen-guest-rust",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wit-component",
@@ -2647,14 +2617,46 @@ dependencies = [
 ]
 
 [[package]]
+name = "tauri-bindgen-guest-rust"
+version = "0.1.0"
+dependencies = [
+ "bitflags",
+ "serde",
+ "serde-wasm-bindgen",
+ "tauri-bindgen-guest-rust-macro",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "tauri-bindgen-guest-rust-macro"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "rust-macro-shared",
+ "syn",
+ "tauri-bindgen-gen-guest-rust",
+]
+
+[[package]]
 name = "tauri-bindgen-host"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
  "bitflags",
- "host-macro",
+ "serde",
  "tauri",
+ "tauri-bindgen-host-macro",
+]
+
+[[package]]
+name = "tauri-bindgen-host-macro"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "rust-macro-shared",
+ "syn",
+ "tauri-bindgen-gen-host",
 ]
 
 [[package]]

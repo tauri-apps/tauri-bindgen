@@ -1,7 +1,3 @@
-use tauri_bindgen_core::{
-    uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types, WorldGenerator,
-};
-use tauri_bindgen_gen_rust::{FnSig, RustGenerator, TypeMode};
 use heck::*;
 use std::{
     fmt::Write as _,
@@ -9,6 +5,10 @@ use std::{
     mem,
     process::{Command, Stdio},
 };
+use tauri_bindgen_core::{
+    uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types, WorldGenerator,
+};
+use tauri_bindgen_gen_rust::{FnSig, RustGenerator, TypeMode};
 use wit_parser::*;
 
 #[derive(Default, Debug, Clone)]
@@ -150,7 +150,7 @@ impl<'a> InterfaceGenerator<'a> {
             "
                 pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
                 where
-                    U: {camel} + Send + Sync + 'static,
+                    U: {camel} + Copy + Send + Sync + 'static,
                     R: ::tauri_bindgen_host::tauri::Runtime
                 {{
             "
@@ -167,48 +167,62 @@ impl<'a> InterfaceGenerator<'a> {
         for func in self.iface.functions.iter() {
             uwrite!(self.src, "\"{}\" => {{", &func.name);
 
-            uwriteln!(self.src, "
+            uwriteln!(
+                self.src,
+                "
             #[allow(unused_variables)]
             let ::tauri_bindgen_host::tauri::Invoke {{
                 message: __tauri_message__,
                 resolver: __tauri_resolver__,
             }} = invoke;
-            ");
-
-            if self.gen.opts.async_ {
-                uwriteln!(self.src, "
-                __tauri_resolver__
-                .respond_async_serialized(async move {{
-                ")
-            }
-
-            uwriteln!(self.src, "let result = ctx.{}(", func.name.to_snake_case());
+            "
+            );
 
             for (param, _) in func.params.iter() {
                 uwriteln!(
                     self.src,
-                    "match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {{
+                    "let {} = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {{
                         name: \"{}\",
                         key: \"{}\",
                         message: &__tauri_message__,
                     }}) {{
                         Ok(arg) => arg,
                         Err(err) => return __tauri_resolver__.invoke_error(err),
-                    }},",
+                    }};\n",
+                    param.to_snake_case(),
                     &func.name,
                     param
                 );
             }
 
-             uwriteln!(self.src, ");");
+            if self.gen.opts.async_ {
+                uwriteln!(
+                    self.src,
+                    "
+                __tauri_resolver__
+                .respond_async(async move {{
+                "
+                )
+            }
+
+            uwriteln!(self.src, "let result = ctx.{}(", func.name.to_snake_case());
+
+            for (param, _) in func.params.iter() {
+                self.src.push_str(&param.to_snake_case());
+                self.src.push_str(", ");
+            }
+
+            uwriteln!(self.src, ");");
             // uwriteln!(self.src, ").map_err(tauri::InvokeError::from_anyhow);");
 
             if self.gen.opts.async_ {
-                uwriteln!(self.src, "
-                    let kind = (&result).async_kind();
-                    kind.future(result).await
+                uwriteln!(
+                    self.src,
+                    "
+                    result.await.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
                     }});
-                ")
+                "
+                )
             } else {
                 uwriteln!(self.src, "
                     __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));

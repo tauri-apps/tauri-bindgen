@@ -1,5 +1,5 @@
 [package]
-name = "host-macro"
+name = "tauri-bindgen-host-macro"
 version.workspace = true
 edition.workspace = true
 

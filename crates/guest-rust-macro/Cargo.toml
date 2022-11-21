@@ -1,5 +1,5 @@
 [package]
-name = "guest-rust-macro"
+name = "tauri-bindgen-guest-rust-macro"
 version.workspace = true
 edition.workspace = true
 

@@ -1,13 +1,25 @@
 #[allow(clippy::all)]
 pub mod imports {
     #[repr(C)]
-    #[derive(Debug, Copy, Clone, ::serde::Serialize, ::serde::Deserialize)]
+    #[derive(
+        Debug,
+        Copy,
+        Clone,
+        ::tauri_bindgen_host::serde::Serialize,
+        ::tauri_bindgen_host::serde::Deserialize,
+    )]
     #[serde(rename_all = "camelCase")]
     pub struct Empty {}
     /// A record containing two scalar fields
     /// that both have the same type
     #[repr(C)]
-    #[derive(Debug, Copy, Clone, ::serde::Serialize, ::serde::Deserialize)]
+    #[derive(
+        Debug,
+        Copy,
+        Clone,
+        ::tauri_bindgen_host::serde::Serialize,
+        ::tauri_bindgen_host::serde::Deserialize,
+    )]
     #[serde(rename_all = "camelCase")]
     pub struct Scalars {
         /// The first field, named a
@@ -18,7 +30,13 @@ pub mod imports {
     /// A record that is really just flags
     /// All of the fields are bool
     #[repr(C)]
-    #[derive(Debug, Copy, Clone, ::serde::Serialize, ::serde::Deserialize)]
+    #[derive(
+        Debug,
+        Copy,
+        Clone,
+        ::tauri_bindgen_host::serde::Serialize,
+        ::tauri_bindgen_host::serde::Deserialize,
+    )]
     #[serde(rename_all = "camelCase")]
     pub struct ReallyFlags {
         pub a: bool,
@@ -31,7 +49,12 @@ pub mod imports {
         pub h: bool,
         pub i: bool,
     }
-    #[derive(Debug, Clone, ::serde::Serialize, ::serde::Deserialize)]
+    #[derive(
+        Debug,
+        Clone,
+        ::tauri_bindgen_host::serde::Serialize,
+        ::tauri_bindgen_host::serde::Deserialize,
+    )]
     #[serde(rename_all = "camelCase")]
     pub struct Aggregates {
         pub a: Scalars,
@@ -42,23 +65,27 @@ pub mod imports {
     }
     pub type IntTypedef = i32;
     pub type TupleTypedef2 = (IntTypedef,);
+    #[::tauri_bindgen_host::async_trait]
     pub trait Imports: Sized {
-        fn tuple_arg(&self, x: (char, u32)) -> ::tauri_bindgen_host::anyhow::Result<()>;
-        fn tuple_result(&self) -> ::tauri_bindgen_host::anyhow::Result<(char, u32)>;
-        fn empty_arg(&self, x: Empty) -> ::tauri_bindgen_host::anyhow::Result<()>;
-        fn empty_result(&self) -> ::tauri_bindgen_host::anyhow::Result<Empty>;
-        fn scalar_arg(&self, x: Scalars) -> ::tauri_bindgen_host::anyhow::Result<()>;
-        fn scalar_result(&self) -> ::tauri_bindgen_host::anyhow::Result<Scalars>;
-        fn flags_arg(&self, x: ReallyFlags) -> ::tauri_bindgen_host::anyhow::Result<()>;
-        fn flags_result(&self) -> ::tauri_bindgen_host::anyhow::Result<ReallyFlags>;
-        fn aggregate_arg(&self, x: Aggregates) -> ::tauri_bindgen_host::anyhow::Result<()>;
-        fn aggregate_result(&self) -> ::tauri_bindgen_host::anyhow::Result<Aggregates>;
-        fn typedef_inout(&self, e: TupleTypedef2) -> ::tauri_bindgen_host::anyhow::Result<i32>;
+        async fn tuple_arg(&self, x: (char, u32)) -> ::tauri_bindgen_host::anyhow::Result<()>;
+        async fn tuple_result(&self) -> ::tauri_bindgen_host::anyhow::Result<(char, u32)>;
+        async fn empty_arg(&self, x: Empty) -> ::tauri_bindgen_host::anyhow::Result<()>;
+        async fn empty_result(&self) -> ::tauri_bindgen_host::anyhow::Result<Empty>;
+        async fn scalar_arg(&self, x: Scalars) -> ::tauri_bindgen_host::anyhow::Result<()>;
+        async fn scalar_result(&self) -> ::tauri_bindgen_host::anyhow::Result<Scalars>;
+        async fn flags_arg(&self, x: ReallyFlags) -> ::tauri_bindgen_host::anyhow::Result<()>;
+        async fn flags_result(&self) -> ::tauri_bindgen_host::anyhow::Result<ReallyFlags>;
+        async fn aggregate_arg(&self, x: Aggregates) -> ::tauri_bindgen_host::anyhow::Result<()>;
+        async fn aggregate_result(&self) -> ::tauri_bindgen_host::anyhow::Result<Aggregates>;
+        async fn typedef_inout(
+            &self,
+            e: TupleTypedef2,
+        ) -> ::tauri_bindgen_host::anyhow::Result<i32>;
     }
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: Imports + Send + Sync + 'static,
+        U: Imports + Copy + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime,
     {
         move |invoke| match invoke.message.command() {
@@ -69,21 +96,24 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.tuple_arg(
-                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                        ::tauri_bindgen_host::tauri::command::CommandItem {
-                            name: "tuple-arg",
-                            key: "x",
-                            message: &__tauri_message__,
-                        },
-                    ) {
-                        Ok(arg) => arg,
-                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                    ::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "tuple-arg",
+                        key: "x",
+                        message: &__tauri_message__,
                     },
-                );
+                ) {
+                    Ok(arg) => arg,
+                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                };
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.tuple_arg(x);
+
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "tuple-result" => {
                 #[allow(unused_variables)]
@@ -92,10 +122,13 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.tuple_result();
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.tuple_result();
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "empty-arg" => {
                 #[allow(unused_variables)]
@@ -104,21 +137,24 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.empty_arg(
-                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                        ::tauri_bindgen_host::tauri::command::CommandItem {
-                            name: "empty-arg",
-                            key: "x",
-                            message: &__tauri_message__,
-                        },
-                    ) {
-                        Ok(arg) => arg,
-                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                    ::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "empty-arg",
+                        key: "x",
+                        message: &__tauri_message__,
                     },
-                );
+                ) {
+                    Ok(arg) => arg,
+                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                };
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.empty_arg(x);
+
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "empty-result" => {
                 #[allow(unused_variables)]
@@ -127,10 +163,13 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.empty_result();
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.empty_result();
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "scalar-arg" => {
                 #[allow(unused_variables)]
@@ -139,21 +178,24 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.scalar_arg(
-                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                        ::tauri_bindgen_host::tauri::command::CommandItem {
-                            name: "scalar-arg",
-                            key: "x",
-                            message: &__tauri_message__,
-                        },
-                    ) {
-                        Ok(arg) => arg,
-                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                    ::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "scalar-arg",
+                        key: "x",
+                        message: &__tauri_message__,
                     },
-                );
+                ) {
+                    Ok(arg) => arg,
+                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                };
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.scalar_arg(x);
+
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "scalar-result" => {
                 #[allow(unused_variables)]
@@ -162,10 +204,13 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.scalar_result();
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.scalar_result();
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "flags-arg" => {
                 #[allow(unused_variables)]
@@ -174,21 +219,24 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.flags_arg(
-                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                        ::tauri_bindgen_host::tauri::command::CommandItem {
-                            name: "flags-arg",
-                            key: "x",
-                            message: &__tauri_message__,
-                        },
-                    ) {
-                        Ok(arg) => arg,
-                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                    ::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "flags-arg",
+                        key: "x",
+                        message: &__tauri_message__,
                     },
-                );
+                ) {
+                    Ok(arg) => arg,
+                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                };
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.flags_arg(x);
+
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "flags-result" => {
                 #[allow(unused_variables)]
@@ -197,10 +245,13 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.flags_result();
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.flags_result();
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "aggregate-arg" => {
                 #[allow(unused_variables)]
@@ -209,21 +260,24 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.aggregate_arg(
-                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                        ::tauri_bindgen_host::tauri::command::CommandItem {
-                            name: "aggregate-arg",
-                            key: "x",
-                            message: &__tauri_message__,
-                        },
-                    ) {
-                        Ok(arg) => arg,
-                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                    ::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "aggregate-arg",
+                        key: "x",
+                        message: &__tauri_message__,
                     },
-                );
+                ) {
+                    Ok(arg) => arg,
+                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                };
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.aggregate_arg(x);
+
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "aggregate-result" => {
                 #[allow(unused_variables)]
@@ -232,10 +286,13 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.aggregate_result();
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.aggregate_result();
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "typedef-inout" => {
                 #[allow(unused_variables)]
@@ -244,21 +301,24 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.typedef_inout(
-                    match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                        ::tauri_bindgen_host::tauri::command::CommandItem {
-                            name: "typedef-inout",
-                            key: "e",
-                            message: &__tauri_message__,
-                        },
-                    ) {
-                        Ok(arg) => arg,
-                        Err(err) => return __tauri_resolver__.invoke_error(err),
+                let e = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                    ::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "typedef-inout",
+                        key: "e",
+                        message: &__tauri_message__,
                     },
-                );
+                ) {
+                    Ok(arg) => arg,
+                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                };
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.typedef_inout(e);
+
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             _ => invoke.resolver.reject("Not Found"),
         }

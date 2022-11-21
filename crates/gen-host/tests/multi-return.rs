@@ -1,16 +1,17 @@
 #[allow(clippy::all)]
 pub mod imports {
+    #[::tauri_bindgen_host::async_trait]
     pub trait Imports: Sized {
-        fn mra(&self) -> ::tauri_bindgen_host::anyhow::Result<()>;
-        fn mrb(&self) -> ::tauri_bindgen_host::anyhow::Result<()>;
-        fn mrc(&self) -> ::tauri_bindgen_host::anyhow::Result<u32>;
-        fn mrd(&self) -> ::tauri_bindgen_host::anyhow::Result<u32>;
-        fn mre(&self) -> ::tauri_bindgen_host::anyhow::Result<(u32, f32)>;
+        async fn mra(&self) -> ::tauri_bindgen_host::anyhow::Result<()>;
+        async fn mrb(&self) -> ::tauri_bindgen_host::anyhow::Result<()>;
+        async fn mrc(&self) -> ::tauri_bindgen_host::anyhow::Result<u32>;
+        async fn mrd(&self) -> ::tauri_bindgen_host::anyhow::Result<u32>;
+        async fn mre(&self) -> ::tauri_bindgen_host::anyhow::Result<(u32, f32)>;
     }
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: Imports + Send + Sync + 'static,
+        U: Imports + Copy + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime,
     {
         move |invoke| match invoke.message.command() {
@@ -21,10 +22,13 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.mra();
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.mra();
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "mrb" => {
                 #[allow(unused_variables)]
@@ -33,10 +37,13 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.mrb();
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.mrb();
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "mrc" => {
                 #[allow(unused_variables)]
@@ -45,10 +52,13 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.mrc();
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.mrc();
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "mrd" => {
                 #[allow(unused_variables)]
@@ -57,10 +67,13 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.mrd();
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.mrd();
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             "mre" => {
                 #[allow(unused_variables)]
@@ -69,10 +82,13 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.mre();
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.mre();
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             _ => invoke.resolver.reject("Not Found"),
         }

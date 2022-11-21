@@ -1,20 +1,21 @@
 #[allow(clippy::all)]
 pub mod imports {
     #[repr(u8)]
-    #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
+    #[derive(Debug, Clone, Copy, ::tauri_bindgen_host::serde::Serialize)]
     pub enum Error {
         Success,
         Failure,
     }
+    #[::tauri_bindgen_host::async_trait]
     pub trait Imports: Sized {
-        fn option_test(
+        async fn option_test(
             &self,
         ) -> ::tauri_bindgen_host::anyhow::Result<Result<Option<String>, Error>>;
     }
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: Imports + Send + Sync + 'static,
+        U: Imports + Copy + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime,
     {
         move |invoke| match invoke.message.command() {
@@ -25,10 +26,13 @@ pub mod imports {
                     resolver: __tauri_resolver__,
                 } = invoke;
 
-                let result = ctx.option_test();
+                __tauri_resolver__.respond_async(async move {
+                    let result = ctx.option_test();
 
-                __tauri_resolver__
-                    .respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+                    result
+                        .await
+                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+                });
             }
             _ => invoke.resolver.reject("Not Found"),
         }
