@@ -1,0 +1,18 @@
+[package]
+name = "gen-guest-rust"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+gen-rust.workspace = true
+bindgen-core.workspace = true
+wit-parser.workspace = true
+heck.workspace = true
+clap = { workspace = true, optional = true }
+
+[dev-dependencies]
+wit-component.workspace = true
+anyhow.workspace = true
+
+[features]
+clap = ["dep:clap"]

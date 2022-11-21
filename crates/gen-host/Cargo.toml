@@ -1,0 +1,19 @@
+[package]
+name = "gen-host"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+gen-rust.workspace = true
+bindgen-core.workspace = true
+wit-parser.workspace = true
+heck.workspace = true
+clap = { workspace = true, optional = true }
+
+[dev-dependencies]
+wit-component.workspace = true
+anyhow.workspace = true
+host = { path = "../host" }
+
+[features]
+clap = ["dep:clap"]

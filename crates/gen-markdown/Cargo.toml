@@ -1,0 +1,19 @@
+[package]
+name = "gen-markdown"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+doctest = false
+test = false
+
+[dependencies]
+heck.workspace = true
+pulldown-cmark.workspace = true
+clap = { workspace = true, optional = true }
+bindgen-core.workspace = true
+wit-component.workspace = true
+wit-parser.workspace = true
+
+[features]
+clap = ["dep:clap"]
