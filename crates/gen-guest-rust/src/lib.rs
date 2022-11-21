@@ -157,7 +157,7 @@ impl<'a> InterfaceGenerator<'a> {
         self.src.push_str("{\n");
 
         if !func.params.is_empty() {
-            self.push_str("#[derive(::guest_rust::serde::Serialize)]\n");
+            self.push_str("#[derive(::serde::Serialize)]\n");
             self.push_str("#[serde(rename_all = \"camelCase\")]\n");
 
             let print_lifetime = func.params.iter().any(|(_, ty)| match ty {
@@ -175,6 +175,10 @@ impl<'a> InterfaceGenerator<'a> {
             self.src.push_str(" {\n");
 
             for (param, ty) in func.params.iter() {
+                // if self.needs_borrow(ty, TypeMode::AllBorrowed("'a")) {
+                //     self.src.push_str("#[serde(borrow)]\n")
+                // }
+
                 self.src.push_str(&param.to_snake_case());
                 self.src.push_str(" : ");
                 self.print_ty(ty, TypeMode::AllBorrowed("'a"));

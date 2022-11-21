@@ -43,6 +43,8 @@ impl WorldGenerator for JavaScript {
     ) {
         let mut gen = InterfaceGenerator::new(self, iface);
 
+        gen.print_intro();
+
         for func in iface.functions.iter() {
             gen.generate_guest_import(name, func);
         }
@@ -100,17 +102,23 @@ impl<'a> InterfaceGenerator<'a> {
         self.src.push_str(s);
     }
 
+    fn print_intro(&mut self) {
+        self.push_str("const { invoke } = window.__TAURI__.tauri;");
+    }
+
     fn print_jsdoc(&mut self, func: &Function) {
-        let docs = match &func.docs.contents {
-            Some(docs) => docs,
-            None => return,
-        };
-        self.push_str("/**\n");
-        
-        for line in docs.trim().lines() {
-            self.push_str(&format!(" * {}\n", line));
+        if func.docs.contents.is_none() && func.params.is_empty() && func.results.len() == 0 {
+            return;
         }
 
+        self.push_str("/**\n");
+        
+        if let Some(docs) = &func.docs.contents {
+            for line in docs.trim().lines() {
+                self.push_str(&format!(" * {}\n", line));
+            }
+        }
+        
         for (param, ty) in func.params.iter() {
             self.push_str(" * @param {");
             self.print_ty(ty);
@@ -169,7 +177,7 @@ impl<'a> InterfaceGenerator<'a> {
         }
 
         self.push_str(&format!(
-            "await window.__TAURI__.tauri.invoke(\"plugin:{}|{}\",",
+            "await invoke(\"plugin:{}|{}\",",
             mod_name.to_snake_case(),
             func.name.to_snake_case()
         ));

@@ -141,12 +141,12 @@ impl<'a> InterfaceGenerator<'a> {
         interface Tauri {
             invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T>
         }
-
         declare global {
             interface Window {
                 __TAURI__: { tauri: Tauri };
             }
         }
+        const { invoke } = window.__TAURI__.tauri;
         ");
     }
 
@@ -209,7 +209,7 @@ impl<'a> InterfaceGenerator<'a> {
             self.push_str("const result = ");
         }
 
-        self.push_str("await window.__TAURI__.tauri.invoke<");
+        self.push_str("await invoke<");
         
         if let Some((ok_ty, _)) = func.results.throws(self.iface) {
             self.print_optional_ty(ok_ty);
@@ -394,7 +394,7 @@ impl<'a> bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
 
         for field in record.fields.iter() {
             self.print_typedoc(&field.docs);
-            self.push_str(&name.to_lower_camel_case());
+            self.push_str(&field.name.to_lower_camel_case());
             if self.is_nullable(&field.ty) {
                 self.push_str("?");
             }
@@ -403,6 +403,8 @@ impl<'a> bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
 
             self.push_str(",\n");
         }
+
+        self.push_str("};\n");
     }
 
     fn type_flags(
@@ -439,7 +441,7 @@ impl<'a> bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
         for (i, case) in variant.cases.iter().enumerate() {
             if i > 0 {
-                self.push_str(", ");
+                self.push_str("| ");
             }
             self.push_str(&format!("{}_{}", name, case.name).to_upper_camel_case());
         }

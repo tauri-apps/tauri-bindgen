@@ -1,8 +1,8 @@
-use std::collections::HashMap;
 use bindgen_core::TypeInfo;
 use heck::*;
-use wit_parser::*;
+use std::collections::HashMap;
 use std::fmt::Write;
+use wit_parser::*;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum TypeMode {
@@ -188,15 +188,24 @@ pub trait RustGenerator<'a> {
 
             if !info.owns_data() {
                 self.push_str("#[repr(C)]\n");
-                self.push_str("#[derive(Debug, Copy, Clone)]\n");
+                self.push_str(
+                    "#[derive(Debug, Copy, Clone, ::serde::Serialize, ::serde::Deserialize)]\n",
+                );
             } else {
-                self.push_str("#[derive(Debug, Clone)]\n");
+                self.push_str(
+                    "#[derive(Debug, Clone, ::serde::Serialize, ::serde::Deserialize)]\n",
+                );
             }
+            self.push_str("#[serde(rename_all = \"camelCase\")]\n");
             self.push_str(&format!("pub struct {}", name));
             self.print_generics(lt);
             self.push_str(" {\n");
 
             for field in record.fields.iter() {
+                if self.needs_borrow(&field.ty, mode) {
+                    self.push_str("#[serde(borrow)]\n")
+                }
+
                 self.print_rustdoc(&field.docs);
                 self.push_str("pub ");
                 self.push_str(&to_rust_ident(&field.name));
@@ -234,7 +243,7 @@ pub trait RustGenerator<'a> {
 
         for (name, mode) in self.modes_of(id) {
             let lt = self.lifetime_for(&info, mode);
-            
+
             self.print_rustdoc(docs);
             self.push_str(&format!("pub type {}", name));
             self.print_generics(lt);
@@ -297,14 +306,11 @@ pub trait RustGenerator<'a> {
     {
         self.print_rust_enum(
             id,
-            variant.cases.iter().map(|c| {
-                (
-                    c.name.to_upper_camel_case(),
-                    &c.docs,
-                    c.ty.as_ref(),
-                )
-            }),
-            docs
+            variant
+                .cases
+                .iter()
+                .map(|c| (c.name.to_upper_camel_case(), &c.docs, c.ty.as_ref())),
+            docs,
         );
     }
 
@@ -318,7 +324,7 @@ pub trait RustGenerator<'a> {
                 .into_iter()
                 .zip(&union.cases)
                 .map(|(name, case)| (name, &case.docs, Some(&case.ty))),
-            docs
+            docs,
         );
     }
 
@@ -338,9 +344,13 @@ pub trait RustGenerator<'a> {
 
             self.print_rustdoc(docs);
             if !info.owns_data() {
-                self.push_str("#[derive(Debug, Clone, Copy)]\n");
+                self.push_str(
+                    "#[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]\n",
+                );
             } else {
-                self.push_str("#[derive(Debug, Clone)]\n");
+                self.push_str(
+                    "#[derive(Debug, Clone, ::serde::Serialize, ::serde::Deserialize)]\n",
+                );
             }
             self.push_str(&format!("pub enum {name}"));
             self.print_generics(lt);
@@ -373,9 +383,13 @@ pub trait RustGenerator<'a> {
             self.int_repr(enum_.tag());
             self.push_str(")]\n");
             if !info.owns_data() {
-                self.push_str("#[derive(Debug, Clone, Copy)]\n");
+                self.push_str(
+                    "#[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]\n",
+                );
             } else {
-                self.push_str("#[derive(Debug, Clone)]\n");
+                self.push_str(
+                    "#[derive(Debug, Clone, ::serde::Serialize, ::serde::Deserialize)]\n",
+                );
             }
             self.push_str(&format!("pub enum {name}"));
             self.print_generics(lt);
@@ -650,6 +664,21 @@ pub trait RustGenerator<'a> {
         match mode {
             TypeMode::AllBorrowed(s) | TypeMode::LeafBorrowed(s) if info.has_list => Some(s),
             _ => None,
+        }
+    }
+
+    fn needs_borrow(&self, ty: &Type, mode: TypeMode) -> bool {
+        match ty {
+            Type::Id(id) => {
+                let info = self.info(*id);
+                let ty = &self.iface().types[*id];
+
+                match &ty.kind {
+                    TypeDefKind::List(Type::U8) => false,
+                    _ => self.lifetime_for(&info, mode).is_some(),
+                }
+            }
+            _ => false,
         }
     }
 }
