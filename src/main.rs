@@ -46,9 +46,24 @@ struct HostGenerator {
 
 #[derive(Debug, Parser)]
 enum GuestGenerator {
+    /// Generates bindings for Rust guest modules using wasm-bindgen.
     Rust {
         #[clap(flatten)]
         opts: gen_guest_rust::Opts,
+        #[clap(flatten)]
+        world: WorldOpt,
+    },
+    /// Generates bindings for JavaScript guest modules.
+    Javascript {
+        #[clap(flatten)]
+        opts: gen_guest_js::Opts,
+        #[clap(flatten)]
+        world: WorldOpt,
+    },
+    /// Generates bindings for TypeScript guest modules.
+    Typescript {
+        #[clap(flatten)]
+        opts: gen_guest_ts::Opts,
         #[clap(flatten)]
         world: WorldOpt,
     },
@@ -108,6 +123,12 @@ fn main() -> anyhow::Result<()> {
             gen_world(opts.build(), world, &mut files)?;
         }
         Category::Guest(GuestGenerator::Rust { opts, world, .. }) => {
+            gen_world(opts.build(), world, &mut files)?;
+        }
+        Category::Guest(GuestGenerator::Javascript { opts, world, .. }) => {
+            gen_world(opts.build(), world, &mut files)?;
+        }
+        Category::Guest(GuestGenerator::Typescript { opts, world, .. }) => {
             gen_world(opts.build(), world, &mut files)?;
         }
         Category::Markdown { opts, world, .. } => {

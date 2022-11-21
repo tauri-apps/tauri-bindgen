@@ -19,6 +19,8 @@ bindgen-core = { path = "crates/bindgen-core"}
 gen-rust = { path = "crates/gen-rust"}
 gen-host = { path = "crates/gen-host"}
 gen-guest-rust = { path = "crates/gen-guest-rust"}
+gen-guest-ts = { path = "crates/gen-guest-ts"}
+gen-guest-js = { path = "crates/gen-guest-js"}
 gen-markdown = { path = "crates/gen-markdown"}
 heck =  { version = "0.4", features = ["unicode"] }
 anyhow = "1.0.65"
@@ -35,5 +37,7 @@ bindgen-core.workspace = true
 gen-host = { workspace = true, features = ['clap'] }
 gen-markdown = { workspace = true, features = ['clap'] }
 gen-guest-rust = { workspace = true, features = ['clap'] }
+gen-guest-ts = { workspace = true, features = ['clap'] }
+gen-guest-js = { workspace = true, features = ['clap'] }
 wit-parser.workspace = true
 wit-component.workspace = true

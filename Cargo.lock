@@ -833,6 +833,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "gen-guest-js"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bindgen-core",
+ "clap",
+ "heck 0.4.0",
+ "wit-component",
+ "wit-parser",
+]
+
+[[package]]
 name = "gen-guest-rust"
 version = "0.1.0"
 dependencies = [
@@ -840,6 +852,18 @@ dependencies = [
  "bindgen-core",
  "clap",
  "gen-rust",
+ "heck 0.4.0",
+ "wit-component",
+ "wit-parser",
+]
+
+[[package]]
+name = "gen-guest-ts"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bindgen-core",
+ "clap",
  "heck 0.4.0",
  "wit-component",
  "wit-parser",
@@ -2619,7 +2643,9 @@ dependencies = [
  "anyhow",
  "bindgen-core",
  "clap",
+ "gen-guest-js",
  "gen-guest-rust",
+ "gen-guest-ts",
  "gen-host",
  "gen-markdown",
  "wit-component",
