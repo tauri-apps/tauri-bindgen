@@ -9,7 +9,7 @@ mod plugin {
         Runtime,
     };
 
-    host::generate!({
+    tauri_bindgen_host::generate!({
         path: "../greet.wit",
         async: false
     });

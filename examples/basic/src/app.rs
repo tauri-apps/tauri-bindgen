@@ -1,8 +1,7 @@
 use sycamore::futures::spawn_local_scoped;
 use sycamore::prelude::*;
 
-
-guest_rust::generate!({
+tauri_bindgen_guest_rust::generate!({
     path: "greet.wit"
 });
 
