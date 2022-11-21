@@ -18,7 +18,7 @@
 > I will be doing many sweeping changes, so depending on it is not recommened at this point.
 > If you are excited by this though, and want help out, please feel free to test it out, create issues, and open PRs!
 
-This project generates bindings for **both sides** of the Taur IPC bridge. Bindings are declared using `*.wit` files that describe exposed functions and shared types. `tauri-bindgen` can then generate ergonomic wrappers for the host interface (declaring the API the Tauri host must expose) and for a variety of client languages.
+This project generates bindings for **both sides** of the Taur IPC bridge. Bindings are declared using [`*.wit`](https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md) files that describe exposed functions and shared types. `tauri-bindgen` can then generate ergonomic wrappers for the host interface (declaring the API the Tauri host must expose) and for a variety of client languages.
 
 ## Supported Bindings
 
