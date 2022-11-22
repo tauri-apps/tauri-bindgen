@@ -4,19 +4,20 @@
 - Validate serialization and deserialization works across the bridge
 - add logging across the board, both during gen and runtime
 - structured serialization for results
-- fork wit-parser and remove worlds & exports
+- fork `wit-parser` and remove worlds & exports
 - publish to crates.io
 
 # Host
 
 - improve host error type
-- add optional tracing to gen-host
+- add optional tracing to `gen-host`
 - improve integration with Tauri (possibly through a WIP impl of the new IPC routing system?)
 
 # Guest Rust
 
 - handle errors even when return type is not result optionally disabled through unchecked
-- reduce reliance on extern crates in rust runtime code (wasm_bindgen and serde). Move wasm_bindgen macro use into guest-rust and only use exported async fn send<T: Serialize>(T) function
+- reduce reliance on extern crates in rust runtime code (`wasm_bindgen` and `serde`). 
+- Move `wasm_bindgen` macro use into guest-rust and only use exported `async fn send<T: Serialize>(T)` function
 
 # Guest JavaScript
 
@@ -32,8 +33,8 @@
 
 # Roadmap
 
-- switch tauri-sys and try implementing the Tauri API
+- switch `tauri-sys` and try implementing the Tauri API
 - explore binary serialization of types instead of JSON
-- explore adding the stream type defined by wit
+- explore adding the `stream` type defined by wit
 - explore adding back exports (functions exposed from JS to Rust)
 - explore platform specific codegen
