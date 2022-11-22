@@ -299,7 +299,7 @@ pub trait RustGenerator<'a> {
             self.print_generics(lt);
             self.push_str("= Result<");
             self.print_optional_ty(result.ok.as_ref(), mode);
-            self.push_str("s,");
+            self.push_str(", ");
             self.print_optional_ty(result.err.as_ref(), mode);
             self.push_str(">;\n");
         }
