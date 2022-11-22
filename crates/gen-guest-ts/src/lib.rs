@@ -142,7 +142,7 @@ impl<'a> InterfaceGenerator<'a> {
                 __TAURI__: { tauri: Tauri };
             }
         }
-        const { invoke } = window.__TAURI__.tauri;
+        const invoke = window.__TAURI_INVOKE__;
         ",
         );
     }

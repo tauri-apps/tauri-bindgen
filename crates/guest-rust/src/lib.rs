@@ -5,7 +5,7 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 #[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
+    #[wasm_bindgen(js_namespace = ["window"], js_name = "__TAURI_INVOKE__")]
     pub async fn invoke(cmd: JsValue, args: JsValue) -> JsValue;
 }
 

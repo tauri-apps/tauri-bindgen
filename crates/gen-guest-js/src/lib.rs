@@ -103,7 +103,7 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn print_intro(&mut self) {
-        self.push_str("const { invoke } = window.__TAURI__.tauri;");
+        self.push_str("const invoke = window.__TAURI_INVOKE__;");
     }
 
     fn print_jsdoc(&mut self, func: &Function) {
