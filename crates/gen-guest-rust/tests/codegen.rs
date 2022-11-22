@@ -67,6 +67,22 @@ fn empty() {
 }
 
 #[test]
+fn flags() {
+    let opts = Opts {
+        rustfmt: true,
+        no_std: false,
+        unchecked: false,
+        skip: vec![]
+    };
+    let gen = opts.build();
+
+    let (filename, contents) = gen_world(gen, "flags", "../../tests/codegen/flags.wit");
+
+    assert_eq!(filename, "flags.rs");
+    assert_eq!(contents, include_str!("./flegs.rs"));
+}
+
+#[test]
 fn floats() {
     let opts = Opts {
         rustfmt: true,
@@ -96,6 +112,22 @@ fn integers() {
 
     assert_eq!(filename, "integers.rs");
     assert_eq!(contents, include_str!("./integers.rs"));
+}
+
+#[test]
+fn lists() {
+    let opts = Opts {
+        rustfmt: true,
+        no_std: false,
+        unchecked: false,
+        skip: vec![]
+    };
+    let gen = opts.build();
+
+    let (filename, contents) = gen_world(gen, "lists", "../../tests/codegen/lists.wit");
+
+    assert_eq!(filename, "lists.rs");
+    assert_eq!(contents, include_str!("./lists.rs"));
 }
 
 #[test]
