@@ -7,6 +7,12 @@
 - fork `wit-parser` and remove worlds & exports
 - publish to crates.io
 
+# CLI
+
+- fix out-dir option
+- add verbose option
+- add napi bindings
+
 # Host
 
 - improve host error type
@@ -33,6 +39,7 @@
 
 # Roadmap
 
+- `rollup-plugin-tauri-bindgen`
 - switch `tauri-sys` and try implementing the Tauri API
 - explore binary serialization of types instead of JSON
 - explore adding the `stream` type defined by wit
