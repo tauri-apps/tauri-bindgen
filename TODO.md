@@ -1,9 +1,9 @@
 # General
 
 - improve error DX
+- structured serialization for results
 - Validate serialization and deserialization works across the bridge
 - add logging across the board, both during gen and runtime
-- structured serialization for results
 - fork `wit-parser` and remove worlds & exports
 - publish to crates.io
 
@@ -16,8 +16,8 @@
 # Guest Rust
 
 - handle errors even when return type is not result optionally disabled through unchecked
-- reduce reliance on extern crates in rust runtime code (`wasm_bindgen` and `serde`). 
-- Move `wasm_bindgen` macro use into guest-rust and only use exported `async fn send<T: Serialize>(T)` function
+- reduce reliance on extern crates in rust runtime code (`wasm_bindgen` and `serde`).
+- ~~Move `wasm_bindgen` macro use into guest-rust and only use exported `async fn send<T: Serialize>(T)` function~~
 
 # Guest JavaScript
 
