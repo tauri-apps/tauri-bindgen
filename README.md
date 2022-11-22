@@ -20,6 +20,42 @@
 
 This project generates bindings for **both sides** of the Taur IPC bridge. Bindings are declared using [`*.wit`](https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md) files that describe exposed functions and shared types. `tauri-bindgen` can then generate ergonomic wrappers for the host interface (declaring the API the Tauri host must expose) and for a variety of client languages.
 
+This project's main purpose right now is to support the development of Tauri API bindings and plugins, where users might want support for many different languages.
+
+### Rationale
+
+Under the current IPC system, Tauri can make no compile-time guarantees on the correctness of your `invoke` calls and any mistakes will result in nasty runtime errors. For example you might have misspelled a command or parameter name which you will only notice when actually running the app!
+
+`tauri-bindgen` will generate traits and invoke-handlers for the [Host](#host) and client bindings for JavaScript, TypeScript, Rust and ReScript from a single, shared source of truth using the [`*.wit`](https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md) format as a Interface Definition Language (IDL). The generated bindings automatically take care of the heavy lifting, such as correctly calling the `invoke` function and serializing/deserializing parameters and results.
+
+Here are a few reasons why that is cool:
+
+- **Compile-time Checks**
+
+When using strongly typed languages, such as Rust, TypeScript or ReScript the generated code will automatically ensure that you are calling the API correctly, as long as it passes the type checking youre golden. This is especially neat **when working in a team**, so  your colleagues can't just change command signatures and pull the rug out from under you. 
+
+- **Easily auditable**
+
+Sometimes in bigger apps it's easy to loose track of all the commands your backend exposes, there might be an old version left somewhere that still get's exposed to the frontend. This is of course a big security risk. Having all possible commands be declared in a single place makes them easily auditable for you and possibly external security auditing professionals.
+
+- **Automatic documentation**
+
+`tauri-bindgen` can also generate easy to read markdown and html descriptions of your interfaces for documentation purposes.
+
+- **Future proof**
+
+We're planning a big rework of the IPC bridge in the coming months and `tauri-bindgen` has been designed with some of the early design-work in mind. A big rework of course means breaking changes, but using tauri bindgen isolates from these changes, just update Tauri, update `tauri-bindgen`, and re-generate your bindings and your code will continue to work!
+
+## Terminology
+
+### **`Host`**
+
+Host refers to the Tauri rust core, so the place where your commands are implemented.
+
+### **`Guest`**
+
+Guest refers to the code running in the Webview, this will usually be written in JavaScript/TypeScript, but can also be written in any other language that runs on the Web (through WASM) like Rust, C, or Swift.
+
 ## Supported Bindings
 
 - **Host** - Generates a trait declaration and an `invoke_handler` from the interface. This generator can also be used through the `tauri-bindgen-host` crate (located at `crates/host`) and, has a generate! macro for generating code.
@@ -74,11 +110,12 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
 }
 ```
 
-and lastly generate client bindings, this can be done for JavaScript/Typescript using the following commands:
+and lastly generate client bindings, this can be done for JavaScript, Typescript or ReScript using the following commands:
 
 ```
 tauri-bindgen guest javascript greet.wit --prettier // we can run prettier on the generated code. requires a global prettier install
 tauri-bindgen guest typescript greet.wit --prettier
+tauri-bindgen guest rescript greet.wit --fmt // run `rescript format` on the generated code. requires a global rescript install
 ```
 
 or for rust using the provided `generate!` macro:
@@ -93,3 +130,11 @@ let greeting = greet::greet("Jonas").await;
 ```
 
 see also [the example](./examples/basic/).
+
+## Contributing
+
+PRs are welcome!
+
+## License
+
+[MIT](./LICENSE_MIT) or [Apache 2.0](./LICENSE_APACHE-2.0) © Jonas Kruckenberg
