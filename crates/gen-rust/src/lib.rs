@@ -194,9 +194,9 @@ pub trait RustGenerator<'a> {
 
             if !info.owns_data() {
                 self.push_str("#[repr(C)]\n");
-                self.push_str("#[derive(Debug, Copy, Clone)]\n");
+                self.push_str("#[derive(Debug, Copy, Clone, PartialEq)]\n");
             } else {
-                self.push_str("#[derive(Debug, Clone)]\n");
+                self.push_str("#[derive(Debug, Clone, PartialEq)]\n");
             }
             if let Some(attrs) = attrs(&name, self.uses_two_names(&info), info) {
                 self.push_str(&attrs);
@@ -362,9 +362,9 @@ pub trait RustGenerator<'a> {
 
             self.print_rustdoc(docs);
             if !info.owns_data() {
-                self.push_str("#[derive(Debug, Clone, Copy)]\n");
+                self.push_str("#[derive(Debug, Clone, Copy, PartialEq)]\n");
             } else {
-                self.push_str("#[derive(Debug, Clone)]\n");
+                self.push_str("#[derive(Debug, Clone, PartialEq)]\n");
             }
             if let Some(attrs) = attrs(&name, self.uses_two_names(&info), info) {
                 self.push_str(&attrs);
@@ -406,9 +406,9 @@ pub trait RustGenerator<'a> {
             self.int_repr(enum_.tag());
             self.push_str(")]\n");
             if !info.owns_data() {
-                self.push_str("#[derive(Debug, Clone, Copy)]\n");
+                self.push_str("#[derive(Debug, Clone, Copy, PartialEq)]\n");
             } else {
-                self.push_str("#[derive(Debug, Clone)]\n");
+                self.push_str("#[derive(Debug, Clone, PartialEq)]\n");
             }
             if let Some(attrs) = attrs(&name, self.uses_two_names(&info), info) {
                 self.push_str(&attrs);
