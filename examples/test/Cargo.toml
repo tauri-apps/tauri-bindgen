@@ -1,0 +1,23 @@
+[package]
+name = "tauri-sys-test-ui"
+version = "0.0.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies]
+sycamore = { git = "https://github.com/sycamore-rs/sycamore", rev = "abd556cbc02047042dad2ebd04405e455a9b11b2", features = ["suspense"] }
+anyhow = "1.0.66"
+console_error_panic_hook = "0.1.7"
+wasm-bindgen-futures = "0.4.32"
+serde = { version = "1.0.147", features = ["derive"] }
+log = { version = "0.4.17", features = ["serde"] }
+tauri-bindgen-guest-rust = { path = "../../crates/guest-rust" }
+
+# futures = "0.3.25"
+# gloo-timers = { version = "0.2.4", features = ["futures"] }
+
+[features]
+ci = []
+
+[workspace]
+members = ["src-tauri"]

@@ -1,0 +1,17 @@
+interface log {
+  //enum level {
+  //  trace,
+  //  debug,
+  //  info,
+  //  warn,
+  //  error,
+  //}
+
+  log: func(level: u32, message: string, location: string, file: option<string>, line: option<u32>)
+}
+
+world tauri-log {
+  import tauri-log: log
+  export tauri-log: log
+  default export log
+}

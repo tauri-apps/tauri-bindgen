@@ -1,0 +1,6 @@
+{
+  "build": {
+    "beforeDevCommand": "trunk serve --features ci",
+    "beforeBuildCommand": "trunk build --release --features ci"
+  }
+}
