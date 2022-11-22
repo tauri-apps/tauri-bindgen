@@ -21,7 +21,7 @@ pub struct Opts {
 
 impl Opts {
     pub fn build(self) -> Box<dyn WorldGenerator> {
-        let mut r = JavaScript::default();
+        let mut r = TypeScript::default();
         r.skip = self.skip.iter().cloned().collect();
         r.opts = self;
         Box::new(r)
@@ -29,13 +29,13 @@ impl Opts {
 }
 
 #[derive(Debug, Default)]
-struct JavaScript {
+struct TypeScript {
     src: Source,
     opts: Opts,
     skip: HashSet<String>,
 }
 
-impl WorldGenerator for JavaScript {
+impl WorldGenerator for TypeScript {
     fn import(&mut self, name: &str, iface: &wit_parser::Interface, _files: &mut Files) {
         let mut gen = InterfaceGenerator::new(self, iface);
 
@@ -97,7 +97,7 @@ impl WorldGenerator for JavaScript {
 
 struct InterfaceGenerator<'a> {
     src: Source,
-    gen: &'a mut JavaScript,
+    gen: &'a mut TypeScript,
     iface: &'a Interface,
     needs_ty_option: bool,
     needs_ty_result: bool,
@@ -105,7 +105,7 @@ struct InterfaceGenerator<'a> {
 }
 
 impl<'a> InterfaceGenerator<'a> {
-    pub fn new(gen: &'a mut JavaScript, iface: &'a Interface) -> Self {
+    pub fn new(gen: &'a mut TypeScript, iface: &'a Interface) -> Self {
         Self {
             src: Source::default(),
             gen,
