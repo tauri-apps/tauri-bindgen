@@ -56,10 +56,11 @@ impl WorldGenerator for RustWasm {
     ) {
         let mut gen = InterfaceGenerator::new(self, iface, TypeMode::AllBorrowed("'a"));
         // gen.generate_invoke_bindings();
+
         gen.types();
 
         for func in iface.functions.iter() {
-            gen.generate_guest_import(name, func);
+            gen.generate_guest_import(func);
         }
 
         let snake = name.to_snake_case();
@@ -141,7 +142,7 @@ impl<'a> InterfaceGenerator<'a> {
     //     );
     // }
 
-    fn generate_guest_import(&mut self, mod_name: &str, func: &Function) {
+    fn generate_guest_import(&mut self, func: &Function) {
         if self.gen.skip.contains(&func.name) {
             return;
         }
@@ -196,8 +197,8 @@ impl<'a> InterfaceGenerator<'a> {
         uwrite!(
             self.src,
             r#"::tauri_bindgen_guest_rust::send("plugin:{}|{}", "#,
-            mod_name.to_snake_case(),
-            func.name.to_snake_case()
+            self.iface.name.to_snake_case(),
+            func.name
         );
 
         if func.params.is_empty() {

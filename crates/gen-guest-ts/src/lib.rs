@@ -36,14 +36,14 @@ struct TypeScript {
 }
 
 impl WorldGenerator for TypeScript {
-    fn import(&mut self, name: &str, iface: &wit_parser::Interface, _files: &mut Files) {
+    fn import(&mut self, _name: &str, iface: &wit_parser::Interface, _files: &mut Files) {
         let mut gen = InterfaceGenerator::new(self, iface);
 
         gen.print_intro();
         gen.types();
 
         for func in iface.functions.iter() {
-            gen.generate_guest_import(name, func);
+            gen.generate_guest_import(func);
         }
 
         gen.print_outro();
@@ -158,7 +158,7 @@ impl<'a> InterfaceGenerator<'a> {
         }
     }
 
-    fn generate_guest_import(&mut self, mod_name: &str, func: &Function) {
+    fn generate_guest_import(&mut self, func: &Function) {
         if self.gen.skip.contains(&func.name) {
             return;
         }
@@ -231,8 +231,8 @@ impl<'a> InterfaceGenerator<'a> {
 
         self.push_str(&format!(
             "\"plugin:{}|{}\",",
-            mod_name.to_snake_case(),
-            func.name.to_snake_case()
+            self.iface.name.to_snake_case(),
+            func.name
         ));
 
         if !func.params.is_empty() {

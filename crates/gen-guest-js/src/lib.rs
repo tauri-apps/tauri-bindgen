@@ -37,7 +37,7 @@ struct JavaScript {
 impl WorldGenerator for JavaScript {
     fn import(
         &mut self,
-        name: &str,
+        _name: &str,
         iface: &wit_parser::Interface,
         _files: &mut Files,
     ) {
@@ -46,7 +46,7 @@ impl WorldGenerator for JavaScript {
         gen.print_intro();
 
         for func in iface.functions.iter() {
-            gen.generate_guest_import(name, func);
+            gen.generate_guest_import(func);
         }
 
         let module = &gen.src[..];
@@ -149,7 +149,7 @@ impl<'a> InterfaceGenerator<'a> {
         self.push_str(" */\n");
     }
 
-    fn generate_guest_import(&mut self, mod_name: &str, func: &Function) {
+    fn generate_guest_import(&mut self, func: &Function) {
         if self.gen.skip.contains(&func.name) {
             return;
         }
@@ -178,7 +178,7 @@ impl<'a> InterfaceGenerator<'a> {
 
         self.push_str(&format!(
             "await invoke(\"plugin:{}|{}\",",
-            mod_name.to_snake_case(),
+            self.iface.name.to_snake_case(),
             func.name.to_snake_case()
         ));
 
