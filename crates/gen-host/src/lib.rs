@@ -8,7 +8,7 @@ use std::{
 use tauri_bindgen_core::{
     uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types, WorldGenerator,
 };
-use tauri_bindgen_gen_rust::{FnSig, RustGenerator, TypeMode};
+use tauri_bindgen_gen_rust::{FnSig, RustGenerator, TypeMode, RustFlagsRepr};
 use wit_parser::*;
 
 #[derive(Default, Debug, Clone)]
@@ -213,7 +213,6 @@ impl<'a> InterfaceGenerator<'a> {
             }
 
             uwriteln!(self.src, ");");
-            // uwriteln!(self.src, ").map_err(tauri::InvokeError::from_anyhow);");
 
             if self.gen.opts.async_ {
                 uwriteln!(
@@ -228,48 +227,6 @@ impl<'a> InterfaceGenerator<'a> {
                     __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
                 ")
             }
-
-            // if self.gen.opts.async_ {
-            //     uwriteln!(self.src, "invoke.resolver.respond_async(async move {{");
-            // } else {
-            //     uwriteln!(self.src, "invoke.resolver.respond({{");
-            // };
-
-            // if func.params.is_empty() {
-            //     let maybe_await = if self.gen.opts.async_ { ".await" } else { "" };
-
-            //     uwriteln!(
-            //         self.src,
-            //         "ctx.{}(){}.map_err(::host::tauri::InvokeError::from_anyhow)",
-            //         func.name.to_snake_case(),
-            //         maybe_await
-            //     );
-            // } else {
-            //     if self.gen.opts.async_ {
-            //         uwriteln!(
-            //             self.src,
-            //             "
-            //             let args = serde_json::from_value(invoke.message.payload().clone())
-            //             .map_err(tauri::InvokeError::from_serde_json)?;"
-            //         );
-            //         uwriteln!(
-            //             self.src,
-            //             "ctx.{}(args).await.map_err(::host::tauri::InvokeError::from_anyhow)",
-            //             func.name.to_snake_case(),
-            //         );
-            //     } else {
-            //         uwriteln!(
-            //             self.src,
-            //             "::host::serde_json::from_value(invoke.message.payload().clone())
-            //                     .map_err(::host::tauri::InvokeError::from_serde_json)
-            //                     .and_then(|args| {{
-            //                         ctx.{}(args).map_err(::host::tauri::InvokeError::from_anyhow)
-            //                     }})
-            //             ",
-            //             func.name.to_snake_case(),
-            //         );
-            //     }
-            // }
 
             uwriteln!(self.src, "}},");
         }
@@ -338,32 +295,29 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.print_typedef_record(id, record, docs, get_serde_attrs);
     }
 
-    fn type_flags(&mut self, _id: TypeId, name: &str, flags: &wit_parser::Flags, docs: &Docs) {
-        self.push_str("host::bitflags! {{\n");
+    fn type_flags(&mut self, id: TypeId, name: &str, flags: &Flags, docs: &Docs) {
+        self.push_str("::tauri_bindgen_host::bitflags::bitflags! {\n");
         self.print_rustdoc(docs);
-        self.push_str(&format!("struct {}: ", name));
 
-        let repr = match flags.repr() {
-            FlagsRepr::U8 => "u8",
-            FlagsRepr::U16 => "u16",
-            FlagsRepr::U32(_) => "u32",
-        };
-        self.push_str(repr);
-        self.push_str(" { \n");
+        let repr = RustFlagsRepr::new(&flags);
+        let info = self.info(id);
 
-        let mut val: u32 = 0;
-        for flag in flags.flags.iter() {
-            self.print_rustdoc(&flag.docs);
-            self.push_str(&format!(
-                "const {} = {:#010b};\n",
-                flag.name.TO_SHOUTY_SNEK_CASE(),
-                val
-            ));
-
-            val = val << 1;
+        if let Some(attrs) = get_serde_attrs(name, self.uses_two_names(&info), info) {
+            self.push_str(&attrs);
         }
 
-        self.push_str("}\n");
+        self.push_str(&format!("pub struct {}: {} {{\n", name.to_upper_camel_case(), repr));
+
+        for (i, flag) in flags.flags.iter().enumerate() {
+            self.print_rustdoc(&flag.docs);      
+            self.src.push_str(&format!(
+                "const {} = 1 << {};\n",
+                flag.name.to_shouty_snake_case(),
+                i,
+            ));
+        }
+
+        self.push_str("}\n}\n");
     }
 
     fn type_tuple(&mut self, id: TypeId, _name: &str, tuple: &wit_parser::Tuple, docs: &Docs) {

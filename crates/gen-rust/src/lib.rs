@@ -1,6 +1,6 @@
 use heck::*;
 use std::collections::HashMap;
-use std::fmt::Write;
+use std::fmt::{Write, self};
 use tauri_bindgen_core::TypeInfo;
 use wit_parser::*;
 
@@ -784,4 +784,37 @@ pub struct FnSig {
     pub generics: Option<String>,
     pub self_arg: Option<String>,
     pub self_is_first_param: bool,
+}
+
+pub enum RustFlagsRepr {
+    U8,
+    U16,
+    U32,
+    U64,
+    U128,
+}
+
+impl RustFlagsRepr {
+    pub fn new(f: &Flags) -> RustFlagsRepr {
+        match f.repr() {
+            FlagsRepr::U8 => RustFlagsRepr::U8,
+            FlagsRepr::U16 => RustFlagsRepr::U16,
+            FlagsRepr::U32(1) => RustFlagsRepr::U32,
+            FlagsRepr::U32(2) => RustFlagsRepr::U64,
+            FlagsRepr::U32(3 | 4) => RustFlagsRepr::U128,
+            FlagsRepr::U32(n) => panic!("unsupported number of flags: {}", n * 32),
+        }
+    }
+}
+
+impl fmt::Display for RustFlagsRepr {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            RustFlagsRepr::U8 => "u8".fmt(f),
+            RustFlagsRepr::U16 => "u16".fmt(f),
+            RustFlagsRepr::U32 => "u32".fmt(f),
+            RustFlagsRepr::U64 => "u64".fmt(f),
+            RustFlagsRepr::U128 => "u128".fmt(f),
+        }
+    }
 }
