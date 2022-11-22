@@ -11,7 +11,6 @@ heck.workspace = true
 clap = { workspace = true, optional = true }
 
 [dev-dependencies]
-wit-component.workspace = true
 anyhow.workspace = true
 tauri-bindgen-host = { path = "../host" }
 serde = { version = "1.0.140", features = ["derive"] }

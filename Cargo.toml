@@ -14,7 +14,6 @@ version = "0.1.0"
 
 [workspace.dependencies]
 wit-parser = { git = 'https://github.com/bytecodealliance/wasm-tools' }
-wit-component = { git = 'https://github.com/bytecodealliance/wasm-tools' }
 tauri-bindgen-core = { path = "crates/bindgen-core"}
 tauri-bindgen-gen-rust = { path = "crates/gen-rust"}
 tauri-bindgen-gen-host = { path = "crates/gen-host"}
@@ -40,4 +39,3 @@ tauri-bindgen-gen-guest-rust = { workspace = true, features = ['clap'] }
 tauri-bindgen-gen-guest-ts = { workspace = true, features = ['clap'] }
 tauri-bindgen-gen-guest-js = { workspace = true, features = ['clap'] }
 wit-parser.workspace = true
-wit-component.workspace = true

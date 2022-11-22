@@ -5,4 +5,3 @@ edition.workspace = true
 
 [dependencies]
 wit-parser.workspace = true
-wit-component.workspace = true

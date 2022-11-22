@@ -1,10 +1,8 @@
 use std::{fmt::{Write, self}, ops::Deref, collections::{BTreeMap, btree_map::Entry, HashMap}};
-
-use wit_component::ComponentInterfaces;
 use wit_parser::*;
 
 pub trait WorldGenerator {
-    fn generate(&mut self, name: &str, interfaces: &ComponentInterfaces, files: &mut Files) {
+    fn generate(&mut self, name: &str, interfaces: &World, files: &mut Files) {
         self.preprocess(name);
         for (name, import) in interfaces.imports.iter() {
             self.import(name, import, files);

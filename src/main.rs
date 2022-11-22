@@ -1,8 +1,7 @@
 use anyhow::{bail, Context};
-use tauri_bindgen_core::{Files, WorldGenerator};
 use clap::Parser;
 use std::path::{Path, PathBuf};
-use wit_component::ComponentInterfaces;
+use tauri_bindgen_core::{Files, WorldGenerator};
 use wit_parser::World;
 
 /// Helper for passing VERSION to opt.

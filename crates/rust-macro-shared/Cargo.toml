@@ -11,5 +11,4 @@ test = false
 proc-macro2 = "1.0"
 syn = "1.0"
 tauri-bindgen-core.workspace = true
-wit-component.workspace = true
 wit-parser.workspace = true

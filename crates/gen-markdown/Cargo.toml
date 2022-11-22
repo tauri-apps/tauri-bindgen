@@ -12,7 +12,6 @@ heck.workspace = true
 pulldown-cmark.workspace = true
 clap = { workspace = true, optional = true }
 tauri-bindgen-core.workspace = true
-wit-component.workspace = true
 wit-parser.workspace = true
 
 [features]

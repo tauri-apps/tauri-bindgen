@@ -10,7 +10,6 @@ heck.workspace = true
 clap = { workspace = true, optional = true }
 
 [dev-dependencies]
-wit-component.workspace = true
 anyhow.workspace = true
 
 [features]

@@ -2,7 +2,6 @@ use std::path::Path;
 
 use tauri_bindgen_core::{Files, WorldGenerator};
 use tauri_bindgen_gen_guest_ts::*;
-use wit_component::ComponentInterfaces;
 use wit_parser::World;
 
 fn gen_world(mut gen: Box<dyn WorldGenerator>, name: impl AsRef<str>, path: impl AsRef<Path>) -> (String, String) {
@@ -10,8 +9,7 @@ fn gen_world(mut gen: Box<dyn WorldGenerator>, name: impl AsRef<str>, path: impl
 
     let mut files = Files::default();
 
-    let interfaces = ComponentInterfaces::from(world);
-    gen.generate(name.as_ref(), &interfaces, &mut files);
+    gen.generate(name.as_ref(), &world, &mut files);
 
     let (filename, contents) = files.iter().next().unwrap();
 
