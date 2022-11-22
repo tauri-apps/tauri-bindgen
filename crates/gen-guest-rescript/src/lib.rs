@@ -204,12 +204,6 @@ impl<'a> InterfaceGenerator<'a> {
         }
 
         self.push_str(")\n");
-        self.push_str("->ignore\n");
-
-        // ->then(msg => {
-        //     // TODO
-        //     resolve(msg)
-        // })
 
         self.push_str("}\n");
     }
