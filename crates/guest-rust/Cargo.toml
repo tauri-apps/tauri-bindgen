@@ -9,5 +9,7 @@ edition.workspace = true
 bitflags.workspace = true
 tauri-bindgen-guest-rust-macro = { path = "../guest-rust-macro" }
 serde-wasm-bindgen = "0.4.5"
+wasm-bindgen-futures = "0.4.32"
+js-sys = "0.3.59" 
 wasm-bindgen = { version = "0.2.82", features = ["serde-serialize"] }
 serde = { version = "1.0.140", features = ["derive"] }

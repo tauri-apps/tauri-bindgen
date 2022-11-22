@@ -1,15 +1,5 @@
 #[allow(clippy::all, unused)]
 pub mod import_unions {
-
-    #[::wasm_bindgen::prelude::wasm_bindgen]
-    extern "C" {
-        #[::wasm_bindgen::prelude::wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
-        pub async fn invoke(
-            cmd: ::wasm_bindgen::prelude::JsValue,
-            args: ::wasm_bindgen::prelude::JsValue,
-        ) -> ::wasm_bindgen::prelude::JsValue;
-    }
-
     /// A union of all of the integral types
     #[derive(Debug, Clone, Copy, ::serde::Serialize, ::serde::Deserialize)]
     pub enum AllIntegers {
@@ -64,12 +54,7 @@ pub mod import_unions {
             num: AllIntegers,
         }
         let params = Params { num };
-        let raw = invoke(
-            ::wasm_bindgen::JsValue::from_str("plugin:import_unions|add_one_integer"),
-            ::serde_wasm_bindgen::to_value(&params).unwrap(),
-        )
-        .await;
-        ::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::tauri_bindgen_guest_rust::send("plugin:import_unions|add_one_integer", &params).await
     }
     pub async fn add_one_float(num: AllFloats) -> AllFloats {
         #[derive(::serde::Serialize)]
@@ -78,12 +63,7 @@ pub mod import_unions {
             num: AllFloats,
         }
         let params = Params { num };
-        let raw = invoke(
-            ::wasm_bindgen::JsValue::from_str("plugin:import_unions|add_one_float"),
-            ::serde_wasm_bindgen::to_value(&params).unwrap(),
-        )
-        .await;
-        ::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::tauri_bindgen_guest_rust::send("plugin:import_unions|add_one_float", &params).await
     }
     pub async fn replace_first_char(text: AllTextParam<'_>, letter: char) -> AllTextResult {
         #[derive(::serde::Serialize)]
@@ -93,12 +73,7 @@ pub mod import_unions {
             letter: char,
         }
         let params = Params { text, letter };
-        let raw = invoke(
-            ::wasm_bindgen::JsValue::from_str("plugin:import_unions|replace_first_char"),
-            ::serde_wasm_bindgen::to_value(&params).unwrap(),
-        )
-        .await;
-        ::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::tauri_bindgen_guest_rust::send("plugin:import_unions|replace_first_char", &params).await
     }
     pub async fn identify_integer(num: AllIntegers) -> u8 {
         #[derive(::serde::Serialize)]
@@ -107,12 +82,7 @@ pub mod import_unions {
             num: AllIntegers,
         }
         let params = Params { num };
-        let raw = invoke(
-            ::wasm_bindgen::JsValue::from_str("plugin:import_unions|identify_integer"),
-            ::serde_wasm_bindgen::to_value(&params).unwrap(),
-        )
-        .await;
-        ::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::tauri_bindgen_guest_rust::send("plugin:import_unions|identify_integer", &params).await
     }
     pub async fn identify_float(num: AllFloats) -> u8 {
         #[derive(::serde::Serialize)]
@@ -121,12 +91,7 @@ pub mod import_unions {
             num: AllFloats,
         }
         let params = Params { num };
-        let raw = invoke(
-            ::wasm_bindgen::JsValue::from_str("plugin:import_unions|identify_float"),
-            ::serde_wasm_bindgen::to_value(&params).unwrap(),
-        )
-        .await;
-        ::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::tauri_bindgen_guest_rust::send("plugin:import_unions|identify_float", &params).await
     }
     pub async fn identify_text(text: AllTextParam<'_>) -> u8 {
         #[derive(::serde::Serialize)]
@@ -135,12 +100,7 @@ pub mod import_unions {
             text: AllTextParam<'a>,
         }
         let params = Params { text };
-        let raw = invoke(
-            ::wasm_bindgen::JsValue::from_str("plugin:import_unions|identify_text"),
-            ::serde_wasm_bindgen::to_value(&params).unwrap(),
-        )
-        .await;
-        ::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::tauri_bindgen_guest_rust::send("plugin:import_unions|identify_text", &params).await
     }
     pub async fn add_one_duplicated(num: DuplicatedS32) -> DuplicatedS32 {
         #[derive(::serde::Serialize)]
@@ -149,12 +109,7 @@ pub mod import_unions {
             num: DuplicatedS32,
         }
         let params = Params { num };
-        let raw = invoke(
-            ::wasm_bindgen::JsValue::from_str("plugin:import_unions|add_one_duplicated"),
-            ::serde_wasm_bindgen::to_value(&params).unwrap(),
-        )
-        .await;
-        ::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::tauri_bindgen_guest_rust::send("plugin:import_unions|add_one_duplicated", &params).await
     }
     pub async fn identify_duplicated(num: DuplicatedS32) -> u8 {
         #[derive(::serde::Serialize)]
@@ -163,12 +118,7 @@ pub mod import_unions {
             num: DuplicatedS32,
         }
         let params = Params { num };
-        let raw = invoke(
-            ::wasm_bindgen::JsValue::from_str("plugin:import_unions|identify_duplicated"),
-            ::serde_wasm_bindgen::to_value(&params).unwrap(),
-        )
-        .await;
-        ::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::tauri_bindgen_guest_rust::send("plugin:import_unions|identify_duplicated", &params).await
     }
     pub async fn add_one_distinguishable_num(num: DistinguishableNum) -> DistinguishableNum {
         #[derive(::serde::Serialize)]
@@ -177,12 +127,11 @@ pub mod import_unions {
             num: DistinguishableNum,
         }
         let params = Params { num };
-        let raw = invoke(
-            ::wasm_bindgen::JsValue::from_str("plugin:import_unions|add_one_distinguishable_num"),
-            ::serde_wasm_bindgen::to_value(&params).unwrap(),
+        ::tauri_bindgen_guest_rust::send(
+            "plugin:import_unions|add_one_distinguishable_num",
+            &params,
         )
-        .await;
-        ::serde_wasm_bindgen::from_value(raw).unwrap()
+        .await
     }
     pub async fn identify_distinguishable_num(num: DistinguishableNum) -> u8 {
         #[derive(::serde::Serialize)]
@@ -191,11 +140,10 @@ pub mod import_unions {
             num: DistinguishableNum,
         }
         let params = Params { num };
-        let raw = invoke(
-            ::wasm_bindgen::JsValue::from_str("plugin:import_unions|identify_distinguishable_num"),
-            ::serde_wasm_bindgen::to_value(&params).unwrap(),
+        ::tauri_bindgen_guest_rust::send(
+            "plugin:import_unions|identify_distinguishable_num",
+            &params,
         )
-        .await;
-        ::serde_wasm_bindgen::from_value(raw).unwrap()
+        .await
     }
 }

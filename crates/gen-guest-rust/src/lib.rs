@@ -55,7 +55,7 @@ impl WorldGenerator for RustWasm {
         _files: &mut Files,
     ) {
         let mut gen = InterfaceGenerator::new(self, iface, TypeMode::AllBorrowed("'a"));
-        gen.generate_invoke_bindings();
+        // gen.generate_invoke_bindings();
         gen.types();
 
         for func in iface.functions.iter() {
@@ -128,18 +128,18 @@ impl<'a> InterfaceGenerator<'a> {
         }
     }
 
-    fn generate_invoke_bindings(&mut self) {
-        uwriteln!(
-            self.src,
-            r#"
-        #[::wasm_bindgen::prelude::wasm_bindgen]
-        extern "C" {{
-            #[::wasm_bindgen::prelude::wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
-            pub async fn invoke(cmd: ::wasm_bindgen::prelude::JsValue, args: ::wasm_bindgen::prelude::JsValue) -> ::wasm_bindgen::prelude::JsValue;
-        }}
-        "#
-        );
-    }
+    // fn generate_invoke_bindings(&mut self) {
+    //     uwriteln!(
+    //         self.src,
+    //         r#"
+    //     #[::wasm_bindgen::prelude::wasm_bindgen]
+    //     extern "C" {{
+    //         #[::wasm_bindgen::prelude::wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
+    //         pub async fn invoke(cmd: ::wasm_bindgen::prelude::JsValue, args: ::wasm_bindgen::prelude::JsValue) -> ::wasm_bindgen::prelude::JsValue;
+    //     }}
+    //     "#
+    //     );
+    // }
 
     fn generate_guest_import(&mut self, mod_name: &str, func: &Function) {
         if self.gen.skip.contains(&func.name) {
@@ -195,21 +195,18 @@ impl<'a> InterfaceGenerator<'a> {
 
         uwrite!(
             self.src,
-            r#"let raw = invoke(::wasm_bindgen::JsValue::from_str("plugin:{}|{}"),"#,
+            r#"::tauri_bindgen_guest_rust::send("plugin:{}|{}", "#,
             mod_name.to_snake_case(),
             func.name.to_snake_case()
         );
 
         if func.params.is_empty() {
-            self.push_str("::wasm_bindgen::JsValue::NULL");
+            self.push_str("()");
         } else {
-            self.push_str("::serde_wasm_bindgen::to_value(&params).unwrap()");
+            self.push_str("&params");
         }
 
-        self.push_str(").await;\n");
-
-        self.src
-            .push_str("::serde_wasm_bindgen::from_value(raw).unwrap()\n");
+        self.push_str(").await\n");
 
         self.src.push_str("}\n");
 

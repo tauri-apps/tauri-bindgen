@@ -219,7 +219,7 @@ pub trait RustGenerator<'a> {
                 self.push_str(",\n");
             }
 
-            self.push_str("}");
+            self.push_str("}\n");
         }
     }
 

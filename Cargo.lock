@@ -2622,10 +2622,12 @@ name = "tauri-bindgen-guest-rust"
 version = "0.1.0"
 dependencies = [
  "bitflags",
+ "js-sys",
  "serde",
  "serde-wasm-bindgen",
  "tauri-bindgen-guest-rust-macro",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
 ]
 
 [[package]]

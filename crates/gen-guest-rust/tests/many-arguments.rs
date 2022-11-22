@@ -1,15 +1,5 @@
 #[allow(clippy::all, unused)]
 pub mod imports {
-
-    #[::wasm_bindgen::prelude::wasm_bindgen]
-    extern "C" {
-        #[::wasm_bindgen::prelude::wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
-        pub async fn invoke(
-            cmd: ::wasm_bindgen::prelude::JsValue,
-            args: ::wasm_bindgen::prelude::JsValue,
-        ) -> ::wasm_bindgen::prelude::JsValue;
-    }
-
     #[derive(Debug, Clone, ::serde::Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct BigStruct<'a> {
@@ -90,12 +80,7 @@ pub mod imports {
             a15,
             a16,
         };
-        let raw = invoke(
-            ::wasm_bindgen::JsValue::from_str("plugin:imports|many_args"),
-            ::serde_wasm_bindgen::to_value(&params).unwrap(),
-        )
-        .await;
-        ::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::tauri_bindgen_guest_rust::send("plugin:imports|many_args", &params).await
     }
     pub async fn big_argument(x: BigStruct<'_>) -> () {
         #[derive(::serde::Serialize)]
@@ -104,11 +89,6 @@ pub mod imports {
             x: BigStruct<'a>,
         }
         let params = Params { x };
-        let raw = invoke(
-            ::wasm_bindgen::JsValue::from_str("plugin:imports|big_argument"),
-            ::serde_wasm_bindgen::to_value(&params).unwrap(),
-        )
-        .await;
-        ::serde_wasm_bindgen::from_value(raw).unwrap()
+        ::tauri_bindgen_guest_rust::send("plugin:imports|big_argument", &params).await
     }
 }
