@@ -26,9 +26,10 @@ This project generates bindings for **both sides** of the Taur IPC bridge. Bindi
 - **Guest JavaScript** - Generates a module exposing all functions, functions internally know how to serialize and invoke their host counterpart.
 - **Guest Typescript** - The same as the JavaScript guest, but generates Typescript files.
 - **Guest Rust** - Generates bindings using `wasm_bindgen` that can be used in Rust compile-to-wasm frontend frameworks such as sycamore. You probably want to depend on the `tauri-bindgen-guest-rust` crate (located at `crates/guest-rust`) and use the `generate!` macro to generate code.
+- **Guest ReScript** - Generates bindings for the ReScript language.
 - **Markdown** - Generates a markdown description of the interface for documentation purposes.
 
-## Exmple
+## Example
 
 Declare your interface in a `*.wit` file:
 

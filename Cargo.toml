@@ -20,6 +20,7 @@ tauri-bindgen-gen-host = { path = "crates/gen-host"}
 tauri-bindgen-gen-guest-rust = { path = "crates/gen-guest-rust"}
 tauri-bindgen-gen-guest-ts = { path = "crates/gen-guest-ts"}
 tauri-bindgen-gen-guest-js = { path = "crates/gen-guest-js"}
+tauri-bindgen-gen-guest-rescript = { path = "crates/gen-guest-rescript"}
 tauri-bindgen-gen-markdown = { path = "crates/gen-markdown"}
 heck =  { version = "0.4", features = ["unicode"] }
 anyhow = "1.0.65"
@@ -38,4 +39,5 @@ tauri-bindgen-gen-markdown = { workspace = true, features = ['clap'] }
 tauri-bindgen-gen-guest-rust = { workspace = true, features = ['clap'] }
 tauri-bindgen-gen-guest-ts = { workspace = true, features = ['clap'] }
 tauri-bindgen-gen-guest-js = { workspace = true, features = ['clap'] }
+tauri-bindgen-gen-guest-rescript = { workspace = true, features = ['clap'] }
 wit-parser.workspace = true
