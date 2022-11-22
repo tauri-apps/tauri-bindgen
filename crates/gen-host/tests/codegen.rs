@@ -64,6 +64,21 @@ fn empty() {
 }
 
 #[test]
+fn flags() {
+    let opts = Opts {
+        rustfmt: true,
+        tracing: false,
+        async_: true,
+    };
+    let gen = opts.build();
+
+    let (filename, contents) = gen_world(gen, "flags", "../../tests/codegen/flags.wit");
+
+    assert_eq!(filename, "flags.rs");
+    assert_eq!(contents, include_str!("./flegs.rs"));
+}
+
+#[test]
 fn floats() {
     let opts = Opts {
         rustfmt: true,
