@@ -26,7 +26,7 @@ This project's main purpose right now is to support the development of Tauri API
 
 Under the current IPC system, Tauri can make no compile-time guarantees on the correctness of your `invoke` calls and any mistakes will result in nasty runtime errors. For example you might have misspelled a command or parameter name which you will only notice when actually running the app!
 
-`tauri-bindgen` will generate traits and invoke-handlers for the [Host](#host) and client bindings for JavaScript, TypeScript, Rust and ReScript from a single, shared source of truth using the [`*.wit`](https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md) format as a Interface Definition Language (IDL). The generated bindings automatically take care of the heavy lifting, such as correctly calling the `invoke` function and serializing/deserializing parameters and results.
+`tauri-bindgen` will generate traits and invoke-handlers for the [Host](#host) and [Guest](#guest) bindings for JavaScript, TypeScript, Rust and ReScript from a single, shared source of truth using the [`*.wit`](https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md) format as a Interface Definition Language (IDL). The generated bindings automatically take care of the heavy lifting, such as correctly calling the `invoke` function and serializing/deserializing parameters and results.
 
 Here are a few reasons why that is cool:
 
