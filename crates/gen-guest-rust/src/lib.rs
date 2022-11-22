@@ -1,5 +1,5 @@
 use tauri_bindgen_core::{InterfaceGenerator as _, *};
-use tauri_bindgen_gen_rust::{FnSig, RustGenerator, TypeMode};
+use tauri_bindgen_gen_rust::{FnSig, RustGenerator, TypeMode, RustFlagsRepr};
 use heck::*;
 use std::fmt::Write as _;
 use std::{
@@ -263,32 +263,29 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.print_typedef_tuple(id, tuple, docs);
     }
 
-    fn type_flags(&mut self, _id: TypeId, name: &str, flags: &Flags, docs: &Docs) {
-        self.push_str("::tauri_bindgen_guest_rust::bitflags! {{\n");
+    fn type_flags(&mut self, id: TypeId, name: &str, flags: &Flags, docs: &Docs) {
+        self.push_str("::tauri_bindgen_guest_rust::bitflags::bitflags! {\n");
         self.print_rustdoc(docs);
-        self.push_str(&format!("struct {}: ", name));
 
-        let repr = match flags.repr() {
-            FlagsRepr::U8 => "u8",
-            FlagsRepr::U16 => "u16",
-            FlagsRepr::U32(_) => "u32",
-        };
-        self.push_str(repr);
-        self.push_str(" { \n");
+        let repr = RustFlagsRepr::new(&flags);
+        let info = self.info(id);
 
-        let mut val: u32 = 0;
-        for flag in flags.flags.iter() {
-            self.print_rustdoc(&flag.docs);
-            self.push_str(&format!(
-                "const {} = {:#010b};\n",
-                flag.name.TO_SHOUTY_SNEK_CASE(),
-                val
-            ));
-
-            val = val << 1;
+        if let Some(attrs) = get_serde_attrs(name, self.uses_two_names(&info), info) {
+            self.push_str(&attrs);
         }
 
-        self.push_str("}\n");
+        self.push_str(&format!("pub struct {}: {} {{\n", name.to_upper_camel_case(), repr));
+
+        for (i, flag) in flags.flags.iter().enumerate() {
+            self.print_rustdoc(&flag.docs);      
+            self.src.push_str(&format!(
+                "const {} = 1 << {};\n",
+                flag.name.to_shouty_snake_case(),
+                i,
+            ));
+        }
+
+        self.push_str("}\n}\n");
     }
 
     fn type_variant(&mut self, id: TypeId, _name: &str, variant: &Variant, docs: &Docs) {
