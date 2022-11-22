@@ -8,7 +8,7 @@ use std::{
 use tauri_bindgen_core::{
     uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types, WorldGenerator,
 };
-use tauri_bindgen_gen_rust::{FnSig, RustGenerator, TypeMode, RustFlagsRepr};
+use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, TypeMode};
 use wit_parser::*;
 
 #[derive(Default, Debug, Clone)]
@@ -150,19 +150,28 @@ impl<'a> InterfaceGenerator<'a> {
             "
                 pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
                 where
-                    U: {camel} + Copy + Send + Sync + 'static,
-                    R: ::tauri_bindgen_host::tauri::Runtime
+                    U: {camel} + Send + Sync + 'static,
+                    R: ::tauri_bindgen_host::tauri::Runtime + 'static
                 {{
             "
         );
 
-        uwriteln!(
-            self.src,
-            "
-                move |invoke| {{
-                    match invoke.message.command() {{
-            "
-        );
+        uwriteln!(self.src, "move |invoke| {{");
+
+        if self.gen.opts.tracing {
+            uwriteln!(
+                self.src,
+                r#"let span = ::tauri_bindgen_host::tracing::span!(
+                    ::tauri_bindgen_host::tracing::Level::TRACE,
+                    "tauri-bindgen invoke handler",
+                    message = ?invoke.message,
+                );
+                let _enter = span.enter();
+               "#
+            );
+        }
+
+        uwriteln!(self.src, "match invoke.message.command() {{");
 
         for func in self.iface.functions.iter() {
             uwrite!(self.src, "\"{}\" => {{", &func.name);
@@ -306,10 +315,14 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
             self.push_str(&attrs);
         }
 
-        self.push_str(&format!("pub struct {}: {} {{\n", name.to_upper_camel_case(), repr));
+        self.push_str(&format!(
+            "pub struct {}: {} {{\n",
+            name.to_upper_camel_case(),
+            repr
+        ));
 
         for (i, flag) in flags.flags.iter().enumerate() {
-            self.print_rustdoc(&flag.docs);      
+            self.print_rustdoc(&flag.docs);
             self.src.push_str(&format!(
                 "const {} = 1 << {};\n",
                 flag.name.to_shouty_snake_case(),
