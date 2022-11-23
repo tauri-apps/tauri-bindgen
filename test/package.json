@@ -1,0 +1,19 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^9.0.2",
+    "rollup": "^3.4.0",
+    "rollup-plugin-tauri-bindgen": "../crates/rollup-plugin",
+    "tslib": "^2.4.1",
+    "typescript": "^4.9.3"
+  }
+}

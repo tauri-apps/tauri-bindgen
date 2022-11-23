@@ -1,0 +1,10 @@
+{
+    "exclude": ["node_modules"],
+    "compilerOptions": {
+      "target": "esnext",
+      "moduleResolution": "node",
+      "outDir": "dist",
+      "declaration": true
+    }
+  }
+  

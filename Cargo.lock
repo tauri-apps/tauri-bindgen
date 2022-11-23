@@ -2109,6 +2109,9 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+ "tauri-bindgen-core",
+ "tauri-bindgen-gen-guest-js",
+ "wit-parser",
 ]
 
 [[package]]
