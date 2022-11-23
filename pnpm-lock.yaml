@@ -1,20 +1,39 @@
 lockfileVersion: 5.4
 
-specifiers:
-  '@napi-rs/cli': ^2.13.0
-  ava: ^4.3.3
-  cross-env: ^7.0.3
-  rollup: ^3.4.0
-  typescript: ^4.9.3
+importers:
 
-dependencies:
-  rollup: 3.4.0
-  typescript: 4.9.3
+  .:
+    specifiers: {}
 
-devDependencies:
-  '@napi-rs/cli': 2.13.0
-  ava: 4.3.3
-  cross-env: 7.0.3
+  crates/rollup-plugin:
+    specifiers:
+      '@napi-rs/cli': ^2.13.0
+      ava: ^4.3.3
+      cross-env: ^7.0.3
+      rollup: ^3.4.0
+      typescript: ^4.9.3
+    dependencies:
+      rollup: 3.4.0
+      typescript: 4.9.3
+    devDependencies:
+      '@napi-rs/cli': 2.13.0
+      ava: 4.3.3
+      cross-env: 7.0.3
+
+  crates/rollup-plugin/npm/darwin-arm64:
+    specifiers: {}
+
+  crates/rollup-plugin/npm/darwin-x64:
+    specifiers: {}
+
+  crates/rollup-plugin/npm/linux-arm64-gnu:
+    specifiers: {}
+
+  crates/rollup-plugin/npm/linux-x64-gnu:
+    specifiers: {}
+
+  crates/rollup-plugin/npm/win32-x64-msvc:
+    specifiers: {}
 
 packages:
 
