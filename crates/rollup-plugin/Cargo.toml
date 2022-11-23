@@ -1,0 +1,22 @@
+[package]
+name = "rollup-plugin-tauri-bindgen"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
+napi = { version = "2.10.1", default-features = false, features = ["napi4"] }
+napi-derive = "2.9.1"
+tauri-bindgen-core.workspace = true
+tauri-bindgen-gen-guest-js.workspace = true
+tauri-bindgen-gen-guest-ts.workspace = true
+wit-parser.workspace = true
+
+[build-dependencies]
+napi-build = "2.0.1"
+
+[profile.release]
+lto = true
