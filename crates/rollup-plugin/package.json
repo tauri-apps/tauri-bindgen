@@ -27,8 +27,8 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "napi build --platform --release --js bindgen.js --dts bindgen.d.ts && rollup -c",
-    "build:debug": "napi build --platform --js bindgen.js --dts bindgen.d.ts && rollup -c",
+    "build": "napi build --platform --release --js bindgen.js --dts bindgen.d.ts",
+    "build:debug": "napi build --platform --js bindgen.js --dts bindgen.d.ts",
     "prepublishOnly": "napi prepublish -t npm",
     "version": "napi version"
   }

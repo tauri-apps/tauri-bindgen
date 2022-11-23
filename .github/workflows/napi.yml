@@ -35,9 +35,12 @@ jobs:
             target: x86_64-apple-darwin
             build: |
               yarn build
+              yarn rollup -c
               strip -x *.node
           - host: windows-latest
-            build: yarn build
+            build: |
+              yarn build
+              yarn rollup -c
             target: x86_64-pc-windows-msvc
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
@@ -45,7 +48,8 @@ jobs:
             build: |
               cd crates/rollup-plugin
               set -e &&
-              yarn build --target x86_64-unknown-linux-gnu &&
+              yarn build --target x86_64-unknown-linux-gnu
+              yarn rollup -c
               strip *.node
           - host: macos-latest
             target: aarch64-apple-darwin
@@ -56,6 +60,7 @@ jobs:
               SYSROOT=$(xcrun --sdk macosx --show-sdk-path);
               export CFLAGS="-isysroot $SYSROOT -isystem $SYSROOT";
               yarn build --target aarch64-apple-darwin
+              yarn rollup -c
               strip -x *.node
     name: stable - ${{ matrix.settings.target }} - node@16
     runs-on: ${{ matrix.settings.host }}
