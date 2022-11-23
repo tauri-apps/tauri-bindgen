@@ -67,6 +67,7 @@ jobs:
           node-version: 16
           check-latest: true
           cache: yarn
+          cache-dependency-path: 'crates/rollup-plugin/yarn.lock'
       - name: Install
         uses: actions-rs/toolchain@v1
         if: ${{ !matrix.settings.docker }}
@@ -107,6 +108,7 @@ jobs:
           node-version: 16
           check-latest: true
           cache: yarn
+          cache-dependency-path: 'crates/rollup-plugin/yarn.lock'
           architecture: x86
       - name: Build in docker
         uses: addnab/docker-run-action@v3
@@ -148,6 +150,7 @@ jobs:
           node-version: ${{ matrix.node }}
           check-latest: true
           cache: yarn
+          cache-dependency-path: 'crates/rollup-plugin/yarn.lock'
       - name: Cache NPM dependencies
         uses: actions/cache@v3
         with:
@@ -185,6 +188,7 @@ jobs:
           node-version: ${{ matrix.node }}
           check-latest: true
           cache: yarn
+          cache-dependency-path: 'crates/rollup-plugin/yarn.lock'
       - name: Cache NPM dependencies
         uses: actions/cache@v3
         with:
@@ -216,6 +220,7 @@ jobs:
           node-version: 16
           check-latest: true
           cache: yarn
+          cache-dependency-path: 'crates/rollup-plugin/yarn.lock'
       - name: Cache NPM dependencies
         uses: actions/cache@v3
         with:
