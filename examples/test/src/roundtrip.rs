@@ -374,7 +374,14 @@ pub async fn options() -> anyhow::Result<()> {
     let f = Some(roundtrip::U1::F32(828629869.997279));
     let g = Some(Some(true));
 
-    ensure!(roundtrip::options(a, b, c, d, e, f, g).await == (a, b, c, d, e, f, g));
+    let res = roundtrip::options(a, b, c, d, e, f, g).await;
+    let exp = (a, b, c, d, e, f, g);
+
+    // exp (None, Some(()), Some(89629), Some(A), Some(698699.0), Some(F32(828629900.0)), Some(Some(true)))
+    // got (None, None, Some(89629), Some(A), Some(698699.0), Some(F32(828629900.0)), Some(Some(true)))
+
+    log::debug!("exp {:?} got {:?}", exp, res);
+    ensure!(res == exp);
 
     Ok(())
 }
@@ -386,17 +393,17 @@ pub async fn results() -> anyhow::Result<()> {
     let e = Err(roundtrip::V1Param::D("hello world"));
     let f = Ok("foobar");
 
-    ensure!(
-        roundtrip::results(a, b, c, d, e, f).await
-            == (
-                a,
-                b,
-                c,
-                d,
-                Err(roundtrip::V1Result::D("hello world".to_string())),
-                Ok("foobar".to_string()),
-            )
+    let res = roundtrip::results(a, b, c, d, e, f).await;
+    let exp = (
+        a,
+        b,
+        c,
+        d,
+        Err(roundtrip::V1Result::D("hello world".to_string())),
+        Ok("foobar".to_string()),
     );
+
+    ensure!(res == exp);
 
     Ok(())
 }

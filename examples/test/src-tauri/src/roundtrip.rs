@@ -6,7 +6,7 @@ use tauri::{
 tauri_bindgen_host::generate!({
   path: "../world.wit",
   async: false,
-  // tracing: true
+  tracing: true
 });
 
 struct Ctx;
