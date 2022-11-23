@@ -158,23 +158,24 @@ impl<'a> InterfaceGenerator<'a> {
 
         uwriteln!(self.src, "move |invoke| {{");
 
-        if self.gen.opts.tracing {
-            uwriteln!(
-                self.src,
-                r#"let span = ::tauri_bindgen_host::tracing::span!(
-                    ::tauri_bindgen_host::tracing::Level::TRACE,
-                    "tauri-bindgen invoke handler",
-                    message = ?invoke.message,
-                );
-                let _enter = span.enter();
-               "#
-            );
-        }
-
         uwriteln!(self.src, "match invoke.message.command() {{");
 
         for func in self.iface.functions.iter() {
             uwrite!(self.src, "\"{}\" => {{", &func.name);
+
+            let func_name = &func.name;
+            if self.gen.opts.tracing {
+                uwriteln!(
+                    self.src,
+                    r#"let span = ::tauri_bindgen_host::tracing::span!(
+                        ::tauri_bindgen_host::tracing::Level::TRACE,
+                        "tauri-bindgen invoke handler",
+                        module = "{name}", function = "{func_name}", payload = ?invoke.message.payload()
+                    );
+                    let _enter = span.enter();
+                   "#
+                );
+            }
 
             uwriteln!(
                 self.src,
@@ -188,19 +189,32 @@ impl<'a> InterfaceGenerator<'a> {
             );
 
             for (param, _) in func.params.iter() {
+                let snake_param = param.to_snake_case();
+
                 uwriteln!(
                     self.src,
-                    "let {} = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {{
-                        name: \"{}\",
-                        key: \"{}\",
+                    r#"let {snake_param} = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {{
+                        name: "{func_name}",
+                        key: "{param}",
                         message: &__tauri_message__,
                     }}) {{
                         Ok(arg) => arg,
-                        Err(err) => return __tauri_resolver__.invoke_error(err),
-                    }};\n",
-                    param.to_snake_case(),
-                    &func.name,
-                    param
+                        Err(err) => {{"#
+                );
+
+                if self.gen.opts.tracing {
+                    uwriteln!(
+                        self.src,
+                        r#"::tauri_bindgen_host::tracing::error!(module = "{name}", function = "{func_name}", "Invoke handler returned error {{:?}}", err);"#
+                    );
+                }
+
+                uwriteln!(
+                    self.src,
+                    r#"return __tauri_resolver__.invoke_error(err);
+                        }},
+                    }};
+                    "#
                 );
             }
 
@@ -240,7 +254,15 @@ impl<'a> InterfaceGenerator<'a> {
             uwriteln!(self.src, "}},");
         }
 
-        uwriteln!(self.src, "_ => invoke.resolver.reject(\"Not Found\")");
+        uwriteln!(self.src, "func_name => {{");
+        if self.gen.opts.tracing {
+            uwriteln!(
+                self.src,
+                r#"::tauri_bindgen_host::tracing::error!(module = "{name}", function = func_name, "Not Found");"#
+            );
+        }
+        uwriteln!(self.src, "invoke.resolver.reject(\"Not Found\")");
+        uwriteln!(self.src, "}}");
         uwriteln!(self.src, "}}");
         uwriteln!(self.src, "}}");
 
