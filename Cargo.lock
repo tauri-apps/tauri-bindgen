@@ -2104,15 +2104,11 @@ dependencies = [
 
 [[package]]
 name = "rollup-plugin-tauri-bindgen"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
- "tauri-bindgen-core",
- "tauri-bindgen-gen-guest-js",
- "tauri-bindgen-gen-guest-ts",
- "wit-parser",
 ]
 
 [[package]]

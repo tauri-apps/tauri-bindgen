@@ -1,4 +1,4 @@
-name: napi CI
+name: CI
 env:
   DEBUG: napi:*
   APP_NAME: rollup-plugin-tauri-bindgen
@@ -16,6 +16,15 @@ env:
       - .editorconfig
       - docs/**
   pull_request: null
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: crates/rollup-plugin
+
 jobs:
   build:
     strategy:
@@ -25,17 +34,17 @@ jobs:
           - host: macos-latest
             target: x86_64-apple-darwin
             build: |
-              pnpm build
+              yarn build
               strip -x *.node
           - host: windows-latest
-            build: pnpm build
+            build: yarn build
             target: x86_64-pc-windows-msvc
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
             build: |-
               set -e &&
-              pnpm build --target x86_64-unknown-linux-gnu &&
+              yarn build --target x86_64-unknown-linux-gnu &&
               strip *.node
           - host: macos-latest
             target: aarch64-apple-darwin
@@ -45,20 +54,10 @@ jobs:
               export CXX=$(xcrun -f clang++);
               SYSROOT=$(xcrun --sdk macosx --show-sdk-path);
               export CFLAGS="-isysroot $SYSROOT -isystem $SYSROOT";
-              pnpm build --target aarch64-apple-darwin
+              yarn build --target aarch64-apple-darwin
               strip -x *.node
-          - host: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
-            build: |-
-              set -e &&
-              pnpm build --target aarch64-unknown-linux-gnu &&
-              aarch64-unknown-linux-gnu-strip *.node
     name: stable - ${{ matrix.settings.target }} - node@16
     runs-on: ${{ matrix.settings.host }}
-    defaults:
-      run:
-        working-directory: ./crates/rollup-plugin
     steps:
       - uses: actions/checkout@v3
       - name: Setup node
@@ -67,6 +66,7 @@ jobs:
         with:
           node-version: 16
           check-latest: true
+          cache: yarn
       - name: Install
         uses: actions-rs/toolchain@v1
         if: ${{ !matrix.settings.docker }}
@@ -85,42 +85,29 @@ jobs:
             .cargo-cache
             target/
           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
+      - name: Cache NPM dependencies
+        uses: actions/cache@v3
+        with:
+          path: .yarn/cache
+          key: npm-cache-build-${{ matrix.settings.target }}-node@16
       - name: Setup toolchain
         run: ${{ matrix.settings.setup }}
         if: ${{ matrix.settings.setup }}
         shell: bash
       - name: Setup node x86
         if: matrix.settings.target == 'i686-pc-windows-msvc'
-        run: pnpm config set supportedArchitectures.cpu "ia32"
+        run: yarn config set supportedArchitectures.cpu "ia32"
         shell: bash
+      - name: Install dependencies
+        run: yarn install
       - name: Setup node x86
         uses: actions/setup-node@v3
         if: matrix.settings.target == 'i686-pc-windows-msvc'
         with:
           node-version: 16
           check-latest: true
-          cache: pnpm
+          cache: yarn
           architecture: x86
-      - uses: pnpm/action-setup@v2.2.4
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 7
-          run_install: false
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: |
-          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-      - uses: pnpm/action-setup@v2.2.4
-        with:
-          run_install: true
       - name: Build in docker
         uses: addnab/docker-run-action@v3
         if: ${{ matrix.settings.docker }}
@@ -153,9 +140,6 @@ jobs:
           - '16'
           - '18'
     runs-on: ${{ matrix.settings.host }}
-    defaults:
-      run:
-        working-directory: ./crates/rollup-plugin
     steps:
       - uses: actions/checkout@v3
       - name: Setup node
@@ -163,27 +147,14 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           check-latest: true
-          cache: pnpm
-      - uses: pnpm/action-setup@v2.2.4
-        name: Install pnpm
-        id: pnpm-install
+          cache: yarn
+      - name: Cache NPM dependencies
+        uses: actions/cache@v3
         with:
-          version: 7
-          run_install: false
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: |
-          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-      - uses: pnpm/action-setup@v2.2.4
-        with:
-          run_install: true
+          path: .yarn/cache
+          key: npm-cache-test-${{ matrix.settings.target }}-${{ matrix.node }}-${{ hashFiles('yarn.lock') }}
+      - name: Install dependencies
+        run: yarn install
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -193,7 +164,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: pnpm test
+        run: yarn test
   test-linux-x64-gnu-binding:
     name: Test bindings on Linux-x64-gnu - node@${{ matrix.node }}
     needs:
@@ -206,9 +177,6 @@ jobs:
           - '16'
           - '18'
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./crates/rollup-plugin
     steps:
       - uses: actions/checkout@v3
       - name: Setup node
@@ -216,26 +184,14 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           check-latest: true
-      - uses: pnpm/action-setup@v2.2.4
-        name: Install pnpm
-        id: pnpm-install
+          cache: yarn
+      - name: Cache NPM dependencies
+        uses: actions/cache@v3
         with:
-          version: 7
-          run_install: false
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: |
-          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-      - uses: pnpm/action-setup@v2.2.4
-        with:
-          run_install: true
+          path: .yarn/cache
+          key: npm-cache-test-linux-x64-gnu-${{ matrix.node }}
+      - name: Install dependencies
+        run: yarn install
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -245,74 +201,13 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim pnpm test
-  test-linux-aarch64-gnu-binding:
-    name: Test bindings on aarch64-unknown-linux-gnu - node@${{ matrix.node }}
-    needs:
-      - build
-    strategy:
-      fail-fast: false
-      matrix:
-        node:
-          - '14'
-          - '16'
-          - '18'
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./crates/rollup-plugin
-    steps:
-      - run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
-      - uses: actions/checkout@v3
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: bindings-aarch64-unknown-linux-gnu
-          path: .
-      - name: List packages
-        run: ls -R .
-        shell: bash
-      - uses: pnpm/action-setup@v2.2.4
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 7
-          run_install: false
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: |
-          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-      - name: Install dependencies
-        run: |
-          pnpm config set supportedArchitectures.cpu "arm64"
-          pnpm config set supportedArchitectures.libc "glibc"
-          pnpm install
-      - name: Setup and run tests
-        uses: addnab/docker-run-action@v3
-        with:
-          image: ghcr.io/napi-rs/napi-rs/nodejs:aarch64-${{ matrix.node }}
-          options: '-v ${{ github.workspace }}:/build -w /build'
-          run: |
-            set -e
-            pnpm test
-            ls -la
+        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim yarn test
   publish:
     name: Publish
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./crates/rollup-plugin
     needs:
       - test-macOS-windows-binding
       - test-linux-x64-gnu-binding
-      - test-linux-aarch64-gnu-binding
     steps:
       - uses: actions/checkout@v3
       - name: Setup node
@@ -320,20 +215,20 @@ jobs:
         with:
           node-version: 16
           check-latest: true
-          cache: pnpm
+          cache: yarn
       - name: Cache NPM dependencies
         uses: actions/cache@v3
         with:
-          path: .pnpm/cache
+          path: .yarn/cache
           key: npm-cache-ubuntu-latest-publish
       - name: Install dependencies
-        run: pnpm install
+        run: yarn install
       - name: Download all artifacts
         uses: actions/download-artifact@v3
         with:
           path: artifacts
       - name: Move artifacts
-        run: pnpm artifacts
+        run: yarn artifacts
       - name: List packages
         run: ls -R ./npm
         shell: bash

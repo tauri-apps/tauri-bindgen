@@ -7,16 +7,14 @@
     "name": "rollup-plugin-tauri-bindgen",
     "triples": {
       "additional": [
-        "aarch64-apple-darwin",
-        "aarch64-unknown-linux-gnu"
+        "aarch64-apple-darwin"
       ]
     }
   },
   "license": "MIT",
   "devDependencies": {
     "@napi-rs/cli": "^2.13.0",
-    "ava": "^4.3.3",
-    "cross-env": "^7.0.3"
+    "ava": "^4.3.3"
   },
   "ava": {
     "timeout": "3m"
@@ -26,15 +24,10 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "cross-env TARGET=node napi build --platform --release --js process.js --dts process.d.ts && tsc index.ts --target esnext --moduleResolution node -d",
-    "build:debug": "cross-env TARGET=node napi build --platform --js process.js --dts process.d.ts && tsc index.ts --target esnext --moduleResolution node -d",
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "ava",
     "version": "napi version"
-  },
-  "packageManager": "pnpm@7.17.0",
-  "dependencies": {
-    "rollup": "^3.4.0",
-    "typescript": "^4.9.3"
   }
 }
