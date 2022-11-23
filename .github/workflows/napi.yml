@@ -152,7 +152,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .yarn/cache
-          key: npm-cache-test-${{ matrix.settings.target }}-${{ matrix.node }}-${{ hashFiles('yarn.lock') }}
+          key: npm-cache-test-${{ matrix.settings.target }}-${{ matrix.node }}-${{ hashFiles('crates/rollup-plugin/yarn.lock') }}
       - name: Install dependencies
         run: yarn install
       - name: Download artifacts
