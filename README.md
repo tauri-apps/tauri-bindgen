@@ -14,9 +14,7 @@
 
 ## About
 
-> **Note**: This project is under heavy development and should be considered experimental.
-> I will be doing many sweeping changes, so depending on it is not recommened at this point.
-> If you are excited by this though, and want help out, please feel free to test it out, create issues, and open PRs!
+> **Note**: This project is under heavy development and should be considered experimental. I will be doing many sweeping changes, so depending on it is not recommened at this point. If you are excited by this though, and want help out, please feel free to test it out, create issues, and open PRs!
 
 This project generates bindings for **both sides** of the Taur IPC bridge. Bindings are declared using [`*.wit`](https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md) files that describe exposed functions and shared types. `tauri-bindgen` can then generate ergonomic wrappers for the host interface (declaring the API the Tauri host must expose) and for a variety of client languages.
 
@@ -32,7 +30,7 @@ Here are a few reasons why that is cool:
 
 - **Compile-time Checks**
 
-When using strongly typed languages, such as Rust, TypeScript or ReScript the generated code will automatically ensure that you are calling the API correctly, as long as it passes the type checking youre golden. This is especially neat **when working in a team**, so  your colleagues can't just change command signatures and pull the rug out from under you. 
+When using strongly typed languages, such as Rust, TypeScript or ReScript the generated code will automatically ensure that you are calling the API correctly, as long as it passes the type checking youre golden. This is especially neat **when working in a team**, so your colleagues can't just change command signatures and pull the rug out from under you.
 
 - **Easily auditable**
 
@@ -135,6 +133,21 @@ see also [the example](./examples/basic/).
 
 PRs are welcome!
 
-## License
+## Credits
 
-[MIT](./LICENSE_MIT) or [Apache 2.0](./LICENSE_APACHE-2.0) © Jonas Kruckenberg
+This project has been inspired by and based off of the awesome [`wit-bindgen`](https://github.com/bytecodealliance/wit-bindgen) tool for WebAseembly by the [Bytecode Alliance](https://bytecodealliance.org).
+
+#### License
+
+<sup>
+Licensed under either of <a href="LICENSE-APACHE">Apache License, Version
+2.0</a> or <a href="LICENSE-MIT">MIT license</a> at your option.
+</sup>
+
+<br>
+
+<sub>
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in this crate by you, as defined in the Apache-2.0 license, shall
+be dual licensed as above, without any additional terms or conditions.
+</sub>
