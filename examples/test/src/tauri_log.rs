@@ -19,8 +19,8 @@ impl log::Log for TauriLogger {
                 ::log::Level::Warn => 4,
                 ::log::Level::Error => 5,
             };
-            let message = record.target().to_string();
-            let location = format!("{}", record.clone().args());
+            let location = record.target().to_string();
+            let message = format!("{}", record.clone().args());
             // let file = record.file().map(ToString::to_string);
             let line = record.line();
 
