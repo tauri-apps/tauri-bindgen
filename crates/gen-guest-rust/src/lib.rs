@@ -196,7 +196,7 @@ impl<'a> InterfaceGenerator<'a> {
 
         uwrite!(
             self.src,
-            r#"::tauri_bindgen_guest_rust::send("plugin:{}|{}", "#,
+            r#"::tauri_bindgen_guest_rust::invoke("plugin:{}|{}", "#,
             self.iface.name.to_snake_case(),
             func.name
         );
