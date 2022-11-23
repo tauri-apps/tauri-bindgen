@@ -135,7 +135,7 @@ PRs are welcome!
 
 ## Credits
 
-This project has been inspired by and based off of the awesome [`wit-bindgen`](https://github.com/bytecodealliance/wit-bindgen) tool for WebAseembly by the [Bytecode Alliance](https://bytecodealliance.org).
+This project has been inspired by and based off of the awesome [`wit-bindgen`](https://github.com/bytecodealliance/wit-bindgen) tool for WebAssembly by the [Bytecode Alliance](https://bytecodealliance.org).
 
 #### License
 
