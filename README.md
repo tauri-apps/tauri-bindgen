@@ -72,6 +72,7 @@ interface greet {
   greet: func(name: string) -> string
 }
 
+// this will not be necessary soon
 world the-world {
   import greet: greet
   export greet: greet
