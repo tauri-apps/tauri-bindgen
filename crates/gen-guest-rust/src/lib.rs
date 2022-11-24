@@ -55,12 +55,11 @@ impl WorldGenerator for RustWasm {
         _files: &mut Files,
     ) {
         let mut gen = InterfaceGenerator::new(self, iface, TypeMode::AllBorrowed("'a"));
-        // gen.generate_invoke_bindings();
 
         gen.types();
 
-        for func in iface.functions.iter() {
-            gen.generate_guest_import(func);
+        for (func_id, func) in iface.functions.iter().enumerate() {
+            gen.generate_guest_import(func, func_id);
         }
 
         let snake = name.to_snake_case();
@@ -142,7 +141,7 @@ impl<'a> InterfaceGenerator<'a> {
     //     );
     // }
 
-    fn generate_guest_import(&mut self, func: &Function) {
+    fn generate_guest_import(&mut self, func: &Function, func_id: usize) {
         if self.gen.skip.contains(&func.name) {
             return;
         }
@@ -175,7 +174,8 @@ impl<'a> InterfaceGenerator<'a> {
             self.print_generics(print_lifetime.then_some("'a"));
             self.src.push_str(" {\n");
 
-            for (param, ty) in func.params.iter() {
+            for (param_id, (param, ty)) in func.params.iter().enumerate() {
+                uwriteln!(self.src, r#"#[serde(rename = "{param_id}")]"#);
                 self.src.push_str(&param.to_snake_case());
                 self.src.push_str(" : ");
                 self.print_ty(ty, TypeMode::AllBorrowed("'a"));
@@ -198,7 +198,7 @@ impl<'a> InterfaceGenerator<'a> {
             self.src,
             r#"::tauri_bindgen_guest_rust::invoke("plugin:{}|{}", "#,
             self.iface.name.to_snake_case(),
-            func.name
+            func_id
         );
 
         if func.params.is_empty() {

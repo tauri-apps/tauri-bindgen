@@ -42,27 +42,14 @@ impl WorldGenerator for TypeScript {
         gen.print_intro();
         gen.types();
 
-        for func in iface.functions.iter() {
-            gen.generate_guest_import(func);
+        for (func_id, func) in iface.functions.iter().enumerate() {
+            gen.generate_guest_import(func, func_id);
         }
 
         gen.print_outro();
 
         let module = &gen.src[..];
         uwriteln!(self.src, "{module}");
-
-        // files.push(&format!("{name}.ts"), gen.src.as_bytes());
-
-        // uwriteln!(
-        //     self.src.ts,
-        //     "{} {{ {camel} }} from './{name}';",
-        //     // In instance mode, we have no way to assert the imported types
-        //     // in the ambient declaration file. Instead we just export the
-        //     // import namespace types for users to use.
-        //     "export"
-        // );
-
-        // uwriteln!(self.import_object, "export const {name}: typeof {camel};");
     }
 
     fn finish(&mut self, name: &str, files: &mut Files) {
@@ -133,13 +120,9 @@ impl<'a> InterfaceGenerator<'a> {
 
     fn print_intro(&mut self) {
         self.push_str(
-            "
-        interface Tauri {
-            invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T>
-        }
-        declare global {
+            "declare global {
             interface Window {
-                __TAURI__: { tauri: Tauri };
+                __TAURI_INVOKE__<T>(cmd: string, args?: Record<string, unknown>): Promise<T>;
             }
         }
         const invoke = window.__TAURI_INVOKE__;
@@ -158,7 +141,7 @@ impl<'a> InterfaceGenerator<'a> {
         }
     }
 
-    fn generate_guest_import(&mut self, func: &Function) {
+    fn generate_guest_import(&mut self, func: &Function, func_id: usize) {
         if self.gen.skip.contains(&func.name) {
             return;
         }
@@ -232,7 +215,7 @@ impl<'a> InterfaceGenerator<'a> {
         self.push_str(&format!(
             "\"plugin:{}|{}\",",
             self.iface.name.to_snake_case(),
-            func.name
+            func_id
         ));
 
         if !func.params.is_empty() {
@@ -241,7 +224,7 @@ impl<'a> InterfaceGenerator<'a> {
                 if i > 0 {
                     self.push_str(", ");
                 }
-                self.push_str(&name.to_lower_camel_case());
+                self.push_str(&format!("{i}"));
                 self.push_str(": ");
                 self.push_str(to_js_ident(&name.to_lower_camel_case()));
             }

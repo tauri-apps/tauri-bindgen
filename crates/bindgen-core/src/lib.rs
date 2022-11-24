@@ -1,3 +1,5 @@
+pub mod hash;
+
 use std::{fmt::{Write, self}, ops::Deref, collections::{BTreeMap, btree_map::Entry, HashMap}};
 use wit_parser::*;
 

@@ -42,8 +42,8 @@ impl WorldGenerator for ReScript {
         gen.print_intro();
         gen.types();
 
-        for func in iface.functions.iter() {
-            gen.generate_guest_import(func);
+        for (func_id, func) in iface.functions.iter().enumerate() {
+            gen.generate_guest_import(func, func_id);
         }
 
         let module = &gen.src[..];
@@ -139,7 +139,7 @@ impl<'a> InterfaceGenerator<'a> {
         );
     }
 
-    fn generate_guest_import(&mut self, func: &Function) {
+    fn generate_guest_import(&mut self, func: &Function, func_id: usize) {
         if self.gen.skip.contains(&func.name) {
             return;
         }
@@ -187,7 +187,7 @@ impl<'a> InterfaceGenerator<'a> {
         self.push_str(&format!(
             r#"invoke(~cmd="plugin:{}|{}", "#,
             self.iface.name.to_snake_case(),
-            func.name.to_snake_case()
+            func_id
         ));
 
         if !func.params.is_empty() {
@@ -196,7 +196,7 @@ impl<'a> InterfaceGenerator<'a> {
                 if i > 0 {
                     self.push_str(", ");
                 }
-                self.push_str(&format!(r#""{}": "#, &name.to_lower_camel_case()));
+                self.push_str(&format!(r#""{}": "#, i));
                 self.push_str(to_rescript_ident(&name.to_lower_camel_case()));
             }
             self.push_str("}");

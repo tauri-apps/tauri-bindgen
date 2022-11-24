@@ -45,8 +45,8 @@ impl WorldGenerator for JavaScript {
 
         gen.print_intro();
 
-        for func in iface.functions.iter() {
-            gen.generate_guest_import(func);
+        for (func_id, func) in iface.functions.iter().enumerate() {
+            gen.generate_guest_import(func, func_id);
         }
 
         let module = &gen.src[..];
@@ -149,7 +149,7 @@ impl<'a> InterfaceGenerator<'a> {
         self.push_str(" */\n");
     }
 
-    fn generate_guest_import(&mut self, func: &Function) {
+    fn generate_guest_import(&mut self, func: &Function, func_id: usize) {
         if self.gen.skip.contains(&func.name) {
             return;
         }
@@ -179,7 +179,7 @@ impl<'a> InterfaceGenerator<'a> {
         self.push_str(&format!(
             "await invoke(\"plugin:{}|{}\",",
             self.iface.name.to_snake_case(),
-            func.name.to_snake_case()
+            func_id
         ));
 
         if !func.params.is_empty() {
@@ -188,7 +188,7 @@ impl<'a> InterfaceGenerator<'a> {
                 if i > 0 {
                     self.push_str(", ");
                 }
-                self.push_str(&name.to_lower_camel_case());
+                self.push_str(&format!("{i}"));
                 self.push_str(": ");
                 self.push_str(to_js_ident(&name.to_lower_camel_case()));
             }

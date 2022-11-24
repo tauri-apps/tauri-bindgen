@@ -160,17 +160,18 @@ impl<'a> InterfaceGenerator<'a> {
 
         uwriteln!(self.src, "match invoke.message.command() {{");
 
-        for func in self.iface.functions.iter() {
-            uwrite!(self.src, "\"{}\" => {{", &func.name);
-
+        for (func_id, func) in self.iface.functions.iter().enumerate() {
             let func_name = &func.name;
+
+            uwrite!(self.src, "\"{}\" => {{", &func_id);
+
             if self.gen.opts.tracing {
                 uwriteln!(
                     self.src,
                     r#"let span = ::tauri_bindgen_host::tracing::span!(
                         ::tauri_bindgen_host::tracing::Level::TRACE,
                         "tauri-bindgen invoke handler",
-                        module = "{name}", function = "{func_name}", payload = ?invoke.message.payload()
+                        module = "{name}", function = "{func_name}", func_id = "{func_id}", payload = ?invoke.message.payload()
                     );
                     let _enter = span.enter();
                    "#
@@ -188,14 +189,14 @@ impl<'a> InterfaceGenerator<'a> {
             "
             );
 
-            for (param, _) in func.params.iter() {
-                let snake_param = param.to_snake_case();
+            for (param_id, _) in func.params.iter().enumerate() {
+                // let snake_param = param.to_snake_case();
 
                 uwriteln!(
                     self.src,
-                    r#"let {snake_param} = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {{
-                        name: "{func_name}",
-                        key: "{param}",
+                    r#"let p{param_id} = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {{
+                        name: "{func_id}",
+                        key: "{param_id}",
                         message: &__tauri_message__,
                     }}) {{
                         Ok(arg) => arg,
@@ -230,8 +231,8 @@ impl<'a> InterfaceGenerator<'a> {
 
             uwriteln!(self.src, "let result = ctx.{}(", func.name.to_snake_case());
 
-            for (param, _) in func.params.iter() {
-                self.src.push_str(&param.to_snake_case());
+            for (param_id, _) in func.params.iter().enumerate() {
+                self.src.push_str(&format!("p{}", param_id));
                 self.src.push_str(", ");
             }
 
