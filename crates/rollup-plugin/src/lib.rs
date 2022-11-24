@@ -12,6 +12,9 @@ use wit_parser::World;
 pub fn bindgen(path: String) -> Result<String> {
   let path = Path::new(&path);
 
+  let world_hash = tauri_bindgen_core::hash::hash_file(path)
+    .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+
   let world = World::parse_file(&path).map_err(|e| {
     napi::Error::from_reason(format!(
       "failed to parse wit file `{}` with error {}",
@@ -26,6 +29,7 @@ pub fn bindgen(path: String) -> Result<String> {
     tauri_bindgen_gen_guest_js::Opts::default().build(),
     world,
     &mut files,
+    &world_hash,
   )?;
 
   if files.iter().count() != 1 {
@@ -43,8 +47,9 @@ fn gen_world(
   mut generator: Box<dyn WorldGenerator>,
   world: World,
   files: &mut Files,
+  _world_hash: &str,
 ) -> Result<()> {
   let name = world.name.clone();
-  generator.generate(&name, &world, files);
+  generator.generate(&name, &world, files, _world_hash);
   Ok(())
 }

@@ -1,22 +1,19 @@
+pub mod hash;
+
 use std::{fmt::{Write, self}, ops::Deref, collections::{BTreeMap, btree_map::Entry, HashMap}};
 use wit_parser::*;
 
 pub trait WorldGenerator {
-    fn generate(&mut self, name: &str, interfaces: &World, files: &mut Files) {
-        self.preprocess(name);
+    fn generate(&mut self, name: &str, interfaces: &World, files: &mut Files, world_hash: &str) {
         for (name, import) in interfaces.imports.iter() {
-            self.import(name, import, files);
+            self.import(name, import, files, world_hash);
         }
-        self.finish(name, files);
+        self.finish(name, files, world_hash);
     }
 
-    fn preprocess(&mut self, name: &str) {
-        drop(name);
-    }
+    fn import(&mut self, name: &str, iface: &Interface, files: &mut Files, world_hash: &str);
 
-    fn import(&mut self, name: &str, iface: &Interface, files: &mut Files);
-
-    fn finish(&mut self, name: &str, files: &mut Files);
+    fn finish(&mut self, name: &str, files: &mut Files, world_hash: &str);
 }
 
 pub trait InterfaceGenerator<'a> {

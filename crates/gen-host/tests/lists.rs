@@ -3,6 +3,7 @@ pub mod import_lists {
     #[derive(
         Debug,
         Clone,
+        PartialEq,
         ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
     )]
@@ -19,6 +20,7 @@ pub mod import_lists {
     #[derive(
         Debug,
         Clone,
+        PartialEq,
         ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
     )]
@@ -31,7 +33,7 @@ pub mod import_lists {
         pub b: String,
         pub c: Vec<u8>,
     }
-    #[derive(Debug, Clone, ::tauri_bindgen_host::serde::Deserialize)]
+    #[derive(Debug, Clone, PartialEq, ::tauri_bindgen_host::serde::Deserialize)]
     pub enum SomeVariant {
         A(String),
         B,
@@ -41,6 +43,7 @@ pub mod import_lists {
     #[derive(
         Debug,
         Clone,
+        PartialEq,
         ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
     )]
@@ -108,19 +111,48 @@ pub mod import_lists {
         ) -> ::tauri_bindgen_host::anyhow::Result<LoadStoreAllSizes>;
     }
 
+    fn verfiy_idl_hash<'a, R: ::tauri_bindgen_host::tauri::Runtime>(
+        item: ::tauri_bindgen_host::tauri::command::CommandItem<'a, R>,
+    ) -> Result<(), ::tauri_bindgen_host::tauri::InvokeError> {
+        let hash: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(item)?;
+
+        if hash != "a744d1c6fec40184" {
+            return Err(::tauri_bindgen_host::tauri::InvokeError::from(
+                "IDL version mismatch",
+            ));
+        }
+
+        Ok(())
+    }
+
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: ImportLists + Copy + Send + Sync + 'static,
-        R: ::tauri_bindgen_host::tauri::Runtime,
+        U: ImportLists + Send + Sync + 'static,
+        R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| match invoke.message.command() {
             "list-u8-param" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-u8-param", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-u8-param",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "list-u8-param",
@@ -129,7 +161,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "list-u8-param",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -141,12 +181,27 @@ pub mod import_lists {
                 });
             }
             "list-u16-param" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-u16-param", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-u16-param",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "list-u16-param",
@@ -155,7 +210,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "list-u16-param",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -167,12 +230,27 @@ pub mod import_lists {
                 });
             }
             "list-u32-param" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-u32-param", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-u32-param",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "list-u32-param",
@@ -181,7 +259,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "list-u32-param",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -193,12 +279,27 @@ pub mod import_lists {
                 });
             }
             "list-u64-param" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-u64-param", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-u64-param",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "list-u64-param",
@@ -207,7 +308,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "list-u64-param",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -219,12 +328,27 @@ pub mod import_lists {
                 });
             }
             "list-s8-param" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-s8-param", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-s8-param",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "list-s8-param",
@@ -233,7 +357,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "list-s8-param",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -245,12 +377,27 @@ pub mod import_lists {
                 });
             }
             "list-s16-param" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-s16-param", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-s16-param",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "list-s16-param",
@@ -259,7 +406,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "list-s16-param",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -271,12 +426,27 @@ pub mod import_lists {
                 });
             }
             "list-s32-param" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-s32-param", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-s32-param",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "list-s32-param",
@@ -285,7 +455,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "list-s32-param",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -297,12 +475,27 @@ pub mod import_lists {
                 });
             }
             "list-s64-param" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-s64-param", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-s64-param",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "list-s64-param",
@@ -311,7 +504,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "list-s64-param",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -323,12 +524,27 @@ pub mod import_lists {
                 });
             }
             "list-float32-param" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-float32-param", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-float32-param",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "list-float32-param",
@@ -337,7 +553,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "list-float32-param",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -349,12 +573,27 @@ pub mod import_lists {
                 });
             }
             "list-float64-param" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-float64-param", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-float64-param",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "list-float64-param",
@@ -363,7 +602,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "list-float64-param",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -375,11 +622,27 @@ pub mod import_lists {
                 });
             }
             "list-u8-ret" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-u8-ret", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-u8-ret",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.list_u8_ret();
@@ -390,11 +653,27 @@ pub mod import_lists {
                 });
             }
             "list-u16-ret" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-u16-ret", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-u16-ret",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.list_u16_ret();
@@ -405,11 +684,27 @@ pub mod import_lists {
                 });
             }
             "list-u32-ret" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-u32-ret", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-u32-ret",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.list_u32_ret();
@@ -420,11 +715,27 @@ pub mod import_lists {
                 });
             }
             "list-u64-ret" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-u64-ret", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-u64-ret",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.list_u64_ret();
@@ -435,11 +746,27 @@ pub mod import_lists {
                 });
             }
             "list-s8-ret" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-s8-ret", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-s8-ret",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.list_s8_ret();
@@ -450,11 +777,27 @@ pub mod import_lists {
                 });
             }
             "list-s16-ret" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-s16-ret", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-s16-ret",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.list_s16_ret();
@@ -465,11 +808,27 @@ pub mod import_lists {
                 });
             }
             "list-s32-ret" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-s32-ret", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-s32-ret",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.list_s32_ret();
@@ -480,11 +839,27 @@ pub mod import_lists {
                 });
             }
             "list-s64-ret" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-s64-ret", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-s64-ret",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.list_s64_ret();
@@ -495,11 +870,27 @@ pub mod import_lists {
                 });
             }
             "list-float32-ret" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-float32-ret", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-float32-ret",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.list_float32_ret();
@@ -510,11 +901,27 @@ pub mod import_lists {
                 });
             }
             "list-float64-ret" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "list-float64-ret", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "list-float64-ret",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.list_float64_ret();
@@ -525,12 +932,27 @@ pub mod import_lists {
                 });
             }
             "tuple-list" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "tuple-list", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "tuple-list",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "tuple-list",
@@ -539,7 +961,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "tuple-list",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -551,12 +981,27 @@ pub mod import_lists {
                 });
             }
             "string-list-arg" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "string-list-arg", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "string-list-arg",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let a = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "string-list-arg",
@@ -565,7 +1010,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "string-list-arg",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -577,11 +1030,27 @@ pub mod import_lists {
                 });
             }
             "string-list-ret" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "string-list-ret", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "string-list-ret",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.string_list_ret();
@@ -592,12 +1061,27 @@ pub mod import_lists {
                 });
             }
             "tuple-string-list" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "tuple-string-list", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "tuple-string-list",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "tuple-string-list",
@@ -606,7 +1090,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "tuple-string-list",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -618,12 +1110,27 @@ pub mod import_lists {
                 });
             }
             "string-list" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "string-list", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "string-list",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "string-list",
@@ -632,7 +1139,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "string-list",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -644,12 +1159,27 @@ pub mod import_lists {
                 });
             }
             "record-list" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "record-list", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "record-list",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "record-list",
@@ -658,7 +1188,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "record-list",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -670,12 +1208,27 @@ pub mod import_lists {
                 });
             }
             "record-list-reverse" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "record-list-reverse", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "record-list-reverse",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "record-list-reverse",
@@ -684,7 +1237,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "record-list-reverse",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -696,12 +1257,27 @@ pub mod import_lists {
                 });
             }
             "variant-list" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "variant-list", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "variant-list",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "variant-list",
@@ -710,7 +1286,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "variant-list",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -722,12 +1306,27 @@ pub mod import_lists {
                 });
             }
             "load-store-everything" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-lists", function = "load-store-everything", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "load-store-everything",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let a = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "load-store-everything",
@@ -736,7 +1335,15 @@ pub mod import_lists {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-lists",
+                            function = "load-store-everything",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -747,7 +1354,14 @@ pub mod import_lists {
                         .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
                 });
             }
-            _ => invoke.resolver.reject("Not Found"),
+            func_name => {
+                ::tauri_bindgen_host::tracing::error!(
+                    module = "import-lists",
+                    function = func_name,
+                    "Not Found"
+                );
+                invoke.resolver.reject("Not Found")
+            }
         }
     }
 }

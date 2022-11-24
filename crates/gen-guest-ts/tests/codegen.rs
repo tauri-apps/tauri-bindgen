@@ -5,11 +5,12 @@ use tauri_bindgen_gen_guest_ts::*;
 use wit_parser::World;
 
 fn gen_world(mut gen: Box<dyn WorldGenerator>, name: impl AsRef<str>, path: impl AsRef<Path>) -> (String, String) {
-    let world = World::parse_file(path).unwrap();
+    let world = World::parse_file(&path).unwrap();
+    let world_hash = tauri_bindgen_core::hash::hash_file(path).unwrap();
 
     let mut files = Files::default();
 
-    gen.generate(name.as_ref(), &world, &mut files);
+    gen.generate(name.as_ref(), &world, &mut files, &world_hash);
 
     let (filename, contents) = files.iter().next().unwrap();
 
@@ -69,7 +70,7 @@ fn flags() {
     let (filename, contents) = gen_world(gen, "flags", "../../tests/codegen/flags.wit");
 
     assert_eq!(filename, "flags.ts");
-    assert_eq!(contents, include_str!("./flags.ts"));
+    assert_eq!(contents, include_str!("./flegs.ts"));
 }
 
 #[test]

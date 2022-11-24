@@ -1,12 +1,13 @@
-interface Tauri {
-  invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T>;
-}
 declare global {
   interface Window {
-    __TAURI__: { tauri: Tauri };
+    __TAURI_INVOKE__<T>(
+      cmd: string,
+      args?: Record<string, unknown>
+    ): Promise<T>;
   }
 }
-const { invoke } = window.__TAURI__.tauri;
+const invoke = window.__TAURI_INVOKE__;
+const idlHash = "92d5120c899c41cc";
 export interface BigStruct {
   a1: string;
   a2: string;
@@ -47,7 +48,8 @@ export async function manyArgs(
   a15: bigint,
   a16: bigint
 ): Promise<void> {
-  await invoke<void>("plugin:imports|many_args", {
+  await invoke<void>("plugin:manyarg|many-args", {
+    idlHash,
     a1: a1,
     a2: a2,
     a3: a3,
@@ -67,5 +69,5 @@ export async function manyArgs(
   });
 }
 export async function bigArgument(x: BigStruct): Promise<void> {
-  await invoke<void>("plugin:imports|big_argument", { x: x });
+  await invoke<void>("plugin:manyarg|big-argument", { idlHash, x: x });
 }

@@ -1,27 +1,30 @@
-interface Tauri {
-  invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T>;
-}
 declare global {
   interface Window {
-    __TAURI__: { tauri: Tauri };
+    __TAURI_INVOKE__<T>(
+      cmd: string,
+      args?: Record<string, unknown>
+    ): Promise<T>;
   }
 }
-const { invoke } = window.__TAURI__.tauri;
+const invoke = window.__TAURI_INVOKE__;
+const idlHash = "ebb2d6f0441e00a0";
 export async function f1(): Promise<void> {
-  await invoke<void>("plugin:imports|f1");
+  await invoke<void>("plugin:simple|f1", { idlHash });
 }
 export async function f2(a: number): Promise<void> {
-  await invoke<void>("plugin:imports|f2", { a: a });
+  await invoke<void>("plugin:simple|f2", { idlHash, a: a });
 }
 export async function f3(a: number, b: number): Promise<void> {
-  await invoke<void>("plugin:imports|f3", { a: a, b: b });
+  await invoke<void>("plugin:simple|f3", { idlHash, a: a, b: b });
 }
 export async function f4(): Promise<number> {
-  const result = await invoke<number>("plugin:imports|f4");
+  const result = await invoke<number>("plugin:simple|f4", { idlHash });
   return result;
 }
 export async function f5(): Promise<[number, number]> {
-  const result = await invoke<[number, number]>("plugin:imports|f5");
+  const result = await invoke<[number, number]>("plugin:simple|f5", {
+    idlHash,
+  });
   return result;
 }
 export async function f6(
@@ -29,7 +32,8 @@ export async function f6(
   b: number,
   c: number
 ): Promise<[number, number, number]> {
-  const result = await invoke<[number, number, number]>("plugin:imports|f6", {
+  const result = await invoke<[number, number, number]>("plugin:simple|f6", {
+    idlHash,
     a: a,
     b: b,
     c: c,

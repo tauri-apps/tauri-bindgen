@@ -1,10 +1,12 @@
-const { invoke } = window.__TAURI__.tauri;
+const invoke = window.__TAURI_INVOKE__;
+const idlHash = "cccf67b47414af61";
 /**
  * @param {AllIntegers} num
  * @returns {Promise<AllIntegers>}
  */
 export async function addOneInteger(num) {
-  const result = await invoke("plugin:import_unions|add_one_integer", {
+  const result = await invoke("plugin:unions|add_one_integer", {
+    idlHash,
     num: num,
   });
   return result;
@@ -14,7 +16,8 @@ export async function addOneInteger(num) {
  * @returns {Promise<AllFloats>}
  */
 export async function addOneFloat(num) {
-  const result = await invoke("plugin:import_unions|add_one_float", {
+  const result = await invoke("plugin:unions|add_one_float", {
+    idlHash,
     num: num,
   });
   return result;
@@ -25,7 +28,8 @@ export async function addOneFloat(num) {
  * @returns {Promise<AllText>}
  */
 export async function replaceFirstChar(text, letter) {
-  const result = await invoke("plugin:import_unions|replace_first_char", {
+  const result = await invoke("plugin:unions|replace_first_char", {
+    idlHash,
     text: text,
     letter: letter,
   });
@@ -36,7 +40,8 @@ export async function replaceFirstChar(text, letter) {
  * @returns {Promise<number>}
  */
 export async function identifyInteger(num) {
-  const result = await invoke("plugin:import_unions|identify_integer", {
+  const result = await invoke("plugin:unions|identify_integer", {
+    idlHash,
     num: num,
   });
   return result;
@@ -46,7 +51,8 @@ export async function identifyInteger(num) {
  * @returns {Promise<number>}
  */
 export async function identifyFloat(num) {
-  const result = await invoke("plugin:import_unions|identify_float", {
+  const result = await invoke("plugin:unions|identify_float", {
+    idlHash,
     num: num,
   });
   return result;
@@ -56,7 +62,8 @@ export async function identifyFloat(num) {
  * @returns {Promise<number>}
  */
 export async function identifyText(text) {
-  const result = await invoke("plugin:import_unions|identify_text", {
+  const result = await invoke("plugin:unions|identify_text", {
+    idlHash,
     text: text,
   });
   return result;
@@ -66,7 +73,8 @@ export async function identifyText(text) {
  * @returns {Promise<DuplicatedS32>}
  */
 export async function addOneDuplicated(num) {
-  const result = await invoke("plugin:import_unions|add_one_duplicated", {
+  const result = await invoke("plugin:unions|add_one_duplicated", {
+    idlHash,
     num: num,
   });
   return result;
@@ -76,7 +84,8 @@ export async function addOneDuplicated(num) {
  * @returns {Promise<number>}
  */
 export async function identifyDuplicated(num) {
-  const result = await invoke("plugin:import_unions|identify_duplicated", {
+  const result = await invoke("plugin:unions|identify_duplicated", {
+    idlHash,
     num: num,
   });
   return result;
@@ -86,10 +95,10 @@ export async function identifyDuplicated(num) {
  * @returns {Promise<DistinguishableNum>}
  */
 export async function addOneDistinguishableNum(num) {
-  const result = await invoke(
-    "plugin:import_unions|add_one_distinguishable_num",
-    { num: num }
-  );
+  const result = await invoke("plugin:unions|add_one_distinguishable_num", {
+    idlHash,
+    num: num,
+  });
   return result;
 }
 /**
@@ -97,9 +106,9 @@ export async function addOneDistinguishableNum(num) {
  * @returns {Promise<number>}
  */
 export async function identifyDistinguishableNum(num) {
-  const result = await invoke(
-    "plugin:import_unions|identify_distinguishable_num",
-    { num: num }
-  );
+  const result = await invoke("plugin:unions|identify_distinguishable_num", {
+    idlHash,
+    num: num,
+  });
   return result;
 }

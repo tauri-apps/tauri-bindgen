@@ -5,6 +5,7 @@ pub mod import_unions {
         Debug,
         Clone,
         Copy,
+        PartialEq,
         ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
     )]
@@ -25,6 +26,7 @@ pub mod import_unions {
         Debug,
         Clone,
         Copy,
+        PartialEq,
         ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
     )]
@@ -35,6 +37,7 @@ pub mod import_unions {
     #[derive(
         Debug,
         Clone,
+        PartialEq,
         ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
     )]
@@ -46,6 +49,7 @@ pub mod import_unions {
         Debug,
         Clone,
         Copy,
+        PartialEq,
         ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
     )]
@@ -62,6 +66,7 @@ pub mod import_unions {
         Debug,
         Clone,
         Copy,
+        PartialEq,
         ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
     )]
@@ -110,19 +115,48 @@ pub mod import_unions {
         ) -> ::tauri_bindgen_host::anyhow::Result<u8>;
     }
 
+    fn verfiy_idl_hash<'a, R: ::tauri_bindgen_host::tauri::Runtime>(
+        item: ::tauri_bindgen_host::tauri::command::CommandItem<'a, R>,
+    ) -> Result<(), ::tauri_bindgen_host::tauri::InvokeError> {
+        let hash: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(item)?;
+
+        if hash != "cccf67b47414af61" {
+            return Err(::tauri_bindgen_host::tauri::InvokeError::from(
+                "IDL version mismatch",
+            ));
+        }
+
+        Ok(())
+    }
+
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: ImportUnions + Copy + Send + Sync + 'static,
-        R: ::tauri_bindgen_host::tauri::Runtime,
+        U: ImportUnions + Send + Sync + 'static,
+        R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| match invoke.message.command() {
             "add-one-integer" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-unions", function = "add-one-integer", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "add-one-integer",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let num = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "add-one-integer",
@@ -131,7 +165,15 @@ pub mod import_unions {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-unions",
+                            function = "add-one-integer",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -143,12 +185,27 @@ pub mod import_unions {
                 });
             }
             "add-one-float" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-unions", function = "add-one-float", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "add-one-float",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let num = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "add-one-float",
@@ -157,7 +214,15 @@ pub mod import_unions {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-unions",
+                            function = "add-one-float",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -169,12 +234,27 @@ pub mod import_unions {
                 });
             }
             "replace-first-char" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-unions", function = "replace-first-char", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "replace-first-char",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let text = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "replace-first-char",
@@ -183,7 +263,15 @@ pub mod import_unions {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-unions",
+                            function = "replace-first-char",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 let letter = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
@@ -194,7 +282,15 @@ pub mod import_unions {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-unions",
+                            function = "replace-first-char",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -206,12 +302,27 @@ pub mod import_unions {
                 });
             }
             "identify-integer" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-unions", function = "identify-integer", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "identify-integer",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let num = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "identify-integer",
@@ -220,7 +331,15 @@ pub mod import_unions {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-unions",
+                            function = "identify-integer",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -232,12 +351,27 @@ pub mod import_unions {
                 });
             }
             "identify-float" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-unions", function = "identify-float", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "identify-float",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let num = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "identify-float",
@@ -246,7 +380,15 @@ pub mod import_unions {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-unions",
+                            function = "identify-float",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -258,12 +400,27 @@ pub mod import_unions {
                 });
             }
             "identify-text" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-unions", function = "identify-text", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "identify-text",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let text = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "identify-text",
@@ -272,7 +429,15 @@ pub mod import_unions {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-unions",
+                            function = "identify-text",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -284,12 +449,27 @@ pub mod import_unions {
                 });
             }
             "add-one-duplicated" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-unions", function = "add-one-duplicated", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "add-one-duplicated",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let num = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "add-one-duplicated",
@@ -298,7 +478,15 @@ pub mod import_unions {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-unions",
+                            function = "add-one-duplicated",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -310,12 +498,27 @@ pub mod import_unions {
                 });
             }
             "identify-duplicated" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-unions", function = "identify-duplicated", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "identify-duplicated",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let num = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "identify-duplicated",
@@ -324,7 +527,15 @@ pub mod import_unions {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-unions",
+                            function = "identify-duplicated",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -336,12 +547,27 @@ pub mod import_unions {
                 });
             }
             "add-one-distinguishable-num" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-unions", function = "add-one-distinguishable-num", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "add-one-distinguishable-num",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let num = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "add-one-distinguishable-num",
@@ -350,7 +576,15 @@ pub mod import_unions {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-unions",
+                            function = "add-one-distinguishable-num",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -362,12 +596,27 @@ pub mod import_unions {
                 });
             }
             "identify-distinguishable-num" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "import-unions", function = "identify-distinguishable-num", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "identify-distinguishable-num",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let num = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "identify-distinguishable-num",
@@ -376,7 +625,15 @@ pub mod import_unions {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "import-unions",
+                            function = "identify-distinguishable-num",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -387,7 +644,14 @@ pub mod import_unions {
                         .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
                 });
             }
-            _ => invoke.resolver.reject("Not Found"),
+            func_name => {
+                ::tauri_bindgen_host::tracing::error!(
+                    module = "import-unions",
+                    function = func_name,
+                    "Not Found"
+                );
+                invoke.resolver.reject("Not Found")
+            }
         }
     }
 }

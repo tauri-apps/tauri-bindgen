@@ -43,8 +43,8 @@ struct Host {
 }
 
 impl WorldGenerator for Host {
-    fn import(&mut self, name: &str, iface: &Interface, _files: &mut Files) {
-        let mut gen = InterfaceGenerator::new(self, iface, TypeMode::Owned);
+    fn import(&mut self, name: &str, iface: &Interface, _files: &mut Files, world_hash: &str) {
+        let mut gen = InterfaceGenerator::new(self, iface, TypeMode::Owned, world_hash);
         gen.types();
         gen.generate_invoke_handler(name);
 
@@ -64,7 +64,7 @@ impl WorldGenerator for Host {
         self.imports.push(snake); // TODO
     }
 
-    fn finish(&mut self, name: &str, files: &mut Files) {
+    fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let mut src = mem::take(&mut self.src);
         if self.opts.rustfmt {
             let mut child = Command::new("rustfmt")
@@ -100,6 +100,7 @@ struct InterfaceGenerator<'a> {
     iface: &'a Interface,
     default_param_mode: TypeMode,
     types: Types,
+    world_hash: &'a str
 }
 
 impl<'a> InterfaceGenerator<'a> {
@@ -107,6 +108,7 @@ impl<'a> InterfaceGenerator<'a> {
         gen: &'a mut Host,
         iface: &'a Interface,
         default_param_mode: TypeMode,
+        world_hash: &'a str
     ) -> InterfaceGenerator<'a> {
         let mut types = Types::default();
         types.analyze(iface);
@@ -116,6 +118,7 @@ impl<'a> InterfaceGenerator<'a> {
             iface,
             types,
             default_param_mode,
+            world_hash
         }
     }
 
@@ -144,6 +147,21 @@ impl<'a> InterfaceGenerator<'a> {
         }
 
         uwriteln!(self.src, "}}");
+
+        uwriteln!(
+            self.src,
+            r#"
+        fn verfiy_idl_hash<'a, R: ::tauri_bindgen_host::tauri::Runtime>(item: ::tauri_bindgen_host::tauri::command::CommandItem<'a, R>) -> Result<(), ::tauri_bindgen_host::tauri::InvokeError> {{
+            let hash: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(item)?;
+
+            if hash != "{world_hash}" {{
+                return Err(::tauri_bindgen_host::tauri::InvokeError::from("IDL version mismatch"));
+            }}
+
+            Ok(())
+        }}
+        "#, world_hash = self.world_hash
+        );
 
         uwriteln!(
             self.src,
@@ -184,18 +202,29 @@ impl<'a> InterfaceGenerator<'a> {
             let ::tauri_bindgen_host::tauri::Invoke {{
                 message: __tauri_message__,
                 resolver: __tauri_resolver__,
-            }} = invoke;
-            "
+            }} = invoke;"
+            );
+
+            uwriteln!(
+                self.src,
+                r#"if let Err(err) = verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {{
+                name: "{func_name}",
+                key: "idlHash",
+                message: &__tauri_message__,
+            }}) {{
+                return __tauri_resolver__.invoke_error(err); 
+            }}"#
             );
 
             for (param, _) in func.params.iter() {
                 let snake_param = param.to_snake_case();
+                let camel_param = param.to_lower_camel_case();
 
                 uwriteln!(
                     self.src,
                     r#"let {snake_param} = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {{
                         name: "{func_name}",
-                        key: "{param}",
+                        key: "{camel_param}",
                         message: &__tauri_message__,
                     }}) {{
                         Ok(arg) => arg,

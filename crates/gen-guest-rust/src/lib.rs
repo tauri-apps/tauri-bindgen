@@ -1,5 +1,3 @@
-use tauri_bindgen_core::{InterfaceGenerator as _, *};
-use tauri_bindgen_gen_rust::{FnSig, RustGenerator, TypeMode, RustFlagsRepr};
 use heck::*;
 use std::fmt::Write as _;
 use std::{
@@ -8,6 +6,8 @@ use std::{
     mem,
     process::{Command, Stdio},
 };
+use tauri_bindgen_core::{InterfaceGenerator as _, *};
+use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, TypeMode};
 use wit_parser::*;
 
 #[derive(Default, Debug, Clone)]
@@ -53,9 +53,11 @@ impl WorldGenerator for RustWasm {
         name: &str,
         iface: &wit_parser::Interface,
         _files: &mut Files,
+        world_hash: &str,
     ) {
-        let mut gen = InterfaceGenerator::new(self, iface, TypeMode::AllBorrowed("'a"));
+        let mut gen = InterfaceGenerator::new(self, iface, TypeMode::AllBorrowed("'a"), world_hash);
         // gen.generate_invoke_bindings();
+        gen.print_intro();
 
         gen.types();
 
@@ -77,7 +79,7 @@ impl WorldGenerator for RustWasm {
         );
     }
 
-    fn finish(&mut self, name: &str, files: &mut Files) {
+    fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let mut src = mem::take(&mut self.src);
         if self.opts.rustfmt {
             let mut child = Command::new("rustfmt")
@@ -113,10 +115,16 @@ struct InterfaceGenerator<'a> {
     gen: &'a mut RustWasm,
     iface: &'a Interface,
     default_param_mode: TypeMode,
+    world_hash: &'a str,
 }
 
 impl<'a> InterfaceGenerator<'a> {
-    pub fn new(gen: &'a mut RustWasm, iface: &'a Interface, default_param_mode: TypeMode) -> Self {
+    pub fn new(
+        gen: &'a mut RustWasm,
+        iface: &'a Interface,
+        default_param_mode: TypeMode,
+        world_hash: &'a str,
+    ) -> Self {
         let mut types = Types::default();
         types.analyze(iface);
 
@@ -126,21 +134,14 @@ impl<'a> InterfaceGenerator<'a> {
             types,
             iface,
             default_param_mode,
+            world_hash,
         }
     }
 
-    // fn generate_invoke_bindings(&mut self) {
-    //     uwriteln!(
-    //         self.src,
-    //         r#"
-    //     #[::wasm_bindgen::prelude::wasm_bindgen]
-    //     extern "C" {{
-    //         #[::wasm_bindgen::prelude::wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
-    //         pub async fn invoke(cmd: ::wasm_bindgen::prelude::JsValue, args: ::wasm_bindgen::prelude::JsValue) -> ::wasm_bindgen::prelude::JsValue;
-    //     }}
-    //     "#
-    //     );
-    // }
+    fn print_intro(&mut self) {
+        self.push_str(&format!(r#"const IDL_HASH: &str = "{}";"#, self.world_hash));
+        self.push_str("\n");
+    }
 
     fn generate_guest_import(&mut self, func: &Function) {
         if self.gen.skip.contains(&func.name) {
@@ -157,42 +158,32 @@ impl<'a> InterfaceGenerator<'a> {
         self.print_signature(func, param_mode, &sig);
         self.src.push_str("{\n");
 
-        if !func.params.is_empty() {
-            self.push_str("#[derive(::serde::Serialize)]\n");
-            self.push_str("#[serde(rename_all = \"camelCase\")]\n");
+        self.push_str("#[derive(::serde::Serialize)]\n");
+        self.push_str("#[serde(rename_all = \"camelCase\")]\n");
 
-            let print_lifetime = func.params.iter().any(|(_, ty)| match ty {
-                Type::String => true,
-                Type::Id(id) => {
-                    let info = self.info(*id);
-                    self.lifetime_for(&info, TypeMode::AllBorrowed("'a"))
-                        .is_some()
-                }
-                _ => false,
-            });
+        self.src.push_str("struct Params");
+        self.print_generics(Some("'a"));
+        self.src.push_str(" {\n");
+        self.src.push_str("idl_hash: &'a str, \n");
 
-            self.src.push_str("struct Params");
-            self.print_generics(print_lifetime.then_some("'a"));
-            self.src.push_str(" {\n");
-
-            for (param, ty) in func.params.iter() {
-                self.src.push_str(&param.to_snake_case());
-                self.src.push_str(" : ");
-                self.print_ty(ty, TypeMode::AllBorrowed("'a"));
-                self.push_str(",\n");
-            }
-
-            self.src.push_str("}\n");
-
-            self.src.push_str("let params = Params {");
-
-            for (param, _) in func.params.iter() {
-                self.src.push_str(&param.to_snake_case());
-                self.src.push_str(",");
-            }
-
-            self.src.push_str("};\n");
+        for (param, ty) in func.params.iter() {
+            self.src.push_str(&param.to_snake_case());
+            self.src.push_str(" : ");
+            self.print_ty(ty, TypeMode::AllBorrowed("'a"));
+            self.push_str(",\n");
         }
+
+        self.src.push_str("}\n");
+
+        self.src.push_str("let params = Params {");
+        self.src.push_str("idl_hash: IDL_HASH, ");
+
+        for (param, _) in func.params.iter() {
+            self.src.push_str(&param.to_snake_case());
+            self.src.push_str(",");
+        }
+
+        self.src.push_str("};\n");
 
         uwrite!(
             self.src,
@@ -272,10 +263,14 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
             self.push_str(&attrs);
         }
 
-        self.push_str(&format!("pub struct {}: {} {{\n", name.to_upper_camel_case(), repr));
+        self.push_str(&format!(
+            "pub struct {}: {} {{\n",
+            name.to_upper_camel_case(),
+            repr
+        ));
 
         for (i, flag) in flags.flags.iter().enumerate() {
-            self.print_rustdoc(&flag.docs);      
+            self.print_rustdoc(&flag.docs);
             self.src.push_str(&format!(
                 "const {} = 1 << {};\n",
                 flag.name.to_shouty_snake_case(),

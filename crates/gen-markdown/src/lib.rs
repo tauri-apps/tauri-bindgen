@@ -29,14 +29,14 @@ impl Opts {
 }
 
 impl WorldGenerator for Markdown {
-    fn import(&mut self, name: &str, iface: &Interface, _files: &mut Files) {
+    fn import(&mut self, name: &str, iface: &Interface, _files: &mut Files, _world_hash: &str) {
         uwriteln!(self.src, "# Import interface `{name}`\n");
         let mut gen = self.interface(iface);
         gen.types();
         gen.funcs();
     }
 
-    fn finish(&mut self, name: &str, files: &mut Files) {
+    fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let parser = Parser::new(&self.src);
         let mut events = Vec::new();
         for event in parser {

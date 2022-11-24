@@ -32,19 +32,48 @@ pub mod imports {
         async fn pair_ret(&self) -> ::tauri_bindgen_host::anyhow::Result<(i64, u8)>;
     }
 
+    fn verfiy_idl_hash<'a, R: ::tauri_bindgen_host::tauri::Runtime>(
+        item: ::tauri_bindgen_host::tauri::command::CommandItem<'a, R>,
+    ) -> Result<(), ::tauri_bindgen_host::tauri::InvokeError> {
+        let hash: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(item)?;
+
+        if hash != "279b557e344c2e05" {
+            return Err(::tauri_bindgen_host::tauri::InvokeError::from(
+                "IDL version mismatch",
+            ));
+        }
+
+        Ok(())
+    }
+
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: Imports + Copy + Send + Sync + 'static,
-        R: ::tauri_bindgen_host::tauri::Runtime,
+        U: Imports + Send + Sync + 'static,
+        R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| match invoke.message.command() {
             "a1" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "a1", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "a1",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "a1",
@@ -53,7 +82,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a1",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -65,12 +102,27 @@ pub mod imports {
                 });
             }
             "a2" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "a2", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "a2",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "a2",
@@ -79,7 +131,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a2",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -91,12 +151,27 @@ pub mod imports {
                 });
             }
             "a3" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "a3", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "a3",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "a3",
@@ -105,7 +180,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a3",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -117,12 +200,27 @@ pub mod imports {
                 });
             }
             "a4" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "a4", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "a4",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "a4",
@@ -131,7 +229,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a4",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -143,12 +249,27 @@ pub mod imports {
                 });
             }
             "a5" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "a5", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "a5",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "a5",
@@ -157,7 +278,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a5",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -169,12 +298,27 @@ pub mod imports {
                 });
             }
             "a6" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "a6", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "a6",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "a6",
@@ -183,7 +327,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a6",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -195,12 +347,27 @@ pub mod imports {
                 });
             }
             "a7" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "a7", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "a7",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "a7",
@@ -209,7 +376,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a7",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -221,12 +396,27 @@ pub mod imports {
                 });
             }
             "a8" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "a8", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "a8",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "a8",
@@ -235,7 +425,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a8",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -247,12 +445,27 @@ pub mod imports {
                 });
             }
             "a9" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "a9", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
-
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "a9",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
                 let p1 = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
                     ::tauri_bindgen_host::tauri::command::CommandItem {
                         name: "a9",
@@ -261,7 +474,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a9",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 let p2 = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
@@ -272,7 +493,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a9",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 let p3 = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
@@ -283,7 +512,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a9",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 let p4 = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
@@ -294,7 +531,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a9",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 let p5 = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
@@ -305,7 +550,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a9",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 let p6 = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
@@ -316,7 +569,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a9",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 let p7 = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
@@ -327,7 +588,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a9",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 let p8 = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
@@ -338,7 +607,15 @@ pub mod imports {
                     },
                 ) {
                     Ok(arg) => arg,
-                    Err(err) => return __tauri_resolver__.invoke_error(err),
+                    Err(err) => {
+                        ::tauri_bindgen_host::tracing::error!(
+                            module = "imports",
+                            function = "a9",
+                            "Invoke handler returned error {:?}",
+                            err
+                        );
+                        return __tauri_resolver__.invoke_error(err);
+                    }
                 };
 
                 __tauri_resolver__.respond_async(async move {
@@ -350,11 +627,27 @@ pub mod imports {
                 });
             }
             "r1" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "r1", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "r1",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.r1();
@@ -365,11 +658,27 @@ pub mod imports {
                 });
             }
             "r2" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "r2", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "r2",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.r2();
@@ -380,11 +689,27 @@ pub mod imports {
                 });
             }
             "r3" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "r3", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "r3",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.r3();
@@ -395,11 +720,27 @@ pub mod imports {
                 });
             }
             "r4" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "r4", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "r4",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.r4();
@@ -410,11 +751,27 @@ pub mod imports {
                 });
             }
             "r5" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "r5", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "r5",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.r5();
@@ -425,11 +782,27 @@ pub mod imports {
                 });
             }
             "r6" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "r6", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "r6",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.r6();
@@ -440,11 +813,27 @@ pub mod imports {
                 });
             }
             "r7" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "r7", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "r7",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.r7();
@@ -455,11 +844,27 @@ pub mod imports {
                 });
             }
             "r8" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "r8", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "r8",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.r8();
@@ -470,11 +875,27 @@ pub mod imports {
                 });
             }
             "pair-ret" => {
+                let span = ::tauri_bindgen_host::tracing::span!(
+                ::tauri_bindgen_host::tracing::Level::TRACE,
+                "tauri-bindgen invoke handler",
+                module = "imports", function = "pair-ret", payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+
                 #[allow(unused_variables)]
                 let ::tauri_bindgen_host::tauri::Invoke {
                     message: __tauri_message__,
                     resolver: __tauri_resolver__,
                 } = invoke;
+                if let Err(err) =
+                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
+                        name: "pair-ret",
+                        key: "idlHash",
+                        message: &__tauri_message__,
+                    })
+                {
+                    return __tauri_resolver__.invoke_error(err);
+                }
 
                 __tauri_resolver__.respond_async(async move {
                     let result = ctx.pair_ret();
@@ -484,7 +905,14 @@ pub mod imports {
                         .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
                 });
             }
-            _ => invoke.resolver.reject("Not Found"),
+            func_name => {
+                ::tauri_bindgen_host::tracing::error!(
+                    module = "imports",
+                    function = func_name,
+                    "Not Found"
+                );
+                invoke.resolver.reject("Not Found")
+            }
         }
     }
 }

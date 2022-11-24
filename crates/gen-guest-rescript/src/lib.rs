@@ -36,8 +36,14 @@ struct ReScript {
 }
 
 impl WorldGenerator for ReScript {
-    fn import(&mut self, _name: &str, iface: &wit_parser::Interface, _files: &mut Files) {
-        let mut gen = InterfaceGenerator::new(self, iface);
+    fn import(
+        &mut self,
+        _name: &str,
+        iface: &wit_parser::Interface,
+        _files: &mut Files,
+        world_hash: &str,
+    ) {
+        let mut gen = InterfaceGenerator::new(self, iface, world_hash);
 
         gen.print_intro();
         gen.types();
@@ -48,22 +54,9 @@ impl WorldGenerator for ReScript {
 
         let module = &gen.src[..];
         uwriteln!(self.src, "{module}");
-
-        // files.push(&format!("{name}.ts"), gen.src.as_bytes());
-
-        // uwriteln!(
-        //     self.src.ts,
-        //     "{} {{ {camel} }} from './{name}';",
-        //     // In instance mode, we have no way to assert the imported types
-        //     // in the ambient declaration file. Instead we just export the
-        //     // import namespace types for users to use.
-        //     "export"
-        // );
-
-        // uwriteln!(self.import_object, "export const {name}: typeof {camel};");
     }
 
-    fn finish(&mut self, name: &str, files: &mut Files) {
+    fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let mut src = mem::take(&mut self.src);
         if self.opts.fmt {
             let mut child = Command::new("rescript")
@@ -102,15 +95,16 @@ struct InterfaceGenerator<'a> {
     src: Source,
     gen: &'a mut ReScript,
     iface: &'a Interface,
-    // types: Types,
+    world_hash: &'a str,
 }
 
 impl<'a> InterfaceGenerator<'a> {
-    pub fn new(gen: &'a mut ReScript, iface: &'a Interface) -> Self {
+    pub fn new(gen: &'a mut ReScript, iface: &'a Interface, world_hash: &'a str) -> Self {
         Self {
             src: Source::default(),
             gen,
             iface,
+            world_hash,
         }
     }
 
@@ -137,6 +131,8 @@ impl<'a> InterfaceGenerator<'a> {
             external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "__TAURI_INVOKE__"
             "#,
         );
+        self.push_str(&format!(r#"let idlHash = "{}""#, self.world_hash));
+        self.push_str("\n");
     }
 
     fn generate_guest_import(&mut self, func: &Function) {
@@ -190,17 +186,16 @@ impl<'a> InterfaceGenerator<'a> {
             func.name.to_snake_case()
         ));
 
-        if !func.params.is_empty() {
-            self.push_str("~payload={");
-            for (i, (name, _ty)) in func.params.iter().enumerate() {
-                if i > 0 {
-                    self.push_str(", ");
-                }
-                self.push_str(&format!(r#""{}": "#, &name.to_lower_camel_case()));
-                self.push_str(to_rescript_ident(&name.to_lower_camel_case()));
+        self.push_str("~payload={");
+        self.push_str(r#""idlHash": idlHash, "#);
+        for (i, (name, _ty)) in func.params.iter().enumerate() {
+            if i > 0 {
+                self.push_str(", ");
             }
-            self.push_str("}");
+            self.push_str(&format!(r#""{}": "#, &name.to_lower_camel_case()));
+            self.push_str(to_rescript_ident(&name.to_lower_camel_case()));
         }
+        self.push_str("}");
 
         self.push_str(")\n");
 

@@ -5,11 +5,12 @@ use tauri_bindgen_gen_guest_rust::*;
 use wit_parser::World;
 
 fn gen_world(mut gen: Box<dyn WorldGenerator>, name: impl AsRef<str>, path: impl AsRef<Path>) -> (String, String) {
-    let world = World::parse_file(path).unwrap();
+    let world = World::parse_file(&path).unwrap();
+    let world_hash = tauri_bindgen_core::hash::hash_file(path).unwrap();
 
     let mut files = Files::default();
 
-    gen.generate(name.as_ref(), &world, &mut files);
+    gen.generate(name.as_ref(), &world, &mut files, &world_hash);
 
     let (filename, contents) = files.iter().next().unwrap();
 

@@ -1,12 +1,13 @@
-interface Tauri {
-  invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T>;
-}
 declare global {
   interface Window {
-    __TAURI__: { tauri: Tauri };
+    __TAURI_INVOKE__<T>(
+      cmd: string,
+      args?: Record<string, unknown>
+    ): Promise<T>;
   }
 }
-const { invoke } = window.__TAURI__.tauri;
+const invoke = window.__TAURI_INVOKE__;
+const idlHash = "e6872cf01241a6f3";
 export interface Empty {}
 /**
  * A record containing two scalar fields
@@ -48,41 +49,54 @@ export type TupleTypedef = [number];
 export type IntTypedef = number;
 export type TupleTypedef2 = [IntTypedef];
 export async function tupleArg(x: [string, number]): Promise<void> {
-  await invoke<void>("plugin:imports|tuple_arg", { x: x });
+  await invoke<void>("plugin:records|tuple-arg", { idlHash, x: x });
 }
 export async function tupleResult(): Promise<[string, number]> {
-  const result = await invoke<[string, number]>("plugin:imports|tuple_result");
+  const result = await invoke<[string, number]>("plugin:records|tuple-result", {
+    idlHash,
+  });
   return result;
 }
 export async function emptyArg(x: Empty): Promise<void> {
-  await invoke<void>("plugin:imports|empty_arg", { x: x });
+  await invoke<void>("plugin:records|empty-arg", { idlHash, x: x });
 }
 export async function emptyResult(): Promise<Empty> {
-  const result = await invoke<Empty>("plugin:imports|empty_result");
+  const result = await invoke<Empty>("plugin:records|empty-result", {
+    idlHash,
+  });
   return result;
 }
 export async function scalarArg(x: Scalars): Promise<void> {
-  await invoke<void>("plugin:imports|scalar_arg", { x: x });
+  await invoke<void>("plugin:records|scalar-arg", { idlHash, x: x });
 }
 export async function scalarResult(): Promise<Scalars> {
-  const result = await invoke<Scalars>("plugin:imports|scalar_result");
+  const result = await invoke<Scalars>("plugin:records|scalar-result", {
+    idlHash,
+  });
   return result;
 }
 export async function flagsArg(x: ReallyFlags): Promise<void> {
-  await invoke<void>("plugin:imports|flags_arg", { x: x });
+  await invoke<void>("plugin:records|flags-arg", { idlHash, x: x });
 }
 export async function flagsResult(): Promise<ReallyFlags> {
-  const result = await invoke<ReallyFlags>("plugin:imports|flags_result");
+  const result = await invoke<ReallyFlags>("plugin:records|flags-result", {
+    idlHash,
+  });
   return result;
 }
 export async function aggregateArg(x: Aggregates): Promise<void> {
-  await invoke<void>("plugin:imports|aggregate_arg", { x: x });
+  await invoke<void>("plugin:records|aggregate-arg", { idlHash, x: x });
 }
 export async function aggregateResult(): Promise<Aggregates> {
-  const result = await invoke<Aggregates>("plugin:imports|aggregate_result");
+  const result = await invoke<Aggregates>("plugin:records|aggregate-result", {
+    idlHash,
+  });
   return result;
 }
 export async function typedefInout(e: TupleTypedef2): Promise<number> {
-  const result = await invoke<number>("plugin:imports|typedef_inout", { e: e });
+  const result = await invoke<number>("plugin:records|typedef-inout", {
+    idlHash,
+    e: e,
+  });
   return result;
 }

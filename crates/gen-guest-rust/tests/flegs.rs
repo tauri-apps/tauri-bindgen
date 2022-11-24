@@ -1,5 +1,6 @@
 #[allow(clippy::all, unused)]
 pub mod import_flags {
+    const IDL_HASH: &str = "8ecd22d5a53ba1eb";
     ::tauri_bindgen_guest_rust::bitflags::bitflags! {
       #[derive(::serde::Serialize, ::serde::Deserialize)]
       pub struct Flag1: u8 {
@@ -165,64 +166,92 @@ pub mod import_flags {
     pub async fn roundtrip_flag1(x: Flag1) -> Flag1 {
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params {
+        struct Params<'a> {
+            idl_hash: &'a str,
             x: Flag1,
         }
-        let params = Params { x };
-        ::tauri_bindgen_guest_rust::send("plugin:import_flags|roundtrip_flag1", &params).await
+        let params = Params {
+            idl_hash: IDL_HASH,
+            x,
+        };
+        ::tauri_bindgen_guest_rust::invoke("plugin:flegs|roundtrip-flag1", &params).await
     }
     pub async fn roundtrip_flag2(x: Flag2) -> Flag2 {
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params {
+        struct Params<'a> {
+            idl_hash: &'a str,
             x: Flag2,
         }
-        let params = Params { x };
-        ::tauri_bindgen_guest_rust::send("plugin:import_flags|roundtrip_flag2", &params).await
+        let params = Params {
+            idl_hash: IDL_HASH,
+            x,
+        };
+        ::tauri_bindgen_guest_rust::invoke("plugin:flegs|roundtrip-flag2", &params).await
     }
     pub async fn roundtrip_flag4(x: Flag4) -> Flag4 {
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params {
+        struct Params<'a> {
+            idl_hash: &'a str,
             x: Flag4,
         }
-        let params = Params { x };
-        ::tauri_bindgen_guest_rust::send("plugin:import_flags|roundtrip_flag4", &params).await
+        let params = Params {
+            idl_hash: IDL_HASH,
+            x,
+        };
+        ::tauri_bindgen_guest_rust::invoke("plugin:flegs|roundtrip-flag4", &params).await
     }
     pub async fn roundtrip_flag8(x: Flag8) -> Flag8 {
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params {
+        struct Params<'a> {
+            idl_hash: &'a str,
             x: Flag8,
         }
-        let params = Params { x };
-        ::tauri_bindgen_guest_rust::send("plugin:import_flags|roundtrip_flag8", &params).await
+        let params = Params {
+            idl_hash: IDL_HASH,
+            x,
+        };
+        ::tauri_bindgen_guest_rust::invoke("plugin:flegs|roundtrip-flag8", &params).await
     }
     pub async fn roundtrip_flag16(x: Flag16) -> Flag16 {
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params {
+        struct Params<'a> {
+            idl_hash: &'a str,
             x: Flag16,
         }
-        let params = Params { x };
-        ::tauri_bindgen_guest_rust::send("plugin:import_flags|roundtrip_flag16", &params).await
+        let params = Params {
+            idl_hash: IDL_HASH,
+            x,
+        };
+        ::tauri_bindgen_guest_rust::invoke("plugin:flegs|roundtrip-flag16", &params).await
     }
     pub async fn roundtrip_flag32(x: Flag32) -> Flag32 {
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params {
+        struct Params<'a> {
+            idl_hash: &'a str,
             x: Flag32,
         }
-        let params = Params { x };
-        ::tauri_bindgen_guest_rust::send("plugin:import_flags|roundtrip_flag32", &params).await
+        let params = Params {
+            idl_hash: IDL_HASH,
+            x,
+        };
+        ::tauri_bindgen_guest_rust::invoke("plugin:flegs|roundtrip-flag32", &params).await
     }
     pub async fn roundtrip_flag64(x: Flag64) -> Flag64 {
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params {
+        struct Params<'a> {
+            idl_hash: &'a str,
             x: Flag64,
         }
-        let params = Params { x };
-        ::tauri_bindgen_guest_rust::send("plugin:import_flags|roundtrip_flag64", &params).await
+        let params = Params {
+            idl_hash: IDL_HASH,
+            x,
+        };
+        ::tauri_bindgen_guest_rust::invoke("plugin:flegs|roundtrip-flag64", &params).await
     }
 }

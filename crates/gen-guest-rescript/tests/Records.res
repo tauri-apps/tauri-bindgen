@@ -1,5 +1,6 @@
-@scope(("window", "__TAURI__", "tauri"))
-external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "invoke"
+@scope("window")
+external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "__TAURI_INVOKE__"
+let idlHash = "e6872cf01241a6f3"
 type empty = unit
 /**
 * A record containing two scalar fields
@@ -41,35 +42,35 @@ type tupleTypedef = int
 type intTypedef = int
 type tupleTypedef2 = intTypedef
 let tupleArg = (x: (char, int)): Promise.t<unit> => {
-  invoke(~cmd="plugin:imports|tuple_arg", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:records|tuple_arg", ~payload={"idlHash": idlHash, "x": x})
 }
 let tupleResult = (): Promise.t<(char, int)> => {
-  invoke(~cmd="plugin:imports|tuple_result")->ignore
+  invoke(~cmd="plugin:records|tuple_result", ~payload={"idlHash": idlHash})
 }
 let emptyArg = (x: empty): Promise.t<unit> => {
-  invoke(~cmd="plugin:imports|empty_arg", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:records|empty_arg", ~payload={"idlHash": idlHash, "x": x})
 }
 let emptyResult = (): Promise.t<empty> => {
-  invoke(~cmd="plugin:imports|empty_result")->ignore
+  invoke(~cmd="plugin:records|empty_result", ~payload={"idlHash": idlHash})
 }
 let scalarArg = (x: scalars): Promise.t<unit> => {
-  invoke(~cmd="plugin:imports|scalar_arg", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:records|scalar_arg", ~payload={"idlHash": idlHash, "x": x})
 }
 let scalarResult = (): Promise.t<scalars> => {
-  invoke(~cmd="plugin:imports|scalar_result")->ignore
+  invoke(~cmd="plugin:records|scalar_result", ~payload={"idlHash": idlHash})
 }
 let flagsArg = (x: reallyFlags): Promise.t<unit> => {
-  invoke(~cmd="plugin:imports|flags_arg", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:records|flags_arg", ~payload={"idlHash": idlHash, "x": x})
 }
 let flagsResult = (): Promise.t<reallyFlags> => {
-  invoke(~cmd="plugin:imports|flags_result")->ignore
+  invoke(~cmd="plugin:records|flags_result", ~payload={"idlHash": idlHash})
 }
 let aggregateArg = (x: aggregates): Promise.t<unit> => {
-  invoke(~cmd="plugin:imports|aggregate_arg", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:records|aggregate_arg", ~payload={"idlHash": idlHash, "x": x})
 }
 let aggregateResult = (): Promise.t<aggregates> => {
-  invoke(~cmd="plugin:imports|aggregate_result")->ignore
+  invoke(~cmd="plugin:records|aggregate_result", ~payload={"idlHash": idlHash})
 }
 let typedefInout = (e: tupleTypedef2): Promise.t<int> => {
-  invoke(~cmd="plugin:imports|typedef_inout", ~payload={"e": e})->ignore
+  invoke(~cmd="plugin:records|typedef_inout", ~payload={"idlHash": idlHash, "e": e})
 }

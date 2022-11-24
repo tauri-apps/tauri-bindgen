@@ -1,10 +1,10 @@
-use tauri_bindgen_core::{uwriteln, Source, WorldGenerator, Files};
 use heck::*;
 use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::io::{Read, Write};
 use std::mem;
 use std::process::{Command, Stdio};
+use tauri_bindgen_core::{uwriteln, Files, Source, WorldGenerator};
 use wit_parser::*;
 
 #[derive(Debug, Clone, Default)]
@@ -40,8 +40,9 @@ impl WorldGenerator for JavaScript {
         _name: &str,
         iface: &wit_parser::Interface,
         _files: &mut Files,
+        world_hash: &str,
     ) {
-        let mut gen = InterfaceGenerator::new(self, iface);
+        let mut gen = InterfaceGenerator::new(self, iface, world_hash);
 
         gen.print_intro();
 
@@ -53,7 +54,7 @@ impl WorldGenerator for JavaScript {
         uwriteln!(self.src, "{module}");
     }
 
-    fn finish(&mut self, name: &str, files: &mut Files) {
+    fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let mut src = mem::take(&mut self.src);
         if self.opts.prettier {
             let mut child = Command::new("prettier")
@@ -87,14 +88,16 @@ struct InterfaceGenerator<'a> {
     src: Source,
     gen: &'a mut JavaScript,
     iface: &'a Interface,
+    world_hash: &'a str
 }
 
 impl<'a> InterfaceGenerator<'a> {
-    pub fn new(gen: &'a mut JavaScript, iface: &'a Interface,) -> Self {
+    pub fn new(gen: &'a mut JavaScript, iface: &'a Interface, world_hash: &'a str) -> Self {
         Self {
             src: Source::default(),
             gen,
-            iface
+            iface,
+            world_hash
         }
     }
 
@@ -104,6 +107,8 @@ impl<'a> InterfaceGenerator<'a> {
 
     fn print_intro(&mut self) {
         self.push_str("const invoke = window.__TAURI_INVOKE__;");
+        self.push_str(&format!(r#"const idlHash = "{}";"#, self.world_hash));
+        self.push_str("\n");
     }
 
     fn print_jsdoc(&mut self, func: &Function) {
@@ -112,13 +117,13 @@ impl<'a> InterfaceGenerator<'a> {
         }
 
         self.push_str("/**\n");
-        
+
         if let Some(docs) = &func.docs.contents {
             for line in docs.trim().lines() {
                 self.push_str(&format!(" * {}\n", line));
             }
         }
-        
+
         for (param, ty) in func.params.iter() {
             self.push_str(" * @param {");
             self.print_ty(ty);
@@ -128,12 +133,12 @@ impl<'a> InterfaceGenerator<'a> {
         }
 
         match func.results.len() {
-            0 => {},
+            0 => {}
             1 => {
                 self.push_str(" * @returns {Promise<");
                 self.print_ty(func.results.iter_types().next().unwrap());
                 self.push_str(">}\n");
-            },
+            }
             _ => {
                 self.push_str(" * @returns {Promise<[");
                 for (i, ty) in func.results.iter_types().enumerate() {
@@ -182,18 +187,18 @@ impl<'a> InterfaceGenerator<'a> {
             func.name.to_snake_case()
         ));
 
-        if !func.params.is_empty() {
-            self.push_str("{");
-            for (i, (name, _ty)) in func.params.iter().enumerate() {
-                if i > 0 {
-                    self.push_str(", ");
-                }
-                self.push_str(&name.to_lower_camel_case());
-                self.push_str(": ");
-                self.push_str(to_js_ident(&name.to_lower_camel_case()));
+        self.push_str("{");
+        self.push_str("idlHash, ");
+
+        for (i, (name, _ty)) in func.params.iter().enumerate() {
+            if i > 0 {
+                self.push_str(", ");
             }
-            self.push_str("}");
+            self.push_str(&name.to_lower_camel_case());
+            self.push_str(": ");
+            self.push_str(to_js_ident(&name.to_lower_camel_case()));
         }
+        self.push_str("}");
 
         self.push_str(");\n");
 

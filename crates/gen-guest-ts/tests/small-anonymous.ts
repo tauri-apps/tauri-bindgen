@@ -1,14 +1,17 @@
-interface Tauri {
-  invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T>;
-}
 declare global {
   interface Window {
-    __TAURI__: { tauri: Tauri };
+    __TAURI_INVOKE__<T>(
+      cmd: string,
+      args?: Record<string, unknown>
+    ): Promise<T>;
   }
 }
-const { invoke } = window.__TAURI__.tauri;
+const invoke = window.__TAURI_INVOKE__;
+const idlHash = "bee731db80799df9";
 export type Error = "success" | "failure";
 export async function optionTest(): Promise<string | null> {
-  const result = await invoke<string | null>("plugin:imports|option_test");
+  const result = await invoke<string | null>("plugin:anon|option-test", {
+    idlHash,
+  });
   return result;
 }

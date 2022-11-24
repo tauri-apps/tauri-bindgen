@@ -1,6 +1,7 @@
 #[allow(clippy::all, unused)]
 pub mod imports {
-    #[derive(Debug, Clone, ::serde::Serialize)]
+    const IDL_HASH: &str = "92d5120c899c41cc";
+    #[derive(Debug, Clone, PartialEq, ::serde::Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct BigStruct<'a> {
         pub a1: &'a str,
@@ -44,7 +45,8 @@ pub mod imports {
     ) -> () {
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params {
+        struct Params<'a> {
+            idl_hash: &'a str,
             a1: u64,
             a2: u64,
             a3: u64,
@@ -63,6 +65,7 @@ pub mod imports {
             a16: u64,
         }
         let params = Params {
+            idl_hash: IDL_HASH,
             a1,
             a2,
             a3,
@@ -80,15 +83,19 @@ pub mod imports {
             a15,
             a16,
         };
-        ::tauri_bindgen_guest_rust::send("plugin:imports|many_args", &params).await
+        ::tauri_bindgen_guest_rust::invoke("plugin:manyarg|many-args", &params).await
     }
     pub async fn big_argument(x: BigStruct<'_>) -> () {
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params<'a> {
+            idl_hash: &'a str,
             x: BigStruct<'a>,
         }
-        let params = Params { x };
-        ::tauri_bindgen_guest_rust::send("plugin:imports|big_argument", &params).await
+        let params = Params {
+            idl_hash: IDL_HASH,
+            x,
+        };
+        ::tauri_bindgen_guest_rust::invoke("plugin:manyarg|big-argument", &params).await
     }
 }

@@ -1,12 +1,13 @@
-interface Tauri {
-  invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T>;
-}
 declare global {
   interface Window {
-    __TAURI__: { tauri: Tauri };
+    __TAURI_INVOKE__<T>(
+      cmd: string,
+      args?: Record<string, unknown>
+    ): Promise<T>;
   }
 }
-const { invoke } = window.__TAURI__.tauri;
+const invoke = window.__TAURI_INVOKE__;
+const idlHash = "d5901a6520084a85";
 export type E1 = "a";
 export type U1 = U10 | U11;
 export interface U10 {
@@ -104,31 +105,33 @@ export interface IsClone {
   v1: V1;
 }
 export async function e1Arg(x: E1): Promise<void> {
-  await invoke<void>("plugin:imports|e1_arg", { x: x });
+  await invoke<void>("plugin:variants|e1-arg", { idlHash, x: x });
 }
 export async function e1Result(): Promise<E1> {
-  const result = await invoke<E1>("plugin:imports|e1_result");
+  const result = await invoke<E1>("plugin:variants|e1-result", { idlHash });
   return result;
 }
 export async function u1Arg(x: U1): Promise<void> {
-  await invoke<void>("plugin:imports|u1_arg", { x: x });
+  await invoke<void>("plugin:variants|u1-arg", { idlHash, x: x });
 }
 export async function u1Result(): Promise<U1> {
-  const result = await invoke<U1>("plugin:imports|u1_result");
+  const result = await invoke<U1>("plugin:variants|u1-result", { idlHash });
   return result;
 }
 export async function v1Arg(x: V1): Promise<void> {
-  await invoke<void>("plugin:imports|v1_arg", { x: x });
+  await invoke<void>("plugin:variants|v1-arg", { idlHash, x: x });
 }
 export async function v1Result(): Promise<V1> {
-  const result = await invoke<V1>("plugin:imports|v1_result");
+  const result = await invoke<V1>("plugin:variants|v1-result", { idlHash });
   return result;
 }
 export async function boolArg(x: boolean): Promise<void> {
-  await invoke<void>("plugin:imports|bool_arg", { x: x });
+  await invoke<void>("plugin:variants|bool-arg", { idlHash, x: x });
 }
 export async function boolResult(): Promise<boolean> {
-  const result = await invoke<boolean>("plugin:imports|bool_result");
+  const result = await invoke<boolean>("plugin:variants|bool-result", {
+    idlHash,
+  });
   return result;
 }
 export async function optionArg(
@@ -140,7 +143,8 @@ export async function optionArg(
   f: U1 | null,
   g: Option<boolean | null>
 ): Promise<void> {
-  await invoke<void>("plugin:imports|option_arg", {
+  await invoke<void>("plugin:variants|option-arg", {
+    idlHash,
     a: a,
     b: b,
     c: c,
@@ -171,7 +175,7 @@ export async function optionResult(): Promise<
       U1 | null,
       Option<boolean | null>
     ]
-  >("plugin:imports|option_result");
+  >("plugin:variants|option-result", { idlHash });
   return result;
 }
 export async function casts(
@@ -183,8 +187,8 @@ export async function casts(
   f: Casts6
 ): Promise<[Casts1, Casts2, Casts3, Casts4, Casts5, Casts6]> {
   const result = await invoke<[Casts1, Casts2, Casts3, Casts4, Casts5, Casts6]>(
-    "plugin:imports|casts",
-    { a: a, b: b, c: c, d: d, e: e, f: f }
+    "plugin:variants|casts",
+    { idlHash, a: a, b: b, c: c, d: d, e: e, f: f }
   );
   return result;
 }
@@ -196,7 +200,8 @@ export async function resultArg(
   e: Result<number, V1>,
   f: Result<string, Uint8Array>
 ): Promise<void> {
-  await invoke<void>("plugin:imports|result_arg", {
+  await invoke<void>("plugin:variants|result-arg", {
+    idlHash,
     a: a,
     b: b,
     c: c,
@@ -224,58 +229,74 @@ export async function resultResult(): Promise<
       Result<number, V1>,
       Result<string, Uint8Array>
     ]
-  >("plugin:imports|result_result");
+  >("plugin:variants|result-result", { idlHash });
   return result;
 }
 export async function returnResultSugar(): Promise<number> {
-  const result = await invoke<number>("plugin:imports|return_result_sugar");
+  const result = await invoke<number>("plugin:variants|return-result-sugar", {
+    idlHash,
+  });
   return result;
 }
 export async function returnResultSugar2(): Promise<void> {
-  const result = await invoke<void>("plugin:imports|return_result_sugar2");
+  const result = await invoke<void>("plugin:variants|return-result-sugar2", {
+    idlHash,
+  });
   return result;
 }
 export async function returnResultSugar3(): Promise<MyErrno> {
-  const result = await invoke<MyErrno>("plugin:imports|return_result_sugar3");
+  const result = await invoke<MyErrno>("plugin:variants|return-result-sugar3", {
+    idlHash,
+  });
   return result;
 }
 export async function returnResultSugar4(): Promise<[number, number]> {
   const result = await invoke<[number, number]>(
-    "plugin:imports|return_result_sugar4"
+    "plugin:variants|return-result-sugar4",
+    { idlHash }
   );
   return result;
 }
 export async function returnOptionSugar(): Promise<number | null> {
   const result = await invoke<number | null>(
-    "plugin:imports|return_option_sugar"
+    "plugin:variants|return-option-sugar",
+    { idlHash }
   );
   return result;
 }
 export async function returnOptionSugar2(): Promise<MyErrno | null> {
   const result = await invoke<MyErrno | null>(
-    "plugin:imports|return_option_sugar2"
+    "plugin:variants|return-option-sugar2",
+    { idlHash }
   );
   return result;
 }
 export async function resultSimple(): Promise<number> {
-  const result = await invoke<number>("plugin:imports|result_simple");
+  const result = await invoke<number>("plugin:variants|result-simple", {
+    idlHash,
+  });
   return result;
 }
 export async function isCloneArg(a: IsClone): Promise<void> {
-  await invoke<void>("plugin:imports|is_clone_arg", { a: a });
+  await invoke<void>("plugin:variants|is-clone-arg", { idlHash, a: a });
 }
 export async function isCloneReturn(): Promise<IsClone> {
-  const result = await invoke<IsClone>("plugin:imports|is_clone_return");
+  const result = await invoke<IsClone>("plugin:variants|is-clone-return", {
+    idlHash,
+  });
   return result;
 }
 export async function returnNamedOption(): Promise<number | null> {
   const result = await invoke<number | null>(
-    "plugin:imports|return_named_option"
+    "plugin:variants|return-named-option",
+    { idlHash }
   );
   return result;
 }
 export async function returnNamedResult(): Promise<number> {
-  const result = await invoke<number>("plugin:imports|return_named_result");
+  const result = await invoke<number>("plugin:variants|return-named-result", {
+    idlHash,
+  });
   return result;
 }
 export type Option<T> = { tag: "none" } | { tag: "some"; val; T };

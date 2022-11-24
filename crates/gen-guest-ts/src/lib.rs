@@ -36,8 +36,14 @@ struct TypeScript {
 }
 
 impl WorldGenerator for TypeScript {
-    fn import(&mut self, _name: &str, iface: &wit_parser::Interface, _files: &mut Files) {
-        let mut gen = InterfaceGenerator::new(self, iface);
+    fn import(
+        &mut self,
+        _name: &str,
+        iface: &wit_parser::Interface,
+        _files: &mut Files,
+        world_hash: &str,
+    ) {
+        let mut gen = InterfaceGenerator::new(self, iface, world_hash);
 
         gen.print_intro();
         gen.types();
@@ -65,7 +71,7 @@ impl WorldGenerator for TypeScript {
         // uwriteln!(self.import_object, "export const {name}: typeof {camel};");
     }
 
-    fn finish(&mut self, name: &str, files: &mut Files) {
+    fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let mut src = mem::take(&mut self.src);
         if self.opts.prettier {
             let mut child = Command::new("prettier")
@@ -101,17 +107,18 @@ struct InterfaceGenerator<'a> {
     iface: &'a Interface,
     needs_ty_option: bool,
     needs_ty_result: bool,
-    // types: Types,
+    world_hash: &'a str,
 }
 
 impl<'a> InterfaceGenerator<'a> {
-    pub fn new(gen: &'a mut TypeScript, iface: &'a Interface) -> Self {
+    pub fn new(gen: &'a mut TypeScript, iface: &'a Interface, world_hash: &'a str) -> Self {
         Self {
             src: Source::default(),
             gen,
             iface,
             needs_ty_option: false,
             needs_ty_result: false,
+            world_hash,
         }
     }
 
@@ -134,17 +141,16 @@ impl<'a> InterfaceGenerator<'a> {
     fn print_intro(&mut self) {
         self.push_str(
             "
-        interface Tauri {
-            invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T>
-        }
         declare global {
             interface Window {
-                __TAURI__: { tauri: Tauri };
+                __TAURI_INVOKE__<T>(cmd: string, args?: Record<string, unknown>): Promise<T>;
             }
         }
         const invoke = window.__TAURI_INVOKE__;
         ",
         );
+        self.push_str(&format!(r#"const idlHash = "{}";"#, self.world_hash));
+        self.push_str("\n");
     }
 
     fn print_outro(&mut self) {
@@ -235,18 +241,18 @@ impl<'a> InterfaceGenerator<'a> {
             func.name
         ));
 
-        if !func.params.is_empty() {
-            self.push_str("{");
-            for (i, (name, _ty)) in func.params.iter().enumerate() {
-                if i > 0 {
-                    self.push_str(", ");
-                }
-                self.push_str(&name.to_lower_camel_case());
-                self.push_str(": ");
-                self.push_str(to_js_ident(&name.to_lower_camel_case()));
+        self.push_str("{");
+        self.push_str("idlHash, ");
+
+        for (i, (name, _ty)) in func.params.iter().enumerate() {
+            if i > 0 {
+                self.push_str(", ");
             }
-            self.push_str("}");
+            self.push_str(&name.to_lower_camel_case());
+            self.push_str(": ");
+            self.push_str(to_js_ident(&name.to_lower_camel_case()));
         }
+        self.push_str("}");
 
         self.push_str(");\n");
 
@@ -429,12 +435,16 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
                 self.push_str(&format!("export enum {} {{\n", name.to_upper_camel_case()))
             }
             FlagsRepr::U32(_) => {
-                self.push_str(&format!("export type {} = typeof {};", name.to_upper_camel_case(), name.to_upper_camel_case()));
-                    self.push_str(&format!(
+                self.push_str(&format!(
+                    "export type {} = typeof {};",
+                    name.to_upper_camel_case(),
+                    name.to_upper_camel_case()
+                ));
+                self.push_str(&format!(
                     "export const {} = {{\n",
                     name.to_upper_camel_case()
                 ))
-            },
+            }
         }
 
         let base: usize = 1;

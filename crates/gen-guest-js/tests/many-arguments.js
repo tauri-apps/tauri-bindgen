@@ -1,4 +1,5 @@
-const { invoke } = window.__TAURI__.tauri;
+const invoke = window.__TAURI_INVOKE__;
+const idlHash = "92d5120c899c41cc";
 /**
  * @param {bigint} a1
  * @param {bigint} a2
@@ -35,7 +36,8 @@ export async function manyArgs(
   a15,
   a16
 ) {
-  await invoke("plugin:imports|many_args", {
+  await invoke("plugin:manyarg|many_args", {
+    idlHash,
     a1: a1,
     a2: a2,
     a3: a3,
@@ -58,5 +60,5 @@ export async function manyArgs(
  * @param {BigStruct} x
  */
 export async function bigArgument(x) {
-  await invoke("plugin:imports|big_argument", { x: x });
+  await invoke("plugin:manyarg|big_argument", { idlHash, x: x });
 }

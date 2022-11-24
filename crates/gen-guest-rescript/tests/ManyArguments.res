@@ -1,5 +1,6 @@
-@scope(("window", "__TAURI__", "tauri"))
-external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "invoke"
+@scope("window")
+external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "__TAURI_INVOKE__"
+let idlHash = "92d5120c899c41cc"
 type bigStruct = {
   a1: string,
   a2: string,
@@ -41,8 +42,9 @@ let manyArgs = (
   a16: int64,
 ): Promise.t<unit> => {
   invoke(
-    ~cmd="plugin:imports|many_args",
+    ~cmd="plugin:manyarg|many_args",
     ~payload={
+      "idlHash": idlHash,
       "a1": a1,
       "a2": a2,
       "a3": a3,
@@ -60,8 +62,8 @@ let manyArgs = (
       "a15": a15,
       "a16": a16,
     },
-  )->ignore
+  )
 }
 let bigArgument = (x: bigStruct): Promise.t<unit> => {
-  invoke(~cmd="plugin:imports|big_argument", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:manyarg|big_argument", ~payload={"idlHash": idlHash, "x": x})
 }
