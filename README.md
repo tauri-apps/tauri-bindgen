@@ -16,7 +16,7 @@
 
 > **Note**: This project is under heavy development and should be considered experimental. I will be doing many sweeping changes, so depending on it is not recommened at this point. If you are excited by this though, and want help out, please feel free to test it out, create issues, and open PRs!
 
-This project generates bindings for **both sides** of the Taur IPC bridge. Bindings are declared using [`*.wit`](https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md) files that describe exposed functions and shared types. `tauri-bindgen` can then generate ergonomic wrappers for the host interface (declaring the API the Tauri host must expose) and for a variety of client languages.
+This project generates bindings for the Rust [Host](#host) **and** Webview frontends (called [Guests](#guest)) in JavaScript, TypeScript, ReScript, and Rust. Bindings are declared using [`*.wit`](https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md) files that describe exposed functions and shared types.
 
 This project's main purpose right now is to support the development of Tauri API bindings and plugins, where users might want support for many different languages.
 
