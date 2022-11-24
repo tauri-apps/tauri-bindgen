@@ -2729,6 +2729,7 @@ dependencies = [
  "async-trait",
  "bitflags",
  "serde",
+ "serde_json",
  "tauri",
  "tauri-bindgen-host-macro",
  "tracing",

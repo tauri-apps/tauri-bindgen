@@ -46,7 +46,7 @@ impl WorldGenerator for Host {
     fn import(&mut self, name: &str, iface: &Interface, _files: &mut Files) {
         let mut gen = InterfaceGenerator::new(self, iface, TypeMode::Owned);
         gen.types();
-        gen.generate_invoke_handler(name);
+        gen.generate_add_to_router(name);
 
         let snake = name.to_snake_case();
         let module = &gen.src[..];
@@ -119,7 +119,7 @@ impl<'a> InterfaceGenerator<'a> {
         }
     }
 
-    pub(crate) fn generate_invoke_handler(&mut self, name: &str) {
+    pub(crate) fn generate_add_to_router(&mut self, name: &str) {
         let camel = name.to_upper_camel_case();
 
         if self.gen.opts.async_ {
@@ -148,8 +148,10 @@ impl<'a> InterfaceGenerator<'a> {
         uwriteln!(
             self.src,
             "
-                pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
-                where
+                pub fn add_to_router<U, R>(
+                    router: &mut ::tauri_bindgen_host::IPCRouter<T>,
+                    get: impl Fn(&mut ::tauri_bindgen_host::tauri::Invoke<R>) -> &mut U + Send + Sync + Copy + 'static,
+                ) where
                     U: {camel} + Send + Sync + 'static,
                     R: ::tauri_bindgen_host::tauri::Runtime + 'static
                 {{
