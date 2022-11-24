@@ -131,7 +131,15 @@ impl<'a> InterfaceGenerator<'a> {
             external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "__TAURI_INVOKE__"
             "#,
         );
-        self.push_str(&format!(r#"let idlHash = "{}""#, self.world_hash));
+        self.push_str(&format!(
+            r#"if Belt.Option.isNone(%external(__TAURI_BINDGEN_VERSION_CHECK__)) {{
+                invoke(~cmd="plugin:{}|{}")
+                    ->catch(e => {{ Js.Console.error("{}\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.") }})
+            }}"#,
+            self.iface.name.to_snake_case(),
+            self.world_hash,
+            tauri_bindgen_core::VERSION_MISMATCH_MSG
+        ));
         self.push_str("\n");
     }
 
@@ -186,16 +194,17 @@ impl<'a> InterfaceGenerator<'a> {
             func.name.to_snake_case()
         ));
 
-        self.push_str("~payload={");
-        self.push_str(r#""idlHash": idlHash, "#);
-        for (i, (name, _ty)) in func.params.iter().enumerate() {
-            if i > 0 {
-                self.push_str(", ");
+        if !func.params.is_empty() {
+            self.push_str("~payload={");
+            for (i, (name, _ty)) in func.params.iter().enumerate() {
+                if i > 0 {
+                    self.push_str(", ");
+                }
+                self.push_str(&format!(r#""{}": "#, &name.to_lower_camel_case()));
+                self.push_str(to_rescript_ident(&name.to_lower_camel_case()));
             }
-            self.push_str(&format!(r#""{}": "#, &name.to_lower_camel_case()));
-            self.push_str(to_rescript_ident(&name.to_lower_camel_case()));
+            self.push_str("}");
         }
-        self.push_str("}");
 
         self.push_str(")\n");
 

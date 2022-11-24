@@ -1,6 +1,24 @@
 #[allow(clippy::all, unused)]
 pub mod imports {
-    const IDL_HASH: &str = "d5901a6520084a85";
+
+    #[cfg(debug_assertions)]
+    static START: ::std::sync::Once = ::std::sync::Once::new();
+    #[cfg(debug_assertions)]
+    fn check_idl_version() {
+        ::tauri_bindgen_guest_rust::wasm_bindgen_futures::spawn_local(async {
+            if ::tauri_bindgen_guest_rust::invoke::<_, ()>(
+                "plugin:variants|d5901a6520084a85a46510eb369ef6fe",
+                (),
+            )
+            .await
+            .is_err()
+            {
+                ::tauri_bindgen_guest_rust::console_warn("The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: This is a debug assertion and IDL versions will not be checked in release builds.
+        ");
+            }
+        });
+    }
+
     #[repr(u8)]
     #[derive(Debug, Clone, Copy, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
     pub enum E1 {
@@ -83,92 +101,84 @@ pub mod imports {
         pub v1: V1Result,
     }
     pub async fn e1_arg(x: E1) -> () {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
+        struct Params {
             x: E1,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            x,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|e1-arg", &params).await
+        let params = Params { x };
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|e1-arg", &params)
+            .await
+            .unwrap()
     }
     pub async fn e1_result() -> E1 {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|e1-result", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|e1-result", ())
+            .await
+            .unwrap()
     }
     pub async fn u1_arg(x: U1) -> () {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
+        struct Params {
             x: U1,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            x,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|u1-arg", &params).await
+        let params = Params { x };
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|u1-arg", &params)
+            .await
+            .unwrap()
     }
     pub async fn u1_result() -> U1 {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|u1-result", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|u1-result", ())
+            .await
+            .unwrap()
     }
     pub async fn v1_arg(x: V1Param<'_>) -> () {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params<'a> {
-            idl_hash: &'a str,
             x: V1Param<'a>,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            x,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|v1-arg", &params).await
+        let params = Params { x };
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|v1-arg", &params)
+            .await
+            .unwrap()
     }
     pub async fn v1_result() -> V1Result {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|v1-result", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|v1-result", ())
+            .await
+            .unwrap()
     }
     pub async fn bool_arg(x: bool) -> () {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
+        struct Params {
             x: bool,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            x,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|bool-arg", &params).await
+        let params = Params { x };
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|bool-arg", &params)
+            .await
+            .unwrap()
     }
     pub async fn bool_result() -> bool {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|bool-result", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|bool-result", ())
+            .await
+            .unwrap()
     }
     pub async fn option_arg(
         a: Option<bool>,
@@ -179,10 +189,11 @@ pub mod imports {
         f: Option<U1>,
         g: Option<Option<bool>>,
     ) -> () {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
+        struct Params {
             a: Option<bool>,
             b: Option<()>,
             c: Option<u32>,
@@ -192,7 +203,6 @@ pub mod imports {
             g: Option<Option<bool>>,
         }
         let params = Params {
-            idl_hash: IDL_HASH,
             a,
             b,
             c,
@@ -201,7 +211,9 @@ pub mod imports {
             f,
             g,
         };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|option-arg", &params).await
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|option-arg", &params)
+            .await
+            .unwrap()
     }
     pub async fn option_result() -> (
         Option<bool>,
@@ -212,13 +224,11 @@ pub mod imports {
         Option<U1>,
         Option<Option<bool>>,
     ) {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|option-result", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|option-result", ())
+            .await
+            .unwrap()
     }
     pub async fn casts(
         a: Casts1,
@@ -228,10 +238,11 @@ pub mod imports {
         e: Casts5,
         f: Casts6,
     ) -> (Casts1, Casts2, Casts3, Casts4, Casts5, Casts6) {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
+        struct Params {
             a: Casts1,
             b: Casts2,
             c: Casts3,
@@ -239,16 +250,10 @@ pub mod imports {
             e: Casts5,
             f: Casts6,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            a,
-            b,
-            c,
-            d,
-            e,
-            f,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|casts", &params).await
+        let params = Params { a, b, c, d, e, f };
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|casts", &params)
+            .await
+            .unwrap()
     }
     pub async fn result_arg(
         a: Result<(), ()>,
@@ -258,10 +263,11 @@ pub mod imports {
         e: Result<u32, V1Param<'_>>,
         f: Result<&str, &[u8]>,
     ) -> () {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params<'a> {
-            idl_hash: &'a str,
             a: Result<(), ()>,
             b: Result<(), E1>,
             c: Result<E1, ()>,
@@ -269,16 +275,10 @@ pub mod imports {
             e: Result<u32, V1Param<'a>>,
             f: Result<&'a str, &'a [u8]>,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            a,
-            b,
-            c,
-            d,
-            e,
-            f,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|result-arg", &params).await
+        let params = Params { a, b, c, d, e, f };
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|result-arg", &params)
+            .await
+            .unwrap()
     }
     pub async fn result_result() -> (
         Result<(), ()>,
@@ -288,115 +288,93 @@ pub mod imports {
         Result<u32, V1Result>,
         Result<String, Vec<u8>>,
     ) {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|result-result", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|result-result", ())
+            .await
+            .unwrap()
     }
     pub async fn return_result_sugar() -> Result<i32, MyErrno> {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-result-sugar", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-result-sugar", ())
+            .await
+            .unwrap()
     }
     pub async fn return_result_sugar2() -> Result<(), MyErrno> {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-result-sugar2", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-result-sugar2", ())
+            .await
+            .unwrap()
     }
     pub async fn return_result_sugar3() -> Result<MyErrno, MyErrno> {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-result-sugar3", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-result-sugar3", ())
+            .await
+            .unwrap()
     }
     pub async fn return_result_sugar4() -> Result<(i32, u32), MyErrno> {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-result-sugar4", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-result-sugar4", ())
+            .await
+            .unwrap()
     }
     pub async fn return_option_sugar() -> Option<i32> {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-option-sugar", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-option-sugar", ())
+            .await
+            .unwrap()
     }
     pub async fn return_option_sugar2() -> Option<MyErrno> {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-option-sugar2", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-option-sugar2", ())
+            .await
+            .unwrap()
     }
     pub async fn result_simple() -> Result<u32, i32> {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|result-simple", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|result-simple", ())
+            .await
+            .unwrap()
     }
     pub async fn is_clone_arg(a: IsCloneParam<'_>) -> () {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params<'a> {
-            idl_hash: &'a str,
             a: IsCloneParam<'a>,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            a,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|is-clone-arg", &params).await
+        let params = Params { a };
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|is-clone-arg", &params)
+            .await
+            .unwrap()
     }
     pub async fn is_clone_return() -> IsCloneResult {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|is-clone-return", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|is-clone-return", ())
+            .await
+            .unwrap()
     }
     pub async fn return_named_option() -> Option<u8> {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-named-option", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-named-option", ())
+            .await
+            .unwrap()
     }
     pub async fn return_named_result() -> Result<u8, MyErrno> {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-named-result", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:variants|return-named-result", ())
+            .await
+            .unwrap()
     }
 }

@@ -162,32 +162,14 @@ pub mod import_flags {
         const B63 = 1 << 63;
       }
     }
-    #[::tauri_bindgen_host::async_trait]
     pub trait ImportFlags: Sized {
-        async fn roundtrip_flag1(&self, x: Flag1) -> ::tauri_bindgen_host::anyhow::Result<Flag1>;
-        async fn roundtrip_flag2(&self, x: Flag2) -> ::tauri_bindgen_host::anyhow::Result<Flag2>;
-        async fn roundtrip_flag4(&self, x: Flag4) -> ::tauri_bindgen_host::anyhow::Result<Flag4>;
-        async fn roundtrip_flag8(&self, x: Flag8) -> ::tauri_bindgen_host::anyhow::Result<Flag8>;
-        async fn roundtrip_flag16(&self, x: Flag16)
-            -> ::tauri_bindgen_host::anyhow::Result<Flag16>;
-        async fn roundtrip_flag32(&self, x: Flag32)
-            -> ::tauri_bindgen_host::anyhow::Result<Flag32>;
-        async fn roundtrip_flag64(&self, x: Flag64)
-            -> ::tauri_bindgen_host::anyhow::Result<Flag64>;
-    }
-
-    fn verfiy_idl_hash<'a, R: ::tauri_bindgen_host::tauri::Runtime>(
-        item: ::tauri_bindgen_host::tauri::command::CommandItem<'a, R>,
-    ) -> Result<(), ::tauri_bindgen_host::tauri::InvokeError> {
-        let hash: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(item)?;
-
-        if hash != "8ecd22d5a53ba1eb" {
-            return Err(::tauri_bindgen_host::tauri::InvokeError::from(
-                "IDL version mismatch",
-            ));
-        }
-
-        Ok(())
+        fn roundtrip_flag1(&self, x: Flag1) -> ::tauri_bindgen_host::anyhow::Result<Flag1>;
+        fn roundtrip_flag2(&self, x: Flag2) -> ::tauri_bindgen_host::anyhow::Result<Flag2>;
+        fn roundtrip_flag4(&self, x: Flag4) -> ::tauri_bindgen_host::anyhow::Result<Flag4>;
+        fn roundtrip_flag8(&self, x: Flag8) -> ::tauri_bindgen_host::anyhow::Result<Flag8>;
+        fn roundtrip_flag16(&self, x: Flag16) -> ::tauri_bindgen_host::anyhow::Result<Flag16>;
+        fn roundtrip_flag32(&self, x: Flag32) -> ::tauri_bindgen_host::anyhow::Result<Flag32>;
+        fn roundtrip_flag64(&self, x: Flag64) -> ::tauri_bindgen_host::anyhow::Result<Flag64>;
     }
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
@@ -195,357 +177,246 @@ pub mod import_flags {
         U: ImportFlags + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
-        move |invoke| match invoke.message.command() {
-            "roundtrip-flag1" => {
-                let span = ::tauri_bindgen_host::tracing::span!(
-                ::tauri_bindgen_host::tracing::Level::TRACE,
-                "tauri-bindgen invoke handler",
-                module = "import-flags", function = "roundtrip-flag1", payload = ?invoke.message.payload()
-                );
-                let _enter = span.enter();
+        move |invoke| {
+            let span = ::tauri_bindgen_host::tracing::span!(
+            ::tauri_bindgen_host::tracing::Level::TRACE,
+            "tauri-bindgen invoke handler",
+            module = "import-flags", function = invoke.message.command(), payload = ?invoke.message.payload()
+            );
+            let _enter = span.enter();
 
-                #[allow(unused_variables)]
-                let ::tauri_bindgen_host::tauri::Invoke {
-                    message: __tauri_message__,
-                    resolver: __tauri_resolver__,
-                } = invoke;
-                if let Err(err) =
-                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
-                        name: "roundtrip-flag1",
-                        key: "idlHash",
-                        message: &__tauri_message__,
-                    })
-                {
-                    return __tauri_resolver__.invoke_error(err);
-                }
-                let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                    ::tauri_bindgen_host::tauri::command::CommandItem {
-                        name: "roundtrip-flag1",
-                        key: "x",
-                        message: &__tauri_message__,
-                    },
-                ) {
-                    Ok(arg) => arg,
-                    Err(err) => {
-                        ::tauri_bindgen_host::tracing::error!(
-                            module = "import-flags",
-                            function = "roundtrip-flag1",
-                            "Invoke handler returned error {:?}",
-                            err
-                        );
-                        return __tauri_resolver__.invoke_error(err);
-                    }
-                };
+            match invoke.message.command() {
+                "roundtrip-flag1" => {
+                    #[allow(unused_variables)]
+                    let ::tauri_bindgen_host::tauri::Invoke {
+                        message: __tauri_message__,
+                        resolver: __tauri_resolver__,
+                    } = invoke;
+                    let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "roundtrip-flag1",
+                            key: "x",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => {
+                            ::tauri_bindgen_host::tracing::error!(
+                                module = "import-flags",
+                                function = "roundtrip-flag1",
+                                "Invoke handler returned error {:?}",
+                                err
+                            );
+                            return __tauri_resolver__.invoke_error(err);
+                        }
+                    };
 
-                __tauri_resolver__.respond_async(async move {
                     let result = ctx.roundtrip_flag1(x);
 
-                    result
-                        .await
-                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
-                });
-            }
-            "roundtrip-flag2" => {
-                let span = ::tauri_bindgen_host::tracing::span!(
-                ::tauri_bindgen_host::tracing::Level::TRACE,
-                "tauri-bindgen invoke handler",
-                module = "import-flags", function = "roundtrip-flag2", payload = ?invoke.message.payload()
-                );
-                let _enter = span.enter();
-
-                #[allow(unused_variables)]
-                let ::tauri_bindgen_host::tauri::Invoke {
-                    message: __tauri_message__,
-                    resolver: __tauri_resolver__,
-                } = invoke;
-                if let Err(err) =
-                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
-                        name: "roundtrip-flag2",
-                        key: "idlHash",
-                        message: &__tauri_message__,
-                    })
-                {
-                    return __tauri_resolver__.invoke_error(err);
+                    __tauri_resolver__.respond(
+                        result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
+                    );
                 }
-                let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                    ::tauri_bindgen_host::tauri::command::CommandItem {
-                        name: "roundtrip-flag2",
-                        key: "x",
-                        message: &__tauri_message__,
-                    },
-                ) {
-                    Ok(arg) => arg,
-                    Err(err) => {
-                        ::tauri_bindgen_host::tracing::error!(
-                            module = "import-flags",
-                            function = "roundtrip-flag2",
-                            "Invoke handler returned error {:?}",
-                            err
-                        );
-                        return __tauri_resolver__.invoke_error(err);
-                    }
-                };
+                "roundtrip-flag2" => {
+                    #[allow(unused_variables)]
+                    let ::tauri_bindgen_host::tauri::Invoke {
+                        message: __tauri_message__,
+                        resolver: __tauri_resolver__,
+                    } = invoke;
+                    let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "roundtrip-flag2",
+                            key: "x",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => {
+                            ::tauri_bindgen_host::tracing::error!(
+                                module = "import-flags",
+                                function = "roundtrip-flag2",
+                                "Invoke handler returned error {:?}",
+                                err
+                            );
+                            return __tauri_resolver__.invoke_error(err);
+                        }
+                    };
 
-                __tauri_resolver__.respond_async(async move {
                     let result = ctx.roundtrip_flag2(x);
 
-                    result
-                        .await
-                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
-                });
-            }
-            "roundtrip-flag4" => {
-                let span = ::tauri_bindgen_host::tracing::span!(
-                ::tauri_bindgen_host::tracing::Level::TRACE,
-                "tauri-bindgen invoke handler",
-                module = "import-flags", function = "roundtrip-flag4", payload = ?invoke.message.payload()
-                );
-                let _enter = span.enter();
-
-                #[allow(unused_variables)]
-                let ::tauri_bindgen_host::tauri::Invoke {
-                    message: __tauri_message__,
-                    resolver: __tauri_resolver__,
-                } = invoke;
-                if let Err(err) =
-                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
-                        name: "roundtrip-flag4",
-                        key: "idlHash",
-                        message: &__tauri_message__,
-                    })
-                {
-                    return __tauri_resolver__.invoke_error(err);
+                    __tauri_resolver__.respond(
+                        result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
+                    );
                 }
-                let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                    ::tauri_bindgen_host::tauri::command::CommandItem {
-                        name: "roundtrip-flag4",
-                        key: "x",
-                        message: &__tauri_message__,
-                    },
-                ) {
-                    Ok(arg) => arg,
-                    Err(err) => {
-                        ::tauri_bindgen_host::tracing::error!(
-                            module = "import-flags",
-                            function = "roundtrip-flag4",
-                            "Invoke handler returned error {:?}",
-                            err
-                        );
-                        return __tauri_resolver__.invoke_error(err);
-                    }
-                };
+                "roundtrip-flag4" => {
+                    #[allow(unused_variables)]
+                    let ::tauri_bindgen_host::tauri::Invoke {
+                        message: __tauri_message__,
+                        resolver: __tauri_resolver__,
+                    } = invoke;
+                    let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "roundtrip-flag4",
+                            key: "x",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => {
+                            ::tauri_bindgen_host::tracing::error!(
+                                module = "import-flags",
+                                function = "roundtrip-flag4",
+                                "Invoke handler returned error {:?}",
+                                err
+                            );
+                            return __tauri_resolver__.invoke_error(err);
+                        }
+                    };
 
-                __tauri_resolver__.respond_async(async move {
                     let result = ctx.roundtrip_flag4(x);
 
-                    result
-                        .await
-                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
-                });
-            }
-            "roundtrip-flag8" => {
-                let span = ::tauri_bindgen_host::tracing::span!(
-                ::tauri_bindgen_host::tracing::Level::TRACE,
-                "tauri-bindgen invoke handler",
-                module = "import-flags", function = "roundtrip-flag8", payload = ?invoke.message.payload()
-                );
-                let _enter = span.enter();
-
-                #[allow(unused_variables)]
-                let ::tauri_bindgen_host::tauri::Invoke {
-                    message: __tauri_message__,
-                    resolver: __tauri_resolver__,
-                } = invoke;
-                if let Err(err) =
-                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
-                        name: "roundtrip-flag8",
-                        key: "idlHash",
-                        message: &__tauri_message__,
-                    })
-                {
-                    return __tauri_resolver__.invoke_error(err);
+                    __tauri_resolver__.respond(
+                        result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
+                    );
                 }
-                let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                    ::tauri_bindgen_host::tauri::command::CommandItem {
-                        name: "roundtrip-flag8",
-                        key: "x",
-                        message: &__tauri_message__,
-                    },
-                ) {
-                    Ok(arg) => arg,
-                    Err(err) => {
-                        ::tauri_bindgen_host::tracing::error!(
-                            module = "import-flags",
-                            function = "roundtrip-flag8",
-                            "Invoke handler returned error {:?}",
-                            err
-                        );
-                        return __tauri_resolver__.invoke_error(err);
-                    }
-                };
+                "roundtrip-flag8" => {
+                    #[allow(unused_variables)]
+                    let ::tauri_bindgen_host::tauri::Invoke {
+                        message: __tauri_message__,
+                        resolver: __tauri_resolver__,
+                    } = invoke;
+                    let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "roundtrip-flag8",
+                            key: "x",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => {
+                            ::tauri_bindgen_host::tracing::error!(
+                                module = "import-flags",
+                                function = "roundtrip-flag8",
+                                "Invoke handler returned error {:?}",
+                                err
+                            );
+                            return __tauri_resolver__.invoke_error(err);
+                        }
+                    };
 
-                __tauri_resolver__.respond_async(async move {
                     let result = ctx.roundtrip_flag8(x);
 
-                    result
-                        .await
-                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
-                });
-            }
-            "roundtrip-flag16" => {
-                let span = ::tauri_bindgen_host::tracing::span!(
-                ::tauri_bindgen_host::tracing::Level::TRACE,
-                "tauri-bindgen invoke handler",
-                module = "import-flags", function = "roundtrip-flag16", payload = ?invoke.message.payload()
-                );
-                let _enter = span.enter();
-
-                #[allow(unused_variables)]
-                let ::tauri_bindgen_host::tauri::Invoke {
-                    message: __tauri_message__,
-                    resolver: __tauri_resolver__,
-                } = invoke;
-                if let Err(err) =
-                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
-                        name: "roundtrip-flag16",
-                        key: "idlHash",
-                        message: &__tauri_message__,
-                    })
-                {
-                    return __tauri_resolver__.invoke_error(err);
+                    __tauri_resolver__.respond(
+                        result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
+                    );
                 }
-                let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                    ::tauri_bindgen_host::tauri::command::CommandItem {
-                        name: "roundtrip-flag16",
-                        key: "x",
-                        message: &__tauri_message__,
-                    },
-                ) {
-                    Ok(arg) => arg,
-                    Err(err) => {
-                        ::tauri_bindgen_host::tracing::error!(
-                            module = "import-flags",
-                            function = "roundtrip-flag16",
-                            "Invoke handler returned error {:?}",
-                            err
-                        );
-                        return __tauri_resolver__.invoke_error(err);
-                    }
-                };
+                "roundtrip-flag16" => {
+                    #[allow(unused_variables)]
+                    let ::tauri_bindgen_host::tauri::Invoke {
+                        message: __tauri_message__,
+                        resolver: __tauri_resolver__,
+                    } = invoke;
+                    let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "roundtrip-flag16",
+                            key: "x",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => {
+                            ::tauri_bindgen_host::tracing::error!(
+                                module = "import-flags",
+                                function = "roundtrip-flag16",
+                                "Invoke handler returned error {:?}",
+                                err
+                            );
+                            return __tauri_resolver__.invoke_error(err);
+                        }
+                    };
 
-                __tauri_resolver__.respond_async(async move {
                     let result = ctx.roundtrip_flag16(x);
 
-                    result
-                        .await
-                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
-                });
-            }
-            "roundtrip-flag32" => {
-                let span = ::tauri_bindgen_host::tracing::span!(
-                ::tauri_bindgen_host::tracing::Level::TRACE,
-                "tauri-bindgen invoke handler",
-                module = "import-flags", function = "roundtrip-flag32", payload = ?invoke.message.payload()
-                );
-                let _enter = span.enter();
-
-                #[allow(unused_variables)]
-                let ::tauri_bindgen_host::tauri::Invoke {
-                    message: __tauri_message__,
-                    resolver: __tauri_resolver__,
-                } = invoke;
-                if let Err(err) =
-                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
-                        name: "roundtrip-flag32",
-                        key: "idlHash",
-                        message: &__tauri_message__,
-                    })
-                {
-                    return __tauri_resolver__.invoke_error(err);
+                    __tauri_resolver__.respond(
+                        result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
+                    );
                 }
-                let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                    ::tauri_bindgen_host::tauri::command::CommandItem {
-                        name: "roundtrip-flag32",
-                        key: "x",
-                        message: &__tauri_message__,
-                    },
-                ) {
-                    Ok(arg) => arg,
-                    Err(err) => {
-                        ::tauri_bindgen_host::tracing::error!(
-                            module = "import-flags",
-                            function = "roundtrip-flag32",
-                            "Invoke handler returned error {:?}",
-                            err
-                        );
-                        return __tauri_resolver__.invoke_error(err);
-                    }
-                };
+                "roundtrip-flag32" => {
+                    #[allow(unused_variables)]
+                    let ::tauri_bindgen_host::tauri::Invoke {
+                        message: __tauri_message__,
+                        resolver: __tauri_resolver__,
+                    } = invoke;
+                    let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "roundtrip-flag32",
+                            key: "x",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => {
+                            ::tauri_bindgen_host::tracing::error!(
+                                module = "import-flags",
+                                function = "roundtrip-flag32",
+                                "Invoke handler returned error {:?}",
+                                err
+                            );
+                            return __tauri_resolver__.invoke_error(err);
+                        }
+                    };
 
-                __tauri_resolver__.respond_async(async move {
                     let result = ctx.roundtrip_flag32(x);
 
-                    result
-                        .await
-                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
-                });
-            }
-            "roundtrip-flag64" => {
-                let span = ::tauri_bindgen_host::tracing::span!(
-                ::tauri_bindgen_host::tracing::Level::TRACE,
-                "tauri-bindgen invoke handler",
-                module = "import-flags", function = "roundtrip-flag64", payload = ?invoke.message.payload()
-                );
-                let _enter = span.enter();
-
-                #[allow(unused_variables)]
-                let ::tauri_bindgen_host::tauri::Invoke {
-                    message: __tauri_message__,
-                    resolver: __tauri_resolver__,
-                } = invoke;
-                if let Err(err) =
-                    verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {
-                        name: "roundtrip-flag64",
-                        key: "idlHash",
-                        message: &__tauri_message__,
-                    })
-                {
-                    return __tauri_resolver__.invoke_error(err);
+                    __tauri_resolver__.respond(
+                        result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
+                    );
                 }
-                let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
-                    ::tauri_bindgen_host::tauri::command::CommandItem {
-                        name: "roundtrip-flag64",
-                        key: "x",
-                        message: &__tauri_message__,
-                    },
-                ) {
-                    Ok(arg) => arg,
-                    Err(err) => {
-                        ::tauri_bindgen_host::tracing::error!(
-                            module = "import-flags",
-                            function = "roundtrip-flag64",
-                            "Invoke handler returned error {:?}",
-                            err
-                        );
-                        return __tauri_resolver__.invoke_error(err);
-                    }
-                };
+                "roundtrip-flag64" => {
+                    #[allow(unused_variables)]
+                    let ::tauri_bindgen_host::tauri::Invoke {
+                        message: __tauri_message__,
+                        resolver: __tauri_resolver__,
+                    } = invoke;
+                    let x = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(
+                        ::tauri_bindgen_host::tauri::command::CommandItem {
+                            name: "roundtrip-flag64",
+                            key: "x",
+                            message: &__tauri_message__,
+                        },
+                    ) {
+                        Ok(arg) => arg,
+                        Err(err) => {
+                            ::tauri_bindgen_host::tracing::error!(
+                                module = "import-flags",
+                                function = "roundtrip-flag64",
+                                "Invoke handler returned error {:?}",
+                                err
+                            );
+                            return __tauri_resolver__.invoke_error(err);
+                        }
+                    };
 
-                __tauri_resolver__.respond_async(async move {
                     let result = ctx.roundtrip_flag64(x);
 
-                    result
-                        .await
-                        .map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
-                });
-            }
-            func_name => {
-                ::tauri_bindgen_host::tracing::error!(
-                    module = "import-flags",
-                    function = func_name,
-                    "Not Found"
-                );
-                invoke.resolver.reject("Not Found")
+                    __tauri_resolver__.respond(
+                        result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
+                    );
+                }
+
+                #[cfg(debug_assertions)]
+                "8ecd22d5a53ba1eb34b6d188f5479d66" => {
+                    invoke.resolver.respond(Ok(()));
+                }
+
+                func_name => {
+                    ::tauri_bindgen_host::tracing::error!(
+                        module = "import-flags",
+                        function = func_name,
+                        "Not Found"
+                    );
+                    invoke.resolver.reject("Not Found")
+                }
             }
         }
     }

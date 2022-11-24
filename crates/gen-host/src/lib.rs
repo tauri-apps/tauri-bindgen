@@ -100,7 +100,7 @@ struct InterfaceGenerator<'a> {
     iface: &'a Interface,
     default_param_mode: TypeMode,
     types: Types,
-    world_hash: &'a str
+    world_hash: &'a str,
 }
 
 impl<'a> InterfaceGenerator<'a> {
@@ -108,7 +108,7 @@ impl<'a> InterfaceGenerator<'a> {
         gen: &'a mut Host,
         iface: &'a Interface,
         default_param_mode: TypeMode,
-        world_hash: &'a str
+        world_hash: &'a str,
     ) -> InterfaceGenerator<'a> {
         let mut types = Types::default();
         types.analyze(iface);
@@ -118,7 +118,7 @@ impl<'a> InterfaceGenerator<'a> {
             iface,
             types,
             default_param_mode,
-            world_hash
+            world_hash,
         }
     }
 
@@ -150,21 +150,6 @@ impl<'a> InterfaceGenerator<'a> {
 
         uwriteln!(
             self.src,
-            r#"
-        fn verfiy_idl_hash<'a, R: ::tauri_bindgen_host::tauri::Runtime>(item: ::tauri_bindgen_host::tauri::command::CommandItem<'a, R>) -> Result<(), ::tauri_bindgen_host::tauri::InvokeError> {{
-            let hash: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(item)?;
-
-            if hash != "{world_hash}" {{
-                return Err(::tauri_bindgen_host::tauri::InvokeError::from("IDL version mismatch"));
-            }}
-
-            Ok(())
-        }}
-        "#, world_hash = self.world_hash
-        );
-
-        uwriteln!(
-            self.src,
             "
                 pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
                 where
@@ -176,25 +161,23 @@ impl<'a> InterfaceGenerator<'a> {
 
         uwriteln!(self.src, "move |invoke| {{");
 
+        if self.gen.opts.tracing {
+            uwriteln!(
+                self.src,
+                r#"let span = ::tauri_bindgen_host::tracing::span!(
+                    ::tauri_bindgen_host::tracing::Level::TRACE,
+                    "tauri-bindgen invoke handler",
+                    module = "{name}", function = invoke.message.command(), payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+               "#
+            );
+        }
+
         uwriteln!(self.src, "match invoke.message.command() {{");
 
         for func in self.iface.functions.iter() {
             uwrite!(self.src, "\"{}\" => {{", &func.name);
-
-            let func_name = &func.name;
-            if self.gen.opts.tracing {
-                uwriteln!(
-                    self.src,
-                    r#"let span = ::tauri_bindgen_host::tracing::span!(
-                        ::tauri_bindgen_host::tracing::Level::TRACE,
-                        "tauri-bindgen invoke handler",
-                        module = "{name}", function = "{func_name}", payload = ?invoke.message.payload()
-                    );
-                    let _enter = span.enter();
-                   "#
-                );
-            }
-
             uwriteln!(
                 self.src,
                 "
@@ -205,20 +188,8 @@ impl<'a> InterfaceGenerator<'a> {
             }} = invoke;"
             );
 
-            uwriteln!(
-                self.src,
-                r#"if let Err(err) = verfiy_idl_hash(::tauri_bindgen_host::tauri::command::CommandItem {{
-                name: "{func_name}",
-                key: "idlHash",
-                message: &__tauri_message__,
-            }}) {{
-                return __tauri_resolver__.invoke_error(err); 
-            }}"#
-            );
-
             for (param, _) in func.params.iter() {
-                let snake_param = param.to_snake_case();
-                let camel_param = param.to_lower_camel_case();
+                let func_name = &func.name;
 
                 uwriteln!(
                     self.src,
@@ -228,7 +199,9 @@ impl<'a> InterfaceGenerator<'a> {
                         message: &__tauri_message__,
                     }}) {{
                         Ok(arg) => arg,
-                        Err(err) => {{"#
+                        Err(err) => {{"#,
+                    snake_param = param.to_snake_case(),
+                    camel_param = param.to_lower_camel_case()
                 );
 
                 if self.gen.opts.tracing {
@@ -282,6 +255,17 @@ impl<'a> InterfaceGenerator<'a> {
 
             uwriteln!(self.src, "}},");
         }
+
+        uwriteln!(
+            self.src,
+            r#"
+            #[cfg(debug_assertions)]
+            "{}" => {{
+            invoke.resolver.respond(Ok(()));
+        }},
+        "#,
+            self.world_hash
+        );
 
         uwriteln!(self.src, "func_name => {{");
         if self.gen.opts.tracing {

@@ -88,7 +88,7 @@ struct InterfaceGenerator<'a> {
     src: Source,
     gen: &'a mut JavaScript,
     iface: &'a Interface,
-    world_hash: &'a str
+    world_hash: &'a str,
 }
 
 impl<'a> InterfaceGenerator<'a> {
@@ -97,7 +97,7 @@ impl<'a> InterfaceGenerator<'a> {
             src: Source::default(),
             gen,
             iface,
-            world_hash
+            world_hash,
         }
     }
 
@@ -107,7 +107,16 @@ impl<'a> InterfaceGenerator<'a> {
 
     fn print_intro(&mut self) {
         self.push_str("const invoke = window.__TAURI_INVOKE__;");
-        self.push_str(&format!(r#"const idlHash = "{}";"#, self.world_hash));
+        self.push_str(&format!(
+            r#"
+            if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {{
+                invoke("plugin|{}:{}").catch(() => console.error("{}\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`."));
+            }}
+            "#,
+            self.iface.name.to_snake_case(),
+            self.world_hash,
+            tauri_bindgen_core::VERSION_MISMATCH_MSG
+        ));
         self.push_str("\n");
     }
 
@@ -187,18 +196,18 @@ impl<'a> InterfaceGenerator<'a> {
             func.name.to_snake_case()
         ));
 
-        self.push_str("{");
-        self.push_str("idlHash, ");
-
-        for (i, (name, _ty)) in func.params.iter().enumerate() {
-            if i > 0 {
-                self.push_str(", ");
+        if !func.params.is_empty() {
+            self.push_str("{");
+            for (i, (name, _ty)) in func.params.iter().enumerate() {
+                if i > 0 {
+                    self.push_str(", ");
+                }
+                self.push_str(&name.to_lower_camel_case());
+                self.push_str(": ");
+                self.push_str(to_js_ident(&name.to_lower_camel_case()));
             }
-            self.push_str(&name.to_lower_camel_case());
-            self.push_str(": ");
-            self.push_str(to_js_ident(&name.to_lower_camel_case()));
+            self.push_str("}");
         }
-        self.push_str("}");
 
         self.push_str(");\n");
 

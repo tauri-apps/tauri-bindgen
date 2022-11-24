@@ -1,6 +1,24 @@
 #[allow(clippy::all, unused)]
 pub mod imports {
-    const IDL_HASH: &str = "48646a1b1c089063";
+
+    #[cfg(debug_assertions)]
+    static START: ::std::sync::Once = ::std::sync::Once::new();
+    #[cfg(debug_assertions)]
+    fn check_idl_version() {
+        ::tauri_bindgen_guest_rust::wasm_bindgen_futures::spawn_local(async {
+            if ::tauri_bindgen_guest_rust::invoke::<_, ()>(
+                "plugin:conventions|48646a1b1c089063e7b03a4c1dd9f5ad",
+                (),
+            )
+            .await
+            .is_err()
+            {
+                ::tauri_bindgen_guest_rust::console_warn("The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: This is a debug assertion and IDL versions will not be checked in release builds.
+        ");
+            }
+        });
+    }
+
     #[repr(C)]
     #[derive(Debug, Copy, Clone, PartialEq, ::serde::Serialize)]
     #[serde(rename_all = "camelCase")]
@@ -9,119 +27,96 @@ pub mod imports {
         pub i_am_going_extremely_slow: u64,
     }
     pub async fn kebab_case() -> () {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|kebab-case", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|kebab-case", ())
+            .await
+            .unwrap()
     }
     pub async fn foo(x: LudicrousSpeed) -> () {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
+        struct Params {
             x: LudicrousSpeed,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            x,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|foo", &params).await
+        let params = Params { x };
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|foo", &params)
+            .await
+            .unwrap()
     }
     pub async fn function_with_dashes() -> () {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|function-with-dashes", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|function-with-dashes", ())
+            .await
+            .unwrap()
     }
     pub async fn function_with_no_weird_characters() -> () {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         ::tauri_bindgen_guest_rust::invoke(
             "plugin:conventions|function-with-no-weird-characters",
             (),
         )
         .await
+        .unwrap()
     }
     pub async fn apple() -> () {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|apple", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|apple", ())
+            .await
+            .unwrap()
     }
     pub async fn apple_pear() -> () {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|apple-pear", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|apple-pear", ())
+            .await
+            .unwrap()
     }
     pub async fn apple_pear_grape() -> () {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|apple-pear-grape", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|apple-pear-grape", ())
+            .await
+            .unwrap()
     }
     pub async fn a0() -> () {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|a0", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|a0", ())
+            .await
+            .unwrap()
     }
     pub async fn is_xml() -> () {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|is-XML", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|is-XML", ())
+            .await
+            .unwrap()
     }
     pub async fn explicit() -> () {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|explicit", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|explicit", ())
+            .await
+            .unwrap()
     }
     pub async fn explicit_kebab() -> () {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|explicit-kebab", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|explicit-kebab", ())
+            .await
+            .unwrap()
     }
     pub async fn bool() -> () {
-        #[derive(::serde::Serialize)]
-        #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
-        }
-        let params = Params { idl_hash: IDL_HASH };
-        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|bool", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|bool", ())
+            .await
+            .unwrap()
     }
 }

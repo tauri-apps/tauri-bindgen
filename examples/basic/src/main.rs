@@ -4,11 +4,13 @@ use app::App;
 
 #[cfg(all(not(debug_assertions), not(feature = "ssg")))]
 fn main() {
+    wasm_logger::init(wasm_logger::Config::default());
     sycamore::hydrate(App);
 }
 
 #[cfg(all(debug_assertions, not(feature = "ssg")))]
 fn main() {
+    wasm_logger::init(wasm_logger::Config::default());
     sycamore::render(App);
 }
 

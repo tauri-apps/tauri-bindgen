@@ -1,6 +1,24 @@
 #[allow(clippy::all, unused)]
 pub mod import_unions {
-    const IDL_HASH: &str = "cccf67b47414af61";
+
+    #[cfg(debug_assertions)]
+    static START: ::std::sync::Once = ::std::sync::Once::new();
+    #[cfg(debug_assertions)]
+    fn check_idl_version() {
+        ::tauri_bindgen_guest_rust::wasm_bindgen_futures::spawn_local(async {
+            if ::tauri_bindgen_guest_rust::invoke::<_, ()>(
+                "plugin:unions|cccf67b47414af61861a06498c06cf03",
+                (),
+            )
+            .await
+            .is_err()
+            {
+                ::tauri_bindgen_guest_rust::console_warn("The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: This is a debug assertion and IDL versions will not be checked in release builds.
+        ");
+            }
+        });
+    }
+
     /// A union of all of the integral types
     #[derive(Debug, Clone, Copy, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
     pub enum AllIntegers {
@@ -49,137 +67,134 @@ pub mod import_unions {
         I64(i64),
     }
     pub async fn add_one_integer(num: AllIntegers) -> AllIntegers {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
+        struct Params {
             num: AllIntegers,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            num,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:unions|add-one-integer", &params).await
+        let params = Params { num };
+        ::tauri_bindgen_guest_rust::invoke("plugin:unions|add-one-integer", &params)
+            .await
+            .unwrap()
     }
     pub async fn add_one_float(num: AllFloats) -> AllFloats {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
+        struct Params {
             num: AllFloats,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            num,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:unions|add-one-float", &params).await
+        let params = Params { num };
+        ::tauri_bindgen_guest_rust::invoke("plugin:unions|add-one-float", &params)
+            .await
+            .unwrap()
     }
     pub async fn replace_first_char(text: AllTextParam<'_>, letter: char) -> AllTextResult {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params<'a> {
-            idl_hash: &'a str,
             text: AllTextParam<'a>,
             letter: char,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            text,
-            letter,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:unions|replace-first-char", &params).await
+        let params = Params { text, letter };
+        ::tauri_bindgen_guest_rust::invoke("plugin:unions|replace-first-char", &params)
+            .await
+            .unwrap()
     }
     pub async fn identify_integer(num: AllIntegers) -> u8 {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
+        struct Params {
             num: AllIntegers,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            num,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:unions|identify-integer", &params).await
+        let params = Params { num };
+        ::tauri_bindgen_guest_rust::invoke("plugin:unions|identify-integer", &params)
+            .await
+            .unwrap()
     }
     pub async fn identify_float(num: AllFloats) -> u8 {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
+        struct Params {
             num: AllFloats,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            num,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:unions|identify-float", &params).await
+        let params = Params { num };
+        ::tauri_bindgen_guest_rust::invoke("plugin:unions|identify-float", &params)
+            .await
+            .unwrap()
     }
     pub async fn identify_text(text: AllTextParam<'_>) -> u8 {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params<'a> {
-            idl_hash: &'a str,
             text: AllTextParam<'a>,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            text,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:unions|identify-text", &params).await
+        let params = Params { text };
+        ::tauri_bindgen_guest_rust::invoke("plugin:unions|identify-text", &params)
+            .await
+            .unwrap()
     }
     pub async fn add_one_duplicated(num: DuplicatedS32) -> DuplicatedS32 {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
+        struct Params {
             num: DuplicatedS32,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            num,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:unions|add-one-duplicated", &params).await
+        let params = Params { num };
+        ::tauri_bindgen_guest_rust::invoke("plugin:unions|add-one-duplicated", &params)
+            .await
+            .unwrap()
     }
     pub async fn identify_duplicated(num: DuplicatedS32) -> u8 {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
+        struct Params {
             num: DuplicatedS32,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            num,
-        };
-        ::tauri_bindgen_guest_rust::invoke("plugin:unions|identify-duplicated", &params).await
+        let params = Params { num };
+        ::tauri_bindgen_guest_rust::invoke("plugin:unions|identify-duplicated", &params)
+            .await
+            .unwrap()
     }
     pub async fn add_one_distinguishable_num(num: DistinguishableNum) -> DistinguishableNum {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
+        struct Params {
             num: DistinguishableNum,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            num,
-        };
+        let params = Params { num };
         ::tauri_bindgen_guest_rust::invoke("plugin:unions|add-one-distinguishable-num", &params)
             .await
+            .unwrap()
     }
     pub async fn identify_distinguishable_num(num: DistinguishableNum) -> u8 {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
-        struct Params<'a> {
-            idl_hash: &'a str,
+        struct Params {
             num: DistinguishableNum,
         }
-        let params = Params {
-            idl_hash: IDL_HASH,
-            num,
-        };
+        let params = Params { num };
         ::tauri_bindgen_guest_rust::invoke("plugin:unions|identify-distinguishable-num", &params)
             .await
+            .unwrap()
     }
 }

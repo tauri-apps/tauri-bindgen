@@ -146,10 +146,18 @@ impl<'a> InterfaceGenerator<'a> {
                 __TAURI_INVOKE__<T>(cmd: string, args?: Record<string, unknown>): Promise<T>;
             }
         }
-        const invoke = window.__TAURI_INVOKE__;
-        ",
+        const invoke = window.__TAURI_INVOKE__;",
         );
-        self.push_str(&format!(r#"const idlHash = "{}";"#, self.world_hash));
+        self.push_str(&format!(
+            r#"
+            if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {{
+                invoke("plugin|{}:{}").catch(() => console.error("{}\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`."));
+            }}
+            "#,
+            self.iface.name.to_snake_case(),
+            self.world_hash,
+            tauri_bindgen_core::VERSION_MISMATCH_MSG
+        ));
         self.push_str("\n");
     }
 
@@ -241,18 +249,18 @@ impl<'a> InterfaceGenerator<'a> {
             func.name
         ));
 
-        self.push_str("{");
-        self.push_str("idlHash, ");
-
-        for (i, (name, _ty)) in func.params.iter().enumerate() {
-            if i > 0 {
-                self.push_str(", ");
+        if !func.params.is_empty() {
+            self.push_str("{");
+            for (i, (name, _ty)) in func.params.iter().enumerate() {
+                if i > 0 {
+                    self.push_str(", ");
+                }
+                self.push_str(&name.to_lower_camel_case());
+                self.push_str(": ");
+                self.push_str(to_js_ident(&name.to_lower_camel_case()));
             }
-            self.push_str(&name.to_lower_camel_case());
-            self.push_str(": ");
-            self.push_str(to_js_ident(&name.to_lower_camel_case()));
+            self.push_str("}");
         }
-        self.push_str("}");
 
         self.push_str(");\n");
 

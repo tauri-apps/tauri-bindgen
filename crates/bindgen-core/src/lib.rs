@@ -3,6 +3,15 @@ pub mod hash;
 use std::{fmt::{Write, self}, ops::Deref, collections::{BTreeMap, btree_map::Entry, HashMap}};
 use wit_parser::*;
 
+// pub const VERSION_MISMATCH_MSG: &str = "The Host bindings were generated from a different version of the definitions file. 
+// This usually means your Guest bindings are out-of-date.
+
+// Here is what you can do:
+// - Make sure that you're generating both bindings from **the same** file.
+// - Clear any caches and run the app again.
+// ";
+pub const VERSION_MISMATCH_MSG: &str = "The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.";
+
 pub trait WorldGenerator {
     fn generate(&mut self, name: &str, interfaces: &World, files: &mut Files, world_hash: &str) {
         for (name, import) in interfaces.imports.iter() {

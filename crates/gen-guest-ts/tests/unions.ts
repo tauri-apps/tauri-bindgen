@@ -7,7 +7,14 @@ declare global {
   }
 }
 const invoke = window.__TAURI_INVOKE__;
-const idlHash = "cccf67b47414af61";
+if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {
+  invoke("plugin|unions:cccf67b47414af61861a06498c06cf03").catch(() =>
+    console.error(
+      "The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`."
+    )
+  );
+}
+
 /**
  * A union of all of the integral types
  */
@@ -121,14 +128,12 @@ export interface DistinguishableNum1 {
 }
 export async function addOneInteger(num: AllIntegers): Promise<AllIntegers> {
   const result = await invoke<AllIntegers>("plugin:unions|add-one-integer", {
-    idlHash,
     num: num,
   });
   return result;
 }
 export async function addOneFloat(num: AllFloats): Promise<AllFloats> {
   const result = await invoke<AllFloats>("plugin:unions|add-one-float", {
-    idlHash,
     num: num,
   });
   return result;
@@ -138,7 +143,6 @@ export async function replaceFirstChar(
   letter: string
 ): Promise<AllText> {
   const result = await invoke<AllText>("plugin:unions|replace-first-char", {
-    idlHash,
     text: text,
     letter: letter,
   });
@@ -146,21 +150,18 @@ export async function replaceFirstChar(
 }
 export async function identifyInteger(num: AllIntegers): Promise<number> {
   const result = await invoke<number>("plugin:unions|identify-integer", {
-    idlHash,
     num: num,
   });
   return result;
 }
 export async function identifyFloat(num: AllFloats): Promise<number> {
   const result = await invoke<number>("plugin:unions|identify-float", {
-    idlHash,
     num: num,
   });
   return result;
 }
 export async function identifyText(text: AllText): Promise<number> {
   const result = await invoke<number>("plugin:unions|identify-text", {
-    idlHash,
     text: text,
   });
   return result;
@@ -170,13 +171,12 @@ export async function addOneDuplicated(
 ): Promise<DuplicatedS32> {
   const result = await invoke<DuplicatedS32>(
     "plugin:unions|add-one-duplicated",
-    { idlHash, num: num }
+    { num: num }
   );
   return result;
 }
 export async function identifyDuplicated(num: DuplicatedS32): Promise<number> {
   const result = await invoke<number>("plugin:unions|identify-duplicated", {
-    idlHash,
     num: num,
   });
   return result;
@@ -186,7 +186,7 @@ export async function addOneDistinguishableNum(
 ): Promise<DistinguishableNum> {
   const result = await invoke<DistinguishableNum>(
     "plugin:unions|add-one-distinguishable-num",
-    { idlHash, num: num }
+    { num: num }
   );
   return result;
 }
@@ -195,7 +195,7 @@ export async function identifyDistinguishableNum(
 ): Promise<number> {
   const result = await invoke<number>(
     "plugin:unions|identify-distinguishable-num",
-    { idlHash, num: num }
+    { num: num }
   );
   return result;
 }

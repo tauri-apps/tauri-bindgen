@@ -2826,6 +2826,7 @@ version = "0.1.0"
 dependencies = [
  "bitflags",
  "js-sys",
+ "once_cell",
  "serde",
  "serde-wasm-bindgen",
  "tauri-bindgen-guest-rust-macro",

@@ -7,7 +7,14 @@ declare global {
   }
 }
 const invoke = window.__TAURI_INVOKE__;
-const idlHash = "8ecd22d5a53ba1eb";
+if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {
+  invoke("plugin|flegs:8ecd22d5a53ba1eb34b6d188f5479d66").catch(() =>
+    console.error(
+      "The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`."
+    )
+  );
+}
+
 export enum Flag1 {
   B0 = 1,
 }
@@ -152,50 +159,35 @@ export const Flag64 = {
   B63: BigInt(9223372036854775808),
 };
 export async function roundtripFlag1(x: Flag1): Promise<Flag1> {
-  const result = await invoke<Flag1>("plugin:flegs|roundtrip-flag1", {
-    idlHash,
-    x: x,
-  });
+  const result = await invoke<Flag1>("plugin:flegs|roundtrip-flag1", { x: x });
   return result;
 }
 export async function roundtripFlag2(x: Flag2): Promise<Flag2> {
-  const result = await invoke<Flag2>("plugin:flegs|roundtrip-flag2", {
-    idlHash,
-    x: x,
-  });
+  const result = await invoke<Flag2>("plugin:flegs|roundtrip-flag2", { x: x });
   return result;
 }
 export async function roundtripFlag4(x: Flag4): Promise<Flag4> {
-  const result = await invoke<Flag4>("plugin:flegs|roundtrip-flag4", {
-    idlHash,
-    x: x,
-  });
+  const result = await invoke<Flag4>("plugin:flegs|roundtrip-flag4", { x: x });
   return result;
 }
 export async function roundtripFlag8(x: Flag8): Promise<Flag8> {
-  const result = await invoke<Flag8>("plugin:flegs|roundtrip-flag8", {
-    idlHash,
-    x: x,
-  });
+  const result = await invoke<Flag8>("plugin:flegs|roundtrip-flag8", { x: x });
   return result;
 }
 export async function roundtripFlag16(x: Flag16): Promise<Flag16> {
   const result = await invoke<Flag16>("plugin:flegs|roundtrip-flag16", {
-    idlHash,
     x: x,
   });
   return result;
 }
 export async function roundtripFlag32(x: Flag32): Promise<Flag32> {
   const result = await invoke<Flag32>("plugin:flegs|roundtrip-flag32", {
-    idlHash,
     x: x,
   });
   return result;
 }
 export async function roundtripFlag64(x: Flag64): Promise<Flag64> {
   const result = await invoke<Flag64>("plugin:flegs|roundtrip-flag64", {
-    idlHash,
     x: x,
   });
   return result;

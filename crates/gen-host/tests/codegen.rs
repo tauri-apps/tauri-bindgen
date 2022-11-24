@@ -22,7 +22,7 @@ fn chars() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -37,7 +37,7 @@ fn convention() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -52,7 +52,7 @@ fn empty() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -67,7 +67,7 @@ fn flags() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -82,7 +82,7 @@ fn floats() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -97,7 +97,7 @@ fn integers() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -112,7 +112,7 @@ fn lists() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -127,7 +127,7 @@ fn many_arguments() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -142,7 +142,7 @@ fn multi_return() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -157,7 +157,7 @@ fn records() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -172,7 +172,7 @@ fn simple_functions() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -187,7 +187,7 @@ fn simple_lists() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -202,7 +202,7 @@ fn small_anonymous() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -217,7 +217,7 @@ fn strings() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -232,7 +232,7 @@ fn unions() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 
@@ -247,7 +247,7 @@ fn variants() {
     let opts = Opts {
         rustfmt: true,
         tracing: false,
-        async_: true,
+        async_: false,
     };
     let gen = opts.build();
 

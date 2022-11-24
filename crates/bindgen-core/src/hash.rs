@@ -1,5 +1,7 @@
 use std::{path::Path, fs::File, io, cmp};
 
+const TRUNCATE_LEN: usize = 16;
+
 pub fn hash_file(path: impl AsRef<Path>) -> anyhow::Result<String> {
     let file = File::open(path)?;
     let mut hasher = blake3::Hasher::new();
@@ -74,7 +76,7 @@ fn copy_wide(mut reader: impl io::Read, hasher: &mut blake3::Hasher) -> io::Resu
 
 fn encode_hex(mut output: blake3::OutputReader) -> String {
     // Encoding multiples of the block size is most efficient.
-    let mut len = 8;
+    let mut len = TRUNCATE_LEN;
     let mut block = [0; blake3::guts::BLOCK_LEN];
     let mut str = String::new();
 

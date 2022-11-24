@@ -139,7 +139,24 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn print_intro(&mut self) {
-        self.push_str(&format!(r#"const IDL_HASH: &str = "{}";"#, self.world_hash));
+        self.push_str(&format!(
+            r#"
+        #[cfg(debug_assertions)]
+        static START: ::std::sync::Once = ::std::sync::Once::new();
+        #[cfg(debug_assertions)]
+        fn check_idl_version() {{
+            ::tauri_bindgen_guest_rust::wasm_bindgen_futures::spawn_local(async {{
+                if ::tauri_bindgen_guest_rust::invoke::<_, ()>("plugin:{}|{}", ()).await.is_err() {{
+                    ::tauri_bindgen_guest_rust::console_warn("{}\nNote: This is a debug assertion and IDL versions will not be checked in release builds.
+                    ");
+                }}
+            }});
+        }}
+        "#,
+            self.iface.name.to_snake_case(),
+            self.world_hash,
+            tauri_bindgen_core::VERSION_MISMATCH_MSG
+        ));
         self.push_str("\n");
     }
 
@@ -158,32 +175,44 @@ impl<'a> InterfaceGenerator<'a> {
         self.print_signature(func, param_mode, &sig);
         self.src.push_str("{\n");
 
-        self.push_str("#[derive(::serde::Serialize)]\n");
-        self.push_str("#[serde(rename_all = \"camelCase\")]\n");
+        self.src.push_str("#[cfg(debug_assertions)]
+        START.call_once(check_idl_version);");
 
-        self.src.push_str("struct Params");
-        self.print_generics(Some("'a"));
-        self.src.push_str(" {\n");
-        self.src.push_str("idl_hash: &'a str, \n");
+        let lifetime = func.params.iter().any(|(_, ty)| match ty {
+            Type::String => true,
+            Type::Id(id) => {
+                let info = self.info(*id);
+                self.lifetime_for(&info, TypeMode::AllBorrowed("'a"))
+                    .is_some()
+            }
+            _ => false,
+        });
 
-        for (param, ty) in func.params.iter() {
-            self.src.push_str(&param.to_snake_case());
-            self.src.push_str(" : ");
-            self.print_ty(ty, TypeMode::AllBorrowed("'a"));
-            self.push_str(",\n");
+        if !func.params.is_empty() {
+            self.push_str("#[derive(::serde::Serialize)]\n");
+            self.push_str("#[serde(rename_all = \"camelCase\")]\n");
+            self.src.push_str("struct Params");
+            self.print_generics(lifetime.then_some("'a"));
+            self.src.push_str(" {\n");
+
+            for (param, ty) in func.params.iter() {
+                self.src.push_str(&param.to_snake_case());
+                self.src.push_str(" : ");
+                self.print_ty(ty, TypeMode::AllBorrowed("'a"));
+                self.push_str(",\n");
+            }
+
+            self.src.push_str("}\n");
+
+            self.src.push_str("let params = Params {");
+
+            for (param, _) in func.params.iter() {
+                self.src.push_str(&param.to_snake_case());
+                self.src.push_str(",");
+            }
+
+            self.src.push_str("};\n");
         }
-
-        self.src.push_str("}\n");
-
-        self.src.push_str("let params = Params {");
-        self.src.push_str("idl_hash: IDL_HASH, ");
-
-        for (param, _) in func.params.iter() {
-            self.src.push_str(&param.to_snake_case());
-            self.src.push_str(",");
-        }
-
-        self.src.push_str("};\n");
 
         uwrite!(
             self.src,
@@ -198,7 +227,7 @@ impl<'a> InterfaceGenerator<'a> {
             self.push_str("&params");
         }
 
-        self.push_str(").await\n");
+        self.push_str(").await.unwrap()\n");
 
         self.src.push_str("}\n");
 
