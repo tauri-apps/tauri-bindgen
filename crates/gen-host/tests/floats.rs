@@ -1,6 +1,6 @@
 #[allow(clippy::all)]
 pub mod imports {
-    pub const WORLD_HASH: &str = "b2ded0ef";
+    pub const WORLD_HASH: &str = "b2ded0ef970e6596";
     pub trait Imports: Sized {
         fn float32_param(&self, x: f32) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn float64_param(&self, x: f64) -> ::tauri_bindgen_host::anyhow::Result<()>;

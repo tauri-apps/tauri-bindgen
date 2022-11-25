@@ -1,6 +1,6 @@
 #[allow(clippy::all)]
 pub mod imports {
-    pub const WORLD_HASH: &str = "bee731db";
+    pub const WORLD_HASH: &str = "bee731db80799df9";
     #[repr(u8)]
     #[derive(Debug, Clone, Copy, PartialEq, ::tauri_bindgen_host::serde::Serialize)]
     pub enum Error {

@@ -41,7 +41,7 @@ let manyArgs = (
   a16: int64,
 ): Promise.t<unit> => {
   invoke(
-    ~cmd="plugin:92d5120c|many_args",
+    ~cmd="plugin:92d5120c899c41cc|many_args",
     ~payload={
       "a1": a1,
       "a2": a2,
@@ -63,5 +63,5 @@ let manyArgs = (
   )
 }
 let bigArgument = (x: bigStruct): Promise.t<unit> => {
-  invoke(~cmd="plugin:92d5120c|big_argument", ~payload={"x": x})
+  invoke(~cmd="plugin:92d5120c899c41cc|big_argument", ~payload={"x": x})
 }

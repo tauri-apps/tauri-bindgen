@@ -7,12 +7,12 @@ pub mod imports {
             x: &'a str,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:16c3ebd2|a", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:16c3ebd2deefea81|a", &params)
             .await
             .unwrap()
     }
     pub async fn b() -> String {
-        ::tauri_bindgen_guest_rust::invoke("plugin:16c3ebd2|b", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:16c3ebd2deefea81|b", ())
             .await
             .unwrap()
     }
@@ -24,7 +24,7 @@ pub mod imports {
             b: &'a str,
         }
         let params = Params { a, b };
-        ::tauri_bindgen_guest_rust::invoke("plugin:16c3ebd2|c", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:16c3ebd2deefea81|c", &params)
             .await
             .unwrap()
     }

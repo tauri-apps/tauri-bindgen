@@ -4,14 +4,14 @@ const invoke = window.__TAURI_INVOKE__;
  * @param {string} x
  */
 export async function takeChar(x) {
-	await invoke("plugin:678374cf|take_char", { x: x });
+	await invoke("plugin:678374cfb5cdb2b5|take_char", { x: x });
 }
 /**
  * A function that returns a character
  * @returns {Promise<string>}
  */
 export async function returnChar() {
-	const result = await invoke("plugin:678374cf|return_char");
+	const result = await invoke("plugin:678374cfb5cdb2b5|return_char");
 	return result;
 }
 

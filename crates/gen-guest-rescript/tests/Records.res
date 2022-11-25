@@ -41,35 +41,35 @@ type tupleTypedef = int
 type intTypedef = int
 type tupleTypedef2 = intTypedef
 let tupleArg = (x: (char, int)): Promise.t<unit> => {
-  invoke(~cmd="plugin:e6872cf0|tuple_arg", ~payload={"x": x})
+  invoke(~cmd="plugin:e6872cf01241a6f3|tuple_arg", ~payload={"x": x})
 }
 let tupleResult = (): Promise.t<(char, int)> => {
-  invoke(~cmd="plugin:e6872cf0|tuple_result")
+  invoke(~cmd="plugin:e6872cf01241a6f3|tuple_result")
 }
 let emptyArg = (x: empty): Promise.t<unit> => {
-  invoke(~cmd="plugin:e6872cf0|empty_arg", ~payload={"x": x})
+  invoke(~cmd="plugin:e6872cf01241a6f3|empty_arg", ~payload={"x": x})
 }
 let emptyResult = (): Promise.t<empty> => {
-  invoke(~cmd="plugin:e6872cf0|empty_result")
+  invoke(~cmd="plugin:e6872cf01241a6f3|empty_result")
 }
 let scalarArg = (x: scalars): Promise.t<unit> => {
-  invoke(~cmd="plugin:e6872cf0|scalar_arg", ~payload={"x": x})
+  invoke(~cmd="plugin:e6872cf01241a6f3|scalar_arg", ~payload={"x": x})
 }
 let scalarResult = (): Promise.t<scalars> => {
-  invoke(~cmd="plugin:e6872cf0|scalar_result")
+  invoke(~cmd="plugin:e6872cf01241a6f3|scalar_result")
 }
 let flagsArg = (x: reallyFlags): Promise.t<unit> => {
-  invoke(~cmd="plugin:e6872cf0|flags_arg", ~payload={"x": x})
+  invoke(~cmd="plugin:e6872cf01241a6f3|flags_arg", ~payload={"x": x})
 }
 let flagsResult = (): Promise.t<reallyFlags> => {
-  invoke(~cmd="plugin:e6872cf0|flags_result")
+  invoke(~cmd="plugin:e6872cf01241a6f3|flags_result")
 }
 let aggregateArg = (x: aggregates): Promise.t<unit> => {
-  invoke(~cmd="plugin:e6872cf0|aggregate_arg", ~payload={"x": x})
+  invoke(~cmd="plugin:e6872cf01241a6f3|aggregate_arg", ~payload={"x": x})
 }
 let aggregateResult = (): Promise.t<aggregates> => {
-  invoke(~cmd="plugin:e6872cf0|aggregate_result")
+  invoke(~cmd="plugin:e6872cf01241a6f3|aggregate_result")
 }
 let typedefInout = (e: tupleTypedef2): Promise.t<int> => {
-  invoke(~cmd="plugin:e6872cf0|typedef_inout", ~payload={"e": e})
+  invoke(~cmd="plugin:e6872cf01241a6f3|typedef_inout", ~payload={"e": e})
 }

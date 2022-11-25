@@ -80,7 +80,7 @@ pub mod imports {
             a15,
             a16,
         };
-        ::tauri_bindgen_guest_rust::invoke("plugin:92d5120c|many-args", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:92d5120c899c41cc|many-args", &params)
             .await
             .unwrap()
     }
@@ -91,7 +91,7 @@ pub mod imports {
             x: BigStruct<'a>,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:92d5120c|big-argument", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:92d5120c899c41cc|big-argument", &params)
             .await
             .unwrap()
     }

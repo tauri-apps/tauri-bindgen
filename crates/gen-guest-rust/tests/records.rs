@@ -58,12 +58,12 @@ pub mod imports {
             x: (char, u32),
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf0|tuple-arg", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf01241a6f3|tuple-arg", &params)
             .await
             .unwrap()
     }
     pub async fn tuple_result() -> (char, u32) {
-        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf0|tuple-result", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf01241a6f3|tuple-result", ())
             .await
             .unwrap()
     }
@@ -74,12 +74,12 @@ pub mod imports {
             x: Empty,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf0|empty-arg", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf01241a6f3|empty-arg", &params)
             .await
             .unwrap()
     }
     pub async fn empty_result() -> Empty {
-        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf0|empty-result", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf01241a6f3|empty-result", ())
             .await
             .unwrap()
     }
@@ -90,12 +90,12 @@ pub mod imports {
             x: Scalars,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf0|scalar-arg", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf01241a6f3|scalar-arg", &params)
             .await
             .unwrap()
     }
     pub async fn scalar_result() -> Scalars {
-        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf0|scalar-result", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf01241a6f3|scalar-result", ())
             .await
             .unwrap()
     }
@@ -106,12 +106,12 @@ pub mod imports {
             x: ReallyFlags,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf0|flags-arg", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf01241a6f3|flags-arg", &params)
             .await
             .unwrap()
     }
     pub async fn flags_result() -> ReallyFlags {
-        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf0|flags-result", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf01241a6f3|flags-result", ())
             .await
             .unwrap()
     }
@@ -122,12 +122,12 @@ pub mod imports {
             x: AggregatesParam<'a>,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf0|aggregate-arg", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf01241a6f3|aggregate-arg", &params)
             .await
             .unwrap()
     }
     pub async fn aggregate_result() -> AggregatesResult {
-        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf0|aggregate-result", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf01241a6f3|aggregate-result", ())
             .await
             .unwrap()
     }
@@ -138,7 +138,7 @@ pub mod imports {
             e: TupleTypedef2,
         }
         let params = Params { e };
-        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf0|typedef-inout", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:e6872cf01241a6f3|typedef-inout", &params)
             .await
             .unwrap()
     }

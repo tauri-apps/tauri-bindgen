@@ -3,7 +3,7 @@ const invoke = window.__TAURI_INVOKE__;
  * @returns {Promise<string | null>}
  */
 export async function optionTest() {
-	const result = await invoke("plugin:bee731db|option_test");
+	const result = await invoke("plugin:bee731db80799df9|option_test");
 	return result;
 }
 

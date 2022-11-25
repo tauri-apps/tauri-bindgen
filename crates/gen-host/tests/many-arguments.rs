@@ -1,6 +1,6 @@
 #[allow(clippy::all)]
 pub mod imports {
-    pub const WORLD_HASH: &str = "92d5120c";
+    pub const WORLD_HASH: &str = "92d5120c899c41cc";
     #[derive(Debug, Clone, PartialEq, ::tauri_bindgen_host::serde::Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct BigStruct {

@@ -1,3 +1,4 @@
+cargo build
 for i in tests/codegen/*.wit; do target/debug/tauri-bindgen-cli host --rustfmt --tracing --out-dir crates/gen-host/tests $i; done
 
 for i in tests/codegen/*.wit; do target/debug/tauri-bindgen-cli guest rust --rustfmt --out-dir crates/gen-guest-rust/tests $i; done

@@ -7,7 +7,7 @@ pub mod imports {
         Failure,
     }
     pub async fn option_test() -> Result<Option<String>, Error> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:bee731db|option-test", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:bee731db80799df9|option-test", ())
             .await
             .unwrap()
     }

@@ -8,16 +8,19 @@ declare global {
 }
 const invoke = window.__TAURI_INVOKE__;
 export async function simpleList1(l: Uint32Array): Promise<void> {
-	await invoke<void>("plugin:d40a3203|simple-list1", { l: l });
+	await invoke<void>("plugin:d40a3203ef48115d|simple-list1", { l: l });
 }
 export async function simpleList2(): Promise<Uint32Array> {
-	const result = await invoke<Uint32Array>("plugin:d40a3203|simple-list2");
+	const result = await invoke<Uint32Array>(
+		"plugin:d40a3203ef48115d|simple-list2",
+	);
 	return result;
 }
 export async function simpleList4(l: Uint32Array[]): Promise<Uint32Array[]> {
-	const result = await invoke<Uint32Array[]>("plugin:d40a3203|simple-list4", {
-		l: l,
-	});
+	const result = await invoke<Uint32Array[]>(
+		"plugin:d40a3203ef48115d|simple-list4",
+		{ l: l },
+	);
 	return result;
 }
 

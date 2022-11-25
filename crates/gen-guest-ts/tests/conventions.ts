@@ -12,39 +12,41 @@ export interface LudicrousSpeed {
 	iAmGoingExtremelySlow: bigint;
 }
 export async function kebabCase(): Promise<void> {
-	await invoke<void>("plugin:48646a1b|kebab-case");
+	await invoke<void>("plugin:48646a1b1c089063|kebab-case");
 }
 export async function foo(x: LudicrousSpeed): Promise<void> {
-	await invoke<void>("plugin:48646a1b|foo", { x: x });
+	await invoke<void>("plugin:48646a1b1c089063|foo", { x: x });
 }
 export async function functionWithDashes(): Promise<void> {
-	await invoke<void>("plugin:48646a1b|function-with-dashes");
+	await invoke<void>("plugin:48646a1b1c089063|function-with-dashes");
 }
 export async function functionWithNoWeirdCharacters(): Promise<void> {
-	await invoke<void>("plugin:48646a1b|function-with-no-weird-characters");
+	await invoke<void>(
+		"plugin:48646a1b1c089063|function-with-no-weird-characters",
+	);
 }
 export async function apple(): Promise<void> {
-	await invoke<void>("plugin:48646a1b|apple");
+	await invoke<void>("plugin:48646a1b1c089063|apple");
 }
 export async function applePear(): Promise<void> {
-	await invoke<void>("plugin:48646a1b|apple-pear");
+	await invoke<void>("plugin:48646a1b1c089063|apple-pear");
 }
 export async function applePearGrape(): Promise<void> {
-	await invoke<void>("plugin:48646a1b|apple-pear-grape");
+	await invoke<void>("plugin:48646a1b1c089063|apple-pear-grape");
 }
 export async function a0(): Promise<void> {
-	await invoke<void>("plugin:48646a1b|a0");
+	await invoke<void>("plugin:48646a1b1c089063|a0");
 }
 export async function isXml(): Promise<void> {
-	await invoke<void>("plugin:48646a1b|is-XML");
+	await invoke<void>("plugin:48646a1b1c089063|is-XML");
 }
 export async function explicit(): Promise<void> {
-	await invoke<void>("plugin:48646a1b|explicit");
+	await invoke<void>("plugin:48646a1b1c089063|explicit");
 }
 export async function explicitKebab(): Promise<void> {
-	await invoke<void>("plugin:48646a1b|explicit-kebab");
+	await invoke<void>("plugin:48646a1b1c089063|explicit-kebab");
 }
 export async function bool(): Promise<void> {
-	await invoke<void>("plugin:48646a1b|bool");
+	await invoke<void>("plugin:48646a1b1c089063|bool");
 }
 

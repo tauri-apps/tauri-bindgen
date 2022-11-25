@@ -118,41 +118,45 @@ export interface DistinguishableNum1 {
 	val: bigint;
 }
 export async function addOneInteger(num: AllIntegers): Promise<AllIntegers> {
-	const result = await invoke<AllIntegers>("plugin:cccf67b4|add-one-integer", {
-		num: num,
-	});
+	const result = await invoke<AllIntegers>(
+		"plugin:cccf67b47414af61|add-one-integer",
+		{ num: num },
+	);
 	return result;
 }
 export async function addOneFloat(num: AllFloats): Promise<AllFloats> {
-	const result = await invoke<AllFloats>("plugin:cccf67b4|add-one-float", {
-		num: num,
-	});
+	const result = await invoke<AllFloats>(
+		"plugin:cccf67b47414af61|add-one-float",
+		{ num: num },
+	);
 	return result;
 }
 export async function replaceFirstChar(
 	text: AllText,
 	letter: string,
 ): Promise<AllText> {
-	const result = await invoke<AllText>("plugin:cccf67b4|replace-first-char", {
-		text: text,
-		letter: letter,
-	});
+	const result = await invoke<AllText>(
+		"plugin:cccf67b47414af61|replace-first-char",
+		{ text: text, letter: letter },
+	);
 	return result;
 }
 export async function identifyInteger(num: AllIntegers): Promise<number> {
-	const result = await invoke<number>("plugin:cccf67b4|identify-integer", {
-		num: num,
-	});
+	const result = await invoke<number>(
+		"plugin:cccf67b47414af61|identify-integer",
+		{ num: num },
+	);
 	return result;
 }
 export async function identifyFloat(num: AllFloats): Promise<number> {
-	const result = await invoke<number>("plugin:cccf67b4|identify-float", {
-		num: num,
-	});
+	const result = await invoke<number>(
+		"plugin:cccf67b47414af61|identify-float",
+		{ num: num },
+	);
 	return result;
 }
 export async function identifyText(text: AllText): Promise<number> {
-	const result = await invoke<number>("plugin:cccf67b4|identify-text", {
+	const result = await invoke<number>("plugin:cccf67b47414af61|identify-text", {
 		text: text,
 	});
 	return result;
@@ -161,22 +165,23 @@ export async function addOneDuplicated(
 	num: DuplicatedS32,
 ): Promise<DuplicatedS32> {
 	const result = await invoke<DuplicatedS32>(
-		"plugin:cccf67b4|add-one-duplicated",
+		"plugin:cccf67b47414af61|add-one-duplicated",
 		{ num: num },
 	);
 	return result;
 }
 export async function identifyDuplicated(num: DuplicatedS32): Promise<number> {
-	const result = await invoke<number>("plugin:cccf67b4|identify-duplicated", {
-		num: num,
-	});
+	const result = await invoke<number>(
+		"plugin:cccf67b47414af61|identify-duplicated",
+		{ num: num },
+	);
 	return result;
 }
 export async function addOneDistinguishableNum(
 	num: DistinguishableNum,
 ): Promise<DistinguishableNum> {
 	const result = await invoke<DistinguishableNum>(
-		"plugin:cccf67b4|add-one-distinguishable-num",
+		"plugin:cccf67b47414af61|add-one-distinguishable-num",
 		{ num: num },
 	);
 	return result;
@@ -185,7 +190,7 @@ export async function identifyDistinguishableNum(
 	num: DistinguishableNum,
 ): Promise<number> {
 	const result = await invoke<number>(
-		"plugin:cccf67b4|identify-distinguishable-num",
+		"plugin:cccf67b47414af61|identify-distinguishable-num",
 		{ num: num },
 	);
 	return result;

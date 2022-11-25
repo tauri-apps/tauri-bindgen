@@ -35,7 +35,7 @@ export async function manyArgs(
 	a15,
 	a16,
 ) {
-	await invoke("plugin:92d5120c|many_args", {
+	await invoke("plugin:92d5120c899c41cc|many_args", {
 		a1: a1,
 		a2: a2,
 		a3: a3,
@@ -58,6 +58,6 @@ export async function manyArgs(
  * @param {BigStruct} x
  */
 export async function bigArgument(x) {
-	await invoke("plugin:92d5120c|big_argument", { x: x });
+	await invoke("plugin:92d5120c899c41cc|big_argument", { x: x });
 }
 

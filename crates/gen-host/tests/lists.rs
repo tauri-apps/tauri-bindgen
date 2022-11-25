@@ -1,6 +1,6 @@
 #[allow(clippy::all)]
 pub mod import_lists {
-    pub const WORLD_HASH: &str = "a744d1c6";
+    pub const WORLD_HASH: &str = "a744d1c6fec40184";
     #[derive(
         Debug,
         Clone,

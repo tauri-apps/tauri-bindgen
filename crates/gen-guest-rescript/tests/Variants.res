@@ -46,28 +46,28 @@ type myErrno =
 
 type isClone = {v1: v1}
 let e1Arg = (x: e1): Promise.t<unit> => {
-  invoke(~cmd="plugin:d5901a65|e1_arg", ~payload={"x": x})
+  invoke(~cmd="plugin:d5901a6520084a85|e1_arg", ~payload={"x": x})
 }
 let e1Result = (): Promise.t<e1> => {
-  invoke(~cmd="plugin:d5901a65|e1_result")
+  invoke(~cmd="plugin:d5901a6520084a85|e1_result")
 }
 let u1Arg = (x: u1): Promise.t<unit> => {
-  invoke(~cmd="plugin:d5901a65|u1_arg", ~payload={"x": x})
+  invoke(~cmd="plugin:d5901a6520084a85|u1_arg", ~payload={"x": x})
 }
 let u1Result = (): Promise.t<u1> => {
-  invoke(~cmd="plugin:d5901a65|u1_result")
+  invoke(~cmd="plugin:d5901a6520084a85|u1_result")
 }
 let v1Arg = (x: v1): Promise.t<unit> => {
-  invoke(~cmd="plugin:d5901a65|v1_arg", ~payload={"x": x})
+  invoke(~cmd="plugin:d5901a6520084a85|v1_arg", ~payload={"x": x})
 }
 let v1Result = (): Promise.t<v1> => {
-  invoke(~cmd="plugin:d5901a65|v1_result")
+  invoke(~cmd="plugin:d5901a6520084a85|v1_result")
 }
 let boolArg = (x: bool): Promise.t<unit> => {
-  invoke(~cmd="plugin:d5901a65|bool_arg", ~payload={"x": x})
+  invoke(~cmd="plugin:d5901a6520084a85|bool_arg", ~payload={"x": x})
 }
 let boolResult = (): Promise.t<bool> => {
-  invoke(~cmd="plugin:d5901a65|bool_result")
+  invoke(~cmd="plugin:d5901a6520084a85|bool_result")
 }
 let optionArg = (
   a: option<bool>,
@@ -79,7 +79,7 @@ let optionArg = (
   g: option<option<bool>>,
 ): Promise.t<unit> => {
   invoke(
-    ~cmd="plugin:d5901a65|option_arg",
+    ~cmd="plugin:d5901a6520084a85|option_arg",
     ~payload={"a": a, "b": b, "c": c, "d": d, "e": e, "f": f, "g": g},
   )
 }
@@ -92,7 +92,7 @@ let optionResult = (): Promise.t<(
   option<u1>,
   option<option<bool>>,
 )> => {
-  invoke(~cmd="plugin:d5901a65|option_result")
+  invoke(~cmd="plugin:d5901a6520084a85|option_result")
 }
 let casts = (a: casts1, b: casts2, c: casts3, d: casts4, e: casts5, f: casts6): Promise.t<(
   casts1,
@@ -102,7 +102,10 @@ let casts = (a: casts1, b: casts2, c: casts3, d: casts4, e: casts5, f: casts6): 
   casts5,
   casts6,
 )> => {
-  invoke(~cmd="plugin:d5901a65|casts", ~payload={"a": a, "b": b, "c": c, "d": d, "e": e, "f": f})
+  invoke(
+    ~cmd="plugin:d5901a6520084a85|casts",
+    ~payload={"a": a, "b": b, "c": c, "d": d, "e": e, "f": f},
+  )
 }
 let resultArg = (
   a: Result.t<unit, unit>,
@@ -113,7 +116,7 @@ let resultArg = (
   f: Result.t<string, TypedArray.uint8Array>,
 ): Promise.t<unit> => {
   invoke(
-    ~cmd="plugin:d5901a65|result_arg",
+    ~cmd="plugin:d5901a6520084a85|result_arg",
     ~payload={"a": a, "b": b, "c": c, "d": d, "e": e, "f": f},
   )
 }
@@ -125,38 +128,38 @@ let resultResult = (): Promise.t<(
   Result.t<int, v1>,
   Result.t<string, TypedArray.uint8Array>,
 )> => {
-  invoke(~cmd="plugin:d5901a65|result_result")
+  invoke(~cmd="plugin:d5901a6520084a85|result_result")
 }
 let returnResultSugar = (): Promise.t<int> => {
-  invoke(~cmd="plugin:d5901a65|return_result_sugar")
+  invoke(~cmd="plugin:d5901a6520084a85|return_result_sugar")
 }
 let returnResultSugar2 = (): Promise.t<unit> => {
-  invoke(~cmd="plugin:d5901a65|return_result_sugar2")
+  invoke(~cmd="plugin:d5901a6520084a85|return_result_sugar2")
 }
 let returnResultSugar3 = (): Promise.t<myErrno> => {
-  invoke(~cmd="plugin:d5901a65|return_result_sugar3")
+  invoke(~cmd="plugin:d5901a6520084a85|return_result_sugar3")
 }
 let returnResultSugar4 = (): Promise.t<(int, int)> => {
-  invoke(~cmd="plugin:d5901a65|return_result_sugar4")
+  invoke(~cmd="plugin:d5901a6520084a85|return_result_sugar4")
 }
 let returnOptionSugar = (): Promise.t<option<int>> => {
-  invoke(~cmd="plugin:d5901a65|return_option_sugar")
+  invoke(~cmd="plugin:d5901a6520084a85|return_option_sugar")
 }
 let returnOptionSugar2 = (): Promise.t<option<myErrno>> => {
-  invoke(~cmd="plugin:d5901a65|return_option_sugar2")
+  invoke(~cmd="plugin:d5901a6520084a85|return_option_sugar2")
 }
 let resultSimple = (): Promise.t<int> => {
-  invoke(~cmd="plugin:d5901a65|result_simple")
+  invoke(~cmd="plugin:d5901a6520084a85|result_simple")
 }
 let isCloneArg = (a: isClone): Promise.t<unit> => {
-  invoke(~cmd="plugin:d5901a65|is_clone_arg", ~payload={"a": a})
+  invoke(~cmd="plugin:d5901a6520084a85|is_clone_arg", ~payload={"a": a})
 }
 let isCloneReturn = (): Promise.t<isClone> => {
-  invoke(~cmd="plugin:d5901a65|is_clone_return")
+  invoke(~cmd="plugin:d5901a6520084a85|is_clone_return")
 }
 let returnNamedOption = (): Promise.t<option<int>> => {
-  invoke(~cmd="plugin:d5901a65|return_named_option")
+  invoke(~cmd="plugin:d5901a6520084a85|return_named_option")
 }
 let returnNamedResult = (): Promise.t<int> => {
-  invoke(~cmd="plugin:d5901a65|return_named_result")
+  invoke(~cmd="plugin:d5901a6520084a85|return_named_result")
 }

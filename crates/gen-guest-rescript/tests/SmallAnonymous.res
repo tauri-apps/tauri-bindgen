@@ -5,5 +5,5 @@ type error =
   | Failure
 
 let optionTest = (): Promise.t<option<string>> => {
-  invoke(~cmd="plugin:bee731db|option_test")
+  invoke(~cmd="plugin:bee731db80799df9|option_test")
 }

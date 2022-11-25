@@ -1,6 +1,6 @@
 #[allow(clippy::all)]
 pub mod import_unions {
-    pub const WORLD_HASH: &str = "cccf67b4";
+    pub const WORLD_HASH: &str = "cccf67b47414af61";
     /// A union of all of the integral types
     #[derive(
         Debug,

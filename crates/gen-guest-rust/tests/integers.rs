@@ -7,7 +7,7 @@ pub mod imports {
             x: u8,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|a1", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|a1", &params)
             .await
             .unwrap()
     }
@@ -18,7 +18,7 @@ pub mod imports {
             x: i8,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|a2", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|a2", &params)
             .await
             .unwrap()
     }
@@ -29,7 +29,7 @@ pub mod imports {
             x: u16,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|a3", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|a3", &params)
             .await
             .unwrap()
     }
@@ -40,7 +40,7 @@ pub mod imports {
             x: i16,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|a4", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|a4", &params)
             .await
             .unwrap()
     }
@@ -51,7 +51,7 @@ pub mod imports {
             x: u32,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|a5", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|a5", &params)
             .await
             .unwrap()
     }
@@ -62,7 +62,7 @@ pub mod imports {
             x: i32,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|a6", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|a6", &params)
             .await
             .unwrap()
     }
@@ -73,7 +73,7 @@ pub mod imports {
             x: u64,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|a7", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|a7", &params)
             .await
             .unwrap()
     }
@@ -84,7 +84,7 @@ pub mod imports {
             x: i64,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|a8", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|a8", &params)
             .await
             .unwrap()
     }
@@ -111,52 +111,52 @@ pub mod imports {
             p7,
             p8,
         };
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|a9", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|a9", &params)
             .await
             .unwrap()
     }
     pub async fn r1() -> u8 {
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|r1", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|r1", ())
             .await
             .unwrap()
     }
     pub async fn r2() -> i8 {
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|r2", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|r2", ())
             .await
             .unwrap()
     }
     pub async fn r3() -> u16 {
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|r3", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|r3", ())
             .await
             .unwrap()
     }
     pub async fn r4() -> i16 {
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|r4", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|r4", ())
             .await
             .unwrap()
     }
     pub async fn r5() -> u32 {
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|r5", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|r5", ())
             .await
             .unwrap()
     }
     pub async fn r6() -> i32 {
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|r6", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|r6", ())
             .await
             .unwrap()
     }
     pub async fn r7() -> u64 {
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|r7", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|r7", ())
             .await
             .unwrap()
     }
     pub async fn r8() -> i64 {
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|r8", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|r8", ())
             .await
             .unwrap()
     }
     pub async fn pair_ret() -> (i64, u8) {
-        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e|pair-ret", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:279b557e344c2e05|pair-ret", ())
             .await
             .unwrap()
     }

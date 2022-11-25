@@ -47,7 +47,7 @@ export async function manyArgs(
 	a15: bigint,
 	a16: bigint,
 ): Promise<void> {
-	await invoke<void>("plugin:92d5120c|many-args", {
+	await invoke<void>("plugin:92d5120c899c41cc|many-args", {
 		a1: a1,
 		a2: a2,
 		a3: a3,
@@ -67,6 +67,6 @@ export async function manyArgs(
 	});
 }
 export async function bigArgument(x: BigStruct): Promise<void> {
-	await invoke<void>("plugin:92d5120c|big-argument", { x: x });
+	await invoke<void>("plugin:92d5120c899c41cc|big-argument", { x: x });
 }
 

@@ -8,13 +8,13 @@ pub mod imports {
             x: char,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:678374cf|take-char", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:678374cfb5cdb2b5|take-char", &params)
             .await
             .unwrap()
     }
     /// A function that returns a character
     pub async fn return_char() -> char {
-        ::tauri_bindgen_guest_rust::invoke("plugin:678374cf|return-char", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:678374cfb5cdb2b5|return-char", ())
             .await
             .unwrap()
     }

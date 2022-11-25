@@ -1,6 +1,6 @@
 #[allow(clippy::all)]
 pub mod imports {
-    pub const WORLD_HASH: &str = "e6872cf0";
+    pub const WORLD_HASH: &str = "e6872cf01241a6f3";
     #[repr(C)]
     #[derive(
         Debug,

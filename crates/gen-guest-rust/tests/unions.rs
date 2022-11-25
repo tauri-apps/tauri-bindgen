@@ -54,7 +54,7 @@ pub mod import_unions {
             num: AllIntegers,
         }
         let params = Params { num };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b4|add-one-integer", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|add-one-integer", &params)
             .await
             .unwrap()
     }
@@ -65,7 +65,7 @@ pub mod import_unions {
             num: AllFloats,
         }
         let params = Params { num };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b4|add-one-float", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|add-one-float", &params)
             .await
             .unwrap()
     }
@@ -77,7 +77,7 @@ pub mod import_unions {
             letter: char,
         }
         let params = Params { text, letter };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b4|replace-first-char", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|replace-first-char", &params)
             .await
             .unwrap()
     }
@@ -88,7 +88,7 @@ pub mod import_unions {
             num: AllIntegers,
         }
         let params = Params { num };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b4|identify-integer", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|identify-integer", &params)
             .await
             .unwrap()
     }
@@ -99,7 +99,7 @@ pub mod import_unions {
             num: AllFloats,
         }
         let params = Params { num };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b4|identify-float", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|identify-float", &params)
             .await
             .unwrap()
     }
@@ -110,7 +110,7 @@ pub mod import_unions {
             text: AllTextParam<'a>,
         }
         let params = Params { text };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b4|identify-text", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|identify-text", &params)
             .await
             .unwrap()
     }
@@ -121,7 +121,7 @@ pub mod import_unions {
             num: DuplicatedS32,
         }
         let params = Params { num };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b4|add-one-duplicated", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|add-one-duplicated", &params)
             .await
             .unwrap()
     }
@@ -132,7 +132,7 @@ pub mod import_unions {
             num: DuplicatedS32,
         }
         let params = Params { num };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b4|identify-duplicated", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|identify-duplicated", &params)
             .await
             .unwrap()
     }
@@ -143,9 +143,12 @@ pub mod import_unions {
             num: DistinguishableNum,
         }
         let params = Params { num };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b4|add-one-distinguishable-num", &params)
-            .await
-            .unwrap()
+        ::tauri_bindgen_guest_rust::invoke(
+            "plugin:cccf67b47414af61|add-one-distinguishable-num",
+            &params,
+        )
+        .await
+        .unwrap()
     }
     pub async fn identify_distinguishable_num(num: DistinguishableNum) -> u8 {
         #[derive(::serde::Serialize)]
@@ -154,8 +157,11 @@ pub mod import_unions {
             num: DistinguishableNum,
         }
         let params = Params { num };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b4|identify-distinguishable-num", &params)
-            .await
-            .unwrap()
+        ::tauri_bindgen_guest_rust::invoke(
+            "plugin:cccf67b47414af61|identify-distinguishable-num",
+            &params,
+        )
+        .await
+        .unwrap()
     }
 }

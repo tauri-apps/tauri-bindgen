@@ -8,17 +8,17 @@ declare global {
 }
 const invoke = window.__TAURI_INVOKE__;
 export async function float32Param(x: number): Promise<void> {
-	await invoke<void>("plugin:b2ded0ef|float32-param", { x: x });
+	await invoke<void>("plugin:b2ded0ef970e6596|float32-param", { x: x });
 }
 export async function float64Param(x: number): Promise<void> {
-	await invoke<void>("plugin:b2ded0ef|float64-param", { x: x });
+	await invoke<void>("plugin:b2ded0ef970e6596|float64-param", { x: x });
 }
 export async function float32Result(): Promise<number> {
-	const result = await invoke<number>("plugin:b2ded0ef|float32-result");
+	const result = await invoke<number>("plugin:b2ded0ef970e6596|float32-result");
 	return result;
 }
 export async function float64Result(): Promise<number> {
-	const result = await invoke<number>("plugin:b2ded0ef|float64-result");
+	const result = await invoke<number>("plugin:b2ded0ef970e6596|float64-result");
 	return result;
 }
 

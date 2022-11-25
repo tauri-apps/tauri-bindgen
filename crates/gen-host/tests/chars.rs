@@ -1,6 +1,6 @@
 #[allow(clippy::all)]
 pub mod imports {
-    pub const WORLD_HASH: &str = "678374cf";
+    pub const WORLD_HASH: &str = "678374cfb5cdb2b5";
     pub trait Imports: Sized {
         /// A function that accepts a character
         fn take_char(&self, x: char) -> ::tauri_bindgen_host::anyhow::Result<()>;

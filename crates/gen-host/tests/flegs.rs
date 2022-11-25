@@ -1,6 +1,6 @@
 #[allow(clippy::all)]
 pub mod import_flags {
-    pub const WORLD_HASH: &str = "8ecd22d5";
+    pub const WORLD_HASH: &str = "8ecd22d5a53ba1eb";
     ::tauri_bindgen_host::bitflags::bitflags! {
       #[derive(::tauri_bindgen_host::serde::Serialize, ::tauri_bindgen_host::serde::Deserialize)]
       pub struct Flag1: u8 {

@@ -88,12 +88,12 @@ pub mod imports {
             x: E1,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|e1-arg", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|e1-arg", &params)
             .await
             .unwrap()
     }
     pub async fn e1_result() -> E1 {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|e1-result", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|e1-result", ())
             .await
             .unwrap()
     }
@@ -104,12 +104,12 @@ pub mod imports {
             x: U1,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|u1-arg", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|u1-arg", &params)
             .await
             .unwrap()
     }
     pub async fn u1_result() -> U1 {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|u1-result", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|u1-result", ())
             .await
             .unwrap()
     }
@@ -120,12 +120,12 @@ pub mod imports {
             x: V1Param<'a>,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|v1-arg", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|v1-arg", &params)
             .await
             .unwrap()
     }
     pub async fn v1_result() -> V1Result {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|v1-result", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|v1-result", ())
             .await
             .unwrap()
     }
@@ -136,12 +136,12 @@ pub mod imports {
             x: bool,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|bool-arg", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|bool-arg", &params)
             .await
             .unwrap()
     }
     pub async fn bool_result() -> bool {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|bool-result", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|bool-result", ())
             .await
             .unwrap()
     }
@@ -174,7 +174,7 @@ pub mod imports {
             f,
             g,
         };
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|option-arg", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|option-arg", &params)
             .await
             .unwrap()
     }
@@ -187,7 +187,7 @@ pub mod imports {
         Option<U1>,
         Option<Option<bool>>,
     ) {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|option-result", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|option-result", ())
             .await
             .unwrap()
     }
@@ -210,7 +210,7 @@ pub mod imports {
             f: Casts6,
         }
         let params = Params { a, b, c, d, e, f };
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|casts", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|casts", &params)
             .await
             .unwrap()
     }
@@ -233,7 +233,7 @@ pub mod imports {
             f: Result<&'a str, &'a [u8]>,
         }
         let params = Params { a, b, c, d, e, f };
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|result-arg", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|result-arg", &params)
             .await
             .unwrap()
     }
@@ -245,42 +245,42 @@ pub mod imports {
         Result<u32, V1Result>,
         Result<String, Vec<u8>>,
     ) {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|result-result", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|result-result", ())
             .await
             .unwrap()
     }
     pub async fn return_result_sugar() -> Result<i32, MyErrno> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|return-result-sugar", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|return-result-sugar", ())
             .await
             .unwrap()
     }
     pub async fn return_result_sugar2() -> Result<(), MyErrno> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|return-result-sugar2", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|return-result-sugar2", ())
             .await
             .unwrap()
     }
     pub async fn return_result_sugar3() -> Result<MyErrno, MyErrno> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|return-result-sugar3", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|return-result-sugar3", ())
             .await
             .unwrap()
     }
     pub async fn return_result_sugar4() -> Result<(i32, u32), MyErrno> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|return-result-sugar4", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|return-result-sugar4", ())
             .await
             .unwrap()
     }
     pub async fn return_option_sugar() -> Option<i32> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|return-option-sugar", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|return-option-sugar", ())
             .await
             .unwrap()
     }
     pub async fn return_option_sugar2() -> Option<MyErrno> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|return-option-sugar2", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|return-option-sugar2", ())
             .await
             .unwrap()
     }
     pub async fn result_simple() -> Result<u32, i32> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|result-simple", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|result-simple", ())
             .await
             .unwrap()
     }
@@ -291,22 +291,22 @@ pub mod imports {
             a: IsCloneParam<'a>,
         }
         let params = Params { a };
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|is-clone-arg", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|is-clone-arg", &params)
             .await
             .unwrap()
     }
     pub async fn is_clone_return() -> IsCloneResult {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|is-clone-return", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|is-clone-return", ())
             .await
             .unwrap()
     }
     pub async fn return_named_option() -> Option<u8> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|return-named-option", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|return-named-option", ())
             .await
             .unwrap()
     }
     pub async fn return_named_result() -> Result<u8, MyErrno> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a65|return-named-result", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d5901a6520084a85|return-named-result", ())
             .await
             .unwrap()
     }

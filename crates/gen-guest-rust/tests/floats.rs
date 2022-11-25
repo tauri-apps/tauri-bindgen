@@ -7,7 +7,7 @@ pub mod imports {
             x: f32,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:b2ded0ef|float32-param", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:b2ded0ef970e6596|float32-param", &params)
             .await
             .unwrap()
     }
@@ -18,17 +18,17 @@ pub mod imports {
             x: f64,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:b2ded0ef|float64-param", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:b2ded0ef970e6596|float64-param", &params)
             .await
             .unwrap()
     }
     pub async fn float32_result() -> f32 {
-        ::tauri_bindgen_guest_rust::invoke("plugin:b2ded0ef|float32-result", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:b2ded0ef970e6596|float32-result", ())
             .await
             .unwrap()
     }
     pub async fn float64_result() -> f64 {
-        ::tauri_bindgen_guest_rust::invoke("plugin:b2ded0ef|float64-result", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:b2ded0ef970e6596|float64-result", ())
             .await
             .unwrap()
     }
