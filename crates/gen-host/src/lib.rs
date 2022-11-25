@@ -1,12 +1,8 @@
 use heck::*;
-use std::{
-    fmt::Write as _,
-    io::{Read, Write},
-    mem,
-    process::{Command, Stdio},
-};
+use std::{fmt::Write as _, mem};
 use tauri_bindgen_core::{
-    uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types, WorldGenerator,
+    postprocess, uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types,
+    WorldGenerator,
 };
 use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, TypeMode};
 use wit_parser::*;
@@ -43,8 +39,8 @@ struct Host {
 }
 
 impl WorldGenerator for Host {
-    fn import(&mut self, name: &str, iface: &Interface, _files: &mut Files) {
-        let mut gen = InterfaceGenerator::new(self, iface, TypeMode::Owned);
+    fn import(&mut self, name: &str, iface: &Interface, _files: &mut Files, world_hash: &str) {
+        let mut gen = InterfaceGenerator::new(self, iface, TypeMode::Owned, world_hash);
         gen.types();
         gen.generate_invoke_handler(name);
 
@@ -64,30 +60,11 @@ impl WorldGenerator for Host {
         self.imports.push(snake); // TODO
     }
 
-    fn finish(&mut self, name: &str, files: &mut Files) {
+    fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let mut src = mem::take(&mut self.src);
         if self.opts.rustfmt {
-            let mut child = Command::new("rustfmt")
-                .arg("--edition=2018")
-                .stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .spawn()
-                .expect("failed to spawn `rustfmt`");
-            child
-                .stdin
-                .take()
-                .unwrap()
-                .write_all(src.as_bytes())
-                .unwrap();
-            src.as_mut_string().truncate(0);
-            child
-                .stdout
-                .take()
-                .unwrap()
-                .read_to_string(src.as_mut_string())
-                .unwrap();
-            let status = child.wait().unwrap();
-            assert!(status.success());
+            postprocess(src.as_mut_string(), "rustfmt", ["--edition=2018"])
+                .expect("failed to run `rustfmt`");
         }
 
         files.push(&format!("{name}.rs"), src.as_bytes());
@@ -100,6 +77,7 @@ struct InterfaceGenerator<'a> {
     iface: &'a Interface,
     default_param_mode: TypeMode,
     types: Types,
+    world_hash: &'a str,
 }
 
 impl<'a> InterfaceGenerator<'a> {
@@ -107,6 +85,7 @@ impl<'a> InterfaceGenerator<'a> {
         gen: &'a mut Host,
         iface: &'a Interface,
         default_param_mode: TypeMode,
+        world_hash: &'a str,
     ) -> InterfaceGenerator<'a> {
         let mut types = Types::default();
         types.analyze(iface);
@@ -116,6 +95,7 @@ impl<'a> InterfaceGenerator<'a> {
             iface,
             types,
             default_param_mode,
+            world_hash,
         }
     }
 
@@ -158,25 +138,23 @@ impl<'a> InterfaceGenerator<'a> {
 
         uwriteln!(self.src, "move |invoke| {{");
 
+        if self.gen.opts.tracing {
+            uwriteln!(
+                self.src,
+                r#"let span = ::tauri_bindgen_host::tracing::span!(
+                    ::tauri_bindgen_host::tracing::Level::TRACE,
+                    "tauri-bindgen invoke handler",
+                    module = "{name}", function = invoke.message.command(), payload = ?invoke.message.payload()
+                );
+                let _enter = span.enter();
+               "#
+            );
+        }
+
         uwriteln!(self.src, "match invoke.message.command() {{");
 
         for func in self.iface.functions.iter() {
             uwrite!(self.src, "\"{}\" => {{", &func.name);
-
-            let func_name = &func.name;
-            if self.gen.opts.tracing {
-                uwriteln!(
-                    self.src,
-                    r#"let span = ::tauri_bindgen_host::tracing::span!(
-                        ::tauri_bindgen_host::tracing::Level::TRACE,
-                        "tauri-bindgen invoke handler",
-                        module = "{name}", function = "{func_name}", payload = ?invoke.message.payload()
-                    );
-                    let _enter = span.enter();
-                   "#
-                );
-            }
-
             uwriteln!(
                 self.src,
                 "
@@ -184,22 +162,23 @@ impl<'a> InterfaceGenerator<'a> {
             let ::tauri_bindgen_host::tauri::Invoke {{
                 message: __tauri_message__,
                 resolver: __tauri_resolver__,
-            }} = invoke;
-            "
+            }} = invoke;"
             );
 
             for (param, _) in func.params.iter() {
-                let snake_param = param.to_snake_case();
+                let func_name = &func.name;
 
                 uwriteln!(
                     self.src,
                     r#"let {snake_param} = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {{
                         name: "{func_name}",
-                        key: "{param}",
+                        key: "{camel_param}",
                         message: &__tauri_message__,
                     }}) {{
                         Ok(arg) => arg,
-                        Err(err) => {{"#
+                        Err(err) => {{"#,
+                    snake_param = param.to_snake_case(),
+                    camel_param = param.to_lower_camel_case()
                 );
 
                 if self.gen.opts.tracing {
@@ -253,6 +232,17 @@ impl<'a> InterfaceGenerator<'a> {
 
             uwriteln!(self.src, "}},");
         }
+
+        uwriteln!(
+            self.src,
+            r#"
+            #[cfg(debug_assertions)]
+            "{}" => {{
+            invoke.resolver.respond(Ok(()));
+        }},
+        "#,
+            self.world_hash
+        );
 
         uwriteln!(self.src, "func_name => {{");
         if self.gen.opts.tracing {

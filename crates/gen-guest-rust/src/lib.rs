@@ -1,13 +1,8 @@
-use tauri_bindgen_core::{InterfaceGenerator as _, *};
-use tauri_bindgen_gen_rust::{FnSig, RustGenerator, TypeMode, RustFlagsRepr};
 use heck::*;
 use std::fmt::Write as _;
-use std::{
-    collections::HashSet,
-    io::{Read, Write},
-    mem,
-    process::{Command, Stdio},
-};
+use std::{collections::HashSet, mem};
+use tauri_bindgen_core::{InterfaceGenerator as _, *};
+use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, TypeMode};
 use wit_parser::*;
 
 #[derive(Default, Debug, Clone)]
@@ -53,9 +48,11 @@ impl WorldGenerator for RustWasm {
         name: &str,
         iface: &wit_parser::Interface,
         _files: &mut Files,
+        world_hash: &str,
     ) {
-        let mut gen = InterfaceGenerator::new(self, iface, TypeMode::AllBorrowed("'a"));
+        let mut gen = InterfaceGenerator::new(self, iface, TypeMode::AllBorrowed("'a"), world_hash);
         // gen.generate_invoke_bindings();
+        gen.print_intro();
 
         gen.types();
 
@@ -77,30 +74,11 @@ impl WorldGenerator for RustWasm {
         );
     }
 
-    fn finish(&mut self, name: &str, files: &mut Files) {
+    fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let mut src = mem::take(&mut self.src);
         if self.opts.rustfmt {
-            let mut child = Command::new("rustfmt")
-                .arg("--edition=2018")
-                .stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .spawn()
-                .expect("failed to spawn `rustfmt`");
-            child
-                .stdin
-                .take()
-                .unwrap()
-                .write_all(src.as_bytes())
-                .unwrap();
-            src.as_mut_string().truncate(0);
-            child
-                .stdout
-                .take()
-                .unwrap()
-                .read_to_string(src.as_mut_string())
-                .unwrap();
-            let status = child.wait().unwrap();
-            assert!(status.success());
+            postprocess(src.as_mut_string(), "rustfmt", ["--edition=2018"])
+                .expect("failed to run `rustfmt`");
         }
 
         files.push(&format!("{name}.rs"), src.as_bytes());
@@ -113,10 +91,16 @@ struct InterfaceGenerator<'a> {
     gen: &'a mut RustWasm,
     iface: &'a Interface,
     default_param_mode: TypeMode,
+    world_hash: &'a str,
 }
 
 impl<'a> InterfaceGenerator<'a> {
-    pub fn new(gen: &'a mut RustWasm, iface: &'a Interface, default_param_mode: TypeMode) -> Self {
+    pub fn new(
+        gen: &'a mut RustWasm,
+        iface: &'a Interface,
+        default_param_mode: TypeMode,
+        world_hash: &'a str,
+    ) -> Self {
         let mut types = Types::default();
         types.analyze(iface);
 
@@ -126,21 +110,31 @@ impl<'a> InterfaceGenerator<'a> {
             types,
             iface,
             default_param_mode,
+            world_hash,
         }
     }
 
-    // fn generate_invoke_bindings(&mut self) {
-    //     uwriteln!(
-    //         self.src,
-    //         r#"
-    //     #[::wasm_bindgen::prelude::wasm_bindgen]
-    //     extern "C" {{
-    //         #[::wasm_bindgen::prelude::wasm_bindgen(js_namespace = ["window", "__TAURI__", "tauri"])]
-    //         pub async fn invoke(cmd: ::wasm_bindgen::prelude::JsValue, args: ::wasm_bindgen::prelude::JsValue) -> ::wasm_bindgen::prelude::JsValue;
-    //     }}
-    //     "#
-    //     );
-    // }
+    fn print_intro(&mut self) {
+        self.push_str(&format!(
+            r#"
+        #[cfg(debug_assertions)]
+        static START: ::std::sync::Once = ::std::sync::Once::new();
+        #[cfg(debug_assertions)]
+        fn check_idl_version() {{
+            ::tauri_bindgen_guest_rust::wasm_bindgen_futures::spawn_local(async {{
+                if ::tauri_bindgen_guest_rust::invoke::<_, ()>("plugin:{}|{}", ()).await.is_err() {{
+                    ::tauri_bindgen_guest_rust::console_warn("{}\nNote: This is a debug assertion and IDL versions will not be checked in release builds.
+                    ");
+                }}
+            }});
+        }}
+        "#,
+            self.iface.name.to_snake_case(),
+            self.world_hash,
+            tauri_bindgen_core::VERSION_MISMATCH_MSG
+        ));
+        self.push_str("\n");
+    }
 
     fn generate_guest_import(&mut self, func: &Function) {
         if self.gen.skip.contains(&func.name) {
@@ -157,22 +151,26 @@ impl<'a> InterfaceGenerator<'a> {
         self.print_signature(func, param_mode, &sig);
         self.src.push_str("{\n");
 
+        self.src.push_str(
+            "#[cfg(debug_assertions)]
+        START.call_once(check_idl_version);",
+        );
+
+        let lifetime = func.params.iter().any(|(_, ty)| match ty {
+            Type::String => true,
+            Type::Id(id) => {
+                let info = self.info(*id);
+                self.lifetime_for(&info, TypeMode::AllBorrowed("'a"))
+                    .is_some()
+            }
+            _ => false,
+        });
+
         if !func.params.is_empty() {
             self.push_str("#[derive(::serde::Serialize)]\n");
             self.push_str("#[serde(rename_all = \"camelCase\")]\n");
-
-            let print_lifetime = func.params.iter().any(|(_, ty)| match ty {
-                Type::String => true,
-                Type::Id(id) => {
-                    let info = self.info(*id);
-                    self.lifetime_for(&info, TypeMode::AllBorrowed("'a"))
-                        .is_some()
-                }
-                _ => false,
-            });
-
             self.src.push_str("struct Params");
-            self.print_generics(print_lifetime.then_some("'a"));
+            self.print_generics(lifetime.then_some("'a"));
             self.src.push_str(" {\n");
 
             for (param, ty) in func.params.iter() {
@@ -207,7 +205,7 @@ impl<'a> InterfaceGenerator<'a> {
             self.push_str("&params");
         }
 
-        self.push_str(").await\n");
+        self.push_str(").await.unwrap()\n");
 
         self.src.push_str("}\n");
 
@@ -272,10 +270,14 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
             self.push_str(&attrs);
         }
 
-        self.push_str(&format!("pub struct {}: {} {{\n", name.to_upper_camel_case(), repr));
+        self.push_str(&format!(
+            "pub struct {}: {} {{\n",
+            name.to_upper_camel_case(),
+            repr
+        ));
 
         for (i, flag) in flags.flags.iter().enumerate() {
-            self.print_rustdoc(&flag.docs);      
+            self.print_rustdoc(&flag.docs);
             self.src.push_str(&format!(
                 "const {} = 1 << {};\n",
                 flag.name.to_shouty_snake_case(),

@@ -2,18 +2,25 @@ use heck::ToUpperCamelCase;
 use heck::*;
 use std::collections::HashSet;
 use std::fmt::Write as _;
-use std::io::{Read, Write};
 use std::mem;
-use std::process::{Command, Stdio};
-use tauri_bindgen_core::{uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator};
+use tauri_bindgen_core::{
+    postprocess, uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator,
+};
 use wit_parser::*;
 
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
+#[cfg_attr(feature = "clap", command(group(
+    clap::ArgGroup::new("fmt")
+        .args(["prettier", "romefmt"]),
+)))]
 pub struct Opts {
-    /// Whether or not `prettier` is executed to format generated code.
+    /// Run `prettier` to format the generated code. This requires a global installation of `prettier`.
     #[cfg_attr(feature = "clap", arg(long))]
     pub prettier: bool,
+    /// Run `rome format` to format the generated code. This formatter is much faster that `prettier`. Requires a global installation of `prettier`.
+    #[cfg_attr(feature = "clap", arg(long))]
+    pub romefmt: bool,
     /// Names of functions to skip generating bindings for.
     #[cfg_attr(feature = "clap", arg(long))]
     pub skip: Vec<String>,
@@ -36,8 +43,14 @@ struct TypeScript {
 }
 
 impl WorldGenerator for TypeScript {
-    fn import(&mut self, _name: &str, iface: &wit_parser::Interface, _files: &mut Files) {
-        let mut gen = InterfaceGenerator::new(self, iface);
+    fn import(
+        &mut self,
+        _name: &str,
+        iface: &wit_parser::Interface,
+        _files: &mut Files,
+        world_hash: &str,
+    ) {
+        let mut gen = InterfaceGenerator::new(self, iface, world_hash);
 
         gen.print_intro();
         gen.types();
@@ -65,30 +78,18 @@ impl WorldGenerator for TypeScript {
         // uwriteln!(self.import_object, "export const {name}: typeof {camel};");
     }
 
-    fn finish(&mut self, name: &str, files: &mut Files) {
+    fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let mut src = mem::take(&mut self.src);
         if self.opts.prettier {
-            let mut child = Command::new("prettier")
-                .arg(format!("--parser=typescript"))
-                .stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .spawn()
-                .expect("failed to spawn `prettier`");
-            child
-                .stdin
-                .take()
-                .unwrap()
-                .write_all(src.as_bytes())
-                .unwrap();
-            src.as_mut_string().truncate(0);
-            child
-                .stdout
-                .take()
-                .unwrap()
-                .read_to_string(src.as_mut_string())
-                .unwrap();
-            let status = child.wait().unwrap();
-            assert!(status.success());
+            postprocess(src.as_mut_string(), "prettier", ["--parser=typescript"])
+                .expect("failed to run `rome format`");
+        } else if self.opts.romefmt {
+            postprocess(
+                src.as_mut_string(),
+                "rome",
+                ["format", "--stdin-file-path", "index.ts"],
+            )
+            .expect("failed to run `rome format`");
         }
 
         files.push(&format!("{name}.ts"), src.as_bytes());
@@ -101,17 +102,18 @@ struct InterfaceGenerator<'a> {
     iface: &'a Interface,
     needs_ty_option: bool,
     needs_ty_result: bool,
-    // types: Types,
+    world_hash: &'a str,
 }
 
 impl<'a> InterfaceGenerator<'a> {
-    pub fn new(gen: &'a mut TypeScript, iface: &'a Interface) -> Self {
+    pub fn new(gen: &'a mut TypeScript, iface: &'a Interface, world_hash: &'a str) -> Self {
         Self {
             src: Source::default(),
             gen,
             iface,
             needs_ty_option: false,
             needs_ty_result: false,
+            world_hash,
         }
     }
 
@@ -134,17 +136,24 @@ impl<'a> InterfaceGenerator<'a> {
     fn print_intro(&mut self) {
         self.push_str(
             "
-        interface Tauri {
-            invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T>
-        }
         declare global {
             interface Window {
-                __TAURI__: { tauri: Tauri };
+                __TAURI_INVOKE__<T>(cmd: string, args?: Record<string, unknown>): Promise<T>;
             }
         }
-        const invoke = window.__TAURI_INVOKE__;
-        ",
+        const invoke = window.__TAURI_INVOKE__;",
         );
+        self.push_str(&format!(
+            r#"
+            if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {{
+                invoke("plugin|{}:{}").catch(() => console.error("{}\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`."));
+            }}
+            "#,
+            self.iface.name.to_snake_case(),
+            self.world_hash,
+            tauri_bindgen_core::VERSION_MISMATCH_MSG
+        ));
+        self.push_str("\n");
     }
 
     fn print_outro(&mut self) {
@@ -429,12 +438,16 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
                 self.push_str(&format!("export enum {} {{\n", name.to_upper_camel_case()))
             }
             FlagsRepr::U32(_) => {
-                self.push_str(&format!("export type {} = typeof {};", name.to_upper_camel_case(), name.to_upper_camel_case()));
-                    self.push_str(&format!(
+                self.push_str(&format!(
+                    "export type {} = typeof {};",
+                    name.to_upper_camel_case(),
+                    name.to_upper_camel_case()
+                ));
+                self.push_str(&format!(
                     "export const {} = {{\n",
                     name.to_upper_camel_case()
                 ))
-            },
+            }
         }
 
         let base: usize = 1;

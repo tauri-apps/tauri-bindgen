@@ -1,5 +1,12 @@
-@scope(("window", "__TAURI__", "tauri"))
-external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "invoke"
+@scope("window")
+external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "__TAURI_INVOKE__"
+if Belt.Option.isNone(%external(__TAURI_BINDGEN_VERSION_CHECK__)) {
+  invoke(~cmd="plugin:variants|d5901a6520084a85a46510eb369ef6fe")->catch(e => {
+    Js.Console.error(
+      "The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.",
+    )
+  })
+}
 type e1 = A
 
 type u1 =
@@ -46,28 +53,28 @@ type myErrno =
 
 type isClone = {v1: v1}
 let e1Arg = (x: e1): Promise.t<unit> => {
-  invoke(~cmd="plugin:imports|e1_arg", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:variants|e1_arg", ~payload={"x": x})
 }
 let e1Result = (): Promise.t<e1> => {
-  invoke(~cmd="plugin:imports|e1_result")->ignore
+  invoke(~cmd="plugin:variants|e1_result")
 }
 let u1Arg = (x: u1): Promise.t<unit> => {
-  invoke(~cmd="plugin:imports|u1_arg", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:variants|u1_arg", ~payload={"x": x})
 }
 let u1Result = (): Promise.t<u1> => {
-  invoke(~cmd="plugin:imports|u1_result")->ignore
+  invoke(~cmd="plugin:variants|u1_result")
 }
 let v1Arg = (x: v1): Promise.t<unit> => {
-  invoke(~cmd="plugin:imports|v1_arg", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:variants|v1_arg", ~payload={"x": x})
 }
 let v1Result = (): Promise.t<v1> => {
-  invoke(~cmd="plugin:imports|v1_result")->ignore
+  invoke(~cmd="plugin:variants|v1_result")
 }
 let boolArg = (x: bool): Promise.t<unit> => {
-  invoke(~cmd="plugin:imports|bool_arg", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:variants|bool_arg", ~payload={"x": x})
 }
 let boolResult = (): Promise.t<bool> => {
-  invoke(~cmd="plugin:imports|bool_result")->ignore
+  invoke(~cmd="plugin:variants|bool_result")
 }
 let optionArg = (
   a: option<bool>,
@@ -79,9 +86,9 @@ let optionArg = (
   g: option<option<bool>>,
 ): Promise.t<unit> => {
   invoke(
-    ~cmd="plugin:imports|option_arg",
+    ~cmd="plugin:variants|option_arg",
     ~payload={"a": a, "b": b, "c": c, "d": d, "e": e, "f": f, "g": g},
-  )->ignore
+  )
 }
 let optionResult = (): Promise.t<(
   option<bool>,
@@ -92,7 +99,7 @@ let optionResult = (): Promise.t<(
   option<u1>,
   option<option<bool>>,
 )> => {
-  invoke(~cmd="plugin:imports|option_result")->ignore
+  invoke(~cmd="plugin:variants|option_result")
 }
 let casts = (a: casts1, b: casts2, c: casts3, d: casts4, e: casts5, f: casts6): Promise.t<(
   casts1,
@@ -102,10 +109,7 @@ let casts = (a: casts1, b: casts2, c: casts3, d: casts4, e: casts5, f: casts6): 
   casts5,
   casts6,
 )> => {
-  invoke(
-    ~cmd="plugin:imports|casts",
-    ~payload={"a": a, "b": b, "c": c, "d": d, "e": e, "f": f},
-  )->ignore
+  invoke(~cmd="plugin:variants|casts", ~payload={"a": a, "b": b, "c": c, "d": d, "e": e, "f": f})
 }
 let resultArg = (
   a: Result.t<unit, unit>,
@@ -116,9 +120,9 @@ let resultArg = (
   f: Result.t<string, TypedArray.uint8Array>,
 ): Promise.t<unit> => {
   invoke(
-    ~cmd="plugin:imports|result_arg",
+    ~cmd="plugin:variants|result_arg",
     ~payload={"a": a, "b": b, "c": c, "d": d, "e": e, "f": f},
-  )->ignore
+  )
 }
 let resultResult = (): Promise.t<(
   Result.t<unit, unit>,
@@ -128,38 +132,38 @@ let resultResult = (): Promise.t<(
   Result.t<int, v1>,
   Result.t<string, TypedArray.uint8Array>,
 )> => {
-  invoke(~cmd="plugin:imports|result_result")->ignore
+  invoke(~cmd="plugin:variants|result_result")
 }
 let returnResultSugar = (): Promise.t<int> => {
-  invoke(~cmd="plugin:imports|return_result_sugar")->ignore
+  invoke(~cmd="plugin:variants|return_result_sugar")
 }
 let returnResultSugar2 = (): Promise.t<unit> => {
-  invoke(~cmd="plugin:imports|return_result_sugar2")->ignore
+  invoke(~cmd="plugin:variants|return_result_sugar2")
 }
 let returnResultSugar3 = (): Promise.t<myErrno> => {
-  invoke(~cmd="plugin:imports|return_result_sugar3")->ignore
+  invoke(~cmd="plugin:variants|return_result_sugar3")
 }
 let returnResultSugar4 = (): Promise.t<(int, int)> => {
-  invoke(~cmd="plugin:imports|return_result_sugar4")->ignore
+  invoke(~cmd="plugin:variants|return_result_sugar4")
 }
 let returnOptionSugar = (): Promise.t<option<int>> => {
-  invoke(~cmd="plugin:imports|return_option_sugar")->ignore
+  invoke(~cmd="plugin:variants|return_option_sugar")
 }
 let returnOptionSugar2 = (): Promise.t<option<myErrno>> => {
-  invoke(~cmd="plugin:imports|return_option_sugar2")->ignore
+  invoke(~cmd="plugin:variants|return_option_sugar2")
 }
 let resultSimple = (): Promise.t<int> => {
-  invoke(~cmd="plugin:imports|result_simple")->ignore
+  invoke(~cmd="plugin:variants|result_simple")
 }
 let isCloneArg = (a: isClone): Promise.t<unit> => {
-  invoke(~cmd="plugin:imports|is_clone_arg", ~payload={"a": a})->ignore
+  invoke(~cmd="plugin:variants|is_clone_arg", ~payload={"a": a})
 }
 let isCloneReturn = (): Promise.t<isClone> => {
-  invoke(~cmd="plugin:imports|is_clone_return")->ignore
+  invoke(~cmd="plugin:variants|is_clone_return")
 }
 let returnNamedOption = (): Promise.t<option<int>> => {
-  invoke(~cmd="plugin:imports|return_named_option")->ignore
+  invoke(~cmd="plugin:variants|return_named_option")
 }
 let returnNamedResult = (): Promise.t<int> => {
-  invoke(~cmd="plugin:imports|return_named_result")->ignore
+  invoke(~cmd="plugin:variants|return_named_result")
 }

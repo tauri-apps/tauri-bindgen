@@ -2,9 +2,7 @@ use heck::*;
 use pulldown_cmark::{html, Event, LinkType, Parser, Tag};
 use std::collections::HashMap;
 use std::fmt::Write;
-use tauri_bindgen_core::{
-    uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator,
-};
+use tauri_bindgen_core::{uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator};
 use wit_parser::*;
 
 #[derive(Default)]
@@ -29,14 +27,14 @@ impl Opts {
 }
 
 impl WorldGenerator for Markdown {
-    fn import(&mut self, name: &str, iface: &Interface, _files: &mut Files) {
+    fn import(&mut self, name: &str, iface: &Interface, _files: &mut Files, _world_hash: &str) {
         uwriteln!(self.src, "# Import interface `{name}`\n");
         let mut gen = self.interface(iface);
         gen.types();
         gen.funcs();
     }
 
-    fn finish(&mut self, name: &str, files: &mut Files) {
+    fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let parser = Parser::new(&self.src);
         let mut events = Vec::new();
         for event in parser {

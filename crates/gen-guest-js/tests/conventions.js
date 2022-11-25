@@ -1,40 +1,49 @@
-const { invoke } = window.__TAURI__.tauri;
+const invoke = window.__TAURI_INVOKE__;
+if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {
+	invoke("plugin|conventions:48646a1b1c089063e7b03a4c1dd9f5ad").catch(() =>
+		console.error(
+			"The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.",
+		),
+	);
+}
+
 export async function kebabCase() {
-  await invoke("plugin:imports|kebab_case");
+	await invoke("plugin:conventions|kebab_case");
 }
 /**
  * @param {LudicrousSpeed} x
  */
 export async function foo(x) {
-  await invoke("plugin:imports|foo", { x: x });
+	await invoke("plugin:conventions|foo", { x: x });
 }
 export async function functionWithDashes() {
-  await invoke("plugin:imports|function_with_dashes");
+	await invoke("plugin:conventions|function_with_dashes");
 }
 export async function functionWithNoWeirdCharacters() {
-  await invoke("plugin:imports|function_with_no_weird_characters");
+	await invoke("plugin:conventions|function_with_no_weird_characters");
 }
 export async function apple() {
-  await invoke("plugin:imports|apple");
+	await invoke("plugin:conventions|apple");
 }
 export async function applePear() {
-  await invoke("plugin:imports|apple_pear");
+	await invoke("plugin:conventions|apple_pear");
 }
 export async function applePearGrape() {
-  await invoke("plugin:imports|apple_pear_grape");
+	await invoke("plugin:conventions|apple_pear_grape");
 }
 export async function a0() {
-  await invoke("plugin:imports|a0");
+	await invoke("plugin:conventions|a0");
 }
 export async function isXml() {
-  await invoke("plugin:imports|is_xml");
+	await invoke("plugin:conventions|is_xml");
 }
 export async function explicit() {
-  await invoke("plugin:imports|explicit");
+	await invoke("plugin:conventions|explicit");
 }
 export async function explicitKebab() {
-  await invoke("plugin:imports|explicit_kebab");
+	await invoke("plugin:conventions|explicit_kebab");
 }
 export async function bool() {
-  await invoke("plugin:imports|bool");
+	await invoke("plugin:conventions|bool");
 }
+

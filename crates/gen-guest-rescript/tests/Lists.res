@@ -1,5 +1,12 @@
-@scope(("window", "__TAURI__", "tauri"))
-external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "invoke"
+@scope("window")
+external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "__TAURI_INVOKE__"
+if Belt.Option.isNone(%external(__TAURI_BINDGEN_VERSION_CHECK__)) {
+  invoke(~cmd="plugin:lists|a744d1c6fec4018443a890e8987bf4a4")->catch(e => {
+    Js.Console.error(
+      "The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.",
+    )
+  })
+}
 type someRecord = {
   x: string,
   y: otherRecord,
@@ -43,89 +50,89 @@ type loadStoreAllSizes = array<(
   char,
 )>
 let listU8Param = (x: TypedArray.uint8Array): Promise.t<unit> => {
-  invoke(~cmd="plugin:import_lists|list_u8_param", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|list_u8_param", ~payload={"x": x})
 }
 let listU16Param = (x: TypedArray.uint16Array): Promise.t<unit> => {
-  invoke(~cmd="plugin:import_lists|list_u16_param", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|list_u16_param", ~payload={"x": x})
 }
 let listU32Param = (x: TypedArray.uint32Array): Promise.t<unit> => {
-  invoke(~cmd="plugin:import_lists|list_u32_param", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|list_u32_param", ~payload={"x": x})
 }
 let listU64Param = (x: array<int64>): Promise.t<unit> => {
-  invoke(~cmd="plugin:import_lists|list_u64_param", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|list_u64_param", ~payload={"x": x})
 }
 let listS8Param = (x: TypedArray.int8Array): Promise.t<unit> => {
-  invoke(~cmd="plugin:import_lists|list_s8_param", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|list_s8_param", ~payload={"x": x})
 }
 let listS16Param = (x: TypedArray.int16Array): Promise.t<unit> => {
-  invoke(~cmd="plugin:import_lists|list_s16_param", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|list_s16_param", ~payload={"x": x})
 }
 let listS32Param = (x: TypedArray.int32Array): Promise.t<unit> => {
-  invoke(~cmd="plugin:import_lists|list_s32_param", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|list_s32_param", ~payload={"x": x})
 }
 let listS64Param = (x: array<int64>): Promise.t<unit> => {
-  invoke(~cmd="plugin:import_lists|list_s64_param", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|list_s64_param", ~payload={"x": x})
 }
 let listFloat32Param = (x: TypedArray.float32Array): Promise.t<unit> => {
-  invoke(~cmd="plugin:import_lists|list_float32_param", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|list_float32_param", ~payload={"x": x})
 }
 let listFloat64Param = (x: TypedArray.float64Array): Promise.t<unit> => {
-  invoke(~cmd="plugin:import_lists|list_float64_param", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|list_float64_param", ~payload={"x": x})
 }
 let listU8Ret = (): Promise.t<TypedArray.uint8Array> => {
-  invoke(~cmd="plugin:import_lists|list_u8_ret")->ignore
+  invoke(~cmd="plugin:lists|list_u8_ret")
 }
 let listU16Ret = (): Promise.t<TypedArray.uint16Array> => {
-  invoke(~cmd="plugin:import_lists|list_u16_ret")->ignore
+  invoke(~cmd="plugin:lists|list_u16_ret")
 }
 let listU32Ret = (): Promise.t<TypedArray.uint32Array> => {
-  invoke(~cmd="plugin:import_lists|list_u32_ret")->ignore
+  invoke(~cmd="plugin:lists|list_u32_ret")
 }
 let listU64Ret = (): Promise.t<array<int64>> => {
-  invoke(~cmd="plugin:import_lists|list_u64_ret")->ignore
+  invoke(~cmd="plugin:lists|list_u64_ret")
 }
 let listS8Ret = (): Promise.t<TypedArray.int8Array> => {
-  invoke(~cmd="plugin:import_lists|list_s8_ret")->ignore
+  invoke(~cmd="plugin:lists|list_s8_ret")
 }
 let listS16Ret = (): Promise.t<TypedArray.int16Array> => {
-  invoke(~cmd="plugin:import_lists|list_s16_ret")->ignore
+  invoke(~cmd="plugin:lists|list_s16_ret")
 }
 let listS32Ret = (): Promise.t<TypedArray.int32Array> => {
-  invoke(~cmd="plugin:import_lists|list_s32_ret")->ignore
+  invoke(~cmd="plugin:lists|list_s32_ret")
 }
 let listS64Ret = (): Promise.t<array<int64>> => {
-  invoke(~cmd="plugin:import_lists|list_s64_ret")->ignore
+  invoke(~cmd="plugin:lists|list_s64_ret")
 }
 let listFloat32Ret = (): Promise.t<TypedArray.float32Array> => {
-  invoke(~cmd="plugin:import_lists|list_float32_ret")->ignore
+  invoke(~cmd="plugin:lists|list_float32_ret")
 }
 let listFloat64Ret = (): Promise.t<TypedArray.float64Array> => {
-  invoke(~cmd="plugin:import_lists|list_float64_ret")->ignore
+  invoke(~cmd="plugin:lists|list_float64_ret")
 }
 let tupleList = (x: array<(int, int)>): Promise.t<array<(int64, int)>> => {
-  invoke(~cmd="plugin:import_lists|tuple_list", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|tuple_list", ~payload={"x": x})
 }
 let stringListArg = (a: array<string>): Promise.t<unit> => {
-  invoke(~cmd="plugin:import_lists|string_list_arg", ~payload={"a": a})->ignore
+  invoke(~cmd="plugin:lists|string_list_arg", ~payload={"a": a})
 }
 let stringListRet = (): Promise.t<array<string>> => {
-  invoke(~cmd="plugin:import_lists|string_list_ret")->ignore
+  invoke(~cmd="plugin:lists|string_list_ret")
 }
 let tupleStringList = (x: array<(int, string)>): Promise.t<array<(string, int)>> => {
-  invoke(~cmd="plugin:import_lists|tuple_string_list", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|tuple_string_list", ~payload={"x": x})
 }
 let stringList = (x: array<string>): Promise.t<array<string>> => {
-  invoke(~cmd="plugin:import_lists|string_list", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|string_list", ~payload={"x": x})
 }
 let recordList = (x: array<someRecord>): Promise.t<array<otherRecord>> => {
-  invoke(~cmd="plugin:import_lists|record_list", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|record_list", ~payload={"x": x})
 }
 let recordListReverse = (x: array<otherRecord>): Promise.t<array<someRecord>> => {
-  invoke(~cmd="plugin:import_lists|record_list_reverse", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|record_list_reverse", ~payload={"x": x})
 }
 let variantList = (x: array<someVariant>): Promise.t<array<otherVariant>> => {
-  invoke(~cmd="plugin:import_lists|variant_list", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:lists|variant_list", ~payload={"x": x})
 }
 let loadStoreEverything = (a: loadStoreAllSizes): Promise.t<loadStoreAllSizes> => {
-  invoke(~cmd="plugin:import_lists|load_store_everything", ~payload={"a": a})->ignore
+  invoke(~cmd="plugin:lists|load_store_everything", ~payload={"a": a})
 }

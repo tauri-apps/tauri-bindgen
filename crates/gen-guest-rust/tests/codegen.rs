@@ -4,16 +4,24 @@ use tauri_bindgen_core::{Files, WorldGenerator};
 use tauri_bindgen_gen_guest_rust::*;
 use wit_parser::World;
 
-fn gen_world(mut gen: Box<dyn WorldGenerator>, name: impl AsRef<str>, path: impl AsRef<Path>) -> (String, String) {
-    let world = World::parse_file(path).unwrap();
+fn gen_world(
+    mut gen: Box<dyn WorldGenerator>,
+    name: impl AsRef<str>,
+    path: impl AsRef<Path>,
+) -> (String, String) {
+    let world = World::parse_file(&path).unwrap();
+    let world_hash = tauri_bindgen_core::hash::hash_file(path).unwrap();
 
     let mut files = Files::default();
 
-    gen.generate(name.as_ref(), &world, &mut files);
+    gen.generate(name.as_ref(), &world, &mut files, &world_hash);
 
     let (filename, contents) = files.iter().next().unwrap();
 
-    (filename.to_string(), std::str::from_utf8(contents).unwrap().to_string())
+    (
+        filename.to_string(),
+        std::str::from_utf8(contents).unwrap().to_string(),
+    )
 }
 
 #[test]
@@ -22,7 +30,7 @@ fn chars() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -38,7 +46,7 @@ fn conventions() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -54,7 +62,7 @@ fn empty() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -70,7 +78,7 @@ fn flags() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -86,7 +94,7 @@ fn floats() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -102,7 +110,7 @@ fn integers() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -118,7 +126,7 @@ fn lists() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -134,11 +142,15 @@ fn many_arguments() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "many-arguments", "../../tests/codegen/many-arguments.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "many-arguments",
+        "../../tests/codegen/many-arguments.wit",
+    );
 
     assert_eq!(filename, "many-arguments.rs");
     assert_eq!(contents, include_str!("./many-arguments.rs"));
@@ -150,11 +162,12 @@ fn multi_return() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "multi-return", "../../tests/codegen/multi-return.wit");
+    let (filename, contents) =
+        gen_world(gen, "multi-return", "../../tests/codegen/multi-return.wit");
 
     assert_eq!(filename, "multi-return.rs");
     assert_eq!(contents, include_str!("./multi-return.rs"));
@@ -166,7 +179,7 @@ fn records() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -182,11 +195,15 @@ fn simple_functions() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "simple-functions", "../../tests/codegen/simple-functions.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "simple-functions",
+        "../../tests/codegen/simple-functions.wit",
+    );
 
     assert_eq!(filename, "simple-functions.rs");
     assert_eq!(contents, include_str!("./simple-functions.rs"));
@@ -198,11 +215,12 @@ fn simple_lists() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "simple-lists", "../../tests/codegen/simple-lists.wit");
+    let (filename, contents) =
+        gen_world(gen, "simple-lists", "../../tests/codegen/simple-lists.wit");
 
     assert_eq!(filename, "simple-lists.rs");
     assert_eq!(contents, include_str!("./simple-lists.rs"));
@@ -214,11 +232,15 @@ fn small_anonymous() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "small-anonymous", "../../tests/codegen/small-anonymous.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "small-anonymous",
+        "../../tests/codegen/small-anonymous.wit",
+    );
 
     assert_eq!(filename, "small-anonymous.rs");
     assert_eq!(contents, include_str!("./small-anonymous.rs"));
@@ -230,7 +252,7 @@ fn strings() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -246,7 +268,7 @@ fn unions() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -262,7 +284,7 @@ fn variants() {
         rustfmt: true,
         no_std: false,
         unchecked: false,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 

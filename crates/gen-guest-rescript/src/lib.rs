@@ -1,11 +1,11 @@
 use heck::ToUpperCamelCase;
 use heck::*;
+use std::collections::HashSet;
 use std::fmt::Write as _;
-use std::io::{Read, Write};
 use std::mem;
-use std::process::Command;
-use std::{collections::HashSet, process::Stdio};
-use tauri_bindgen_core::{uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator};
+use tauri_bindgen_core::{
+    postprocess, uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator,
+};
 use wit_parser::*;
 
 #[derive(Debug, Clone, Default)]
@@ -36,8 +36,14 @@ struct ReScript {
 }
 
 impl WorldGenerator for ReScript {
-    fn import(&mut self, _name: &str, iface: &wit_parser::Interface, _files: &mut Files) {
-        let mut gen = InterfaceGenerator::new(self, iface);
+    fn import(
+        &mut self,
+        _name: &str,
+        iface: &wit_parser::Interface,
+        _files: &mut Files,
+        world_hash: &str,
+    ) {
+        let mut gen = InterfaceGenerator::new(self, iface, world_hash);
 
         gen.print_intro();
         gen.types();
@@ -48,47 +54,17 @@ impl WorldGenerator for ReScript {
 
         let module = &gen.src[..];
         uwriteln!(self.src, "{module}");
-
-        // files.push(&format!("{name}.ts"), gen.src.as_bytes());
-
-        // uwriteln!(
-        //     self.src.ts,
-        //     "{} {{ {camel} }} from './{name}';",
-        //     // In instance mode, we have no way to assert the imported types
-        //     // in the ambient declaration file. Instead we just export the
-        //     // import namespace types for users to use.
-        //     "export"
-        // );
-
-        // uwriteln!(self.import_object, "export const {name}: typeof {camel};");
     }
 
-    fn finish(&mut self, name: &str, files: &mut Files) {
+    fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let mut src = mem::take(&mut self.src);
         if self.opts.fmt {
-            let mut child = Command::new("rescript")
-                .arg("format")
-                .arg("-stdin")
-                .arg(".res")
-                .stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .spawn()
-                .expect("failed to spawn `rescript format`");
-            child
-                .stdin
-                .take()
-                .unwrap()
-                .write_all(src.as_bytes())
-                .unwrap();
-            src.as_mut_string().truncate(0);
-            child
-                .stdout
-                .take()
-                .unwrap()
-                .read_to_string(src.as_mut_string())
-                .unwrap();
-            let status = child.wait().unwrap();
-            assert!(status.success());
+            postprocess(
+                src.as_mut_string(),
+                "rescript",
+                ["format", "-stdin", ".res"],
+            )
+            .expect("failed to run `rescript format`")
         }
 
         files.push(
@@ -102,15 +78,16 @@ struct InterfaceGenerator<'a> {
     src: Source,
     gen: &'a mut ReScript,
     iface: &'a Interface,
-    // types: Types,
+    world_hash: &'a str,
 }
 
 impl<'a> InterfaceGenerator<'a> {
-    pub fn new(gen: &'a mut ReScript, iface: &'a Interface) -> Self {
+    pub fn new(gen: &'a mut ReScript, iface: &'a Interface, world_hash: &'a str) -> Self {
         Self {
             src: Source::default(),
             gen,
             iface,
+            world_hash,
         }
     }
 
@@ -137,6 +114,16 @@ impl<'a> InterfaceGenerator<'a> {
             external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "__TAURI_INVOKE__"
             "#,
         );
+        self.push_str(&format!(
+            r#"if Belt.Option.isNone(%external(__TAURI_BINDGEN_VERSION_CHECK__)) {{
+                invoke(~cmd="plugin:{}|{}")
+                    ->catch(e => {{ Js.Console.error("{}\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.") }})
+            }}"#,
+            self.iface.name.to_snake_case(),
+            self.world_hash,
+            tauri_bindgen_core::VERSION_MISMATCH_MSG
+        ));
+        self.push_str("\n");
     }
 
     fn generate_guest_import(&mut self, func: &Function) {

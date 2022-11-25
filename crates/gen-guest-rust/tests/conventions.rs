@@ -1,53 +1,122 @@
 #[allow(clippy::all, unused)]
 pub mod imports {
+
+    #[cfg(debug_assertions)]
+    static START: ::std::sync::Once = ::std::sync::Once::new();
+    #[cfg(debug_assertions)]
+    fn check_idl_version() {
+        ::tauri_bindgen_guest_rust::wasm_bindgen_futures::spawn_local(async {
+            if ::tauri_bindgen_guest_rust::invoke::<_, ()>(
+                "plugin:conventions|48646a1b1c089063e7b03a4c1dd9f5ad",
+                (),
+            )
+            .await
+            .is_err()
+            {
+                ::tauri_bindgen_guest_rust::console_warn("The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: This is a debug assertion and IDL versions will not be checked in release builds.
+        ");
+            }
+        });
+    }
+
     #[repr(C)]
-    #[derive(Debug, Copy, Clone, ::serde::Serialize)]
+    #[derive(Debug, Copy, Clone, PartialEq, ::serde::Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct LudicrousSpeed {
         pub how_fast_are_you_going: u32,
         pub i_am_going_extremely_slow: u64,
     }
     pub async fn kebab_case() -> () {
-        ::tauri_bindgen_guest_rust::send("plugin:imports|kebab_case", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|kebab-case", ())
+            .await
+            .unwrap()
     }
     pub async fn foo(x: LudicrousSpeed) -> () {
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params {
             x: LudicrousSpeed,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::send("plugin:imports|foo", &params).await
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|foo", &params)
+            .await
+            .unwrap()
     }
     pub async fn function_with_dashes() -> () {
-        ::tauri_bindgen_guest_rust::send("plugin:imports|function_with_dashes", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|function-with-dashes", ())
+            .await
+            .unwrap()
     }
     pub async fn function_with_no_weird_characters() -> () {
-        ::tauri_bindgen_guest_rust::send("plugin:imports|function_with_no_weird_characters", ())
-            .await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke(
+            "plugin:conventions|function-with-no-weird-characters",
+            (),
+        )
+        .await
+        .unwrap()
     }
     pub async fn apple() -> () {
-        ::tauri_bindgen_guest_rust::send("plugin:imports|apple", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|apple", ())
+            .await
+            .unwrap()
     }
     pub async fn apple_pear() -> () {
-        ::tauri_bindgen_guest_rust::send("plugin:imports|apple_pear", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|apple-pear", ())
+            .await
+            .unwrap()
     }
     pub async fn apple_pear_grape() -> () {
-        ::tauri_bindgen_guest_rust::send("plugin:imports|apple_pear_grape", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|apple-pear-grape", ())
+            .await
+            .unwrap()
     }
     pub async fn a0() -> () {
-        ::tauri_bindgen_guest_rust::send("plugin:imports|a0", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|a0", ())
+            .await
+            .unwrap()
     }
     pub async fn is_xml() -> () {
-        ::tauri_bindgen_guest_rust::send("plugin:imports|is_xml", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|is-XML", ())
+            .await
+            .unwrap()
     }
     pub async fn explicit() -> () {
-        ::tauri_bindgen_guest_rust::send("plugin:imports|explicit", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|explicit", ())
+            .await
+            .unwrap()
     }
     pub async fn explicit_kebab() -> () {
-        ::tauri_bindgen_guest_rust::send("plugin:imports|explicit_kebab", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|explicit-kebab", ())
+            .await
+            .unwrap()
     }
     pub async fn bool() -> () {
-        ::tauri_bindgen_guest_rust::send("plugin:imports|bool", ()).await
+        #[cfg(debug_assertions)]
+        START.call_once(check_idl_version);
+        ::tauri_bindgen_guest_rust::invoke("plugin:conventions|bool", ())
+            .await
+            .unwrap()
     }
 }

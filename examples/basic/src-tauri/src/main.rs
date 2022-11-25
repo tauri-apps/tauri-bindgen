@@ -11,7 +11,8 @@ mod plugin {
 
     tauri_bindgen_host::generate!({
         path: "../greet.wit",
-        async: false
+        async: false,
+        tracing: true
     });
 
     #[derive(Clone, Copy)]
@@ -30,7 +31,13 @@ mod plugin {
     }
 }
 
+use tracing_subscriber;
+
 fn main() {
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::TRACE)
+        .init();
+
     tauri::Builder::default()
         .plugin(plugin::init())
         .run(tauri::generate_context!())

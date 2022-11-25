@@ -1,22 +1,28 @@
-use std::{fmt::{Write, self}, ops::Deref, collections::{BTreeMap, btree_map::Entry, HashMap}};
+pub mod hash;
+mod postprocess;
+
+pub use postprocess::postprocess;
+
+use std::{
+    collections::{btree_map::Entry, BTreeMap, HashMap},
+    fmt::{self, Write},
+    ops::Deref,
+};
 use wit_parser::*;
 
+pub const VERSION_MISMATCH_MSG: &str = "The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.";
+
 pub trait WorldGenerator {
-    fn generate(&mut self, name: &str, interfaces: &World, files: &mut Files) {
-        self.preprocess(name);
+    fn generate(&mut self, name: &str, interfaces: &World, files: &mut Files, world_hash: &str) {
         for (name, import) in interfaces.imports.iter() {
-            self.import(name, import, files);
+            self.import(name, import, files, world_hash);
         }
-        self.finish(name, files);
+        self.finish(name, files, world_hash);
     }
 
-    fn preprocess(&mut self, name: &str) {
-        drop(name);
-    }
+    fn import(&mut self, name: &str, iface: &Interface, files: &mut Files, world_hash: &str);
 
-    fn import(&mut self, name: &str, iface: &Interface, files: &mut Files);
-
-    fn finish(&mut self, name: &str, files: &mut Files);
+    fn finish(&mut self, name: &str, files: &mut Files, world_hash: &str);
 }
 
 pub trait InterfaceGenerator<'a> {
@@ -277,7 +283,6 @@ impl Types {
         }
     }
 }
-
 
 #[derive(Debug, Default)]
 pub struct Files {

@@ -79,43 +79,13 @@ enum GuestGenerator {
 struct WorldOpt {
     /// Generate bindings for the WIT document.
     #[clap(value_name = "DOCUMENT", value_parser = parse_world)]
-    wit: World,
-}
-
-fn parse_world(s: &str) -> anyhow::Result<World> {
-    let path = Path::new(s);
-    if !path.is_file() {
-        bail!("wit file `{}` does not exist", path.display());
-    }
-
-    let world = World::parse_file(&path)
-        .with_context(|| format!("failed to parse wit file `{}`", path.display()))
-        .map_err(|e| {
-            eprintln!("{e:?}");
-            e
-        })?;
-
-    Ok(world)
-}
-
-#[derive(Debug, Parser)]
-struct ComponentOpts {
-    /// Path to the input wasm component to generate bindings for.
-    component: PathBuf,
-
-    /// Optionally rename the generated bindings instead of inferring the name
-    /// from the input `component` path.
-    #[clap(long)]
-    name: Option<String>,
-
-    #[clap(flatten)]
-    common: Common,
+    wit: (World, String),
 }
 
 #[derive(Debug, Parser, Clone)]
 struct Common {
     /// Where to place output files
-    #[clap(long = "out-dir")]
+    #[clap(global = true, long = "out-dir")]
     out_dir: Option<PathBuf>,
 }
 
@@ -161,12 +131,28 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
+fn parse_world(s: &str) -> anyhow::Result<(World, String)> {
+    let path = Path::new(s);
+    if !path.is_file() {
+        bail!("wit file `{}` does not exist", path.display());
+    }
+
+    let world = World::parse_file(&path)
+        .with_context(|| format!("failed to parse wit file `{}`", path.display()))
+        .map_err(|e| {
+            eprintln!("{e:?}");
+            e
+        })?;
+
+    Ok((world, tauri_bindgen_core::hash::hash_file(path)?))
+}
+
 fn gen_world(
     mut generator: Box<dyn WorldGenerator>,
     opts: WorldOpt,
     files: &mut Files,
 ) -> anyhow::Result<()> {
-    let name = opts.wit.name.clone();
-    generator.generate(&name, &opts.wit, files);
+    let (world, world_hash) = opts.wit;
+    generator.generate(&world.name, &world, files, &world_hash);
     Ok(())
 }

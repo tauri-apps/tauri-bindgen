@@ -1,5 +1,12 @@
-@scope(("window", "__TAURI__", "tauri"))
-external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "invoke"
+@scope("window")
+external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "__TAURI_INVOKE__"
+if Belt.Option.isNone(%external(__TAURI_BINDGEN_VERSION_CHECK__)) {
+  invoke(~cmd="plugin:manyarg|92d5120c899c41cc0c9bb8a02b370a08")->catch(e => {
+    Js.Console.error(
+      "The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.",
+    )
+  })
+}
 type bigStruct = {
   a1: string,
   a2: string,
@@ -41,7 +48,7 @@ let manyArgs = (
   a16: int64,
 ): Promise.t<unit> => {
   invoke(
-    ~cmd="plugin:imports|many_args",
+    ~cmd="plugin:manyarg|many_args",
     ~payload={
       "a1": a1,
       "a2": a2,
@@ -60,8 +67,8 @@ let manyArgs = (
       "a15": a15,
       "a16": a16,
     },
-  )->ignore
+  )
 }
 let bigArgument = (x: bigStruct): Promise.t<unit> => {
-  invoke(~cmd="plugin:imports|big_argument", ~payload={"x": x})->ignore
+  invoke(~cmd="plugin:manyarg|big_argument", ~payload={"x": x})
 }

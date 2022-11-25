@@ -1,8 +1,8 @@
-use tauri_bindgen_gen_guest_rust::Opts;
 use proc_macro::TokenStream;
 use syn::parse::{Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
-use syn::{Token, LitStr};
+use syn::{LitStr, Token};
+use tauri_bindgen_gen_guest_rust::Opts;
 
 #[proc_macro]
 pub fn generate(input: TokenStream) -> TokenStream {
@@ -33,7 +33,7 @@ impl Parse for Opt {
             input.parse::<kw::no_std>()?;
             input.parse::<Token![:]>()?;
             Ok(Opt::NoStd(input.parse::<syn::LitBool>()?.value))
-        }  else if l.peek(kw::skip) {
+        } else if l.peek(kw::skip) {
             input.parse::<kw::skip>()?;
             input.parse::<Token![:]>()?;
             let contents;
