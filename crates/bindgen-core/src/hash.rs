@@ -1,18 +1,18 @@
-use std::{path::Path, fs::File, io, cmp};
+use std::{cmp, fs::File, io, path::Path};
 
 const TRUNCATE_LEN: usize = 16;
 
 pub fn hash_file(path: impl AsRef<Path>) -> anyhow::Result<String> {
     let file = File::open(path)?;
     let mut hasher = blake3::Hasher::new();
-    
+
     if let Some(mmap) = maybe_memmap_file(&file)? {
         let cursor = io::Cursor::new(mmap);
         hasher.update_rayon(cursor.get_ref());
     } else {
         copy_wide(file, &mut hasher)?;
     }
-    
+
     let output = hasher.finalize_xof();
     Ok(encode_hex(output))
 }
@@ -24,7 +24,6 @@ pub fn hash_string(str: impl AsRef<str>) -> anyhow::Result<String> {
     let output = hasher.finalize_xof();
     Ok(encode_hex(output))
 }
-
 
 // Mmap a file, if it looks like a good idea. Return None in cases where we
 // know mmap will fail, or if the file is short enough that mmapping isn't
@@ -88,6 +87,6 @@ fn encode_hex(mut output: blake3::OutputReader) -> String {
         str.push_str(&hex_str[..2 * take_bytes as usize]);
         len -= take_bytes;
     }
-    
+
     str
 }

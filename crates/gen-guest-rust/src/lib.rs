@@ -1,11 +1,6 @@
 use heck::*;
 use std::fmt::Write as _;
-use std::{
-    collections::HashSet,
-    io::{Read, Write},
-    mem,
-    process::{Command, Stdio},
-};
+use std::{collections::HashSet, mem};
 use tauri_bindgen_core::{InterfaceGenerator as _, *};
 use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, TypeMode};
 use wit_parser::*;
@@ -82,27 +77,8 @@ impl WorldGenerator for RustWasm {
     fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let mut src = mem::take(&mut self.src);
         if self.opts.rustfmt {
-            let mut child = Command::new("rustfmt")
-                .arg("--edition=2018")
-                .stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .spawn()
-                .expect("failed to spawn `rustfmt`");
-            child
-                .stdin
-                .take()
-                .unwrap()
-                .write_all(src.as_bytes())
-                .unwrap();
-            src.as_mut_string().truncate(0);
-            child
-                .stdout
-                .take()
-                .unwrap()
-                .read_to_string(src.as_mut_string())
-                .unwrap();
-            let status = child.wait().unwrap();
-            assert!(status.success());
+            postprocess(src.as_mut_string(), "rustfmt", ["--edition=2018"])
+                .expect("failed to run `rustfmt`");
         }
 
         files.push(&format!("{name}.rs"), src.as_bytes());
@@ -175,8 +151,10 @@ impl<'a> InterfaceGenerator<'a> {
         self.print_signature(func, param_mode, &sig);
         self.src.push_str("{\n");
 
-        self.src.push_str("#[cfg(debug_assertions)]
-        START.call_once(check_idl_version);");
+        self.src.push_str(
+            "#[cfg(debug_assertions)]
+        START.call_once(check_idl_version);",
+        );
 
         let lifetime = func.params.iter().any(|(_, ty)| match ty {
             Type::String => true,

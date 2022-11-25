@@ -2,9 +2,7 @@ use heck::*;
 use pulldown_cmark::{html, Event, LinkType, Parser, Tag};
 use std::collections::HashMap;
 use std::fmt::Write;
-use tauri_bindgen_core::{
-    uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator,
-};
+use tauri_bindgen_core::{uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator};
 use wit_parser::*;
 
 #[derive(Default)]

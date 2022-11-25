@@ -1,6 +1,6 @@
 use anyhow::{bail, Context};
 use clap::Parser;
-use std::{path::{Path, PathBuf}};
+use std::path::{Path, PathBuf};
 use tauri_bindgen_core::{Files, WorldGenerator};
 use wit_parser::World;
 

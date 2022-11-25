@@ -4,7 +4,11 @@ use tauri_bindgen_core::{Files, WorldGenerator};
 use tauri_bindgen_gen_guest_js::*;
 use wit_parser::World;
 
-fn gen_world(mut gen: Box<dyn WorldGenerator>, name: impl AsRef<str>, path: impl AsRef<Path>) -> (String, String) {
+fn gen_world(
+    mut gen: Box<dyn WorldGenerator>,
+    name: impl AsRef<str>,
+    path: impl AsRef<Path>,
+) -> (String, String) {
     let world = World::parse_file(&path).unwrap();
     let world_hash = tauri_bindgen_core::hash::hash_file(path).unwrap();
 
@@ -14,14 +18,18 @@ fn gen_world(mut gen: Box<dyn WorldGenerator>, name: impl AsRef<str>, path: impl
 
     let (filename, contents) = files.iter().next().unwrap();
 
-    (filename.to_string(), std::str::from_utf8(contents).unwrap().to_string())
+    (
+        filename.to_string(),
+        std::str::from_utf8(contents).unwrap().to_string(),
+    )
 }
 
 #[test]
 fn chars() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -34,8 +42,9 @@ fn chars() {
 #[test]
 fn convention() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -48,8 +57,9 @@ fn convention() {
 #[test]
 fn empty() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -62,8 +72,9 @@ fn empty() {
 #[test]
 fn flags() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -76,8 +87,9 @@ fn flags() {
 #[test]
 fn floats() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -90,8 +102,9 @@ fn floats() {
 #[test]
 fn integers() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -104,12 +117,17 @@ fn integers() {
 #[test]
 fn many_arguments() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "many-arguments", "../../tests/codegen/many-arguments.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "many-arguments",
+        "../../tests/codegen/many-arguments.wit",
+    );
 
     assert_eq!(filename, "many-arguments.js");
     assert_eq!(contents, include_str!("./many-arguments.js"));
@@ -118,12 +136,14 @@ fn many_arguments() {
 #[test]
 fn multi_return() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "multi-return", "../../tests/codegen/multi-return.wit");
+    let (filename, contents) =
+        gen_world(gen, "multi-return", "../../tests/codegen/multi-return.wit");
 
     assert_eq!(filename, "multi-return.js");
     assert_eq!(contents, include_str!("./multi-return.js"));
@@ -132,8 +152,9 @@ fn multi_return() {
 #[test]
 fn records() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -146,12 +167,17 @@ fn records() {
 #[test]
 fn simple_functions() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "simple-functions", "../../tests/codegen/simple-functions.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "simple-functions",
+        "../../tests/codegen/simple-functions.wit",
+    );
 
     assert_eq!(filename, "simple-functions.js");
     assert_eq!(contents, include_str!("./simple-functions.js"));
@@ -160,12 +186,14 @@ fn simple_functions() {
 #[test]
 fn simple_lists() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "simple-lists", "../../tests/codegen/simple-lists.wit");
+    let (filename, contents) =
+        gen_world(gen, "simple-lists", "../../tests/codegen/simple-lists.wit");
 
     assert_eq!(filename, "simple-lists.js");
     assert_eq!(contents, include_str!("./simple-lists.js"));
@@ -174,12 +202,17 @@ fn simple_lists() {
 #[test]
 fn small_anonymous() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "small-anonymous", "../../tests/codegen/small-anonymous.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "small-anonymous",
+        "../../tests/codegen/small-anonymous.wit",
+    );
 
     assert_eq!(filename, "small-anonymous.js");
     assert_eq!(contents, include_str!("./small-anonymous.js"));
@@ -188,8 +221,9 @@ fn small_anonymous() {
 #[test]
 fn strings() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -202,8 +236,9 @@ fn strings() {
 #[test]
 fn unions() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -216,8 +251,9 @@ fn unions() {
 #[test]
 fn variants() {
     let opts = Opts {
-        prettier: true,
-        skip: vec![]
+        prettier: false,
+        romefmt: true,
+        skip: vec![],
     };
     let gen = opts.build();
 

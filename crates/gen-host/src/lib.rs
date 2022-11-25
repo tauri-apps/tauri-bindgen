@@ -1,12 +1,8 @@
 use heck::*;
-use std::{
-    fmt::Write as _,
-    io::{Read, Write},
-    mem,
-    process::{Command, Stdio},
-};
+use std::{fmt::Write as _, mem};
 use tauri_bindgen_core::{
-    uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types, WorldGenerator,
+    postprocess, uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types,
+    WorldGenerator,
 };
 use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, TypeMode};
 use wit_parser::*;
@@ -67,27 +63,8 @@ impl WorldGenerator for Host {
     fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let mut src = mem::take(&mut self.src);
         if self.opts.rustfmt {
-            let mut child = Command::new("rustfmt")
-                .arg("--edition=2018")
-                .stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .spawn()
-                .expect("failed to spawn `rustfmt`");
-            child
-                .stdin
-                .take()
-                .unwrap()
-                .write_all(src.as_bytes())
-                .unwrap();
-            src.as_mut_string().truncate(0);
-            child
-                .stdout
-                .take()
-                .unwrap()
-                .read_to_string(src.as_mut_string())
-                .unwrap();
-            let status = child.wait().unwrap();
-            assert!(status.success());
+            postprocess(src.as_mut_string(), "rustfmt", ["--edition=2018"])
+                .expect("failed to run `rustfmt`");
         }
 
         files.push(&format!("{name}.rs"), src.as_bytes());

@@ -104,8 +104,8 @@ where
             let path = ret.parse_path(&s);
 
             world = Some(World::parse_file(&path).map_err(|e| Error::new(s.span(), e))?);
-            ret.world_hash = tauri_bindgen_core::hash::hash_file(path)
-                .map_err(|e| Error::new(s.span(), e))?;
+            ret.world_hash =
+                tauri_bindgen_core::hash::hash_file(path).map_err(|e| Error::new(s.span(), e))?;
         }
 
         ret.world = world.ok_or_else(|| {
@@ -122,8 +122,7 @@ where
 impl<F, O> Opts<F, O> {
     fn parse_path(&mut self, path: &syn::LitStr) -> PathBuf {
         let path = path.value();
-        let manifest_dir =
-            PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+        let manifest_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
         let path = manifest_dir.join(path);
         self.files.push(path.to_str().unwrap().to_string());
 

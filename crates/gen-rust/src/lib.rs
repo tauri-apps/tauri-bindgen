@@ -1,6 +1,6 @@
 use heck::*;
 use std::collections::HashMap;
-use std::fmt::{Write, self};
+use std::fmt::{self, Write};
 use tauri_bindgen_core::TypeInfo;
 use wit_parser::*;
 
@@ -636,10 +636,7 @@ pub trait RustGenerator<'a> {
         let info = self.info(ty);
         let mut result = Vec::new();
         if info.param {
-            result.push((
-                self.param_name(ty),
-                self.default_param_mode(),
-            ));
+            result.push((self.param_name(ty), self.default_param_mode()));
         }
         if info.result && (!info.param || self.uses_two_names(&info)) {
             result.push((self.result_name(ty), TypeMode::Owned));

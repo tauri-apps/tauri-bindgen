@@ -2,18 +2,25 @@ use heck::ToUpperCamelCase;
 use heck::*;
 use std::collections::HashSet;
 use std::fmt::Write as _;
-use std::io::{Read, Write};
 use std::mem;
-use std::process::{Command, Stdio};
-use tauri_bindgen_core::{uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator};
+use tauri_bindgen_core::{
+    postprocess, uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator,
+};
 use wit_parser::*;
 
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
+#[cfg_attr(feature = "clap", command(group(
+    clap::ArgGroup::new("fmt")
+        .args(["prettier", "romefmt"]),
+)))]
 pub struct Opts {
-    /// Whether or not `prettier` is executed to format generated code.
+    /// Run `prettier` to format the generated code. This requires a global installation of `prettier`.
     #[cfg_attr(feature = "clap", arg(long))]
     pub prettier: bool,
+    /// Run `rome format` to format the generated code. This formatter is much faster that `prettier`. Requires a global installation of `prettier`.
+    #[cfg_attr(feature = "clap", arg(long))]
+    pub romefmt: bool,
     /// Names of functions to skip generating bindings for.
     #[cfg_attr(feature = "clap", arg(long))]
     pub skip: Vec<String>,
@@ -74,27 +81,15 @@ impl WorldGenerator for TypeScript {
     fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let mut src = mem::take(&mut self.src);
         if self.opts.prettier {
-            let mut child = Command::new("prettier")
-                .arg(format!("--parser=typescript"))
-                .stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .spawn()
-                .expect("failed to spawn `prettier`");
-            child
-                .stdin
-                .take()
-                .unwrap()
-                .write_all(src.as_bytes())
-                .unwrap();
-            src.as_mut_string().truncate(0);
-            child
-                .stdout
-                .take()
-                .unwrap()
-                .read_to_string(src.as_mut_string())
-                .unwrap();
-            let status = child.wait().unwrap();
-            assert!(status.success());
+            postprocess(src.as_mut_string(), "prettier", ["--parser=typescript"])
+                .expect("failed to run `rome format`");
+        } else if self.opts.romefmt {
+            postprocess(
+                src.as_mut_string(),
+                "rome",
+                ["format", "--stdin-file-path", "index.ts"],
+            )
+            .expect("failed to run `rome format`");
         }
 
         files.push(&format!("{name}.ts"), src.as_bytes());

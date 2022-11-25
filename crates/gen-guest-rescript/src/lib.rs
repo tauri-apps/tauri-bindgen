@@ -1,11 +1,11 @@
 use heck::ToUpperCamelCase;
 use heck::*;
+use std::collections::HashSet;
 use std::fmt::Write as _;
-use std::io::{Read, Write};
 use std::mem;
-use std::process::Command;
-use std::{collections::HashSet, process::Stdio};
-use tauri_bindgen_core::{uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator};
+use tauri_bindgen_core::{
+    postprocess, uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator,
+};
 use wit_parser::*;
 
 #[derive(Debug, Clone, Default)]
@@ -59,29 +59,12 @@ impl WorldGenerator for ReScript {
     fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
         let mut src = mem::take(&mut self.src);
         if self.opts.fmt {
-            let mut child = Command::new("rescript")
-                .arg("format")
-                .arg("-stdin")
-                .arg(".res")
-                .stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .spawn()
-                .expect("failed to spawn `rescript format`");
-            child
-                .stdin
-                .take()
-                .unwrap()
-                .write_all(src.as_bytes())
-                .unwrap();
-            src.as_mut_string().truncate(0);
-            child
-                .stdout
-                .take()
-                .unwrap()
-                .read_to_string(src.as_mut_string())
-                .unwrap();
-            let status = child.wait().unwrap();
-            assert!(status.success());
+            postprocess(
+                src.as_mut_string(),
+                "rescript",
+                ["format", "-stdin", ".res"],
+            )
+            .expect("failed to run `rescript format`")
         }
 
         files.push(

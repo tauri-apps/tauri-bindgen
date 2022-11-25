@@ -4,7 +4,11 @@ use tauri_bindgen_core::{Files, WorldGenerator};
 use tauri_bindgen_gen_guest_rescript::*;
 use wit_parser::World;
 
-fn gen_world(mut gen: Box<dyn WorldGenerator>, name: impl AsRef<str>, path: impl AsRef<Path>) -> (String, String) {
+fn gen_world(
+    mut gen: Box<dyn WorldGenerator>,
+    name: impl AsRef<str>,
+    path: impl AsRef<Path>,
+) -> (String, String) {
     let world = World::parse_file(&path).unwrap();
     let world_hash = tauri_bindgen_core::hash::hash_file(path).unwrap();
 
@@ -14,14 +18,17 @@ fn gen_world(mut gen: Box<dyn WorldGenerator>, name: impl AsRef<str>, path: impl
 
     let (filename, contents) = files.iter().next().unwrap();
 
-    (filename.to_string(), std::str::from_utf8(contents).unwrap().to_string())
+    (
+        filename.to_string(),
+        std::str::from_utf8(contents).unwrap().to_string(),
+    )
 }
 
 #[test]
 fn chars() {
     let opts = Opts {
         fmt: true,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -35,7 +42,7 @@ fn chars() {
 fn convention() {
     let opts = Opts {
         fmt: true,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -49,7 +56,7 @@ fn convention() {
 fn empty() {
     let opts = Opts {
         fmt: true,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -77,7 +84,7 @@ fn empty() {
 fn floats() {
     let opts = Opts {
         fmt: true,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -91,7 +98,7 @@ fn floats() {
 fn integers() {
     let opts = Opts {
         fmt: true,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -105,11 +112,15 @@ fn integers() {
 fn many_arguments() {
     let opts = Opts {
         fmt: true,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "many-arguments", "../../tests/codegen/many-arguments.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "many-arguments",
+        "../../tests/codegen/many-arguments.wit",
+    );
 
     assert_eq!(filename, "ManyArguments.res");
     assert_eq!(contents, include_str!("./ManyArguments.res"));
@@ -119,11 +130,12 @@ fn many_arguments() {
 fn multi_return() {
     let opts = Opts {
         fmt: true,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "multi-return", "../../tests/codegen/multi-return.wit");
+    let (filename, contents) =
+        gen_world(gen, "multi-return", "../../tests/codegen/multi-return.wit");
 
     assert_eq!(filename, "MultiReturn.res");
     assert_eq!(contents, include_str!("./MultiReturn.res"));
@@ -133,7 +145,7 @@ fn multi_return() {
 fn records() {
     let opts = Opts {
         fmt: true,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -147,11 +159,15 @@ fn records() {
 fn simple_functions() {
     let opts = Opts {
         fmt: true,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "simple-functions", "../../tests/codegen/simple-functions.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "simple-functions",
+        "../../tests/codegen/simple-functions.wit",
+    );
 
     assert_eq!(filename, "SimpleFunctions.res");
     assert_eq!(contents, include_str!("./SimpleFunctions.res"));
@@ -161,11 +177,12 @@ fn simple_functions() {
 fn simple_lists() {
     let opts = Opts {
         fmt: true,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "simple-lists", "../../tests/codegen/simple-lists.wit");
+    let (filename, contents) =
+        gen_world(gen, "simple-lists", "../../tests/codegen/simple-lists.wit");
 
     assert_eq!(filename, "SimpleLists.res");
     assert_eq!(contents, include_str!("./SimpleLists.res"));
@@ -175,11 +192,15 @@ fn simple_lists() {
 fn small_anonymous() {
     let opts = Opts {
         fmt: true,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "small-anonymous", "../../tests/codegen/small-anonymous.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "small-anonymous",
+        "../../tests/codegen/small-anonymous.wit",
+    );
 
     assert_eq!(filename, "SmallAnonymous.res");
     assert_eq!(contents, include_str!("./SmallAnonymous.res"));
@@ -189,7 +210,7 @@ fn small_anonymous() {
 fn strings() {
     let opts = Opts {
         fmt: true,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -203,7 +224,7 @@ fn strings() {
 fn unions() {
     let opts = Opts {
         fmt: true,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
@@ -217,7 +238,7 @@ fn unions() {
 fn variants() {
     let opts = Opts {
         fmt: true,
-        skip: vec![]
+        skip: vec![],
     };
     let gen = opts.build();
 
