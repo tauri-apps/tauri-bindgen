@@ -12,4 +12,4 @@ tauri-bindgen-host-macro = { path = "../host-macro" }
 async-trait = "0.1.58"
 tauri.workspace = true
 serde = { version = "1.0.140", features = ["derive"] }
-tracing = { version = "0.1.26", features = ["log", "log-always"] }
+tracing = { version = "0.1.37", features = ["log", "log-always"] }
