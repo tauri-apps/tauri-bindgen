@@ -1,5 +1,6 @@
 #[allow(clippy::all)]
 pub mod import_flags {
+    pub const WORLD_HASH: &str = "8ecd22d5";
     ::tauri_bindgen_host::bitflags::bitflags! {
       #[derive(::tauri_bindgen_host::serde::Serialize, ::tauri_bindgen_host::serde::Deserialize)]
       pub struct Flag1: u8 {
@@ -403,12 +404,6 @@ pub mod import_flags {
                         result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
                     );
                 }
-
-                #[cfg(debug_assertions)]
-                "8ecd22d5a53ba1eb34b6d188f5479d66" => {
-                    invoke.resolver.respond(Ok(()));
-                }
-
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
                         module = "import-flags",

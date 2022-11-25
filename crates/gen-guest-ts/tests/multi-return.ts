@@ -7,30 +7,22 @@ declare global {
 	}
 }
 const invoke = window.__TAURI_INVOKE__;
-if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {
-	invoke("plugin|multi_return:d238f57052cdcb9073d14f7a8059345b").catch(() =>
-		console.error(
-			"The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.",
-		),
-	);
-}
-
 export async function mra(): Promise<void> {
-	await invoke<void>("plugin:multi_return|mra");
+	await invoke<void>("plugin:d238f570|mra");
 }
 export async function mrb(): Promise<void> {
-	await invoke<void>("plugin:multi_return|mrb");
+	await invoke<void>("plugin:d238f570|mrb");
 }
 export async function mrc(): Promise<number> {
-	const result = await invoke<number>("plugin:multi_return|mrc");
+	const result = await invoke<number>("plugin:d238f570|mrc");
 	return result;
 }
 export async function mrd(): Promise<number> {
-	const result = await invoke<number>("plugin:multi_return|mrd");
+	const result = await invoke<number>("plugin:d238f570|mrd");
 	return result;
 }
 export async function mre(): Promise<[number, number]> {
-	const result = await invoke<[number, number]>("plugin:multi_return|mre");
+	const result = await invoke<[number, number]>("plugin:d238f570|mre");
 	return result;
 }
 

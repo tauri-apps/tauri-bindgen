@@ -1,5 +1,6 @@
 #[allow(clippy::all)]
 pub mod imports {
+    pub const WORLD_HASH: &str = "bee731db";
     #[repr(u8)]
     #[derive(Debug, Clone, Copy, PartialEq, ::tauri_bindgen_host::serde::Serialize)]
     pub enum Error {
@@ -38,12 +39,6 @@ pub mod imports {
                         result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
                     );
                 }
-
-                #[cfg(debug_assertions)]
-                "bee731db80799df9a7eea6b7e0b7a0ce" => {
-                    invoke.resolver.respond(Ok(()));
-                }
-
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
                         module = "imports",

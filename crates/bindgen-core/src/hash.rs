@@ -1,6 +1,6 @@
 use std::{cmp, fs::File, io, path::Path};
 
-const TRUNCATE_LEN: usize = 16;
+const TRUNCATE_LEN: usize = 8;
 
 pub fn hash_file(path: impl AsRef<Path>) -> anyhow::Result<String> {
     let file = File::open(path)?;
@@ -12,14 +12,6 @@ pub fn hash_file(path: impl AsRef<Path>) -> anyhow::Result<String> {
     } else {
         copy_wide(file, &mut hasher)?;
     }
-
-    let output = hasher.finalize_xof();
-    Ok(encode_hex(output))
-}
-
-pub fn hash_string(str: impl AsRef<str>) -> anyhow::Result<String> {
-    let mut hasher = blake3::Hasher::new();
-    hasher.update(str.as_ref().as_bytes());
 
     let output = hasher.finalize_xof();
     Ok(encode_hex(output))

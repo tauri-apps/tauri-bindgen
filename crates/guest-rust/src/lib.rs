@@ -7,8 +7,6 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 extern "C" {
     #[wasm_bindgen(catch, js_namespace = ["window"], js_name = "__TAURI_INVOKE__")]
     async fn __TAURI_INVOKE__(cmd: JsValue, args: JsValue) -> Result<JsValue, JsValue>;
-    #[wasm_bindgen(js_namespace = ["console"], js_name = "warn")]
-    pub fn console_warn(msg: &str);
 }
 
 pub async fn invoke<P: Serialize, R: DeserializeOwned>(cmd: &str, val: P) -> Result<R, ()> {
@@ -24,4 +22,4 @@ pub async fn invoke<P: Serialize, R: DeserializeOwned>(cmd: &str, val: P) -> Res
 
 // Re-export `bitflags` so that we can reference it from macros.
 #[doc(hidden)]
-pub use {bitflags, once_cell::sync::Lazy, wasm_bindgen_futures};
+pub use bitflags;

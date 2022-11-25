@@ -1,5 +1,6 @@
 #[allow(clippy::all)]
 pub mod import_unions {
+    pub const WORLD_HASH: &str = "cccf67b4";
     /// A union of all of the integral types
     #[derive(
         Debug,
@@ -452,12 +453,6 @@ pub mod import_unions {
                         result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
                     );
                 }
-
-                #[cfg(debug_assertions)]
-                "cccf67b47414af61861a06498c06cf03" => {
-                    invoke.resolver.respond(Ok(()));
-                }
-
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
                         module = "import-unions",

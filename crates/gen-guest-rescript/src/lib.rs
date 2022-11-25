@@ -114,16 +114,6 @@ impl<'a> InterfaceGenerator<'a> {
             external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "__TAURI_INVOKE__"
             "#,
         );
-        self.push_str(&format!(
-            r#"if Belt.Option.isNone(%external(__TAURI_BINDGEN_VERSION_CHECK__)) {{
-                invoke(~cmd="plugin:{}|{}")
-                    ->catch(e => {{ Js.Console.error("{}\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.") }})
-            }}"#,
-            self.iface.name.to_snake_case(),
-            self.world_hash,
-            tauri_bindgen_core::VERSION_MISMATCH_MSG
-        ));
-        self.push_str("\n");
     }
 
     fn generate_guest_import(&mut self, func: &Function) {
@@ -173,7 +163,7 @@ impl<'a> InterfaceGenerator<'a> {
 
         self.push_str(&format!(
             r#"invoke(~cmd="plugin:{}|{}", "#,
-            self.iface.name.to_snake_case(),
+            self.world_hash,
             func.name.to_snake_case()
         ));
 

@@ -1,5 +1,6 @@
 #[allow(clippy::all)]
 pub mod imports {
+    pub const WORLD_HASH: &str = "48646a1b";
     #[repr(C)]
     #[derive(Debug, Copy, Clone, PartialEq, ::tauri_bindgen_host::serde::Deserialize)]
     #[serde(rename_all = "camelCase")]
@@ -199,12 +200,6 @@ pub mod imports {
                         result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
                     );
                 }
-
-                #[cfg(debug_assertions)]
-                "48646a1b1c089063e7b03a4c1dd9f5ad" => {
-                    invoke.resolver.respond(Ok(()));
-                }
-
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
                         module = "imports",

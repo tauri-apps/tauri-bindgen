@@ -1,5 +1,6 @@
 #[allow(clippy::all)]
 pub mod imports {
+    pub const WORLD_HASH: &str = "678374cf";
     pub trait Imports: Sized {
         /// A function that accepts a character
         fn take_char(&self, x: char) -> ::tauri_bindgen_host::anyhow::Result<()>;
@@ -64,12 +65,6 @@ pub mod imports {
                         result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
                     );
                 }
-
-                #[cfg(debug_assertions)]
-                "678374cfb5cdb2b5ba845e4b559f402a" => {
-                    invoke.resolver.respond(Ok(()));
-                }
-
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
                         module = "imports",

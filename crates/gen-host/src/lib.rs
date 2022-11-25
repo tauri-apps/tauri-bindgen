@@ -40,7 +40,7 @@ struct Host {
 
 impl WorldGenerator for Host {
     fn import(&mut self, name: &str, iface: &Interface, _files: &mut Files, world_hash: &str) {
-        let mut gen = InterfaceGenerator::new(self, iface, TypeMode::Owned, world_hash);
+        let mut gen = InterfaceGenerator::new(self, iface, TypeMode::Owned);
         gen.types();
         gen.generate_invoke_handler(name);
 
@@ -49,15 +49,16 @@ impl WorldGenerator for Host {
 
         uwriteln!(
             self.src,
-            "
+            r#"
                 #[allow(clippy::all)]
                 pub mod {snake} {{
+                    pub const WORLD_HASH: &str = "{world_hash}";
                     {module}
                 }}
-            "
+            "#
         );
 
-        self.imports.push(snake); // TODO
+        self.imports.push(snake);
     }
 
     fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
@@ -77,7 +78,6 @@ struct InterfaceGenerator<'a> {
     iface: &'a Interface,
     default_param_mode: TypeMode,
     types: Types,
-    world_hash: &'a str,
 }
 
 impl<'a> InterfaceGenerator<'a> {
@@ -85,7 +85,6 @@ impl<'a> InterfaceGenerator<'a> {
         gen: &'a mut Host,
         iface: &'a Interface,
         default_param_mode: TypeMode,
-        world_hash: &'a str,
     ) -> InterfaceGenerator<'a> {
         let mut types = Types::default();
         types.analyze(iface);
@@ -95,7 +94,6 @@ impl<'a> InterfaceGenerator<'a> {
             iface,
             types,
             default_param_mode,
-            world_hash,
         }
     }
 
@@ -232,17 +230,6 @@ impl<'a> InterfaceGenerator<'a> {
 
             uwriteln!(self.src, "}},");
         }
-
-        uwriteln!(
-            self.src,
-            r#"
-            #[cfg(debug_assertions)]
-            "{}" => {{
-            invoke.resolver.respond(Ok(()));
-        }},
-        "#,
-            self.world_hash
-        );
 
         uwriteln!(self.src, "func_name => {{");
         if self.gen.opts.tracing {

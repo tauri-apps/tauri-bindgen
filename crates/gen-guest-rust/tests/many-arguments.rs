@@ -1,24 +1,5 @@
 #[allow(clippy::all, unused)]
 pub mod imports {
-
-    #[cfg(debug_assertions)]
-    static START: ::std::sync::Once = ::std::sync::Once::new();
-    #[cfg(debug_assertions)]
-    fn check_idl_version() {
-        ::tauri_bindgen_guest_rust::wasm_bindgen_futures::spawn_local(async {
-            if ::tauri_bindgen_guest_rust::invoke::<_, ()>(
-                "plugin:manyarg|92d5120c899c41cc0c9bb8a02b370a08",
-                (),
-            )
-            .await
-            .is_err()
-            {
-                ::tauri_bindgen_guest_rust::console_warn("The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: This is a debug assertion and IDL versions will not be checked in release builds.
-        ");
-            }
-        });
-    }
-
     #[derive(Debug, Clone, PartialEq, ::serde::Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct BigStruct<'a> {
@@ -61,8 +42,6 @@ pub mod imports {
         a15: u64,
         a16: u64,
     ) -> () {
-        #[cfg(debug_assertions)]
-        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params {
@@ -101,20 +80,18 @@ pub mod imports {
             a15,
             a16,
         };
-        ::tauri_bindgen_guest_rust::invoke("plugin:manyarg|many-args", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:92d5120c|many-args", &params)
             .await
             .unwrap()
     }
     pub async fn big_argument(x: BigStruct<'_>) -> () {
-        #[cfg(debug_assertions)]
-        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params<'a> {
             x: BigStruct<'a>,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:manyarg|big-argument", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:92d5120c|big-argument", &params)
             .await
             .unwrap()
     }

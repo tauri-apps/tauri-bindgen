@@ -1,140 +1,132 @@
 const invoke = window.__TAURI_INVOKE__;
-if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {
-	invoke("plugin|lists:a744d1c6fec4018443a890e8987bf4a4").catch(() =>
-		console.error(
-			"The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.",
-		),
-	);
-}
-
 /**
  * @param {Uint8Array} x
  */
 export async function listU8Param(x) {
-	await invoke("plugin:lists|list_u8_param", { x: x });
+	await invoke("plugin:a744d1c6|list_u8_param", { x: x });
 }
 /**
  * @param {Uint16Array} x
  */
 export async function listU16Param(x) {
-	await invoke("plugin:lists|list_u16_param", { x: x });
+	await invoke("plugin:a744d1c6|list_u16_param", { x: x });
 }
 /**
  * @param {Uint32Array} x
  */
 export async function listU32Param(x) {
-	await invoke("plugin:lists|list_u32_param", { x: x });
+	await invoke("plugin:a744d1c6|list_u32_param", { x: x });
 }
 /**
  * @param {BigUint64Array} x
  */
 export async function listU64Param(x) {
-	await invoke("plugin:lists|list_u64_param", { x: x });
+	await invoke("plugin:a744d1c6|list_u64_param", { x: x });
 }
 /**
  * @param {Int8Array} x
  */
 export async function listS8Param(x) {
-	await invoke("plugin:lists|list_s8_param", { x: x });
+	await invoke("plugin:a744d1c6|list_s8_param", { x: x });
 }
 /**
  * @param {Int16Array} x
  */
 export async function listS16Param(x) {
-	await invoke("plugin:lists|list_s16_param", { x: x });
+	await invoke("plugin:a744d1c6|list_s16_param", { x: x });
 }
 /**
  * @param {Int32Array} x
  */
 export async function listS32Param(x) {
-	await invoke("plugin:lists|list_s32_param", { x: x });
+	await invoke("plugin:a744d1c6|list_s32_param", { x: x });
 }
 /**
  * @param {BigInt64Array} x
  */
 export async function listS64Param(x) {
-	await invoke("plugin:lists|list_s64_param", { x: x });
+	await invoke("plugin:a744d1c6|list_s64_param", { x: x });
 }
 /**
  * @param {Float32Array} x
  */
 export async function listFloat32Param(x) {
-	await invoke("plugin:lists|list_float32_param", { x: x });
+	await invoke("plugin:a744d1c6|list_float32_param", { x: x });
 }
 /**
  * @param {Float64Array} x
  */
 export async function listFloat64Param(x) {
-	await invoke("plugin:lists|list_float64_param", { x: x });
+	await invoke("plugin:a744d1c6|list_float64_param", { x: x });
 }
 /**
  * @returns {Promise<Uint8Array>}
  */
 export async function listU8Ret() {
-	const result = await invoke("plugin:lists|list_u8_ret");
+	const result = await invoke("plugin:a744d1c6|list_u8_ret");
 	return result;
 }
 /**
  * @returns {Promise<Uint16Array>}
  */
 export async function listU16Ret() {
-	const result = await invoke("plugin:lists|list_u16_ret");
+	const result = await invoke("plugin:a744d1c6|list_u16_ret");
 	return result;
 }
 /**
  * @returns {Promise<Uint32Array>}
  */
 export async function listU32Ret() {
-	const result = await invoke("plugin:lists|list_u32_ret");
+	const result = await invoke("plugin:a744d1c6|list_u32_ret");
 	return result;
 }
 /**
  * @returns {Promise<BigUint64Array>}
  */
 export async function listU64Ret() {
-	const result = await invoke("plugin:lists|list_u64_ret");
+	const result = await invoke("plugin:a744d1c6|list_u64_ret");
 	return result;
 }
 /**
  * @returns {Promise<Int8Array>}
  */
 export async function listS8Ret() {
-	const result = await invoke("plugin:lists|list_s8_ret");
+	const result = await invoke("plugin:a744d1c6|list_s8_ret");
 	return result;
 }
 /**
  * @returns {Promise<Int16Array>}
  */
 export async function listS16Ret() {
-	const result = await invoke("plugin:lists|list_s16_ret");
+	const result = await invoke("plugin:a744d1c6|list_s16_ret");
 	return result;
 }
 /**
  * @returns {Promise<Int32Array>}
  */
 export async function listS32Ret() {
-	const result = await invoke("plugin:lists|list_s32_ret");
+	const result = await invoke("plugin:a744d1c6|list_s32_ret");
 	return result;
 }
 /**
  * @returns {Promise<BigInt64Array>}
  */
 export async function listS64Ret() {
-	const result = await invoke("plugin:lists|list_s64_ret");
+	const result = await invoke("plugin:a744d1c6|list_s64_ret");
 	return result;
 }
 /**
  * @returns {Promise<Float32Array>}
  */
 export async function listFloat32Ret() {
-	const result = await invoke("plugin:lists|list_float32_ret");
+	const result = await invoke("plugin:a744d1c6|list_float32_ret");
 	return result;
 }
 /**
  * @returns {Promise<Float64Array>}
  */
 export async function listFloat64Ret() {
-	const result = await invoke("plugin:lists|list_float64_ret");
+	const result = await invoke("plugin:a744d1c6|list_float64_ret");
 	return result;
 }
 /**
@@ -142,20 +134,20 @@ export async function listFloat64Ret() {
  * @returns {Promise<[bigint, number][]>}
  */
 export async function tupleList(x) {
-	const result = await invoke("plugin:lists|tuple_list", { x: x });
+	const result = await invoke("plugin:a744d1c6|tuple_list", { x: x });
 	return result;
 }
 /**
  * @param {string[]} a
  */
 export async function stringListArg(a) {
-	await invoke("plugin:lists|string_list_arg", { a: a });
+	await invoke("plugin:a744d1c6|string_list_arg", { a: a });
 }
 /**
  * @returns {Promise<string[]>}
  */
 export async function stringListRet() {
-	const result = await invoke("plugin:lists|string_list_ret");
+	const result = await invoke("plugin:a744d1c6|string_list_ret");
 	return result;
 }
 /**
@@ -163,7 +155,7 @@ export async function stringListRet() {
  * @returns {Promise<[string, number][]>}
  */
 export async function tupleStringList(x) {
-	const result = await invoke("plugin:lists|tuple_string_list", { x: x });
+	const result = await invoke("plugin:a744d1c6|tuple_string_list", { x: x });
 	return result;
 }
 /**
@@ -171,7 +163,7 @@ export async function tupleStringList(x) {
  * @returns {Promise<string[]>}
  */
 export async function stringList(x) {
-	const result = await invoke("plugin:lists|string_list", { x: x });
+	const result = await invoke("plugin:a744d1c6|string_list", { x: x });
 	return result;
 }
 /**
@@ -179,7 +171,7 @@ export async function stringList(x) {
  * @returns {Promise<OtherRecord[]>}
  */
 export async function recordList(x) {
-	const result = await invoke("plugin:lists|record_list", { x: x });
+	const result = await invoke("plugin:a744d1c6|record_list", { x: x });
 	return result;
 }
 /**
@@ -187,7 +179,7 @@ export async function recordList(x) {
  * @returns {Promise<SomeRecord[]>}
  */
 export async function recordListReverse(x) {
-	const result = await invoke("plugin:lists|record_list_reverse", { x: x });
+	const result = await invoke("plugin:a744d1c6|record_list_reverse", { x: x });
 	return result;
 }
 /**
@@ -195,7 +187,7 @@ export async function recordListReverse(x) {
  * @returns {Promise<OtherVariant[]>}
  */
 export async function variantList(x) {
-	const result = await invoke("plugin:lists|variant_list", { x: x });
+	const result = await invoke("plugin:a744d1c6|variant_list", { x: x });
 	return result;
 }
 /**
@@ -203,7 +195,9 @@ export async function variantList(x) {
  * @returns {Promise<LoadStoreAllSizes>}
  */
 export async function loadStoreEverything(a) {
-	const result = await invoke("plugin:lists|load_store_everything", { a: a });
+	const result = await invoke("plugin:a744d1c6|load_store_everything", {
+		a: a,
+	});
 	return result;
 }
 

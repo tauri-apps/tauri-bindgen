@@ -1,12 +1,4 @@
 const invoke = window.__TAURI_INVOKE__;
-if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {
-	invoke("plugin|manyarg:92d5120c899c41cc0c9bb8a02b370a08").catch(() =>
-		console.error(
-			"The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.",
-		),
-	);
-}
-
 /**
  * @param {bigint} a1
  * @param {bigint} a2
@@ -43,7 +35,7 @@ export async function manyArgs(
 	a15,
 	a16,
 ) {
-	await invoke("plugin:manyarg|many_args", {
+	await invoke("plugin:92d5120c|many_args", {
 		a1: a1,
 		a2: a2,
 		a3: a3,
@@ -66,6 +58,6 @@ export async function manyArgs(
  * @param {BigStruct} x
  */
 export async function bigArgument(x) {
-	await invoke("plugin:manyarg|big_argument", { x: x });
+	await invoke("plugin:92d5120c|big_argument", { x: x });
 }
 

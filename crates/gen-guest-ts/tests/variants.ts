@@ -7,14 +7,6 @@ declare global {
 	}
 }
 const invoke = window.__TAURI_INVOKE__;
-if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {
-	invoke("plugin|variants:d5901a6520084a85a46510eb369ef6fe").catch(() =>
-		console.error(
-			"The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.",
-		),
-	);
-}
-
 export type E1 = "a";
 export type U1 = U10 | U11;
 export interface U10 {
@@ -112,31 +104,31 @@ export interface IsClone {
 	v1: V1;
 }
 export async function e1Arg(x: E1): Promise<void> {
-	await invoke<void>("plugin:variants|e1-arg", { x: x });
+	await invoke<void>("plugin:d5901a65|e1-arg", { x: x });
 }
 export async function e1Result(): Promise<E1> {
-	const result = await invoke<E1>("plugin:variants|e1-result");
+	const result = await invoke<E1>("plugin:d5901a65|e1-result");
 	return result;
 }
 export async function u1Arg(x: U1): Promise<void> {
-	await invoke<void>("plugin:variants|u1-arg", { x: x });
+	await invoke<void>("plugin:d5901a65|u1-arg", { x: x });
 }
 export async function u1Result(): Promise<U1> {
-	const result = await invoke<U1>("plugin:variants|u1-result");
+	const result = await invoke<U1>("plugin:d5901a65|u1-result");
 	return result;
 }
 export async function v1Arg(x: V1): Promise<void> {
-	await invoke<void>("plugin:variants|v1-arg", { x: x });
+	await invoke<void>("plugin:d5901a65|v1-arg", { x: x });
 }
 export async function v1Result(): Promise<V1> {
-	const result = await invoke<V1>("plugin:variants|v1-result");
+	const result = await invoke<V1>("plugin:d5901a65|v1-result");
 	return result;
 }
 export async function boolArg(x: boolean): Promise<void> {
-	await invoke<void>("plugin:variants|bool-arg", { x: x });
+	await invoke<void>("plugin:d5901a65|bool-arg", { x: x });
 }
 export async function boolResult(): Promise<boolean> {
-	const result = await invoke<boolean>("plugin:variants|bool-result");
+	const result = await invoke<boolean>("plugin:d5901a65|bool-result");
 	return result;
 }
 export async function optionArg(
@@ -148,7 +140,7 @@ export async function optionArg(
 	f: U1 | null,
 	g: Option<boolean | null>,
 ): Promise<void> {
-	await invoke<void>("plugin:variants|option-arg", {
+	await invoke<void>("plugin:d5901a65|option-arg", {
 		a: a,
 		b: b,
 		c: c,
@@ -179,7 +171,7 @@ export async function optionResult(): Promise<
 			U1 | null,
 			Option<boolean | null>,
 		]
-	>("plugin:variants|option-result");
+	>("plugin:d5901a65|option-result");
 	return result;
 }
 export async function casts(
@@ -191,7 +183,7 @@ export async function casts(
 	f: Casts6,
 ): Promise<[Casts1, Casts2, Casts3, Casts4, Casts5, Casts6]> {
 	const result = await invoke<[Casts1, Casts2, Casts3, Casts4, Casts5, Casts6]>(
-		"plugin:variants|casts",
+		"plugin:d5901a65|casts",
 		{ a: a, b: b, c: c, d: d, e: e, f: f },
 	);
 	return result;
@@ -204,7 +196,7 @@ export async function resultArg(
 	e: Result<number, V1>,
 	f: Result<string, Uint8Array>,
 ): Promise<void> {
-	await invoke<void>("plugin:variants|result-arg", {
+	await invoke<void>("plugin:d5901a65|result-arg", {
 		a: a,
 		b: b,
 		c: c,
@@ -232,58 +224,58 @@ export async function resultResult(): Promise<
 			Result<number, V1>,
 			Result<string, Uint8Array>,
 		]
-	>("plugin:variants|result-result");
+	>("plugin:d5901a65|result-result");
 	return result;
 }
 export async function returnResultSugar(): Promise<number> {
-	const result = await invoke<number>("plugin:variants|return-result-sugar");
+	const result = await invoke<number>("plugin:d5901a65|return-result-sugar");
 	return result;
 }
 export async function returnResultSugar2(): Promise<void> {
-	const result = await invoke<void>("plugin:variants|return-result-sugar2");
+	const result = await invoke<void>("plugin:d5901a65|return-result-sugar2");
 	return result;
 }
 export async function returnResultSugar3(): Promise<MyErrno> {
-	const result = await invoke<MyErrno>("plugin:variants|return-result-sugar3");
+	const result = await invoke<MyErrno>("plugin:d5901a65|return-result-sugar3");
 	return result;
 }
 export async function returnResultSugar4(): Promise<[number, number]> {
 	const result = await invoke<[number, number]>(
-		"plugin:variants|return-result-sugar4",
+		"plugin:d5901a65|return-result-sugar4",
 	);
 	return result;
 }
 export async function returnOptionSugar(): Promise<number | null> {
 	const result = await invoke<number | null>(
-		"plugin:variants|return-option-sugar",
+		"plugin:d5901a65|return-option-sugar",
 	);
 	return result;
 }
 export async function returnOptionSugar2(): Promise<MyErrno | null> {
 	const result = await invoke<MyErrno | null>(
-		"plugin:variants|return-option-sugar2",
+		"plugin:d5901a65|return-option-sugar2",
 	);
 	return result;
 }
 export async function resultSimple(): Promise<number> {
-	const result = await invoke<number>("plugin:variants|result-simple");
+	const result = await invoke<number>("plugin:d5901a65|result-simple");
 	return result;
 }
 export async function isCloneArg(a: IsClone): Promise<void> {
-	await invoke<void>("plugin:variants|is-clone-arg", { a: a });
+	await invoke<void>("plugin:d5901a65|is-clone-arg", { a: a });
 }
 export async function isCloneReturn(): Promise<IsClone> {
-	const result = await invoke<IsClone>("plugin:variants|is-clone-return");
+	const result = await invoke<IsClone>("plugin:d5901a65|is-clone-return");
 	return result;
 }
 export async function returnNamedOption(): Promise<number | null> {
 	const result = await invoke<number | null>(
-		"plugin:variants|return-named-option",
+		"plugin:d5901a65|return-named-option",
 	);
 	return result;
 }
 export async function returnNamedResult(): Promise<number> {
-	const result = await invoke<number>("plugin:variants|return-named-result");
+	const result = await invoke<number>("plugin:d5901a65|return-named-result");
 	return result;
 }
 export type Option<T> = { tag: "none" } | { tag: "some"; val; T };

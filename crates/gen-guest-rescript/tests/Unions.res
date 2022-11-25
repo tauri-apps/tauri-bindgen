@@ -1,12 +1,5 @@
 @scope("window")
 external invoke: (~cmd: string, ~payload: 'a=?) => Promise.t<'b> = "__TAURI_INVOKE__"
-if Belt.Option.isNone(%external(__TAURI_BINDGEN_VERSION_CHECK__)) {
-  invoke(~cmd="plugin:unions|cccf67b47414af61861a06498c06cf03")->catch(e => {
-    Js.Console.error(
-      "The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.",
-    )
-  })
-}
 /**
 * A union of all of the integral types
 */
@@ -42,32 +35,32 @@ type distinguishableNum =
   | I64(int64)
 
 let addOneInteger = (num: allIntegers): Promise.t<allIntegers> => {
-  invoke(~cmd="plugin:unions|add_one_integer", ~payload={"num": num})
+  invoke(~cmd="plugin:cccf67b4|add_one_integer", ~payload={"num": num})
 }
 let addOneFloat = (num: allFloats): Promise.t<allFloats> => {
-  invoke(~cmd="plugin:unions|add_one_float", ~payload={"num": num})
+  invoke(~cmd="plugin:cccf67b4|add_one_float", ~payload={"num": num})
 }
 let replaceFirstChar = (text: allText, letter: char): Promise.t<allText> => {
-  invoke(~cmd="plugin:unions|replace_first_char", ~payload={"text": text, "letter": letter})
+  invoke(~cmd="plugin:cccf67b4|replace_first_char", ~payload={"text": text, "letter": letter})
 }
 let identifyInteger = (num: allIntegers): Promise.t<int> => {
-  invoke(~cmd="plugin:unions|identify_integer", ~payload={"num": num})
+  invoke(~cmd="plugin:cccf67b4|identify_integer", ~payload={"num": num})
 }
 let identifyFloat = (num: allFloats): Promise.t<int> => {
-  invoke(~cmd="plugin:unions|identify_float", ~payload={"num": num})
+  invoke(~cmd="plugin:cccf67b4|identify_float", ~payload={"num": num})
 }
 let identifyText = (text: allText): Promise.t<int> => {
-  invoke(~cmd="plugin:unions|identify_text", ~payload={"text": text})
+  invoke(~cmd="plugin:cccf67b4|identify_text", ~payload={"text": text})
 }
 let addOneDuplicated = (num: duplicatedS32): Promise.t<duplicatedS32> => {
-  invoke(~cmd="plugin:unions|add_one_duplicated", ~payload={"num": num})
+  invoke(~cmd="plugin:cccf67b4|add_one_duplicated", ~payload={"num": num})
 }
 let identifyDuplicated = (num: duplicatedS32): Promise.t<int> => {
-  invoke(~cmd="plugin:unions|identify_duplicated", ~payload={"num": num})
+  invoke(~cmd="plugin:cccf67b4|identify_duplicated", ~payload={"num": num})
 }
 let addOneDistinguishableNum = (num: distinguishableNum): Promise.t<distinguishableNum> => {
-  invoke(~cmd="plugin:unions|add_one_distinguishable_num", ~payload={"num": num})
+  invoke(~cmd="plugin:cccf67b4|add_one_distinguishable_num", ~payload={"num": num})
 }
 let identifyDistinguishableNum = (num: distinguishableNum): Promise.t<int> => {
-  invoke(~cmd="plugin:unions|identify_distinguishable_num", ~payload={"num": num})
+  invoke(~cmd="plugin:cccf67b4|identify_distinguishable_num", ~payload={"num": num})
 }

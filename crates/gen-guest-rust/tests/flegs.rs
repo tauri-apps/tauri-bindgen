@@ -1,24 +1,5 @@
 #[allow(clippy::all, unused)]
 pub mod import_flags {
-
-    #[cfg(debug_assertions)]
-    static START: ::std::sync::Once = ::std::sync::Once::new();
-    #[cfg(debug_assertions)]
-    fn check_idl_version() {
-        ::tauri_bindgen_guest_rust::wasm_bindgen_futures::spawn_local(async {
-            if ::tauri_bindgen_guest_rust::invoke::<_, ()>(
-                "plugin:flegs|8ecd22d5a53ba1eb34b6d188f5479d66",
-                (),
-            )
-            .await
-            .is_err()
-            {
-                ::tauri_bindgen_guest_rust::console_warn("The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: This is a debug assertion and IDL versions will not be checked in release builds.
-        ");
-            }
-        });
-    }
-
     ::tauri_bindgen_guest_rust::bitflags::bitflags! {
       #[derive(::serde::Serialize, ::serde::Deserialize)]
       pub struct Flag1: u8 {
@@ -182,93 +163,79 @@ pub mod import_flags {
       }
     }
     pub async fn roundtrip_flag1(x: Flag1) -> Flag1 {
-        #[cfg(debug_assertions)]
-        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params {
             x: Flag1,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:flegs|roundtrip-flag1", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:8ecd22d5|roundtrip-flag1", &params)
             .await
             .unwrap()
     }
     pub async fn roundtrip_flag2(x: Flag2) -> Flag2 {
-        #[cfg(debug_assertions)]
-        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params {
             x: Flag2,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:flegs|roundtrip-flag2", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:8ecd22d5|roundtrip-flag2", &params)
             .await
             .unwrap()
     }
     pub async fn roundtrip_flag4(x: Flag4) -> Flag4 {
-        #[cfg(debug_assertions)]
-        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params {
             x: Flag4,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:flegs|roundtrip-flag4", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:8ecd22d5|roundtrip-flag4", &params)
             .await
             .unwrap()
     }
     pub async fn roundtrip_flag8(x: Flag8) -> Flag8 {
-        #[cfg(debug_assertions)]
-        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params {
             x: Flag8,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:flegs|roundtrip-flag8", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:8ecd22d5|roundtrip-flag8", &params)
             .await
             .unwrap()
     }
     pub async fn roundtrip_flag16(x: Flag16) -> Flag16 {
-        #[cfg(debug_assertions)]
-        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params {
             x: Flag16,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:flegs|roundtrip-flag16", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:8ecd22d5|roundtrip-flag16", &params)
             .await
             .unwrap()
     }
     pub async fn roundtrip_flag32(x: Flag32) -> Flag32 {
-        #[cfg(debug_assertions)]
-        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params {
             x: Flag32,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:flegs|roundtrip-flag32", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:8ecd22d5|roundtrip-flag32", &params)
             .await
             .unwrap()
     }
     pub async fn roundtrip_flag64(x: Flag64) -> Flag64 {
-        #[cfg(debug_assertions)]
-        START.call_once(check_idl_version);
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
         struct Params {
             x: Flag64,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:flegs|roundtrip-flag64", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:8ecd22d5|roundtrip-flag64", &params)
             .await
             .unwrap()
     }

@@ -7,14 +7,6 @@ declare global {
 	}
 }
 const invoke = window.__TAURI_INVOKE__;
-if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {
-	invoke("plugin|records:e6872cf01241a6f3e4c4bedaa609dbeb").catch(() =>
-		console.error(
-			"The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.",
-		),
-	);
-}
-
 export interface Empty {}
 /**
  * A record containing two scalar fields
@@ -56,42 +48,44 @@ export type TupleTypedef = [number];
 export type IntTypedef = number;
 export type TupleTypedef2 = [IntTypedef];
 export async function tupleArg(x: [string, number]): Promise<void> {
-	await invoke<void>("plugin:records|tuple-arg", { x: x });
+	await invoke<void>("plugin:e6872cf0|tuple-arg", { x: x });
 }
 export async function tupleResult(): Promise<[string, number]> {
-	const result = await invoke<[string, number]>("plugin:records|tuple-result");
+	const result = await invoke<[string, number]>("plugin:e6872cf0|tuple-result");
 	return result;
 }
 export async function emptyArg(x: Empty): Promise<void> {
-	await invoke<void>("plugin:records|empty-arg", { x: x });
+	await invoke<void>("plugin:e6872cf0|empty-arg", { x: x });
 }
 export async function emptyResult(): Promise<Empty> {
-	const result = await invoke<Empty>("plugin:records|empty-result");
+	const result = await invoke<Empty>("plugin:e6872cf0|empty-result");
 	return result;
 }
 export async function scalarArg(x: Scalars): Promise<void> {
-	await invoke<void>("plugin:records|scalar-arg", { x: x });
+	await invoke<void>("plugin:e6872cf0|scalar-arg", { x: x });
 }
 export async function scalarResult(): Promise<Scalars> {
-	const result = await invoke<Scalars>("plugin:records|scalar-result");
+	const result = await invoke<Scalars>("plugin:e6872cf0|scalar-result");
 	return result;
 }
 export async function flagsArg(x: ReallyFlags): Promise<void> {
-	await invoke<void>("plugin:records|flags-arg", { x: x });
+	await invoke<void>("plugin:e6872cf0|flags-arg", { x: x });
 }
 export async function flagsResult(): Promise<ReallyFlags> {
-	const result = await invoke<ReallyFlags>("plugin:records|flags-result");
+	const result = await invoke<ReallyFlags>("plugin:e6872cf0|flags-result");
 	return result;
 }
 export async function aggregateArg(x: Aggregates): Promise<void> {
-	await invoke<void>("plugin:records|aggregate-arg", { x: x });
+	await invoke<void>("plugin:e6872cf0|aggregate-arg", { x: x });
 }
 export async function aggregateResult(): Promise<Aggregates> {
-	const result = await invoke<Aggregates>("plugin:records|aggregate-result");
+	const result = await invoke<Aggregates>("plugin:e6872cf0|aggregate-result");
 	return result;
 }
 export async function typedefInout(e: TupleTypedef2): Promise<number> {
-	const result = await invoke<number>("plugin:records|typedef-inout", { e: e });
+	const result = await invoke<number>("plugin:e6872cf0|typedef-inout", {
+		e: e,
+	});
 	return result;
 }
 

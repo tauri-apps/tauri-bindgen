@@ -7,14 +7,6 @@ declare global {
 	}
 }
 const invoke = window.__TAURI_INVOKE__;
-if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {
-	invoke("plugin|manyarg:92d5120c899c41cc0c9bb8a02b370a08").catch(() =>
-		console.error(
-			"The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.",
-		),
-	);
-}
-
 export interface BigStruct {
 	a1: string;
 	a2: string;
@@ -55,7 +47,7 @@ export async function manyArgs(
 	a15: bigint,
 	a16: bigint,
 ): Promise<void> {
-	await invoke<void>("plugin:manyarg|many-args", {
+	await invoke<void>("plugin:92d5120c|many-args", {
 		a1: a1,
 		a2: a2,
 		a3: a3,
@@ -75,6 +67,6 @@ export async function manyArgs(
 	});
 }
 export async function bigArgument(x: BigStruct): Promise<void> {
-	await invoke<void>("plugin:manyarg|big-argument", { x: x });
+	await invoke<void>("plugin:92d5120c|big-argument", { x: x });
 }
 

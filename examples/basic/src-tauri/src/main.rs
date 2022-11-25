@@ -25,7 +25,7 @@ mod plugin {
     }
 
     pub fn init<R: Runtime>() -> TauriPlugin<R> {
-        plugin::Builder::new("greet")
+        plugin::Builder::new(greet::WORLD_HASH)
             .invoke_handler(greet::invoke_handler(Ctx))
             .build()
     }

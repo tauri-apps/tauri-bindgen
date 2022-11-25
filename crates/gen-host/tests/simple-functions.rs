@@ -1,5 +1,6 @@
 #[allow(clippy::all)]
 pub mod imports {
+    pub const WORLD_HASH: &str = "ebb2d6f0";
     pub trait Imports: Sized {
         fn f1(&self) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn f2(&self, a: u32) -> ::tauri_bindgen_host::anyhow::Result<()>;
@@ -214,12 +215,6 @@ pub mod imports {
                         result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
                     );
                 }
-
-                #[cfg(debug_assertions)]
-                "ebb2d6f0441e00a02915e2faf10bbe90" => {
-                    invoke.resolver.respond(Ok(()));
-                }
-
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
                         module = "imports",

@@ -1,5 +1,6 @@
 #[allow(clippy::all)]
 pub mod import_lists {
+    pub const WORLD_HASH: &str = "a744d1c6";
     #[derive(
         Debug,
         Clone,
@@ -808,12 +809,6 @@ pub mod import_lists {
                         result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
                     );
                 }
-
-                #[cfg(debug_assertions)]
-                "a744d1c6fec4018443a890e8987bf4a4" => {
-                    invoke.resolver.respond(Ok(()));
-                }
-
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
                         module = "import-lists",

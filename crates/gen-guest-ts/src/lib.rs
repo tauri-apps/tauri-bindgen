@@ -143,17 +143,6 @@ impl<'a> InterfaceGenerator<'a> {
         }
         const invoke = window.__TAURI_INVOKE__;",
         );
-        self.push_str(&format!(
-            r#"
-            if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {{
-                invoke("plugin|{}:{}").catch(() => console.error("{}\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`."));
-            }}
-            "#,
-            self.iface.name.to_snake_case(),
-            self.world_hash,
-            tauri_bindgen_core::VERSION_MISMATCH_MSG
-        ));
-        self.push_str("\n");
     }
 
     fn print_outro(&mut self) {
@@ -238,11 +227,7 @@ impl<'a> InterfaceGenerator<'a> {
 
         self.push_str(">(");
 
-        self.push_str(&format!(
-            "\"plugin:{}|{}\",",
-            self.iface.name.to_snake_case(),
-            func.name
-        ));
+        self.push_str(&format!("\"plugin:{}|{}\",", self.world_hash, func.name));
 
         if !func.params.is_empty() {
             self.push_str("{");

@@ -6,16 +6,7 @@ declare global {
 		): Promise<T>;
 	}
 }
-const invoke = window.__TAURI_INVOKE__;
-if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {
-	invoke("plugin|unions:cccf67b47414af61861a06498c06cf03").catch(() =>
-		console.error(
-			"The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.",
-		),
-	);
-}
-
-/**
+const invoke = window.__TAURI_INVOKE__; /**
  * A union of all of the integral types
  */
 export type AllIntegers =
@@ -127,13 +118,13 @@ export interface DistinguishableNum1 {
 	val: bigint;
 }
 export async function addOneInteger(num: AllIntegers): Promise<AllIntegers> {
-	const result = await invoke<AllIntegers>("plugin:unions|add-one-integer", {
+	const result = await invoke<AllIntegers>("plugin:cccf67b4|add-one-integer", {
 		num: num,
 	});
 	return result;
 }
 export async function addOneFloat(num: AllFloats): Promise<AllFloats> {
-	const result = await invoke<AllFloats>("plugin:unions|add-one-float", {
+	const result = await invoke<AllFloats>("plugin:cccf67b4|add-one-float", {
 		num: num,
 	});
 	return result;
@@ -142,26 +133,26 @@ export async function replaceFirstChar(
 	text: AllText,
 	letter: string,
 ): Promise<AllText> {
-	const result = await invoke<AllText>("plugin:unions|replace-first-char", {
+	const result = await invoke<AllText>("plugin:cccf67b4|replace-first-char", {
 		text: text,
 		letter: letter,
 	});
 	return result;
 }
 export async function identifyInteger(num: AllIntegers): Promise<number> {
-	const result = await invoke<number>("plugin:unions|identify-integer", {
+	const result = await invoke<number>("plugin:cccf67b4|identify-integer", {
 		num: num,
 	});
 	return result;
 }
 export async function identifyFloat(num: AllFloats): Promise<number> {
-	const result = await invoke<number>("plugin:unions|identify-float", {
+	const result = await invoke<number>("plugin:cccf67b4|identify-float", {
 		num: num,
 	});
 	return result;
 }
 export async function identifyText(text: AllText): Promise<number> {
-	const result = await invoke<number>("plugin:unions|identify-text", {
+	const result = await invoke<number>("plugin:cccf67b4|identify-text", {
 		text: text,
 	});
 	return result;
@@ -170,13 +161,13 @@ export async function addOneDuplicated(
 	num: DuplicatedS32,
 ): Promise<DuplicatedS32> {
 	const result = await invoke<DuplicatedS32>(
-		"plugin:unions|add-one-duplicated",
+		"plugin:cccf67b4|add-one-duplicated",
 		{ num: num },
 	);
 	return result;
 }
 export async function identifyDuplicated(num: DuplicatedS32): Promise<number> {
-	const result = await invoke<number>("plugin:unions|identify-duplicated", {
+	const result = await invoke<number>("plugin:cccf67b4|identify-duplicated", {
 		num: num,
 	});
 	return result;
@@ -185,7 +176,7 @@ export async function addOneDistinguishableNum(
 	num: DistinguishableNum,
 ): Promise<DistinguishableNum> {
 	const result = await invoke<DistinguishableNum>(
-		"plugin:unions|add-one-distinguishable-num",
+		"plugin:cccf67b4|add-one-distinguishable-num",
 		{ num: num },
 	);
 	return result;
@@ -194,7 +185,7 @@ export async function identifyDistinguishableNum(
 	num: DistinguishableNum,
 ): Promise<number> {
 	const result = await invoke<number>(
-		"plugin:unions|identify-distinguishable-num",
+		"plugin:cccf67b4|identify-distinguishable-num",
 		{ num: num },
 	);
 	return result;

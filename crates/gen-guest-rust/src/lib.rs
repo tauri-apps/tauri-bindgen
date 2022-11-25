@@ -51,8 +51,6 @@ impl WorldGenerator for RustWasm {
         world_hash: &str,
     ) {
         let mut gen = InterfaceGenerator::new(self, iface, TypeMode::AllBorrowed("'a"), world_hash);
-        // gen.generate_invoke_bindings();
-        gen.print_intro();
 
         gen.types();
 
@@ -114,28 +112,6 @@ impl<'a> InterfaceGenerator<'a> {
         }
     }
 
-    fn print_intro(&mut self) {
-        self.push_str(&format!(
-            r#"
-        #[cfg(debug_assertions)]
-        static START: ::std::sync::Once = ::std::sync::Once::new();
-        #[cfg(debug_assertions)]
-        fn check_idl_version() {{
-            ::tauri_bindgen_guest_rust::wasm_bindgen_futures::spawn_local(async {{
-                if ::tauri_bindgen_guest_rust::invoke::<_, ()>("plugin:{}|{}", ()).await.is_err() {{
-                    ::tauri_bindgen_guest_rust::console_warn("{}\nNote: This is a debug assertion and IDL versions will not be checked in release builds.
-                    ");
-                }}
-            }});
-        }}
-        "#,
-            self.iface.name.to_snake_case(),
-            self.world_hash,
-            tauri_bindgen_core::VERSION_MISMATCH_MSG
-        ));
-        self.push_str("\n");
-    }
-
     fn generate_guest_import(&mut self, func: &Function) {
         if self.gen.skip.contains(&func.name) {
             return;
@@ -150,11 +126,6 @@ impl<'a> InterfaceGenerator<'a> {
         }
         self.print_signature(func, param_mode, &sig);
         self.src.push_str("{\n");
-
-        self.src.push_str(
-            "#[cfg(debug_assertions)]
-        START.call_once(check_idl_version);",
-        );
 
         let lifetime = func.params.iter().any(|(_, ty)| match ty {
             Type::String => true,
@@ -195,7 +166,7 @@ impl<'a> InterfaceGenerator<'a> {
         uwrite!(
             self.src,
             r#"::tauri_bindgen_guest_rust::invoke("plugin:{}|{}", "#,
-            self.iface.name.to_snake_case(),
+            self.world_hash,
             func.name
         );
 

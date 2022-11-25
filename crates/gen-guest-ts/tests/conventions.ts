@@ -7,52 +7,44 @@ declare global {
 	}
 }
 const invoke = window.__TAURI_INVOKE__;
-if (!window.__TAURI_BINDGEN_VERSION_CHECK__) {
-	invoke("plugin|conventions:48646a1b1c089063e7b03a4c1dd9f5ad").catch(() =>
-		console.error(
-			"The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.\nNote: You can disable this check by setting `window.__TAURI_BINDGEN_VERSION_CHECK__` to `false`.",
-		),
-	);
-}
-
 export interface LudicrousSpeed {
 	howFastAreYouGoing: number;
 	iAmGoingExtremelySlow: bigint;
 }
 export async function kebabCase(): Promise<void> {
-	await invoke<void>("plugin:conventions|kebab-case");
+	await invoke<void>("plugin:48646a1b|kebab-case");
 }
 export async function foo(x: LudicrousSpeed): Promise<void> {
-	await invoke<void>("plugin:conventions|foo", { x: x });
+	await invoke<void>("plugin:48646a1b|foo", { x: x });
 }
 export async function functionWithDashes(): Promise<void> {
-	await invoke<void>("plugin:conventions|function-with-dashes");
+	await invoke<void>("plugin:48646a1b|function-with-dashes");
 }
 export async function functionWithNoWeirdCharacters(): Promise<void> {
-	await invoke<void>("plugin:conventions|function-with-no-weird-characters");
+	await invoke<void>("plugin:48646a1b|function-with-no-weird-characters");
 }
 export async function apple(): Promise<void> {
-	await invoke<void>("plugin:conventions|apple");
+	await invoke<void>("plugin:48646a1b|apple");
 }
 export async function applePear(): Promise<void> {
-	await invoke<void>("plugin:conventions|apple-pear");
+	await invoke<void>("plugin:48646a1b|apple-pear");
 }
 export async function applePearGrape(): Promise<void> {
-	await invoke<void>("plugin:conventions|apple-pear-grape");
+	await invoke<void>("plugin:48646a1b|apple-pear-grape");
 }
 export async function a0(): Promise<void> {
-	await invoke<void>("plugin:conventions|a0");
+	await invoke<void>("plugin:48646a1b|a0");
 }
 export async function isXml(): Promise<void> {
-	await invoke<void>("plugin:conventions|is-XML");
+	await invoke<void>("plugin:48646a1b|is-XML");
 }
 export async function explicit(): Promise<void> {
-	await invoke<void>("plugin:conventions|explicit");
+	await invoke<void>("plugin:48646a1b|explicit");
 }
 export async function explicitKebab(): Promise<void> {
-	await invoke<void>("plugin:conventions|explicit-kebab");
+	await invoke<void>("plugin:48646a1b|explicit-kebab");
 }
 export async function bool(): Promise<void> {
-	await invoke<void>("plugin:conventions|bool");
+	await invoke<void>("plugin:48646a1b|bool");
 }
 

@@ -1,5 +1,6 @@
 #[allow(clippy::all)]
 pub mod imports {
+    pub const WORLD_HASH: &str = "d40a3203";
     pub trait Imports: Sized {
         fn simple_list1(&self, l: Vec<u32>) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn simple_list2(&self) -> ::tauri_bindgen_host::anyhow::Result<Vec<u32>>;
@@ -97,12 +98,6 @@ pub mod imports {
                         result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow),
                     );
                 }
-
-                #[cfg(debug_assertions)]
-                "d40a3203ef48115d7df3e6859a69ed77" => {
-                    invoke.resolver.respond(Ok(()));
-                }
-
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
                         module = "imports",
