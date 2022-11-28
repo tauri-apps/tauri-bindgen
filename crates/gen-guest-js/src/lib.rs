@@ -103,16 +103,14 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn print_jsdoc(&mut self, func: &Function) {
-        if func.docs.contents.is_none() && func.params.is_empty() && func.results.len() == 0 {
+        if func.docs.contents.is_empty() && func.params.is_empty() && func.results.len() == 0 {
             return;
         }
 
         self.push_str("/**\n");
 
-        if let Some(docs) = &func.docs.contents {
-            for line in docs.trim().lines() {
-                self.push_str(&format!(" * {}\n", line));
-            }
+        for line in func.docs.contents.trim().lines() {
+            self.push_str(&format!(" * {}\n", line));
         }
 
         for (param, ty) in func.params.iter() {
@@ -127,12 +125,12 @@ impl<'a> InterfaceGenerator<'a> {
             0 => {}
             1 => {
                 self.push_str(" * @returns {Promise<");
-                self.print_ty(func.results.iter_types().next().unwrap());
+                self.print_ty(func.results.types().next().unwrap());
                 self.push_str(">}\n");
             }
             _ => {
                 self.push_str(" * @returns {Promise<[");
-                for (i, ty) in func.results.iter_types().enumerate() {
+                for (i, ty) in func.results.types().enumerate() {
                     if i != 0 {
                         self.push_str(", ");
                     }
@@ -153,14 +151,10 @@ impl<'a> InterfaceGenerator<'a> {
         self.print_jsdoc(func);
 
         self.push_str("export async function ");
-        self.push_str(&func.item_name().to_lower_camel_case());
+        self.push_str(&func.name.to_lower_camel_case());
         self.push_str("(");
 
-        let param_start = match &func.kind {
-            FunctionKind::Freestanding => 0,
-        };
-
-        for (i, (name, _)) in func.params[param_start..].iter().enumerate() {
+        for (i, (name, _)) in func.params.iter().enumerate() {
             if i > 0 {
                 self.push_str(", ");
             }
@@ -213,38 +207,36 @@ impl<'a> InterfaceGenerator<'a> {
             | Type::Float64 => self.push_str("number"),
             Type::U64 | Type::S64 => self.push_str("bigint"),
             Type::Char | Type::String => self.push_str("string"),
+            Type::Tuple(ty) => self.print_tuple(ty),
+            Type::List(ty) => self.print_list(ty),
+            Type::Option(ty) => {
+                if self.is_nullable(ty) {
+                    self.push_str("Option<");
+                    self.print_ty(ty);
+                    self.push_str(">");
+                } else {
+                    self.print_ty(ty);
+                    self.push_str(" | null");
+                }
+            }
+            Type::Result(r) => {
+                self.push_str("Result<");
+                self.print_optional_ty(r.ok.as_ref());
+                self.push_str(", ");
+                self.print_optional_ty(r.err.as_ref());
+                self.push_str(">");
+            }
             Type::Id(id) => {
                 let ty = &self.iface.types[*id];
-                if let Some(name) = &ty.name {
-                    return self.push_str(&name.to_upper_camel_case());
-                }
+
+                // return self.push_str(&ty.name.to_upper_camel_case());
+
                 match &ty.kind {
                     TypeDefKind::Record(_) => todo!(),
                     TypeDefKind::Flags(_) => todo!(),
-                    TypeDefKind::Tuple(ty) => self.print_tuple(ty),
                     TypeDefKind::Variant(_) => todo!(),
                     TypeDefKind::Enum(_) => todo!(),
-                    TypeDefKind::Option(t) => {
-                        if self.is_nullable(t) {
-                            self.push_str("Option<");
-                            self.print_ty(t);
-                            self.push_str(">");
-                        } else {
-                            self.print_ty(t);
-                            self.push_str(" | null");
-                        }
-                    }
-                    TypeDefKind::Result(r) => {
-                        // self.push_str("Result<");
-                        self.print_optional_ty(r.ok.as_ref());
-                        // self.push_str(", ");
-                        // self.print_optional_ty(r.err.as_ref());
-                        // self.push_str(">");
-                    }
                     TypeDefKind::Union(_) => todo!(),
-                    TypeDefKind::List(ty) => self.print_list(ty),
-                    TypeDefKind::Future(_) => todo!(),
-                    TypeDefKind::Stream(_) => todo!(),
                     TypeDefKind::Type(ty) => self.print_ty(ty),
                 }
             }
@@ -292,12 +284,16 @@ impl<'a> InterfaceGenerator<'a> {
             Type::S64 => Some("BigInt64Array"),
             Type::Float32 => Some("Float32Array"),
             Type::Float64 => Some("Float64Array"),
-            Type::Char => None,
-            Type::String => None,
             Type::Id(id) => match &iface.types[*id].kind {
                 TypeDefKind::Type(t) => self.array_ty(iface, t),
                 _ => None,
             },
+            Type::Tuple(_)
+            | Type::List(_)
+            | Type::Option(_)
+            | Type::Result(_)
+            | Type::Char
+            | Type::String => None,
         }
     }
 
@@ -322,7 +318,7 @@ impl<'a> InterfaceGenerator<'a> {
             //
             // It's doubtful anyone would actually rely on that though due to
             // how confusing it is.
-            TypeDefKind::Option(ty) => !self.is_nullable(ty),
+            // TypeDefKind::Option(ty) => !self.is_nullable(ty),
             TypeDefKind::Type(t) => self.is_nullable(t),
             _ => false,
         }

@@ -250,7 +250,7 @@ impl<'a> InterfaceGenerator<'a> {
         match results {
             Results::Named(rs) => match rs.len() {
                 0 => self.push_str("()"),
-                1 => self.print_ty(&rs[0].1, mode),
+                1 => self.print_ty(&rs.values().next().unwrap(), mode),
                 _ => {
                     self.push_str("(");
                     for (i, (_, ty)) in rs.iter().enumerate() {
@@ -332,9 +332,9 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str("}\n}\n");
     }
 
-    fn type_tuple(&mut self, id: TypeId, _name: &str, tuple: &wit_parser::Tuple, docs: &Docs) {
-        self.print_typedef_tuple(id, tuple, docs);
-    }
+    // fn type_tuple(&mut self, id: TypeId, _name: &str, tuple: &wit_parser::Tuple, docs: &Docs) {
+    //     self.print_typedef_tuple(id, tuple, docs);
+    // }
 
     fn type_variant(
         &mut self,
@@ -346,13 +346,13 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.print_typedef_variant(id, variant, docs, get_serde_attrs);
     }
 
-    fn type_option(&mut self, id: TypeId, _name: &str, payload: &Type, docs: &Docs) {
-        self.print_typedef_option(id, payload, docs);
-    }
+    // fn type_option(&mut self, id: TypeId, _name: &str, payload: &Type, docs: &Docs) {
+    //     self.print_typedef_option(id, payload, docs);
+    // }
 
-    fn type_result(&mut self, id: TypeId, _name: &str, result: &wit_parser::Result_, docs: &Docs) {
-        self.print_typedef_result(id, result, docs);
-    }
+    // fn type_result(&mut self, id: TypeId, _name: &str, result: &wit_parser::Result_, docs: &Docs) {
+    //     self.print_typedef_result(id, result, docs);
+    // }
 
     fn type_union(&mut self, id: TypeId, _name: &str, union: &wit_parser::Union, docs: &Docs) {
         self.print_typedef_union(id, union, docs, get_serde_attrs);
@@ -366,18 +366,18 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.print_typedef_alias(id, ty, docs);
     }
 
-    fn type_list(&mut self, id: TypeId, _name: &str, ty: &Type, docs: &Docs) {
-        self.print_typedef_list(id, ty, docs);
-    }
+    // fn type_list(&mut self, id: TypeId, _name: &str, ty: &Type, docs: &Docs) {
+    //     self.print_typedef_list(id, ty, docs);
+    // }
 
-    fn type_builtin(&mut self, _id: TypeId, name: &str, ty: &Type, docs: &Docs) {
-        self.print_rustdoc(docs);
-        self.src
-            .push_str(&format!("pub type {}", name.to_upper_camel_case()));
-        self.src.push_str(" = ");
-        self.print_ty(ty, TypeMode::Owned);
-        self.src.push_str(";\n");
-    }
+    // fn type_builtin(&mut self, _id: TypeId, name: &str, ty: &Type, docs: &Docs) {
+    //     self.print_rustdoc(docs);
+    //     self.src
+    //         .push_str(&format!("pub type {}", name.to_upper_camel_case()));
+    //     self.src.push_str(" = ");
+    //     self.print_ty(ty, TypeMode::Owned);
+    //     self.src.push_str(";\n");
+    // }
 }
 
 fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<String> {

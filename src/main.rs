@@ -1,8 +1,8 @@
 use anyhow::{bail, Context};
 use clap::Parser;
+use wit_parser::Interface;
 use std::path::{Path, PathBuf};
 use tauri_bindgen_core::{Files, WorldGenerator};
-use wit_parser::World;
 
 /// Helper for passing VERSION to opt.
 /// If CARGO_VERSION_INFO is set, use it, otherwise use CARGO_PKG_VERSION.
@@ -78,8 +78,8 @@ enum GuestGenerator {
 #[derive(Debug, Parser)]
 struct WorldOpt {
     /// Generate bindings for the WIT document.
-    #[clap(value_name = "DOCUMENT", value_parser = parse_world)]
-    wit: (World, String),
+    #[clap(value_name = "DOCUMENT", value_parser = parse_interface)]
+    wit: (Interface, String),
 }
 
 #[derive(Debug, Parser, Clone)]
@@ -131,13 +131,13 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn parse_world(s: &str) -> anyhow::Result<(World, String)> {
+fn parse_interface(s: &str) -> anyhow::Result<(Interface, String)> {
     let path = Path::new(s);
     if !path.is_file() {
         bail!("wit file `{}` does not exist", path.display());
     }
 
-    let world = World::parse_file(&path)
+    let world = wit_parser::parse_file(&path)
         .with_context(|| format!("failed to parse wit file `{}`", path.display()))
         .map_err(|e| {
             eprintln!("{e:?}");

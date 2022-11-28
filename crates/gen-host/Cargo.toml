@@ -13,7 +13,7 @@ clap = { workspace = true, optional = true }
 [dev-dependencies]
 anyhow.workspace = true
 tauri-bindgen-host = { path = "../host" }
-serde = { version = "1.0.140", features = ["derive"] }
+serde = { version = "1.0.148", features = ["derive"] }
 
 [features]
 clap = ["dep:clap"]

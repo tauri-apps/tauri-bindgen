@@ -13,10 +13,10 @@ use wit_parser::*;
 pub const VERSION_MISMATCH_MSG: &str = "The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.";
 
 pub trait WorldGenerator {
-    fn generate(&mut self, name: &str, interfaces: &World, files: &mut Files, world_hash: &str) {
-        for (name, import) in interfaces.imports.iter() {
-            self.import(name, import, files, world_hash);
-        }
+    fn generate(&mut self, name: &str, interface: &Interface, files: &mut Files, world_hash: &str) {
+        // for (name, import) in interfaces.imports.iter() {
+        self.import(name, interface, files, world_hash);
+        // }
         self.finish(name, files, world_hash);
     }
 
@@ -30,35 +30,29 @@ pub trait InterfaceGenerator<'a> {
 
     fn type_record(&mut self, id: TypeId, name: &str, record: &Record, docs: &Docs);
     fn type_flags(&mut self, id: TypeId, name: &str, flags: &Flags, docs: &Docs);
-    fn type_tuple(&mut self, id: TypeId, name: &str, tuple: &Tuple, docs: &Docs);
     fn type_variant(&mut self, id: TypeId, name: &str, variant: &Variant, docs: &Docs);
-    fn type_option(&mut self, id: TypeId, name: &str, payload: &Type, docs: &Docs);
-    fn type_result(&mut self, id: TypeId, name: &str, result: &Result_, docs: &Docs);
     fn type_union(&mut self, id: TypeId, name: &str, union: &Union, docs: &Docs);
     fn type_enum(&mut self, id: TypeId, name: &str, enum_: &Enum, docs: &Docs);
     fn type_alias(&mut self, id: TypeId, name: &str, ty: &Type, docs: &Docs);
-    fn type_list(&mut self, id: TypeId, name: &str, ty: &Type, docs: &Docs);
-    fn type_builtin(&mut self, id: TypeId, name: &str, ty: &Type, docs: &Docs);
+    // fn type_tuple(&mut self, id: TypeId, name: &str, tuple: &Tuple, docs: &Docs);
+    // fn type_option(&mut self, id: TypeId, name: &str, payload: &Type, docs: &Docs);
+    // fn type_result(&mut self, id: TypeId, name: &str, result: &Result_, docs: &Docs);
+    // fn type_list(&mut self, id: TypeId, name: &str, ty: &Type, docs: &Docs);
+    // fn type_builtin(&mut self, id: TypeId, name: &str, ty: &Type, docs: &Docs);
 
     fn types(&mut self) {
         for (id, ty) in self.iface().types.iter() {
-            let name = match &ty.name {
-                Some(name) => name,
-                None => continue,
-            };
             match &ty.kind {
-                TypeDefKind::Record(record) => self.type_record(id, name, record, &ty.docs),
-                TypeDefKind::Flags(flags) => self.type_flags(id, name, flags, &ty.docs),
-                TypeDefKind::Tuple(tuple) => self.type_tuple(id, name, tuple, &ty.docs),
-                TypeDefKind::Enum(enum_) => self.type_enum(id, name, enum_, &ty.docs),
-                TypeDefKind::Variant(variant) => self.type_variant(id, name, variant, &ty.docs),
-                TypeDefKind::Option(t) => self.type_option(id, name, t, &ty.docs),
-                TypeDefKind::Result(r) => self.type_result(id, name, r, &ty.docs),
-                TypeDefKind::Union(u) => self.type_union(id, name, u, &ty.docs),
-                TypeDefKind::List(t) => self.type_list(id, name, t, &ty.docs),
-                TypeDefKind::Type(t) => self.type_alias(id, name, t, &ty.docs),
-                TypeDefKind::Future(_) => todo!("generate for future"),
-                TypeDefKind::Stream(_) => todo!("generate for stream"),
+                TypeDefKind::Record(record) => self.type_record(id, &ty.name, record, &ty.docs),
+                TypeDefKind::Flags(flags) => self.type_flags(id, &ty.name, flags, &ty.docs),
+                TypeDefKind::Enum(enum_) => self.type_enum(id, &ty.name, enum_, &ty.docs),
+                TypeDefKind::Variant(variant) => self.type_variant(id, &ty.name, variant, &ty.docs),
+                TypeDefKind::Union(u) => self.type_union(id, &ty.name, u, &ty.docs),
+                TypeDefKind::Type(t) => self.type_alias(id, &ty.name, t, &ty.docs),
+                // TypeDefKind::Tuple(tuple) => self.type_tuple(id, name, tuple, &ty.docs),
+                // TypeDefKind::Option(t) => self.type_option(id, name, t, &ty.docs),
+                // TypeDefKind::Result(r) => self.type_result(id, name, r, &ty.docs),
+                // TypeDefKind::List(t) => self.type_list(id, name, t, &ty.docs),
             }
         }
     }
@@ -111,7 +105,7 @@ impl Types {
             for (_, ty) in f.params.iter() {
                 self.set_param_result_ty(iface, ty, true, false, false);
             }
-            for ty in f.results.iter_types() {
+            for ty in f.results.types() {
                 self.set_param_result_ty(iface, ty, false, true, false);
             }
         }
@@ -132,11 +126,11 @@ impl Types {
                     info |= self.type_info(iface, &field.ty);
                 }
             }
-            TypeDefKind::Tuple(t) => {
-                for ty in t.types.iter() {
-                    info |= self.type_info(iface, ty);
-                }
-            }
+            // TypeDefKind::Tuple(t) => {
+            //     for ty in t.types.iter() {
+            //         info |= self.type_info(iface, ty);
+            //     }
+            // }
             TypeDefKind::Flags(_) => {}
             TypeDefKind::Enum(_) => {}
             TypeDefKind::Variant(v) => {
@@ -144,31 +138,24 @@ impl Types {
                     info |= self.optional_type_info(iface, case.ty.as_ref());
                 }
             }
-            TypeDefKind::List(ty) => {
-                info = self.type_info(iface, ty);
-                info.has_list = true;
-            }
+            // TypeDefKind::List(ty) => {
+            //     info = self.type_info(iface, ty);
+            //     info.has_list = true;
+            // }
             TypeDefKind::Type(ty) => {
                 info = self.type_info(iface, ty);
             }
-            TypeDefKind::Option(ty) => {
-                info = self.type_info(iface, ty);
-            }
-            TypeDefKind::Result(r) => {
-                info = self.optional_type_info(iface, r.ok.as_ref());
-                info |= self.optional_type_info(iface, r.err.as_ref());
-            }
+            // TypeDefKind::Option(ty) => {
+            //     info = self.type_info(iface, ty);
+            // }
+            // TypeDefKind::Result(r) => {
+            //     info = self.optional_type_info(iface, r.ok.as_ref());
+            //     info |= self.optional_type_info(iface, r.err.as_ref());
+            // }
             TypeDefKind::Union(u) => {
                 for case in u.cases.iter() {
                     info |= self.type_info(iface, &case.ty);
                 }
-            }
-            TypeDefKind::Future(ty) => {
-                info = self.optional_type_info(iface, ty.as_ref());
-            }
-            TypeDefKind::Stream(stream) => {
-                info = self.optional_type_info(iface, stream.element.as_ref());
-                info |= self.optional_type_info(iface, stream.end.as_ref());
             }
         }
         self.type_info.insert(ty, info);
@@ -206,11 +193,11 @@ impl Types {
                     self.set_param_result_ty(iface, &field.ty, param, result, error)
                 }
             }
-            TypeDefKind::Tuple(t) => {
-                for ty in t.types.iter() {
-                    self.set_param_result_ty(iface, ty, param, result, error)
-                }
-            }
+            // TypeDefKind::Tuple(t) => {
+            //     for ty in t.types.iter() {
+            //         self.set_param_result_ty(iface, ty, param, result, error)
+            //     }
+            // }
             TypeDefKind::Flags(_) => {}
             TypeDefKind::Enum(_) => {}
             TypeDefKind::Variant(v) => {
@@ -218,31 +205,19 @@ impl Types {
                     self.set_param_result_optional_ty(iface, case.ty.as_ref(), param, result, error)
                 }
             }
-            TypeDefKind::List(ty) | TypeDefKind::Type(ty) | TypeDefKind::Option(ty) => {
-                self.set_param_result_ty(iface, ty, param, result, error)
-            }
-            TypeDefKind::Result(r) => {
-                self.set_param_result_optional_ty(iface, r.ok.as_ref(), param, result, error);
-                self.set_param_result_optional_ty(iface, r.err.as_ref(), param, result, result);
-            }
+            // TypeDefKind::List(ty) | TypeDefKind::Type(ty) | TypeDefKind::Option(ty) => {
+            //     self.set_param_result_ty(iface, ty, param, result, error)
+            // }
+            // TypeDefKind::Result(r) => {
+            //     self.set_param_result_optional_ty(iface, r.ok.as_ref(), param, result, error);
+            //     self.set_param_result_optional_ty(iface, r.err.as_ref(), param, result, result);
+            // }
             TypeDefKind::Union(u) => {
                 for case in u.cases.iter() {
                     self.set_param_result_ty(iface, &case.ty, param, result, error)
                 }
             }
-            TypeDefKind::Future(ty) => {
-                self.set_param_result_optional_ty(iface, ty.as_ref(), param, result, error)
-            }
-            TypeDefKind::Stream(stream) => {
-                self.set_param_result_optional_ty(
-                    iface,
-                    stream.element.as_ref(),
-                    param,
-                    result,
-                    error,
-                );
-                self.set_param_result_optional_ty(iface, stream.end.as_ref(), param, result, error);
-            }
+            TypeDefKind::Type(_) => todo!(),
         }
     }
 

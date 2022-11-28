@@ -1,13 +1,14 @@
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
+use wit_parser::Interface;
 use std::marker;
 use std::path::{Path, PathBuf};
 use syn::parse::{Error, Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
 use syn::{token, Token};
 use tauri_bindgen_core::{Files, WorldGenerator};
-use wit_parser::World;
+// use wit_parser::World;
 
 pub fn generate<F, O>(
     input: TokenStream,
@@ -20,8 +21,8 @@ where
     let input = syn::parse_macro_input!(input as Opts<F, O>);
     let mut gen = mkgen(input.opts);
     let mut files = Files::default();
-    let name = input.world.name.clone();
-    gen.generate(&name, &input.world, &mut files, &input.world_hash);
+    let name = input.interface.name.clone();
+    gen.generate(&name, &input.interface, &mut files, &input.file_hash);
 
     let (_, contents) = files.iter().next().unwrap();
 
@@ -51,9 +52,9 @@ pub trait Configure<O> {
 
 struct Opts<F, O> {
     opts: O,
-    world: World,
+    interface: Interface,
     files: Vec<String>,
-    world_hash: String,
+    file_hash: String,
     _marker: marker::PhantomData<F>,
 }
 
@@ -68,12 +69,13 @@ where
 {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
         let call_site = proc_macro2::Span::call_site();
-        let mut world: Option<World> = None;
+        
+        let mut iface: Option<Interface> = None;
         let mut ret = Opts {
             opts: O::default(),
-            world: World::default(),
+            interface: Interface::default(),
             files: Vec::new(),
-            world_hash: String::new(),
+            file_hash: String::new(),
             _marker: marker::PhantomData,
         };
 
@@ -85,14 +87,14 @@ where
                 match field.into_value() {
                     ConfigField::Path(path) => {
                         let span = path.span();
-                        if world.is_some() {
+                        if iface.is_some() {
                             return Err(Error::new(span, "cannot specify second world"));
                         }
 
                         let path = ret.parse_path(&path);
 
-                        world = Some(World::parse_file(&path).map_err(|e| Error::new(span, e))?);
-                        ret.world_hash = tauri_bindgen_core::hash::hash_file(path)
+                        iface = Some(wit_parser::parse_file(&path).map_err(|e| Error::new(span, e))?);
+                        ret.file_hash = tauri_bindgen_core::hash::hash_file(path)
                             .map_err(|e| Error::new(span, e))?;
                     }
                     ConfigField::Other(other) => other.configure(&mut ret.opts),
@@ -103,12 +105,12 @@ where
 
             let path = ret.parse_path(&s);
 
-            world = Some(World::parse_file(&path).map_err(|e| Error::new(s.span(), e))?);
-            ret.world_hash =
+            iface = Some(wit_parser::parse_file(&path).map_err(|e| Error::new(s.span(), e))?);
+            ret.file_hash =
                 tauri_bindgen_core::hash::hash_file(path).map_err(|e| Error::new(s.span(), e))?;
         }
 
-        ret.world = world.ok_or_else(|| {
+        ret.interface = iface.ok_or_else(|| {
             Error::new(
                 call_site,
                 "must specify a `*.wit` file to generate bindings for",

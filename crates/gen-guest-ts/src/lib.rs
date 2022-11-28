@@ -122,12 +122,8 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn print_typedoc(&mut self, docs: &Docs) {
-        let docs = match &docs.contents {
-            Some(docs) => docs,
-            None => return,
-        };
         self.push_str("/**\n");
-        for line in docs.trim().lines() {
+        for line in docs.contents.trim().lines() {
             self.push_str(&format!(" * {}\n", line));
         }
         self.push_str(" */\n");
@@ -164,14 +160,10 @@ impl<'a> InterfaceGenerator<'a> {
         self.print_typedoc(&func.docs);
 
         self.push_str("export async function ");
-        self.push_str(&func.item_name().to_lower_camel_case());
+        self.push_str(&func.name.to_lower_camel_case());
         self.push_str("(");
 
-        let param_start = match &func.kind {
-            FunctionKind::Freestanding => 0,
-        };
-
-        for (i, (name, ty)) in func.params[param_start..].iter().enumerate() {
+        for (i, (name, ty)) in func.params.iter().enumerate() {
             if i > 0 {
                 self.push_str(", ");
             }
@@ -180,15 +172,15 @@ impl<'a> InterfaceGenerator<'a> {
             self.print_ty(ty);
         }
         self.push_str("): Promise<");
-        if let Some((ok_ty, _)) = func.results.throws(self.iface) {
+        if let Some((ok_ty, _)) = func.results.throws() {
             self.print_optional_ty(ok_ty);
         } else {
             match func.results.len() {
                 0 => self.push_str("void"),
-                1 => self.print_ty(func.results.iter_types().next().unwrap()),
+                1 => self.print_ty(func.results.types().next().unwrap()),
                 _ => {
                     self.push_str("[");
-                    for (i, ty) in func.results.iter_types().enumerate() {
+                    for (i, ty) in func.results.types().enumerate() {
                         if i != 0 {
                             self.push_str(", ");
                         }
@@ -206,15 +198,15 @@ impl<'a> InterfaceGenerator<'a> {
 
         self.push_str("await invoke<");
 
-        if let Some((ok_ty, _)) = func.results.throws(self.iface) {
+        if let Some((ok_ty, _)) = func.results.throws() {
             self.print_optional_ty(ok_ty);
         } else {
             match func.results.len() {
                 0 => self.push_str("void"),
-                1 => self.print_ty(func.results.iter_types().next().unwrap()),
+                1 => self.print_ty(func.results.types().next().unwrap()),
                 _ => {
                     self.push_str("[");
-                    for (i, ty) in func.results.iter_types().enumerate() {
+                    for (i, ty) in func.results.types().enumerate() {
                         if i != 0 {
                             self.push_str(", ");
                         }
@@ -264,40 +256,36 @@ impl<'a> InterfaceGenerator<'a> {
             | Type::Float64 => self.push_str("number"),
             Type::U64 | Type::S64 => self.push_str("bigint"),
             Type::Char | Type::String => self.push_str("string"),
+            Type::Tuple(ty) => self.print_tuple(ty),
+            Type::List(ty) => self.print_list(ty),
+            Type::Option(ty) => {
+                if self.is_nullable(ty) {
+                    self.needs_ty_option = true;
+                    self.push_str("Option<");
+                    self.print_ty(ty);
+                    self.push_str(">");
+                } else {
+                    self.print_ty(ty);
+                    self.push_str(" | null");
+                }
+            }
+            Type::Result(r) => {
+                self.needs_ty_result = true;
+                self.push_str("Result<");
+                self.print_optional_ty(r.ok.as_ref());
+                self.push_str(", ");
+                self.print_optional_ty(r.err.as_ref());
+                self.push_str(">");
+            }
             Type::Id(id) => {
                 let ty = &self.iface.types[*id];
-                if let Some(name) = &ty.name {
-                    return self.push_str(&name.to_upper_camel_case());
-                }
+
                 match &ty.kind {
                     TypeDefKind::Record(_) => todo!(),
                     TypeDefKind::Flags(_) => todo!(),
-                    TypeDefKind::Tuple(ty) => self.print_tuple(ty),
                     TypeDefKind::Variant(_) => todo!(),
                     TypeDefKind::Enum(_) => todo!(),
-                    TypeDefKind::Option(t) => {
-                        if self.is_nullable(t) {
-                            self.needs_ty_option = true;
-                            self.push_str("Option<");
-                            self.print_ty(t);
-                            self.push_str(">");
-                        } else {
-                            self.print_ty(t);
-                            self.push_str(" | null");
-                        }
-                    }
-                    TypeDefKind::Result(r) => {
-                        self.needs_ty_result = true;
-                        self.push_str("Result<");
-                        self.print_optional_ty(r.ok.as_ref());
-                        self.push_str(", ");
-                        self.print_optional_ty(r.err.as_ref());
-                        self.push_str(">");
-                    }
                     TypeDefKind::Union(_) => todo!(),
-                    TypeDefKind::List(ty) => self.print_list(ty),
-                    TypeDefKind::Future(_) => todo!(),
-                    TypeDefKind::Stream(_) => todo!(),
                     TypeDefKind::Type(ty) => self.print_ty(ty),
                 }
             }
@@ -345,12 +333,16 @@ impl<'a> InterfaceGenerator<'a> {
             Type::S64 => Some("BigInt64Array"),
             Type::Float32 => Some("Float32Array"),
             Type::Float64 => Some("Float64Array"),
-            Type::Char => None,
-            Type::String => None,
             Type::Id(id) => match &iface.types[*id].kind {
                 TypeDefKind::Type(t) => self.array_ty(iface, t),
                 _ => None,
             },
+            Type::Tuple(_)
+            | Type::List(_)
+            | Type::Option(_)
+            | Type::Result(_)
+            | Type::Char
+            | Type::String => None,
         }
     }
 
@@ -375,7 +367,7 @@ impl<'a> InterfaceGenerator<'a> {
             //
             // It's doubtful anyone would actually rely on that though due to
             // how confusing it is.
-            TypeDefKind::Option(ty) => !self.is_nullable(ty),
+            // TypeDefKind::Option(ty) => !self.is_nullable(ty),
             TypeDefKind::Type(t) => self.is_nullable(t),
             _ => false,
         }
@@ -419,10 +411,10 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.print_typedoc(docs);
 
         match flags.repr() {
-            FlagsRepr::U8 | FlagsRepr::U16 => {
+            Int::U8 | Int::U16 => {
                 self.push_str(&format!("export enum {} {{\n", name.to_upper_camel_case()))
             }
-            FlagsRepr::U32(_) => {
+            Int::U32 | Int::U64 => {
                 self.push_str(&format!(
                     "export type {} = typeof {};",
                     name.to_upper_camel_case(),
@@ -440,12 +432,12 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
             self.print_typedoc(&flag.docs);
 
             match flags.repr() {
-                FlagsRepr::U8 | FlagsRepr::U16 => self.push_str(&format!(
+                Int::U8 | Int::U16 => self.push_str(&format!(
                     "{} = {},\n",
                     flag.name.to_upper_camel_case(),
                     base << i
                 )),
-                FlagsRepr::U32(_) => self.push_str(&format!(
+                Int::U32 | Int::U64 => self.push_str(&format!(
                     "{}: BigInt({}),\n",
                     flag.name.to_upper_camel_case(),
                     base << i
@@ -456,18 +448,18 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str("}\n");
     }
 
-    fn type_tuple(
-        &mut self,
-        _id: wit_parser::TypeId,
-        name: &str,
-        tuple: &wit_parser::Tuple,
-        docs: &wit_parser::Docs,
-    ) {
-        self.print_typedoc(docs);
-        self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
-        self.print_tuple(tuple);
-        self.push_str(";\n");
-    }
+    // fn type_tuple(
+    //     &mut self,
+    //     _id: wit_parser::TypeId,
+    //     name: &str,
+    //     tuple: &wit_parser::Tuple,
+    //     docs: &wit_parser::Docs,
+    // ) {
+    //     self.print_typedoc(docs);
+    //     self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
+    //     self.print_tuple(tuple);
+    //     self.push_str(";\n");
+    // }
 
     fn type_variant(
         &mut self,
@@ -497,7 +489,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
             self.push_str(&case.name);
             self.push_str("',\n");
 
-            if let Some(ty) = case.ty {
+            if let Some(ty) = &case.ty {
                 self.push_str("val: ");
                 self.print_ty(&ty);
                 self.push_str(",\n");
@@ -506,45 +498,45 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         }
     }
 
-    fn type_option(
-        &mut self,
-        _id: wit_parser::TypeId,
-        name: &str,
-        payload: &wit_parser::Type,
-        docs: &wit_parser::Docs,
-    ) {
-        self.print_typedoc(docs);
-        self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
-        if self.is_nullable(payload) {
-            self.needs_ty_option = true;
-            self.push_str("Option<");
-            self.print_ty(payload);
-            self.push_str(">");
-        } else {
-            self.print_ty(payload);
-            self.push_str(" | null");
-        }
-        self.push_str(";\n");
-    }
+    // fn type_option(
+    //     &mut self,
+    //     _id: wit_parser::TypeId,
+    //     name: &str,
+    //     payload: &wit_parser::Type,
+    //     docs: &wit_parser::Docs,
+    // ) {
+    //     self.print_typedoc(docs);
+    //     self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
+    //     if self.is_nullable(payload) {
+    //         self.needs_ty_option = true;
+    //         self.push_str("Option<");
+    //         self.print_ty(payload);
+    //         self.push_str(">");
+    //     } else {
+    //         self.print_ty(payload);
+    //         self.push_str(" | null");
+    //     }
+    //     self.push_str(";\n");
+    // }
 
-    fn type_result(
-        &mut self,
-        _id: wit_parser::TypeId,
-        name: &str,
-        result: &wit_parser::Result_,
-        docs: &wit_parser::Docs,
-    ) {
-        self.needs_ty_result = true;
-        self.print_typedoc(docs);
-        self.push_str(&format!(
-            "export type {} = Result<",
-            name.to_upper_camel_case()
-        ));
-        self.print_optional_ty(result.ok.as_ref());
-        self.push_str(", ");
-        self.print_optional_ty(result.err.as_ref());
-        self.push_str(">;\n");
-    }
+    // fn type_result(
+    //     &mut self,
+    //     _id: wit_parser::TypeId,
+    //     name: &str,
+    //     result: &wit_parser::Result_,
+    //     docs: &wit_parser::Docs,
+    // ) {
+    //     self.needs_ty_result = true;
+    //     self.print_typedoc(docs);
+    //     self.push_str(&format!(
+    //         "export type {} = Result<",
+    //         name.to_upper_camel_case()
+    //     ));
+    //     self.print_optional_ty(result.ok.as_ref());
+    //     self.push_str(", ");
+    //     self.print_optional_ty(result.err.as_ref());
+    //     self.push_str(">;\n");
+    // }
 
     fn type_union(
         &mut self,
@@ -607,28 +599,28 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str(";\n");
     }
 
-    fn type_list(
-        &mut self,
-        _id: wit_parser::TypeId,
-        name: &str,
-        ty: &wit_parser::Type,
-        docs: &wit_parser::Docs,
-    ) {
-        self.print_typedoc(docs);
-        self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
-        self.print_list(ty);
-        self.push_str(";\n");
-    }
+    // fn type_list(
+    //     &mut self,
+    //     _id: wit_parser::TypeId,
+    //     name: &str,
+    //     ty: &wit_parser::Type,
+    //     docs: &wit_parser::Docs,
+    // ) {
+    //     self.print_typedoc(docs);
+    //     self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
+    //     self.print_list(ty);
+    //     self.push_str(";\n");
+    // }
 
-    fn type_builtin(
-        &mut self,
-        id: wit_parser::TypeId,
-        name: &str,
-        ty: &wit_parser::Type,
-        docs: &wit_parser::Docs,
-    ) {
-        drop((id, name, ty, docs));
-    }
+    // fn type_builtin(
+    //     &mut self,
+    //     id: wit_parser::TypeId,
+    //     name: &str,
+    //     ty: &wit_parser::Type,
+    //     docs: &wit_parser::Docs,
+    // ) {
+    //     drop((id, name, ty, docs));
+    // }
 }
 
 fn to_js_ident(name: &str) -> &str {
