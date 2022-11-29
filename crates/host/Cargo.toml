@@ -9,7 +9,7 @@ edition.workspace = true
 anyhow.workspace = true
 bitflags.workspace = true
 tauri-bindgen-host-macro = { path = "../host-macro" }
-async-trait = "0.1.58"
+async-trait = "0.1.59"
 tauri.workspace = true
 serde = { version = "1.0.148", features = ["derive"] }
 tracing = { version = "0.1.37", features = ["log", "log-always"] }
