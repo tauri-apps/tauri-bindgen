@@ -65,13 +65,6 @@ enum GuestGenerator {
         #[clap(flatten)]
         world: WorldOpt,
     },
-    /// Generates bindings for ReScript guest modules.
-    Rescript {
-        #[clap(flatten)]
-        opts: tauri_bindgen_gen_guest_rescript::Opts,
-        #[clap(flatten)]
-        world: WorldOpt,
-    },
 }
 
 #[derive(Debug, Parser)]
@@ -104,9 +97,6 @@ fn main() -> Result<()> {
             gen_world(opts.build(), world, &mut files)?;
         }
         Category::Guest(GuestGenerator::Typescript { opts, world, .. }) => {
-            gen_world(opts.build(), world, &mut files)?;
-        }
-        Category::Guest(GuestGenerator::Rescript { opts, world, .. }) => {
             gen_world(opts.build(), world, &mut files)?;
         }
         Category::Markdown { opts, world, .. } => {

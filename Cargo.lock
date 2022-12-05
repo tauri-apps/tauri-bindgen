@@ -2787,7 +2787,6 @@ dependencies = [
  "miette",
  "tauri-bindgen-core",
  "tauri-bindgen-gen-guest-js",
- "tauri-bindgen-gen-guest-rescript",
  "tauri-bindgen-gen-guest-rust",
  "tauri-bindgen-gen-guest-ts",
  "tauri-bindgen-gen-host",
@@ -2810,16 +2809,6 @@ dependencies = [
 
 [[package]]
 name = "tauri-bindgen-gen-guest-js"
-version = "0.1.0"
-dependencies = [
- "clap",
- "heck 0.4.0",
- "tauri-bindgen-core",
- "wit-parser",
-]
-
-[[package]]
-name = "tauri-bindgen-gen-guest-rescript"
 version = "0.1.0"
 dependencies = [
  "clap",
