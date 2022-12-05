@@ -78,53 +78,35 @@ pub trait RustGenerator<'a> {
 
     fn print_tyid(&mut self, id: TypeId, mode: TypeMode) {
         let ty = &self.iface().types[id];
-        // let info = self.info(id);
-        // let lt = self.lifetime_for(&info, mode);
+        let info = self.info(id);
+        let lt = self.lifetime_for(&info, mode);
 
         // if ty.name.is_some() {
-        //     let name = if lt.is_some() {
-        //         self.param_name(id)
-        //     } else {
-        //         self.result_name(id)
-        //     };
-        //     self.push_str(&name);
+        let name = if lt.is_some() {
+            self.param_name(id)
+        } else {
+            self.result_name(id)
+        };
+        self.push_str(&name);
 
-        //     // If the type recursively owns data and it's a
-        //     // variant/record/list, then we need to place the
-        //     // lifetime parameter on the type as well.
-        //     if info.owns_data() && needs_generics(self.iface(), &ty.kind) {
-        //         self.print_generics(lt);
-        //     }
+        // If the type recursively owns data and it's a
+        // variant/record/list, then we need to place the
+        // lifetime parameter on the type as well.
+        if info.owns_data() && needs_generics(self.iface(), &ty.kind) {
+            self.print_generics(lt);
+        }
 
-        //     return;
-
-        //     fn needs_generics(iface: &Interface, ty: &TypeDefKind) -> bool {
-        //         match ty {
-        //             TypeDefKind::Variant(_)
-        //             | TypeDefKind::Record(_)
-        //             | TypeDefKind::Option(_)
-        //             | TypeDefKind::Result(_)
-        //             | TypeDefKind::Future(_)
-        //             | TypeDefKind::Stream(_)
-        //             | TypeDefKind::List(_)
-        //             | TypeDefKind::Flags(_)
-        //             | TypeDefKind::Enum(_)
-        //             | TypeDefKind::Tuple(_)
-        //             | TypeDefKind::Union(_) => true,
-        //             TypeDefKind::Type(Type::Id(t)) => needs_generics(iface, &iface.types[*t].kind),
-        //             TypeDefKind::Type(Type::String) => true,
-        //             TypeDefKind::Type(_) => false,
-        //         }
-        //     }
-        // }
-
-        match &ty.kind {
-            TypeDefKind::Type(ty) => self.print_ty(ty, mode),
-            TypeDefKind::Enum(_) => panic!("unsupported anonymous type reference: enum"),
-            TypeDefKind::Variant(_) => panic!("unsupported anonymous type reference: variant"),
-            TypeDefKind::Flags(_) => panic!("unsupported anonymous type reference: flags"),
-            TypeDefKind::Union(_) => panic!("unsupported anonymous type reference: union"),
-            TypeDefKind::Record(_) => panic!("unsupported anonymous type reference: record"),
+        fn needs_generics(iface: &Interface, ty: &TypeDefKind) -> bool {
+            match ty {
+                TypeDefKind::Variant(_)
+                | TypeDefKind::Record(_)
+                | TypeDefKind::Flags(_)
+                | TypeDefKind::Enum(_)
+                | TypeDefKind::Union(_) => true,
+                TypeDefKind::Type(Type::Id(t)) => needs_generics(iface, &iface.types[*t].kind),
+                TypeDefKind::Type(Type::String) => true,
+                TypeDefKind::Type(_) => false,
+            }
         }
     }
 

@@ -122,11 +122,13 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn print_typedoc(&mut self, docs: &Docs) {
-        self.push_str("/**\n");
-        for line in docs.contents.trim().lines() {
-            self.push_str(&format!(" * {}\n", line));
+        if !docs.contents.is_empty() {
+            self.push_str("/**\n");
+            for line in docs.contents.trim().lines() {
+                self.push_str(&format!(" * {}\n", line));
+            }
+            self.push_str(" */\n");
         }
-        self.push_str(" */\n");
     }
 
     fn print_intro(&mut self) {
@@ -280,14 +282,7 @@ impl<'a> InterfaceGenerator<'a> {
             Type::Id(id) => {
                 let ty = &self.iface.types[*id];
 
-                match &ty.kind {
-                    TypeDefKind::Record(_) => todo!(),
-                    TypeDefKind::Flags(_) => todo!(),
-                    TypeDefKind::Variant(_) => todo!(),
-                    TypeDefKind::Enum(_) => todo!(),
-                    TypeDefKind::Union(_) => todo!(),
-                    TypeDefKind::Type(ty) => self.print_ty(ty),
-                }
+                self.push_str(&ty.name.to_upper_camel_case());
             }
         }
     }

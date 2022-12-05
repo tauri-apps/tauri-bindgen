@@ -219,11 +219,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     fn type_record(&mut self, id: TypeId, _name: &str, record: &Record, docs: &Docs) {
         self.print_typedef_record(id, record, docs, get_serde_attrs);
     }
-
-    // fn type_tuple(&mut self, id: TypeId, _name: &str, tuple: &Tuple, docs: &Docs) {
-    //     self.print_typedef_tuple(id, tuple, docs);
-    // }
-
+    
     fn type_flags(&mut self, id: TypeId, name: &str, flags: &Flags, docs: &Docs) {
         self.push_str("::tauri_bindgen_guest_rust::bitflags::bitflags! {\n");
         self.print_rustdoc(docs);
@@ -261,14 +257,6 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.print_typedef_union(id, union, docs, get_serde_attrs);
     }
 
-    // fn type_option(&mut self, id: TypeId, _name: &str, payload: &Type, docs: &Docs) {
-    //     self.print_typedef_option(id, payload, docs);
-    // }
-
-    // fn type_result(&mut self, id: TypeId, _name: &str, result: &Result_, docs: &Docs) {
-    //     self.print_typedef_result(id, result, docs);
-    // }
-
     fn type_enum(&mut self, id: TypeId, _name: &str, enum_: &Enum, docs: &Docs) {
         self.print_typedef_enum(id, enum_, docs, get_serde_attrs);
     }
@@ -276,19 +264,6 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     fn type_alias(&mut self, id: TypeId, _name: &str, ty: &Type, docs: &Docs) {
         self.print_typedef_alias(id, ty, docs);
     }
-
-    // fn type_list(&mut self, id: TypeId, _name: &str, ty: &Type, docs: &Docs) {
-    //     self.print_typedef_list(id, ty, docs);
-    // }
-
-    // fn type_builtin(&mut self, _id: TypeId, name: &str, ty: &Type, docs: &Docs) {
-    //     self.print_rustdoc(docs);
-    //     self.src
-    //         .push_str(&format!("pub type {}", name.to_upper_camel_case()));
-    //     self.src.push_str(" = ");
-    //     self.print_ty(ty, TypeMode::Owned);
-    //     self.src.push_str(";\n");
-    // }
 }
 
 fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<String> {
