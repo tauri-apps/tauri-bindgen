@@ -6,10 +6,10 @@ edition.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow.workspace = true
 bitflags.workspace = true
 tauri-bindgen-host-macro = { path = "../host-macro" }
 async-trait = "0.1.58"
 tauri.workspace = true
 serde = { version = "1.0.148", features = ["derive"] }
 tracing = { version = "0.1.37", features = ["log", "log-always"] }
+anyhow = "1.0.66"

@@ -1,7 +1,7 @@
 interface roundtrip {
             record empty {}
         
-            empty: func(x: empty) -> empty
+            func empty(x: empty) -> empty
         
             /// A record containing two scalar fields
             /// that both have the same type
@@ -10,9 +10,10 @@ interface roundtrip {
                 a: u32,
                 /// The second field, named b
                 b: u32,
+                c: scalars
             }
         
-            record-scalars: func(val: scalars) -> scalars
+            func record-scalars(val: scalars) -> scalars
         
             /// A record that is really just flags
             /// All of the fields are bool
@@ -28,7 +29,7 @@ interface roundtrip {
                 i: bool,
             }
         
-            record-really-flags: func(val: really-flags) -> really-flags
+            func record-really-flags(val: really-flags) -> really-flags
         
             record aggregates {
                 a: scalars,
@@ -38,7 +39,7 @@ interface roundtrip {
                 e: really-flags,
             }
         
-            record-aggregates: func(val: aggregates) -> aggregates
+            func record-aggregates(val: aggregates) -> aggregates
         
             flags flag1 {
                 b0,
@@ -79,40 +80,40 @@ interface roundtrip {
                 b56, b57, b58, b59, b60, b61, b62, b63,
             }
         
-            flag1: func(x: flag1) -> flag1
-            flag2: func(x: flag2) -> flag2
-            flag4: func(x: flag4) -> flag4
-            flag8: func(x: flag8) -> flag8
-            flag16: func(x: flag16) -> flag16
-            flag32: func(x: flag32) -> flag32
-            flag64: func(x: flag64) -> flag64
+            func flag1(x: flag1) -> flag1
+            func flag2(x: flag2) -> flag2
+            func flag4(x: flag4) -> flag4
+            func flag8(x: flag8) -> flag8
+            func flag16(x: flag16) -> flag16
+            func flag32(x: flag32) -> flag32
+            func flag64(x: flag64) -> flag64
         
-            %float32: func(x: float32) -> float32
-            %float64: func(x: float64) -> float64
+            func %float32(x: float32) -> float32
+            func %float64(x: float64) -> float64
         
-            %u8: func(x: u8) -> u8
-            %s8: func(x: s8) -> s8
-            %u16: func(x: u16) -> u16
-            %s16: func(x: s16) -> s16
-            %u32: func(x: u32) -> u32
-            %s32: func(x: s32) -> s32
-            %u64: func(x: u64) -> u64
-            %s64: func(x: s64) -> s64
+            func %u8(x: u8) -> u8
+            func %s8(x: s8) -> s8
+            func %u16(x: u16) -> u16
+            func %s16(x: s16) -> s16
+            func %u32(x: u32) -> u32
+            func %s32(x: s32) -> s32
+            func %u64(x: u64) -> u64
+            func %s64(x: s64) -> s64
         
-            list-u8: func(x: list<u8>) -> list<u8>
-            list-u16: func(x: list<u16>) -> list<u16>
-            list-u32: func(x: list<u32>) -> list<u32>
-            list-u64: func(x: list<u64>) -> list<u64>
-            list-s8: func(x: list<s8>) -> list<s8>
-            list-s16: func(x: list<s16>) -> list<s16>
-            list-s32: func(x: list<s32>) -> list<s32>
-            list-s64: func(x: list<s64>) -> list<s64>
-            list-float32: func(x: list<float32>) -> list<float32>
-            list-float64: func(x: list<float64>) -> list<float64>
+            func list-u8(x: list<u8>) -> list<u8>
+            func list-u16(x: list<u16>) -> list<u16>
+            func list-u32(x: list<u32>) -> list<u32>
+            func list-u64(x: list<u64>) -> list<u64>
+            func list-s8(x: list<s8>) -> list<s8>
+            func list-s16(x: list<s16>) -> list<s16>
+            func list-s32(x: list<s32>) -> list<s32>
+            func list-s64(x: list<s64>) -> list<s64>
+            func list-float32(x: list<float32>) -> list<float32>
+            func list-float64(x: list<float64>) -> list<float64>
         
-            tuple-list: func(x: list<tuple<u8, s8>>) -> list<tuple<u8, s8>>
-            string-list: func(a: list<string>) -> list<string>
-            tuple-string-list: func(x: list<tuple<u8, string>>) -> list<tuple<u8, string>>
+            func tuple-list(x: list<tuple<u8, s8>>) -> list<tuple<u8, s8>>
+            func string-list(a: list<string>) -> list<string>
+            func tuple-string-list(x: list<tuple<u8, string>>) -> list<tuple<u8, string>>
         
             record some-record {
                 x: string,
@@ -131,29 +132,29 @@ interface roundtrip {
                 b: string,
                 c: list<u8>,
             }
-            record-list: func(x: list<some-record>) -> list<other-record>
+            func record-list(x: list<some-record>) -> list<other-record>
         
             union all-integers {
                 bool,
                 u8, u16, u32, u64,
                 s8, s16, s32, s64
             }
-            all-integers: func(x: all-integers) -> all-integers
+            func all-integers(x: all-integers) -> all-integers
         
             union all-floats {
                 float32, float64
             }
-            all-floats: func(x: all-floats) -> all-floats
+            func all-floats(x: all-floats) -> all-floats
         
             union all-text {
                 char, string
             }
-            all-text: func(x: all-text) -> all-text
+            func all-text(x: all-text) -> all-text
         
             enum e1 {
                 a,
             }
-            e1: func(x: e1) -> e1
+            func e1(x: e1) -> e1
         
             union u1 {
                 u32,
@@ -169,9 +170,9 @@ interface roundtrip {
                 f,
                 g(u32),
             }
-            v1: func(x: v1) -> v1
+            func v1(x: v1) -> v1
         
-            options: func(
+            func options(
                 a: option<bool>,
                 b: option<tuple<>>,
                 c: option<u32>,
@@ -189,7 +190,7 @@ interface roundtrip {
                 option<option<bool>>,
             >
         
-            results: func(
+            func results(
                 a: result,
                 b: result<_, e1>,
                 c: result<e1>,

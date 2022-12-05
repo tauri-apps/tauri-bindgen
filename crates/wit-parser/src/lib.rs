@@ -1,43 +1,51 @@
 mod ast;
+mod error;
+pub(crate) mod util;
 
-use std::{collections::{hash_map, HashMap}, path::Path, io};
+use ast::parse::FromTokens;
+pub use error::Error;
 use id_arena::{Arena, Id};
+use miette::{ErrReport, IntoDiagnostic, NamedSource};
+use std::{
+    collections::{hash_map, HashMap},
+    ops::Range,
+    path::Path,
+};
 
-pub type TypeId = Id<TypeDef>;
+pub fn parse_file<'a>(path: impl AsRef<Path>) -> miette::Result<Interface> {
+    let path = path.as_ref();
+    let input = std::fs::read_to_string(path).into_diagnostic()?;
 
-pub fn parse_file<'a>(path: impl AsRef<Path>) -> Result<Interface, Error> {
-    let input = std::fs::read_to_string(path)?;
-
-    let mut tokens = ast::lex::Tokenizer::from_str(&input);
-    let iface = ast::parse::interface(&mut tokens)?;
-
-    let iface = ast::resolve::Resolver::default().resolve(iface)?;
+    let iface = parse(&input).map_err(|error: ErrReport| {
+        error.with_source_code(NamedSource::new(path.to_string_lossy(), input))
+    })?;
 
     Ok(iface)
 }
+
+fn parse(input: &str) -> miette::Result<Interface> {
+    let mut tokens = ast::lex::Tokens::from_str(&input);
+
+    let iface = ast::Interface::parse(&mut tokens)?;
+
+    let iface = ast::resolve::Resolver::new(&input).resolve(iface)?;
+
+    Ok(iface)
+}
+
+pub type TypeId = Id<TypeDef>;
 
 pub enum Int {
     U8,
     U16,
     U32,
-    U64
+    U64,
 }
 
 pub enum FlagsRepr {
     U8,
     U16,
-    U32(usize)
-}
-
-
-#[derive(Debug, thiserror::Error)]
-pub enum Error {
-    #[error(transparent)]
-    Parse(#[from] ast::parse::Error),
-    #[error(transparent)]
-    Resolve(#[from] ast::resolve::Errors),
-    #[error(transparent)]
-    Io(#[from] io::Error)
+    U32(usize),
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
@@ -139,6 +147,7 @@ pub struct Result_ {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TypeDef {
+    pub pos: Range<usize>,
     pub docs: Docs,
     pub name: String,
     pub kind: TypeDefKind,
@@ -187,7 +196,7 @@ impl Flags {
     pub fn repr(&self) -> Int {
         match self.flags.len() {
             n if n <= u8::MAX as usize => Int::U8,
-            n if n <= u16::MAX as usize =>Int::U16,
+            n if n <= u16::MAX as usize => Int::U16,
             n if n <= u32::MAX as usize => Int::U32,
             n if n <= u64::MAX as usize => Int::U64,
             _ => panic!("too many flags to fit in a repr"),

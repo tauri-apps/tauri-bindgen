@@ -1,7 +1,6 @@
-use anyhow::{bail, Context};
 use clap::Parser;
-use wit_parser::Interface;
-use std::path::{Path, PathBuf};
+use miette::{bail, IntoDiagnostic, Result, WrapErr};
+use std::path::PathBuf;
 use tauri_bindgen_core::{Files, WorldGenerator};
 
 /// Helper for passing VERSION to opt.
@@ -77,9 +76,9 @@ enum GuestGenerator {
 
 #[derive(Debug, Parser)]
 struct WorldOpt {
+    // #[clap(value_name = "DOCUMENT", value_parser = parse_interface)]
     /// Generate bindings for the WIT document.
-    #[clap(value_name = "DOCUMENT", value_parser = parse_interface)]
-    wit: (Interface, String),
+    wit: PathBuf,
 }
 
 #[derive(Debug, Parser, Clone)]
@@ -89,7 +88,7 @@ struct Common {
     out_dir: Option<PathBuf>,
 }
 
-fn main() -> anyhow::Result<()> {
+fn main() -> Result<()> {
     let opt: Opt = Opt::parse();
     let common = opt.common;
 
@@ -123,36 +122,29 @@ fn main() -> anyhow::Result<()> {
         println!("Generating {:?}", dst);
         if let Some(parent) = dst.parent() {
             std::fs::create_dir_all(parent)
-                .with_context(|| format!("failed to create {:?}", parent))?;
+                .into_diagnostic()
+                .wrap_err(format!("failed to create {:?}", parent))?;
         }
-        std::fs::write(&dst, contents).with_context(|| format!("failed to write {:?}", dst))?;
+        std::fs::write(&dst, contents)
+            .into_diagnostic()
+            .wrap_err(format!("failed to write {:?}", dst))?;
     }
 
     Ok(())
-}
-
-fn parse_interface(s: &str) -> anyhow::Result<(Interface, String)> {
-    let path = Path::new(s);
-    if !path.is_file() {
-        bail!("wit file `{}` does not exist", path.display());
-    }
-
-    let world = wit_parser::parse_file(&path)
-        .with_context(|| format!("failed to parse wit file `{}`", path.display()))
-        .map_err(|e| {
-            eprintln!("{e:?}");
-            e
-        })?;
-
-    Ok((world, tauri_bindgen_core::hash::hash_file(path)?))
 }
 
 fn gen_world(
     mut generator: Box<dyn WorldGenerator>,
     opts: WorldOpt,
     files: &mut Files,
-) -> anyhow::Result<()> {
-    let (world, world_hash) = opts.wit;
+) -> Result<()> {
+    if !opts.wit.is_file() {
+        bail!("wit file `{}` does not exist", opts.wit.display());
+    }
+
+    let world = wit_parser::parse_file(&opts.wit)?;
+    let world_hash = tauri_bindgen_core::hash::hash_file(opts.wit)?;
+
     generator.generate(&world.name, &world, files, &world_hash);
     Ok(())
 }

@@ -1,6 +1,7 @@
 pub mod hash;
 mod postprocess;
 
+use miette::Diagnostic;
 pub use postprocess::postprocess;
 
 use std::{
@@ -9,6 +10,13 @@ use std::{
     ops::Deref,
 };
 use wit_parser::*;
+
+#[derive(Debug, thiserror::Error, Diagnostic)]
+pub enum Error {
+    #[error(transparent)]
+    #[diagnostic(code(my_lib::io_error))]
+    IoError(#[from] std::io::Error),
+}
 
 pub const VERSION_MISMATCH_MSG: &str = "The Host bindings were generated from a different version of the definitions file. This usually means your Guest bindings are out-of-date. For more details see https://github.com/tauri-apps/tauri-bindgen#version-check.";
 

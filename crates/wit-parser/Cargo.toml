@@ -4,7 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[build-dependencies]
+fst = "0.4.7"
 
 [dependencies]
-thiserror = "1.0.37"
+thiserror.workspace = true
 id-arena = "2.2.1"
+codespan-reporting = "0.11.1"
+miette.workspace = true
+fst = { version = "0.4.7", features = ["levenshtein"] }
