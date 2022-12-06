@@ -1,12 +1,12 @@
 #[allow(clippy::all)]
-pub mod import_lists {
-    pub const WORLD_HASH: &str = "a744d1c6fec40184";
+pub mod lists {
+    pub const WORLD_HASH: &str = "3d9d99368dfa9a39";
     #[derive(
         Debug,
         Clone,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     #[serde(rename_all = "camelCase")]
     pub struct SomeRecord {
@@ -22,8 +22,8 @@ pub mod import_lists {
         Debug,
         Clone,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     #[serde(rename_all = "camelCase")]
     pub struct OtherRecord {
@@ -45,8 +45,8 @@ pub mod import_lists {
         Debug,
         Clone,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum OtherVariant {
         A,
@@ -55,7 +55,7 @@ pub mod import_lists {
     }
     pub type LoadStoreAllSizes =
         Vec<(String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char)>;
-    pub trait ImportLists: Sized {
+    pub trait Lists: Sized {
         fn list_u8_param(&self, x: Vec<u8>) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn list_u16_param(&self, x: Vec<u16>) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn list_u32_param(&self, x: Vec<u32>) -> ::tauri_bindgen_host::anyhow::Result<()>;
@@ -107,14 +107,14 @@ pub mod import_lists {
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: ImportLists + Send + Sync + 'static,
+        U: Lists + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| {
             let span = ::tauri_bindgen_host::tracing::span!(
             ::tauri_bindgen_host::tracing::Level::TRACE,
             "tauri-bindgen invoke handler",
-            module = "import-lists", function = invoke.message.command(), payload = ?invoke.message.payload()
+            module = "lists", function = invoke.message.command(), payload = ?invoke.message.payload()
             );
             let _enter = span.enter();
 
@@ -135,7 +135,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "list-u8-param",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -166,7 +166,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "list-u16-param",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -197,7 +197,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "list-u32-param",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -228,7 +228,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "list-u64-param",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -259,7 +259,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "list-s8-param",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -290,7 +290,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "list-s16-param",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -321,7 +321,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "list-s32-param",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -352,7 +352,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "list-s64-param",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -383,7 +383,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "list-float32-param",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -414,7 +414,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "list-float64-param",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -565,7 +565,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "tuple-list",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -596,7 +596,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "string-list-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -639,7 +639,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "tuple-string-list",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -670,7 +670,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "string-list",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -701,7 +701,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "record-list",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -732,7 +732,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "record-list-reverse",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -763,7 +763,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "variant-list",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -794,7 +794,7 @@ pub mod import_lists {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-lists",
+                                module = "lists",
                                 function = "load-store-everything",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -811,7 +811,7 @@ pub mod import_lists {
                 }
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
-                        module = "import-lists",
+                        module = "lists",
                         function = func_name,
                         "Not Found"
                     );

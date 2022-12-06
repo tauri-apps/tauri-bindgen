@@ -1,12 +1,6 @@
 interface floats {
-  float32-param: func(x: float32)
-  float64-param: func(x: float64)
-  float32-result: func() -> float32
-  float64-result: func() -> float64
-}
-
-world floats {
-  import imports: floats
-  export exports: floats
-  default export floats
+  func float32-param(x: float32)
+  func float64-param(x: float64)
+  func float32-result() -> float32
+  func float64-result() -> float64
 }

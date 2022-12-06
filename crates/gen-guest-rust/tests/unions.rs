@@ -1,10 +1,9 @@
 #[allow(clippy::all, unused)]
-pub mod import_unions {
+pub mod unions {
     /// A union of all of the integral types
     #[derive(Debug, Clone, Copy, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
     pub enum AllIntegers {
-        /// Bool is equivalent to a 1 bit integer
-        /// and is treated that way in some languages
+        /// Bool is equivalent to a 1 bit integer and is treated that way in some languages
         Bool(bool),
         U8(u8),
         U16(u16),
@@ -54,7 +53,7 @@ pub mod import_unions {
             num: AllIntegers,
         }
         let params = Params { num };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|add-one-integer", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|add-one-integer", &params)
             .await
             .unwrap()
     }
@@ -65,7 +64,7 @@ pub mod import_unions {
             num: AllFloats,
         }
         let params = Params { num };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|add-one-float", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|add-one-float", &params)
             .await
             .unwrap()
     }
@@ -77,7 +76,7 @@ pub mod import_unions {
             letter: char,
         }
         let params = Params { text, letter };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|replace-first-char", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|replace-first-char", &params)
             .await
             .unwrap()
     }
@@ -88,7 +87,7 @@ pub mod import_unions {
             num: AllIntegers,
         }
         let params = Params { num };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|identify-integer", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|identify-integer", &params)
             .await
             .unwrap()
     }
@@ -99,7 +98,7 @@ pub mod import_unions {
             num: AllFloats,
         }
         let params = Params { num };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|identify-float", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|identify-float", &params)
             .await
             .unwrap()
     }
@@ -110,7 +109,7 @@ pub mod import_unions {
             text: AllTextParam<'a>,
         }
         let params = Params { text };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|identify-text", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|identify-text", &params)
             .await
             .unwrap()
     }
@@ -121,7 +120,7 @@ pub mod import_unions {
             num: DuplicatedS32,
         }
         let params = Params { num };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|add-one-duplicated", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|add-one-duplicated", &params)
             .await
             .unwrap()
     }
@@ -132,7 +131,7 @@ pub mod import_unions {
             num: DuplicatedS32,
         }
         let params = Params { num };
-        ::tauri_bindgen_guest_rust::invoke("plugin:cccf67b47414af61|identify-duplicated", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|identify-duplicated", &params)
             .await
             .unwrap()
     }
@@ -144,7 +143,7 @@ pub mod import_unions {
         }
         let params = Params { num };
         ::tauri_bindgen_guest_rust::invoke(
-            "plugin:cccf67b47414af61|add-one-distinguishable-num",
+            "plugin:37da362e4966fe5b|add-one-distinguishable-num",
             &params,
         )
         .await
@@ -158,7 +157,7 @@ pub mod import_unions {
         }
         let params = Params { num };
         ::tauri_bindgen_guest_rust::invoke(
-            "plugin:cccf67b47414af61|identify-distinguishable-num",
+            "plugin:37da362e4966fe5b|identify-distinguishable-num",
             &params,
         )
         .await

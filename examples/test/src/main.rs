@@ -1,13 +1,13 @@
-mod tauri_log;
+// mod tauri_log;
 mod roundtrip;
 
 extern crate console_error_panic_hook;
-use log::LevelFilter;
+// use log::LevelFilter;
 use std::future::Future;
 use std::panic;
 use sycamore::prelude::*;
 use sycamore::suspense::Suspense;
-use tauri_log::TauriLogger;
+// use tauri_log::TauriLogger;
 
 #[cfg(feature = "ci")]
 async fn exit_with_error(e: String) {
@@ -92,12 +92,13 @@ pub async fn Terminate<'a, G: Html>(cx: Scope<'a>) -> View<G> {
     }
 }
 
-static LOGGER: TauriLogger = TauriLogger;
+// static LOGGER: TauriLogger = TauriLogger;
 
 fn main() {
-    log::set_logger(&LOGGER)
-        .map(|()| log::set_max_level(LevelFilter::Trace))
-        .unwrap();
+    wasm_logger::init(wasm_logger::Config::default());
+    // log::set_logger(&LOGGER)
+    //     .map(|()| log::set_max_level(LevelFilter::Trace))
+    //     .unwrap();
 
     panic::set_hook(Box::new(|info| {
         console_error_panic_hook::hook(info);

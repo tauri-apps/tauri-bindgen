@@ -3,16 +3,16 @@ interface variants {
       a,
   }
 
-  e1-arg: func(x: e1)
-  e1-result: func() -> e1
+  func e1-arg(x: e1)
+  func e1-result() -> e1
 
   union u1 {
       u32,
       float32,
   }
 
-  u1-arg: func(x: u1)
-  u1-result: func() -> u1
+  func u1-arg(x: u1)
+  func u1-result() -> u1
 
   record empty {}
 
@@ -26,13 +26,13 @@ interface variants {
       g(u32),
   }
 
-  v1-arg: func(x: v1)
-  v1-result: func() -> v1
+  func v1-arg(x: v1)
+  func v1-result() -> v1
 
-  bool-arg: func(x: bool)
-  bool-result: func() -> bool
+  func bool-arg(x: bool)
+  func bool-result() -> bool
 
-  option-arg: func(
+  func option-arg(
     a: option<bool>,
     b: option<tuple<>>,
     c: option<u32>,
@@ -41,7 +41,7 @@ interface variants {
     f: option<u1>,
     g: option<option<bool>>,
   )
-  option-result: func() -> tuple<
+  func option-result() -> tuple<
     option<bool>,
     option<tuple<>>,
     option<u32>,
@@ -81,7 +81,7 @@ interface variants {
     b(tuple<u32, u32>),
   }
 
-  casts: func(
+  func casts(
     a: casts1,
     b: casts2,
     c: casts3,
@@ -97,7 +97,7 @@ interface variants {
     casts6,
   >
 
-  result-arg: func(
+  func result-arg(
     a: result,
     b: result<_, e1>,
     c: result<e1>,
@@ -105,7 +105,7 @@ interface variants {
     e: result<u32, v1>,
     f: result<string, list<u8>>,
   )
-  result-result: func() -> tuple<
+  func result-result() -> tuple<
     result,
     result<_, e1>,
     result<e1>,
@@ -119,28 +119,22 @@ interface variants {
     bad2,
   }
 
-  return-result-sugar: func() -> result<s32, my-errno>
-  return-result-sugar2: func() -> result<_, my-errno>
-  return-result-sugar3: func() -> result<my-errno, my-errno>
-  return-result-sugar4: func() -> result<tuple<s32, u32>, my-errno>
-  return-option-sugar: func() -> option<s32>
-  return-option-sugar2: func() -> option<my-errno>
+  func return-result-sugar() -> result<s32, my-errno>
+  func return-result-sugar2() -> result<_, my-errno>
+  func return-result-sugar3() -> result<my-errno, my-errno>
+  func return-result-sugar4() -> result<tuple<s32, u32>, my-errno>
+  func return-option-sugar() -> option<s32>
+  func return-option-sugar2() -> option<my-errno>
 
-  result-simple: func() -> result<u32, s32>
+  func result-simple() -> result<u32, s32>
 
   record is-clone {
     v1: v1,
   }
 
-  is-clone-arg: func(a: is-clone)
-  is-clone-return: func() -> is-clone
+  func is-clone-arg(a: is-clone)
+  func is-clone-return() -> is-clone
 
-  return-named-option: func() -> (a: option<u8>)
-  return-named-result: func() -> (a: result<u8, my-errno>)
-}
-
-world variants {
-  import imports: variants
-  export exports: variants
-  default export variants
+  func return-named-option() -> (a: option<u8>)
+  func return-named-result() -> (a: result<u8, my-errno>)
 }

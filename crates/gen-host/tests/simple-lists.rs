@@ -1,7 +1,7 @@
 #[allow(clippy::all)]
-pub mod imports {
-    pub const WORLD_HASH: &str = "d40a3203ef48115d";
-    pub trait Imports: Sized {
+pub mod simple_lists {
+    pub const WORLD_HASH: &str = "e8600e8d0423cbdb";
+    pub trait SimpleLists: Sized {
         fn simple_list1(&self, l: Vec<u32>) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn simple_list2(&self) -> ::tauri_bindgen_host::anyhow::Result<Vec<u32>>;
         fn simple_list4(
@@ -12,14 +12,14 @@ pub mod imports {
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: Imports + Send + Sync + 'static,
+        U: SimpleLists + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| {
             let span = ::tauri_bindgen_host::tracing::span!(
             ::tauri_bindgen_host::tracing::Level::TRACE,
             "tauri-bindgen invoke handler",
-            module = "imports", function = invoke.message.command(), payload = ?invoke.message.payload()
+            module = "simple-lists", function = invoke.message.command(), payload = ?invoke.message.payload()
             );
             let _enter = span.enter();
 
@@ -40,7 +40,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "simple-lists",
                                 function = "simple-list1",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -83,7 +83,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "simple-lists",
                                 function = "simple-list4",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -100,7 +100,7 @@ pub mod imports {
                 }
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
-                        module = "imports",
+                        module = "simple-lists",
                         function = func_name,
                         "Not Found"
                     );

@@ -1,67 +1,79 @@
 const invoke = window.__TAURI_INVOKE__;
 /**
  * @param {[string, number]} x
+ * @returns {Promise<[]>}
  */
 export async function tupleArg(x) {
-	await invoke("plugin:e6872cf01241a6f3|tuple_arg", { x: x });
+	const result = await invoke("plugin:ac98167d7d43eb21|tuple_arg", { x: x });
+	return result;
 }
 /**
  * @returns {Promise<[string, number]>}
  */
 export async function tupleResult() {
-	const result = await invoke("plugin:e6872cf01241a6f3|tuple_result");
+	const result = await invoke("plugin:ac98167d7d43eb21|tuple_result");
 	return result;
 }
 /**
  * @param {Empty} x
+ * @returns {Promise<[]>}
  */
 export async function emptyArg(x) {
-	await invoke("plugin:e6872cf01241a6f3|empty_arg", { x: x });
+	const result = await invoke("plugin:ac98167d7d43eb21|empty_arg", { x: x });
+	return result;
 }
 /**
  * @returns {Promise<Empty>}
  */
 export async function emptyResult() {
-	const result = await invoke("plugin:e6872cf01241a6f3|empty_result");
+	const result = await invoke("plugin:ac98167d7d43eb21|empty_result");
 	return result;
 }
 /**
  * @param {Scalars} x
+ * @returns {Promise<[]>}
  */
 export async function scalarArg(x) {
-	await invoke("plugin:e6872cf01241a6f3|scalar_arg", { x: x });
+	const result = await invoke("plugin:ac98167d7d43eb21|scalar_arg", { x: x });
+	return result;
 }
 /**
  * @returns {Promise<Scalars>}
  */
 export async function scalarResult() {
-	const result = await invoke("plugin:e6872cf01241a6f3|scalar_result");
+	const result = await invoke("plugin:ac98167d7d43eb21|scalar_result");
 	return result;
 }
 /**
  * @param {ReallyFlags} x
+ * @returns {Promise<[]>}
  */
 export async function flagsArg(x) {
-	await invoke("plugin:e6872cf01241a6f3|flags_arg", { x: x });
+	const result = await invoke("plugin:ac98167d7d43eb21|flags_arg", { x: x });
+	return result;
 }
 /**
  * @returns {Promise<ReallyFlags>}
  */
 export async function flagsResult() {
-	const result = await invoke("plugin:e6872cf01241a6f3|flags_result");
+	const result = await invoke("plugin:ac98167d7d43eb21|flags_result");
 	return result;
 }
 /**
  * @param {Aggregates} x
+ * @returns {Promise<[]>}
  */
 export async function aggregateArg(x) {
-	await invoke("plugin:e6872cf01241a6f3|aggregate_arg", { x: x });
+	const result = await invoke("plugin:ac98167d7d43eb21|aggregate_arg", {
+		x: x,
+	});
+	return result;
 }
 /**
  * @returns {Promise<Aggregates>}
  */
 export async function aggregateResult() {
-	const result = await invoke("plugin:e6872cf01241a6f3|aggregate_result");
+	const result = await invoke("plugin:ac98167d7d43eb21|aggregate_result");
 	return result;
 }
 /**
@@ -69,7 +81,7 @@ export async function aggregateResult() {
  * @returns {Promise<number>}
  */
 export async function typedefInout(e) {
-	const result = await invoke("plugin:e6872cf01241a6f3|typedef_inout", {
+	const result = await invoke("plugin:ac98167d7d43eb21|typedef_inout", {
 		e: e,
 	});
 	return result;

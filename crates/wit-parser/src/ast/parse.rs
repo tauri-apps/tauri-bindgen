@@ -1,16 +1,14 @@
-use miette::{bail, Result};
-
-use crate::{
-    util::{find_similar, print_list},
-    Error,
-};
-
 use super::{
     lex::{Token, Tokens},
     Docs, Enum, EnumCase, Flags, FlagsField, Func, Interface, InterfaceItem, InterfaceItemKind,
     NamedType, NamedTypeList, Record, RecordField, Results, Type, Union, UnionCase, Use, UseName,
     UseNames, Variant, VariantCase,
 };
+use crate::{
+    util::{find_similar, print_list},
+    Error,
+};
+use miette::{bail, Result};
 
 pub trait FromTokens<'a>
 where
@@ -21,8 +19,6 @@ where
 
 impl<'a> FromTokens<'a> for Interface<'a> {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
-        let start = tokens.location()?.offset();
-
         let docs = Docs::parse(tokens)?;
 
         tokens.expect_token(Token::Interface)?;
@@ -41,22 +37,13 @@ impl<'a> FromTokens<'a> for Interface<'a> {
             items.push(InterfaceItem::parse(tokens)?);
         }
 
-        let end = tokens.location()?.offset();
-
-        Ok(Interface {
-            pos: (start..end).into(),
-            docs,
-            name,
-            items,
-        })
+        Ok(Interface { docs, name, items })
     }
 }
 
 impl<'a> FromTokens<'a> for InterfaceItem<'a> {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = Docs::parse(tokens)?;
-
-        let start = tokens.location()?.offset();
 
         let (loc, kind) = tokens.next().ok_or(Error::UnexpectedEof)??;
 
@@ -130,14 +117,7 @@ impl<'a> FromTokens<'a> for InterfaceItem<'a> {
             }
         };
 
-        let end = tokens.location()?.offset();
-
-        Ok(InterfaceItem {
-            pos: (start..end).into(),
-            docs,
-            name,
-            kind,
-        })
+        Ok(InterfaceItem { docs, name, kind })
     }
 }
 
@@ -145,22 +125,13 @@ impl<'a> FromTokens<'a> for RecordField<'a> {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = Docs::parse(tokens)?;
 
-        let start = tokens.location()?.offset();
-
         let name = tokens.expect_token(Token::Id)?;
- 
+
         tokens.expect_token(Token::Colon)?;
 
         let ty = Type::parse(tokens)?;
 
-        let end = tokens.location()?.offset();
-
-        Ok(RecordField {
-            pos: (start..end).into(),
-            docs,
-            name,
-            ty,
-        })
+        Ok(RecordField { docs, name, ty })
     }
 }
 
@@ -168,25 +139,15 @@ impl<'a> FromTokens<'a> for FlagsField<'a> {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = Docs::parse(tokens)?;
 
-        let start = tokens.location()?.offset();
-
         let name = tokens.expect_token(Token::Id)?;
 
-        let end = tokens.location()?.offset();
-
-        Ok(Self {
-            pos: (start..end).into(),
-            docs,
-            name,
-        })
+        Ok(Self { docs, name })
     }
 }
 
 impl<'a> FromTokens<'a> for VariantCase<'a> {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = Docs::parse(tokens)?;
-
-        let start = tokens.location()?.offset();
 
         let name = tokens.expect_token(Token::Id)?;
 
@@ -199,14 +160,7 @@ impl<'a> FromTokens<'a> for VariantCase<'a> {
             None
         };
 
-        let end = tokens.location()?.offset();
-
-        Ok(VariantCase {
-            pos: (start..end).into(),
-            docs,
-            name,
-            ty,
-        })
+        Ok(VariantCase { docs, name, ty })
     }
 }
 
@@ -214,17 +168,9 @@ impl<'a> FromTokens<'a> for UnionCase<'a> {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = Docs::parse(tokens)?;
 
-        let start = tokens.location()?.offset();
-
         let ty = Type::parse(tokens)?;
 
-        let end = tokens.location()?.offset();
-
-        Ok(UnionCase {
-            pos: (start..end).into(),
-            docs,
-            ty,
-        })
+        Ok(UnionCase { docs, ty })
     }
 }
 
@@ -232,21 +178,13 @@ impl<'a> FromTokens<'a> for EnumCase<'a> {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = Docs::parse(tokens)?;
 
-        let start = tokens.location()?.offset();
-
         let name = tokens.expect_token(Token::Id)?;
 
-        let end = tokens.location()?.offset();
-
-        Ok(EnumCase {
-            pos: (start..end).into(),
-            docs,
-            name,
-        })
+        Ok(EnumCase { docs, name })
     }
 }
 
-impl<'a> FromTokens<'a> for Func<'a> {
+impl<'a> FromTokens<'a> for Func {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let params = NamedTypeList::parse(tokens)?;
 
@@ -260,42 +198,27 @@ impl<'a> FromTokens<'a> for Func<'a> {
     }
 }
 
-impl<'a> FromTokens<'a> for NamedTypeList<'a> {
+impl<'a> FromTokens<'a> for NamedTypeList {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
-        let start = tokens.location()?.offset();
-
         let inner = list(tokens, Token::LeftParen, Token::RightParen)?;
 
-        let end = tokens.location()?.offset();
-
-        Ok(Self {
-            pos: (start..end).into(),
-            inner,
-        })
+        Ok(Self { inner })
     }
 }
 
-impl<'a> FromTokens<'a> for NamedType<'a> {
+impl<'a> FromTokens<'a> for NamedType {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
-        let start = tokens.location()?.offset();
-
         let name = tokens.expect_token(Token::Id)?;
 
         tokens.expect_token(Token::Colon)?;
 
         let ty = Type::parse(tokens)?;
 
-        let end = tokens.location()?.offset();
-
-        Ok(Self {
-            pos: (start..end).into(),
-            name,
-            ty,
-        })
+        Ok(Self { name, ty })
     }
 }
 
-impl<'a> FromTokens<'a> for Results<'a> {
+impl<'a> FromTokens<'a> for Results {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         if tokens.clone().take_token(Token::LeftParen)? {
             Ok(Results::Named(NamedTypeList::parse(tokens)?))
@@ -345,8 +268,6 @@ impl<'a> FromTokens<'a> for UseNames {
 
 impl<'a> FromTokens<'a> for UseName {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
-        let start = tokens.location()?.offset();
-
         let name = tokens.expect_token(Token::Id)?;
 
         let alias = if tokens.take_token(Token::As)? {
@@ -356,13 +277,7 @@ impl<'a> FromTokens<'a> for UseName {
             None
         };
 
-        let end = tokens.location()?.offset();
-
-        Ok(UseName {
-            pos: (start..end).into(),
-            name,
-            alias,
-        })
+        Ok(UseName { name, alias })
     }
 }
 
@@ -392,7 +307,7 @@ where
     Ok(items)
 }
 
-impl<'a> FromTokens<'a> for Type<'a> {
+impl<'a> FromTokens<'a> for Type {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let (pos, token) = tokens.next().ok_or(Error::UnexpectedEof)??;
 
@@ -448,7 +363,7 @@ impl<'a> FromTokens<'a> for Type<'a> {
                 };
                 Type::Result { ok, err }
             }
-            Token::Id => Type::Id { pos, name: tokens.read_span(pos) },
+            Token::Id => Type::Id(pos),
             found => {
                 let expected = [
                     Token::U8,

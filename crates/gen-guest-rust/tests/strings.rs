@@ -1,5 +1,5 @@
 #[allow(clippy::all, unused)]
-pub mod imports {
+pub mod strings {
     pub async fn a(x: &str) -> () {
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
@@ -7,12 +7,12 @@ pub mod imports {
             x: &'a str,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:16c3ebd2deefea81|a", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:4883b53925a5f618|a", &params)
             .await
             .unwrap()
     }
     pub async fn b() -> String {
-        ::tauri_bindgen_guest_rust::invoke("plugin:16c3ebd2deefea81|b", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:4883b53925a5f618|b", ())
             .await
             .unwrap()
     }
@@ -24,7 +24,7 @@ pub mod imports {
             b: &'a str,
         }
         let params = Params { a, b };
-        ::tauri_bindgen_guest_rust::invoke("plugin:16c3ebd2deefea81|c", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:4883b53925a5f618|c", &params)
             .await
             .unwrap()
     }

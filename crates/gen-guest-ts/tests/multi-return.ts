@@ -7,22 +7,23 @@ declare global {
 	}
 }
 const invoke = window.__TAURI_INVOKE__;
-export async function mra(): Promise<void> {
-	await invoke<void>("plugin:d238f57052cdcb90|mra");
+export async function mra(): Promise<[]> {
+	const result = await invoke<[]>("plugin:def17a258c1e4f4d|mra");
+	return result;
 }
 export async function mrb(): Promise<void> {
-	await invoke<void>("plugin:d238f57052cdcb90|mrb");
+	await invoke<void>("plugin:def17a258c1e4f4d|mrb");
 }
 export async function mrc(): Promise<number> {
-	const result = await invoke<number>("plugin:d238f57052cdcb90|mrc");
+	const result = await invoke<number>("plugin:def17a258c1e4f4d|mrc");
 	return result;
 }
 export async function mrd(): Promise<number> {
-	const result = await invoke<number>("plugin:d238f57052cdcb90|mrd");
+	const result = await invoke<number>("plugin:def17a258c1e4f4d|mrd");
 	return result;
 }
 export async function mre(): Promise<[number, number]> {
-	const result = await invoke<[number, number]>("plugin:d238f57052cdcb90|mre");
+	const result = await invoke<[number, number]>("plugin:def17a258c1e4f4d|mre");
 	return result;
 }
 

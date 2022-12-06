@@ -43,17 +43,14 @@ impl<'a> Resolver<'a> {
                 }
             } else {
                 let id = self.types.alloc(crate::TypeDef {
-                    pos: item.pos.offset()..item.pos.offset() + item.pos.len(),
+                    // pos: item.pos.offset()..item.pos.offset() + item.pos.len(),
                     docs: Self::resolve_docs(&mem::take(&mut item.docs)),
                     kind: crate::TypeDefKind::Type(crate::Type::U8),
                     name: name.to_string(),
                 });
 
                 if self.name2id.insert(&name, id).is_some() {
-                    bail!(Error::already_defined(
-                        item.name,
-                        *names.get(name).unwrap()
-                    ));
+                    bail!(Error::already_defined(item.name, *names.get(name).unwrap()));
                 }
                 names.insert(name, item.name);
             }
@@ -175,7 +172,7 @@ impl<'a> Resolver<'a> {
 
     fn resolve_func(
         &mut self,
-        func: &ast::Func<'a>,
+        func: &ast::Func,
         name: SourceSpan,
         docs: &ast::Docs<'a>,
     ) -> Result<()> {
@@ -195,35 +192,35 @@ impl<'a> Resolver<'a> {
 
     fn resolve_params(
         &mut self,
-        params: &ast::NamedTypeList<'a>,
-    ) -> Result<HashMap<String, crate::Type>> {
-        let mut out_params: HashMap<String, crate::Type> = HashMap::new();
+        params: &ast::NamedTypeList,
+    ) -> Result<Vec<(String, crate::Type)>> {
+        let mut out_params: Vec<(String, crate::Type)> = Vec::new();
         let mut names: HashMap<&'a str, SourceSpan> = HashMap::new();
 
         for named_type in &params.inner {
             let name = self.read_span(named_type.name);
             let ty = self.resolve_type(&named_type.ty)?;
 
-            if out_params.insert(name.to_string(), ty).is_some() {
+            if names.insert(name, named_type.name).is_some() {
                 bail!(Error::already_defined(
                     named_type.name,
                     *names.get(name).unwrap()
                 ));
             }
-            names.insert(name, named_type.name);
+            out_params.push((name.to_string(), ty));
         }
 
         Ok(out_params)
     }
 
-    fn resolve_results(&mut self, results: &ast::Results<'a>) -> Result<crate::Results> {
+    fn resolve_results(&mut self, results: &ast::Results) -> Result<crate::Results> {
         Ok(match results {
             ast::Results::Anon(ty) => crate::Results::Anon(self.resolve_type(ty)?),
             ast::Results::Named(types) => crate::Results::Named(self.resolve_params(types)?),
         })
     }
 
-    fn resolve_type(&mut self, ty: &ast::Type<'a>) -> Result<crate::Type> {
+    fn resolve_type(&mut self, ty: &ast::Type) -> Result<crate::Type> {
         match ty {
             ast::Type::U8 => Ok(crate::Type::U8),
             ast::Type::U16 => Ok(crate::Type::U16),
@@ -264,8 +261,9 @@ impl<'a> Resolver<'a> {
 
                 Ok(crate::Type::Result(Box::new(crate::Result_ { ok, err })))
             }
-            ast::Type::Id { pos, name } => {
-                let id = self.name2id.get(name).ok_or(Error::not_defined(*pos))?;
+            ast::Type::Id(span) => {
+                let name = self.read_span(*span);
+                let id = self.name2id.get(name).ok_or(Error::not_defined(*span))?;
 
                 Ok(crate::Type::Id(*id))
             }

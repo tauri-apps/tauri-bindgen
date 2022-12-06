@@ -1,7 +1,7 @@
 #[allow(clippy::all)]
-pub mod imports {
-    pub const WORLD_HASH: &str = "279b557e344c2e05";
-    pub trait Imports: Sized {
+pub mod integers {
+    pub const WORLD_HASH: &str = "0c0ef23cf9639264";
+    pub trait Integers: Sized {
         fn a1(&self, x: u8) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn a2(&self, x: i8) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn a3(&self, x: u16) -> ::tauri_bindgen_host::anyhow::Result<()>;
@@ -34,14 +34,14 @@ pub mod imports {
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: Imports + Send + Sync + 'static,
+        U: Integers + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| {
             let span = ::tauri_bindgen_host::tracing::span!(
             ::tauri_bindgen_host::tracing::Level::TRACE,
             "tauri-bindgen invoke handler",
-            module = "imports", function = invoke.message.command(), payload = ?invoke.message.payload()
+            module = "integers", function = invoke.message.command(), payload = ?invoke.message.payload()
             );
             let _enter = span.enter();
 
@@ -62,7 +62,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a1",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -93,7 +93,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a2",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -124,7 +124,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a3",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -155,7 +155,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a4",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -186,7 +186,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a5",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -217,7 +217,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a6",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -248,7 +248,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a7",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -279,7 +279,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a8",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -310,7 +310,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a9",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -329,7 +329,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a9",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -348,7 +348,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a9",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -367,7 +367,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a9",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -386,7 +386,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a9",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -405,7 +405,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a9",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -424,7 +424,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a9",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -443,7 +443,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "integers",
                                 function = "a9",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -568,7 +568,7 @@ pub mod imports {
                 }
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
-                        module = "imports",
+                        module = "integers",
                         function = func_name,
                         "Not Found"
                     );

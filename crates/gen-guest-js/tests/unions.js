@@ -4,7 +4,7 @@ const invoke = window.__TAURI_INVOKE__;
  * @returns {Promise<AllIntegers>}
  */
 export async function addOneInteger(num) {
-	const result = await invoke("plugin:cccf67b47414af61|add_one_integer", {
+	const result = await invoke("plugin:37da362e4966fe5b|add_one_integer", {
 		num: num,
 	});
 	return result;
@@ -14,7 +14,7 @@ export async function addOneInteger(num) {
  * @returns {Promise<AllFloats>}
  */
 export async function addOneFloat(num) {
-	const result = await invoke("plugin:cccf67b47414af61|add_one_float", {
+	const result = await invoke("plugin:37da362e4966fe5b|add_one_float", {
 		num: num,
 	});
 	return result;
@@ -25,7 +25,7 @@ export async function addOneFloat(num) {
  * @returns {Promise<AllText>}
  */
 export async function replaceFirstChar(text, letter) {
-	const result = await invoke("plugin:cccf67b47414af61|replace_first_char", {
+	const result = await invoke("plugin:37da362e4966fe5b|replace_first_char", {
 		text: text,
 		letter: letter,
 	});
@@ -36,7 +36,7 @@ export async function replaceFirstChar(text, letter) {
  * @returns {Promise<number>}
  */
 export async function identifyInteger(num) {
-	const result = await invoke("plugin:cccf67b47414af61|identify_integer", {
+	const result = await invoke("plugin:37da362e4966fe5b|identify_integer", {
 		num: num,
 	});
 	return result;
@@ -46,7 +46,7 @@ export async function identifyInteger(num) {
  * @returns {Promise<number>}
  */
 export async function identifyFloat(num) {
-	const result = await invoke("plugin:cccf67b47414af61|identify_float", {
+	const result = await invoke("plugin:37da362e4966fe5b|identify_float", {
 		num: num,
 	});
 	return result;
@@ -56,7 +56,7 @@ export async function identifyFloat(num) {
  * @returns {Promise<number>}
  */
 export async function identifyText(text) {
-	const result = await invoke("plugin:cccf67b47414af61|identify_text", {
+	const result = await invoke("plugin:37da362e4966fe5b|identify_text", {
 		text: text,
 	});
 	return result;
@@ -66,7 +66,7 @@ export async function identifyText(text) {
  * @returns {Promise<DuplicatedS32>}
  */
 export async function addOneDuplicated(num) {
-	const result = await invoke("plugin:cccf67b47414af61|add_one_duplicated", {
+	const result = await invoke("plugin:37da362e4966fe5b|add_one_duplicated", {
 		num: num,
 	});
 	return result;
@@ -76,7 +76,7 @@ export async function addOneDuplicated(num) {
  * @returns {Promise<number>}
  */
 export async function identifyDuplicated(num) {
-	const result = await invoke("plugin:cccf67b47414af61|identify_duplicated", {
+	const result = await invoke("plugin:37da362e4966fe5b|identify_duplicated", {
 		num: num,
 	});
 	return result;
@@ -87,7 +87,7 @@ export async function identifyDuplicated(num) {
  */
 export async function addOneDistinguishableNum(num) {
 	const result = await invoke(
-		"plugin:cccf67b47414af61|add_one_distinguishable_num",
+		"plugin:37da362e4966fe5b|add_one_distinguishable_num",
 		{ num: num },
 	);
 	return result;
@@ -98,7 +98,7 @@ export async function addOneDistinguishableNum(num) {
  */
 export async function identifyDistinguishableNum(num) {
 	const result = await invoke(
-		"plugin:cccf67b47414af61|identify_distinguishable_num",
+		"plugin:37da362e4966fe5b|identify_distinguishable_num",
 		{ num: num },
 	);
 	return result;

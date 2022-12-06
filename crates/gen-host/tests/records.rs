@@ -1,27 +1,26 @@
 #[allow(clippy::all)]
-pub mod imports {
-    pub const WORLD_HASH: &str = "e6872cf01241a6f3";
+pub mod records {
+    pub const WORLD_HASH: &str = "ac98167d7d43eb21";
     #[repr(C)]
     #[derive(
         Debug,
         Copy,
         Clone,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     #[serde(rename_all = "camelCase")]
     pub struct Empty {}
-    /// A record containing two scalar fields
-    /// that both have the same type
+    /// A record containing two scalar fields that both have the same type
     #[repr(C)]
     #[derive(
         Debug,
         Copy,
         Clone,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     #[serde(rename_all = "camelCase")]
     pub struct Scalars {
@@ -30,16 +29,15 @@ pub mod imports {
         /// The second field, named b
         pub b: u32,
     }
-    /// A record that is really just flags
-    /// All of the fields are bool
+    /// A record that is really just flags All of the fields are bool
     #[repr(C)]
     #[derive(
         Debug,
         Copy,
         Clone,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     #[serde(rename_all = "camelCase")]
     pub struct ReallyFlags {
@@ -57,8 +55,8 @@ pub mod imports {
         Debug,
         Clone,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     #[serde(rename_all = "camelCase")]
     pub struct Aggregates {
@@ -70,7 +68,7 @@ pub mod imports {
     }
     pub type IntTypedef = i32;
     pub type TupleTypedef2 = (IntTypedef,);
-    pub trait Imports: Sized {
+    pub trait Records: Sized {
         fn tuple_arg(&self, x: (char, u32)) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn tuple_result(&self) -> ::tauri_bindgen_host::anyhow::Result<(char, u32)>;
         fn empty_arg(&self, x: Empty) -> ::tauri_bindgen_host::anyhow::Result<()>;
@@ -86,14 +84,14 @@ pub mod imports {
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: Imports + Send + Sync + 'static,
+        U: Records + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| {
             let span = ::tauri_bindgen_host::tracing::span!(
             ::tauri_bindgen_host::tracing::Level::TRACE,
             "tauri-bindgen invoke handler",
-            module = "imports", function = invoke.message.command(), payload = ?invoke.message.payload()
+            module = "records", function = invoke.message.command(), payload = ?invoke.message.payload()
             );
             let _enter = span.enter();
 
@@ -114,7 +112,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "records",
                                 function = "tuple-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -157,7 +155,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "records",
                                 function = "empty-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -200,7 +198,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "records",
                                 function = "scalar-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -243,7 +241,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "records",
                                 function = "flags-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -286,7 +284,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "records",
                                 function = "aggregate-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -329,7 +327,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "records",
                                 function = "typedef-inout",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -346,7 +344,7 @@ pub mod imports {
                 }
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
-                        module = "imports",
+                        module = "records",
                         function = func_name,
                         "Not Found"
                     );

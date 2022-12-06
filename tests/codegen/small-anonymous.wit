@@ -4,11 +4,5 @@ interface anon {
     failure,
   }
 
-  option-test: func() -> result<option<string>, error>
-}
-
-world small-anonymous {
-  import imports: anon
-  export exports: anon
-  default export anon
+  func option-test() -> result<option<string>, error>
 }

@@ -15,18 +15,18 @@ interface unions {
   }
 
   // Returns the same case as the input but with 1 added
-  add-one-integer: func(num: all-integers) -> all-integers
+  func add-one-integer(num: all-integers) -> all-integers
   // Returns the same case as the input but with 1 added
-  add-one-float: func(num: all-floats) -> all-floats
+  func add-one-float(num: all-floats) -> all-floats
   // Returns the same case as the input but with the first character replaced
-  replace-first-char: func(text: all-text, letter: char) -> all-text
+  func replace-first-char(text: all-text, letter: char) -> all-text
 
   // Returns the index of the case provided
-  identify-integer: func(num: all-integers) -> u8
+  func identify-integer(num: all-integers) -> u8
   // Returns the index of the case provided
-  identify-float: func(num: all-floats) -> u8
+  func identify-float(num: all-floats) -> u8
   // Returns the index of the case provided
-  identify-text: func(text: all-text) -> u8
+  func identify-text(text: all-text) -> u8
 
   union duplicated-s32 {
       /// The first s32
@@ -38,10 +38,10 @@ interface unions {
   }
 
   // Returns the same case as the input but with 1 added
-  add-one-duplicated: func(num: duplicated-s32) -> duplicated-s32
+  func add-one-duplicated(num: duplicated-s32) -> duplicated-s32
 
   // Returns the index of the case provided
-  identify-duplicated: func(num: duplicated-s32) -> u8
+  func identify-duplicated(num: duplicated-s32) -> u8
 
   /// A type containing numeric types that are distinct in most languages
   union distinguishable-num {
@@ -52,14 +52,8 @@ interface unions {
   }
 
   // Returns the same case as the input but with 1 added
-  add-one-distinguishable-num: func(num: distinguishable-num) -> distinguishable-num
+  func add-one-distinguishable-num(num: distinguishable-num) -> distinguishable-num
 
   // Returns the index of the case provided
-  identify-distinguishable-num: func(num: distinguishable-num) -> u8
-}
-
-world unions {
-  import import-unions: unions
-  export export-unions: unions
-  default export unions
+  func identify-distinguishable-num(num: distinguishable-num) -> u8
 }

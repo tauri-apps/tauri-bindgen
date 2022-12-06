@@ -1,18 +1,17 @@
 #[allow(clippy::all)]
-pub mod import_unions {
-    pub const WORLD_HASH: &str = "cccf67b47414af61";
+pub mod unions {
+    pub const WORLD_HASH: &str = "37da362e4966fe5b";
     /// A union of all of the integral types
     #[derive(
         Debug,
         Clone,
         Copy,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum AllIntegers {
-        /// Bool is equivalent to a 1 bit integer
-        /// and is treated that way in some languages
+        /// Bool is equivalent to a 1 bit integer and is treated that way in some languages
         Bool(bool),
         U8(u8),
         U16(u16),
@@ -28,8 +27,8 @@ pub mod import_unions {
         Clone,
         Copy,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum AllFloats {
         F32(f32),
@@ -39,8 +38,8 @@ pub mod import_unions {
         Debug,
         Clone,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum AllText {
         Char(char),
@@ -51,8 +50,8 @@ pub mod import_unions {
         Clone,
         Copy,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum DuplicatedS32 {
         /// The first s32
@@ -68,8 +67,8 @@ pub mod import_unions {
         Clone,
         Copy,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum DistinguishableNum {
         /// A Floating Point Number
@@ -77,7 +76,7 @@ pub mod import_unions {
         /// A Signed Integer
         I64(i64),
     }
-    pub trait ImportUnions: Sized {
+    pub trait Unions: Sized {
         fn add_one_integer(
             &self,
             num: AllIntegers,
@@ -111,14 +110,14 @@ pub mod import_unions {
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: ImportUnions + Send + Sync + 'static,
+        U: Unions + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| {
             let span = ::tauri_bindgen_host::tracing::span!(
             ::tauri_bindgen_host::tracing::Level::TRACE,
             "tauri-bindgen invoke handler",
-            module = "import-unions", function = invoke.message.command(), payload = ?invoke.message.payload()
+            module = "unions", function = invoke.message.command(), payload = ?invoke.message.payload()
             );
             let _enter = span.enter();
 
@@ -139,7 +138,7 @@ pub mod import_unions {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-unions",
+                                module = "unions",
                                 function = "add-one-integer",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -170,7 +169,7 @@ pub mod import_unions {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-unions",
+                                module = "unions",
                                 function = "add-one-float",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -201,7 +200,7 @@ pub mod import_unions {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-unions",
+                                module = "unions",
                                 function = "replace-first-char",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -221,7 +220,7 @@ pub mod import_unions {
                             Ok(arg) => arg,
                             Err(err) => {
                                 ::tauri_bindgen_host::tracing::error!(
-                                    module = "import-unions",
+                                    module = "unions",
                                     function = "replace-first-char",
                                     "Invoke handler returned error {:?}",
                                     err
@@ -252,7 +251,7 @@ pub mod import_unions {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-unions",
+                                module = "unions",
                                 function = "identify-integer",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -283,7 +282,7 @@ pub mod import_unions {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-unions",
+                                module = "unions",
                                 function = "identify-float",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -314,7 +313,7 @@ pub mod import_unions {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-unions",
+                                module = "unions",
                                 function = "identify-text",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -345,7 +344,7 @@ pub mod import_unions {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-unions",
+                                module = "unions",
                                 function = "add-one-duplicated",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -376,7 +375,7 @@ pub mod import_unions {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-unions",
+                                module = "unions",
                                 function = "identify-duplicated",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -407,7 +406,7 @@ pub mod import_unions {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-unions",
+                                module = "unions",
                                 function = "add-one-distinguishable-num",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -438,7 +437,7 @@ pub mod import_unions {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-unions",
+                                module = "unions",
                                 function = "identify-distinguishable-num",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -455,7 +454,7 @@ pub mod import_unions {
                 }
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
-                        module = "import-unions",
+                        module = "unions",
                         function = func_name,
                         "Not Found"
                     );

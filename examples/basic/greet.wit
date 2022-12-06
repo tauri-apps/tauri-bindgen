@@ -1,9 +1,3 @@
 interface greet {
-  greet: func(my-name: string) -> string
-}
-
-world the-world {
-  import greet: greet
-  export greet: greet
-  default export greet
+  func greet(my-name: string) -> string
 }

@@ -6,7 +6,6 @@ pub mod resolve;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Interface<'a> {
-    pos: SourceSpan,
     docs: Docs<'a>,
     name: SourceSpan,
     items: Vec<InterfaceItem<'a>>,
@@ -14,7 +13,6 @@ pub struct Interface<'a> {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct InterfaceItem<'a> {
-    pos: SourceSpan,
     docs: Docs<'a>,
     name: SourceSpan,
     kind: InterfaceItemKind<'a>,
@@ -27,8 +25,8 @@ pub enum InterfaceItemKind<'a> {
     Variant(Variant<'a>),
     Union(Union<'a>),
     Enum(Enum<'a>),
-    Alias(Type<'a>),
-    Func(Func<'a>),
+    Alias(Type),
+    Func(Func),
     Use(Use),
 }
 
@@ -39,10 +37,9 @@ pub struct Record<'a> {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RecordField<'a> {
-    pos: SourceSpan,
     docs: Docs<'a>,
     name: SourceSpan,
-    ty: Type<'a>,
+    ty: Type,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -52,7 +49,6 @@ pub struct Flags<'a> {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FlagsField<'a> {
-    pos: SourceSpan,
     docs: Docs<'a>,
     name: SourceSpan,
 }
@@ -64,10 +60,9 @@ pub struct Variant<'a> {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariantCase<'a> {
-    pos: SourceSpan,
     docs: Docs<'a>,
     name: SourceSpan,
-    ty: Option<Type<'a>>,
+    ty: Option<Type>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -77,9 +72,8 @@ pub struct Union<'a> {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct UnionCase<'a> {
-    pos: SourceSpan,
     docs: Docs<'a>,
-    ty: Type<'a>,
+    ty: Type,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -89,34 +83,31 @@ pub struct Enum<'a> {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct EnumCase<'a> {
-    pos: SourceSpan,
     docs: Docs<'a>,
     name: SourceSpan,
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Func<'a> {
-    params: NamedTypeList<'a>,
-    results: Results<'a>,
+pub struct Func {
+    params: NamedTypeList,
+    results: Results,
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct NamedTypeList<'a> {
-    pos: SourceSpan,
-    inner: Vec<NamedType<'a>>,
+pub struct NamedTypeList {
+    inner: Vec<NamedType>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct NamedType<'a> {
-    pos: SourceSpan,
+pub struct NamedType {
     name: SourceSpan,
-    ty: Type<'a>,
+    ty: Type,
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Results<'a> {
-    Anon(Type<'a>),
-    Named(NamedTypeList<'a>),
+pub enum Results {
+    Anon(Type),
+    Named(NamedTypeList),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -133,13 +124,12 @@ pub enum UseNames {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct UseName {
-    pos: SourceSpan,
     name: SourceSpan,
     alias: Option<SourceSpan>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Type<'a> {
+pub enum Type {
     U8,
     U16,
     U32,
@@ -153,17 +143,14 @@ pub enum Type<'a> {
     Char,
     String,
     Bool,
-    Tuple(Vec<Type<'a>>),
-    List(Box<Type<'a>>),
-    Option(Box<Type<'a>>),
+    Tuple(Vec<Type>),
+    List(Box<Type>),
+    Option(Box<Type>),
     Result {
-        ok: Option<Box<Type<'a>>>,
-        err: Option<Box<Type<'a>>>,
+        ok: Option<Box<Type>>,
+        err: Option<Box<Type>>,
     },
-    Id {
-        pos: SourceSpan,
-        name: &'a str 
-    },
+    Id(SourceSpan),
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]

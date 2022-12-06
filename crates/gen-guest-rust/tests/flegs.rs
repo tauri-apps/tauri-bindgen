@@ -1,5 +1,5 @@
 #[allow(clippy::all, unused)]
-pub mod import_flags {
+pub mod flegs {
     ::tauri_bindgen_guest_rust::bitflags::bitflags! {
       #[derive(::serde::Serialize, ::serde::Deserialize)]
       pub struct Flag1: u8 {
@@ -169,7 +169,7 @@ pub mod import_flags {
             x: Flag1,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:8ecd22d5a53ba1eb|roundtrip-flag1", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:13a360f690a38bbb|roundtrip-flag1", &params)
             .await
             .unwrap()
     }
@@ -180,7 +180,7 @@ pub mod import_flags {
             x: Flag2,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:8ecd22d5a53ba1eb|roundtrip-flag2", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:13a360f690a38bbb|roundtrip-flag2", &params)
             .await
             .unwrap()
     }
@@ -191,7 +191,7 @@ pub mod import_flags {
             x: Flag4,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:8ecd22d5a53ba1eb|roundtrip-flag4", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:13a360f690a38bbb|roundtrip-flag4", &params)
             .await
             .unwrap()
     }
@@ -202,7 +202,7 @@ pub mod import_flags {
             x: Flag8,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:8ecd22d5a53ba1eb|roundtrip-flag8", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:13a360f690a38bbb|roundtrip-flag8", &params)
             .await
             .unwrap()
     }
@@ -213,7 +213,7 @@ pub mod import_flags {
             x: Flag16,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:8ecd22d5a53ba1eb|roundtrip-flag16", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:13a360f690a38bbb|roundtrip-flag16", &params)
             .await
             .unwrap()
     }
@@ -224,7 +224,7 @@ pub mod import_flags {
             x: Flag32,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:8ecd22d5a53ba1eb|roundtrip-flag32", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:13a360f690a38bbb|roundtrip-flag32", &params)
             .await
             .unwrap()
     }
@@ -235,7 +235,7 @@ pub mod import_flags {
             x: Flag64,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:8ecd22d5a53ba1eb|roundtrip-flag64", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:13a360f690a38bbb|roundtrip-flag64", &params)
             .await
             .unwrap()
     }

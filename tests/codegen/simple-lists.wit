@@ -1,13 +1,7 @@
 interface simple-lists {
-  simple-list1: func(l: list<u32>)
-  simple-list2: func() -> list<u32>
+  func simple-list1(l: list<u32>)
+  func simple-list2() -> list<u32>
   // TODO: reenable this when smw implements this
-  // simple-list3: func(a: list<u32>, b: list<u32>) -> tuple<list<u32>, list<u32>>
-  simple-list4: func(l: list<list<u32>>) -> list<list<u32>>
-}
-
-world simple-lists {
-  import imports: simple-lists
-  export exports: simple-lists
-  default export simple-lists
+  // simple-list3(a: list<u32>, b: list<u32>) -> tuple<list<u32>, list<u32>>
+  func simple-list4(l: list<list<u32>>) -> list<list<u32>>
 }

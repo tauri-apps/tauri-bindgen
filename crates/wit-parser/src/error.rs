@@ -1,5 +1,5 @@
 use crate::{ast::lex::Token, util::print_list};
-use miette::{Diagnostic, SourceSpan, ErrReport};
+use miette::{Diagnostic, ErrReport, SourceSpan};
 
 #[derive(Debug, thiserror::Error, Diagnostic)]
 pub enum Error {

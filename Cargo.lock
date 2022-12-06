@@ -2798,6 +2798,7 @@ dependencies = [
 name = "tauri-bindgen-core"
 version = "0.1.0"
 dependencies = [
+ "bitflags",
  "blake3",
  "hex",
  "memmap2",

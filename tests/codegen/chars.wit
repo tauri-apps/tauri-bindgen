@@ -1,12 +1,6 @@
 interface chars {
   /// A function that accepts a character
-  take-char: func(x: char)
+  func take-char(x: char)
   /// A function that returns a character
-  return-char: func() -> char
-}
-
-world chars {
-  import imports: chars
-  export exports: chars
-  default export chars
+  func return-char() -> char
 }

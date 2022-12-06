@@ -6,11 +6,7 @@ use ast::parse::FromTokens;
 pub use error::Error;
 use id_arena::{Arena, Id};
 use miette::{ErrReport, IntoDiagnostic, NamedSource};
-use std::{
-    collections::{hash_map, HashMap},
-    ops::Range,
-    path::Path,
-};
+use std::path::Path;
 
 pub fn parse_file<'a>(path: impl AsRef<Path>) -> miette::Result<Interface> {
     let path = path.as_ref();
@@ -60,14 +56,14 @@ pub struct Interface {
 pub struct Function {
     pub docs: Docs,
     pub name: String,
-    pub params: HashMap<String, Type>,
+    pub params: Vec<(String, Type)>,
     pub results: Results,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Results {
     Anon(Type),
-    Named(HashMap<String, Type>),
+    Named(Vec<(String, Type)>),
 }
 
 impl Results {
@@ -77,7 +73,7 @@ impl Results {
 
     pub fn types(&self) -> ResultsTypeIter {
         match self {
-            Results::Named(ps) => ResultsTypeIter::Named(ps.values()),
+            Results::Named(ps) => ResultsTypeIter::Named(ps.iter()),
             Results::Anon(ty) => ResultsTypeIter::Anon(std::iter::once(ty)),
         }
     }
@@ -98,7 +94,7 @@ impl Results {
 
 pub enum ResultsTypeIter<'a> {
     Anon(std::iter::Once<&'a Type>),
-    Named(hash_map::Values<'a, String, Type>),
+    Named(std::slice::Iter<'a, (String, Type)>),
 }
 
 impl<'a> Iterator for ResultsTypeIter<'a> {
@@ -107,7 +103,7 @@ impl<'a> Iterator for ResultsTypeIter<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         match self {
             ResultsTypeIter::Anon(iter) => iter.next(),
-            ResultsTypeIter::Named(iter) => iter.next(),
+            ResultsTypeIter::Named(iter) => iter.next().map(|pair| &pair.1),
         }
     }
 }
@@ -147,7 +143,7 @@ pub struct Result_ {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TypeDef {
-    pub pos: Range<usize>,
+    // pub pos: Range<usize>,
     pub docs: Docs,
     pub name: String,
     pub kind: TypeDefKind,
@@ -195,10 +191,10 @@ pub struct Flags {
 impl Flags {
     pub fn repr(&self) -> Int {
         match self.flags.len() {
-            n if n <= u8::MAX as usize => Int::U8,
-            n if n <= u16::MAX as usize => Int::U16,
-            n if n <= u32::MAX as usize => Int::U32,
-            n if n <= u64::MAX as usize => Int::U64,
+            n if n <= 8 => Int::U8,
+            n if n <= 16 => Int::U16,
+            n if n <= 32 => Int::U32,
+            n if n <= 64 => Int::U64,
             _ => panic!("too many flags to fit in a repr"),
         }
     }

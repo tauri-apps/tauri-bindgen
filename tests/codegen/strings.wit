@@ -1,11 +1,5 @@
 interface strings {
-  a: func(x: string)
-  b: func() -> string
-  c: func(a: string, b: string) -> string
-}
-
-world strings {
-  import imports: strings
-  export exports: strings
-  default export strings
+  func a(x: string)
+  func b() -> string
+  func c(a: string, b: string) -> string
 }

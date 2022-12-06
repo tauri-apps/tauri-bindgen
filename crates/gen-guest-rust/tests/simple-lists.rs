@@ -1,5 +1,5 @@
 #[allow(clippy::all, unused)]
-pub mod imports {
+pub mod simple_lists {
     pub async fn simple_list1(l: &[u32]) -> () {
         #[derive(::serde::Serialize)]
         #[serde(rename_all = "camelCase")]
@@ -7,12 +7,12 @@ pub mod imports {
             l: &'a [u32],
         }
         let params = Params { l };
-        ::tauri_bindgen_guest_rust::invoke("plugin:d40a3203ef48115d|simple-list1", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:e8600e8d0423cbdb|simple-list1", &params)
             .await
             .unwrap()
     }
     pub async fn simple_list2() -> Vec<u32> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:d40a3203ef48115d|simple-list2", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:e8600e8d0423cbdb|simple-list2", ())
             .await
             .unwrap()
     }
@@ -23,7 +23,7 @@ pub mod imports {
             l: &'a [&'a [u32]],
         }
         let params = Params { l };
-        ::tauri_bindgen_guest_rust::invoke("plugin:d40a3203ef48115d|simple-list4", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:e8600e8d0423cbdb|simple-list4", &params)
             .await
             .unwrap()
     }

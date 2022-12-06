@@ -92,21 +92,49 @@ pub trait RustGenerator<'a> {
         // If the type recursively owns data and it's a
         // variant/record/list, then we need to place the
         // lifetime parameter on the type as well.
-        if info.owns_data() && needs_generics(self.iface(), &ty.kind) {
+        if info.owns_data() && self.typedef_needs_generics(&ty.kind) {
             self.print_generics(lt);
         }
+    }
 
-        fn needs_generics(iface: &Interface, ty: &TypeDefKind) -> bool {
-            match ty {
-                TypeDefKind::Variant(_)
-                | TypeDefKind::Record(_)
-                | TypeDefKind::Flags(_)
-                | TypeDefKind::Enum(_)
-                | TypeDefKind::Union(_) => true,
-                TypeDefKind::Type(Type::Id(t)) => needs_generics(iface, &iface.types[*t].kind),
-                TypeDefKind::Type(Type::String) => true,
-                TypeDefKind::Type(_) => false,
+    fn typedef_needs_generics(&self, ty: &TypeDefKind) -> bool {
+        match ty {
+            TypeDefKind::Variant(_)
+            | TypeDefKind::Record(_)
+            | TypeDefKind::Flags(_)
+            | TypeDefKind::Enum(_)
+            | TypeDefKind::Union(_) => true,
+            TypeDefKind::Type(Type::Id(t)) => {
+                self.typedef_needs_generics(&self.iface().types[*t].kind)
             }
+            TypeDefKind::Type(Type::String) => true,
+            TypeDefKind::Type(ty) => self.type_needs_generics(ty),
+        }
+    }
+
+    fn type_needs_generics(&self, ty: &Type) -> bool {
+        match ty {
+            Type::String => true,
+            Type::Tuple(ty) => ty.types.iter().any(|ty| self.type_needs_generics(ty)),
+            Type::List(_) => true,
+            Type::Option(ty) => self.type_needs_generics(ty),
+            Type::Result(res) => {
+                res.ok
+                    .as_ref()
+                    .map(|ty| self.type_needs_generics(ty))
+                    .unwrap_or_default()
+                    || res
+                        .err
+                        .as_ref()
+                        .map(|ty| self.type_needs_generics(ty))
+                        .unwrap_or_default()
+            }
+            Type::Id(id) => {
+                let info = self.info(*id);
+                self.lifetime_for(&info, TypeMode::AllBorrowed("'a"))
+                    .is_some()
+            }
+            _ => false,
         }
     }
 
@@ -170,6 +198,7 @@ pub trait RustGenerator<'a> {
         attrs: impl Fn(&str, bool, TypeInfo) -> Option<String>,
     ) {
         let info = self.info(id);
+        // dbg!(&info.);
         for (name, mode) in self.modes_of(id) {
             let lt = self.lifetime_for(&info, mode);
             self.print_rustdoc(docs);
@@ -595,10 +624,12 @@ pub trait RustGenerator<'a> {
     fn modes_of(&self, ty: TypeId) -> Vec<(String, TypeMode)> {
         let info = self.info(ty);
         let mut result = Vec::new();
-        if info.param {
+        if info.contains(TypeInfo::PARAM) {
             result.push((self.param_name(ty), self.default_param_mode()));
         }
-        if info.result && (!info.param || self.uses_two_names(&info)) {
+        if info.contains(TypeInfo::RESULT)
+            && (!info.contains(TypeInfo::PARAM) || self.uses_two_names(&info))
+        {
             result.push((self.result_name(ty), TypeMode::Owned));
         }
         return result;
@@ -626,8 +657,7 @@ pub trait RustGenerator<'a> {
 
     fn uses_two_names(&self, info: &TypeInfo) -> bool {
         info.owns_data()
-            && info.param
-            && info.result
+            && info.contains(TypeInfo::PARAM | TypeInfo::RESULT)
             && match self.default_param_mode() {
                 TypeMode::AllBorrowed(_) | TypeMode::LeafBorrowed(_) => true,
                 TypeMode::Owned => false,
@@ -636,7 +666,11 @@ pub trait RustGenerator<'a> {
 
     fn lifetime_for(&self, info: &TypeInfo, mode: TypeMode) -> Option<&'static str> {
         match mode {
-            TypeMode::AllBorrowed(s) | TypeMode::LeafBorrowed(s) if info.has_list => Some(s),
+            TypeMode::AllBorrowed(s) | TypeMode::LeafBorrowed(s)
+                if info.contains(TypeInfo::HAS_LIST) =>
+            {
+                Some(s)
+            }
             _ => None,
         }
     }
@@ -645,10 +679,13 @@ pub trait RustGenerator<'a> {
         match ty {
             Type::Id(id) => {
                 let info = self.info(*id);
-                // let ty = &self.iface().types[*id];
 
                 self.lifetime_for(&info, mode).is_some()
             }
+            Type::Tuple(ty) => ty.types.iter().any(|ty| self.needs_borrow(ty, mode)),
+            Type::List(ty) => self.needs_borrow(ty, mode),
+            Type::Option(ty) => self.needs_borrow(ty, mode),
+            // Type::Result(res) => ,
             _ => false,
         }
     }

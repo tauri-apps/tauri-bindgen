@@ -4,7 +4,11 @@ use std::{
     process::{Command, Stdio},
 };
 
-pub fn postprocess<I, S>(file: &mut String, cmd: impl AsRef<OsStr>, args: I) -> Result<(), Box<dyn std::error::Error>>
+pub fn postprocess<I, S>(
+    file: &mut String,
+    cmd: impl AsRef<OsStr>,
+    args: I,
+) -> Result<(), Box<dyn std::error::Error>>
 where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,

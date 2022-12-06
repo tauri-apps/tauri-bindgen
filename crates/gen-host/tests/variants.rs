@@ -1,14 +1,14 @@
 #[allow(clippy::all)]
-pub mod imports {
-    pub const WORLD_HASH: &str = "d5901a6520084a85";
+pub mod variants {
+    pub const WORLD_HASH: &str = "8178d1f91285bbc1";
     #[repr(u8)]
     #[derive(
         Debug,
         Clone,
         Copy,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum E1 {
         A,
@@ -18,8 +18,8 @@ pub mod imports {
         Clone,
         Copy,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum U1 {
         U32(u32),
@@ -31,8 +31,8 @@ pub mod imports {
         Copy,
         Clone,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     #[serde(rename_all = "camelCase")]
     pub struct Empty {}
@@ -40,8 +40,8 @@ pub mod imports {
         Debug,
         Clone,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum V1 {
         A,
@@ -57,8 +57,8 @@ pub mod imports {
         Clone,
         Copy,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum Casts1 {
         A(i32),
@@ -69,8 +69,8 @@ pub mod imports {
         Clone,
         Copy,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum Casts2 {
         A(f64),
@@ -81,8 +81,8 @@ pub mod imports {
         Clone,
         Copy,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum Casts3 {
         A(f64),
@@ -93,8 +93,8 @@ pub mod imports {
         Clone,
         Copy,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum Casts4 {
         A(u32),
@@ -105,8 +105,8 @@ pub mod imports {
         Clone,
         Copy,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum Casts5 {
         A(f32),
@@ -117,8 +117,8 @@ pub mod imports {
         Clone,
         Copy,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     pub enum Casts6 {
         A((f32, u32)),
@@ -134,14 +134,14 @@ pub mod imports {
         Debug,
         Clone,
         PartialEq,
-        ::tauri_bindgen_host::serde::Serialize,
         ::tauri_bindgen_host::serde::Deserialize,
+        ::tauri_bindgen_host::serde::Serialize,
     )]
     #[serde(rename_all = "camelCase")]
     pub struct IsClone {
         pub v1: V1,
     }
-    pub trait Imports: Sized {
+    pub trait Variants: Sized {
         fn e1_arg(&self, x: E1) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn e1_result(&self) -> ::tauri_bindgen_host::anyhow::Result<E1>;
         fn u1_arg(&self, x: U1) -> ::tauri_bindgen_host::anyhow::Result<()>;
@@ -220,14 +220,14 @@ pub mod imports {
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: Imports + Send + Sync + 'static,
+        U: Variants + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| {
             let span = ::tauri_bindgen_host::tracing::span!(
             ::tauri_bindgen_host::tracing::Level::TRACE,
             "tauri-bindgen invoke handler",
-            module = "imports", function = invoke.message.command(), payload = ?invoke.message.payload()
+            module = "variants", function = invoke.message.command(), payload = ?invoke.message.payload()
             );
             let _enter = span.enter();
 
@@ -248,7 +248,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "e1-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -291,7 +291,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "u1-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -334,7 +334,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "v1-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -377,7 +377,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "bool-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -420,7 +420,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "option-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -439,7 +439,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "option-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -458,7 +458,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "option-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -477,7 +477,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "option-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -496,7 +496,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "option-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -515,7 +515,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "option-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -534,7 +534,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "option-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -577,7 +577,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "casts",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -596,7 +596,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "casts",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -615,7 +615,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "casts",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -634,7 +634,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "casts",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -653,7 +653,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "casts",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -672,7 +672,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "casts",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -703,7 +703,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "result-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -722,7 +722,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "result-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -741,7 +741,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "result-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -760,7 +760,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "result-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -779,7 +779,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "result-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -798,7 +798,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "result-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -925,7 +925,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "variants",
                                 function = "is-clone-arg",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -978,7 +978,7 @@ pub mod imports {
                 }
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
-                        module = "imports",
+                        module = "variants",
                         function = func_name,
                         "Not Found"
                     );

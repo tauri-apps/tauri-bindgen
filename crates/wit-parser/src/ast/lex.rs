@@ -338,7 +338,9 @@ pub struct Tokens<'a> {
 
 impl<'a> Tokens<'a> {
     pub fn from_str(src: &'a str) -> Self {
-        Self { tokenizer: TokensRaw::new(src) }
+        Self {
+            tokenizer: TokensRaw::new(src),
+        }
     }
 
     pub fn read_span(&self, span: SourceSpan) -> &'a str {
@@ -347,9 +349,7 @@ impl<'a> Tokens<'a> {
 
     pub fn location(&mut self) -> Result<SourceSpan> {
         match self.clone().next() {
-            Some(Ok((loc, _))) => {
-                Ok(loc)
-            }
+            Some(Ok((loc, _))) => Ok(loc),
             Some(Err(err)) => return Err(err),
             None => {
                 let pos = self.tokenizer.src.len();

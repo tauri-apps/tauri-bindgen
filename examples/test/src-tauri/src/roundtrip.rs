@@ -247,7 +247,7 @@ impl roundtrip::Roundtrip for Ctx {
 }
 
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
-    plugin::Builder::new("roundtrip")
+    plugin::Builder::new(roundtrip::WORLD_HASH)
         .invoke_handler(roundtrip::invoke_handler(Ctx))
         .build()
 }

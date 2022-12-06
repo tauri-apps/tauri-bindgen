@@ -1,15 +1,17 @@
 const invoke = window.__TAURI_INVOKE__;
 /**
  * @param {Uint32Array} l
+ * @returns {Promise<[]>}
  */
 export async function simpleList1(l) {
-	await invoke("plugin:d40a3203ef48115d|simple_list1", { l: l });
+	const result = await invoke("plugin:e8600e8d0423cbdb|simple_list1", { l: l });
+	return result;
 }
 /**
  * @returns {Promise<Uint32Array>}
  */
 export async function simpleList2() {
-	const result = await invoke("plugin:d40a3203ef48115d|simple_list2");
+	const result = await invoke("plugin:e8600e8d0423cbdb|simple_list2");
 	return result;
 }
 /**
@@ -17,7 +19,7 @@ export async function simpleList2() {
  * @returns {Promise<Uint32Array[]>}
  */
 export async function simpleList4(l) {
-	const result = await invoke("plugin:d40a3203ef48115d|simple_list4", { l: l });
+	const result = await invoke("plugin:e8600e8d0423cbdb|simple_list4", { l: l });
 	return result;
 }
 

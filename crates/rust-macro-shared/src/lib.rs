@@ -1,13 +1,13 @@
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
-use wit_parser::Interface;
 use std::marker;
 use std::path::{Path, PathBuf};
 use syn::parse::{Error, Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
 use syn::{token, Token};
 use tauri_bindgen_core::{Files, WorldGenerator};
+use wit_parser::Interface;
 // use wit_parser::World;
 
 pub fn generate<F, O>(
@@ -69,7 +69,7 @@ where
 {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
         let call_site = proc_macro2::Span::call_site();
-        
+
         let mut iface: Option<Interface> = None;
         let mut ret = Opts {
             opts: O::default(),
@@ -93,7 +93,8 @@ where
 
                         let path = ret.parse_path(&path);
 
-                        iface = Some(wit_parser::parse_file(&path).map_err(|e| Error::new(span, e))?);
+                        iface =
+                            Some(wit_parser::parse_file(&path).map_err(|e| Error::new(span, e))?);
                         ret.file_hash = tauri_bindgen_core::hash::hash_file(path)
                             .map_err(|e| Error::new(span, e))?;
                     }

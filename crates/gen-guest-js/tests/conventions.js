@@ -1,41 +1,89 @@
 const invoke = window.__TAURI_INVOKE__;
+/**
+ * @returns {Promise<[]>}
+ */
 export async function kebabCase() {
-	await invoke("plugin:48646a1b1c089063|kebab_case");
+	const result = await invoke("plugin:3d46778dded1f0fb|kebab_case");
+	return result;
 }
 /**
  * @param {LudicrousSpeed} x
+ * @returns {Promise<[]>}
  */
 export async function foo(x) {
-	await invoke("plugin:48646a1b1c089063|foo", { x: x });
+	const result = await invoke("plugin:3d46778dded1f0fb|foo", { x: x });
+	return result;
 }
+/**
+ * @returns {Promise<[]>}
+ */
 export async function functionWithDashes() {
-	await invoke("plugin:48646a1b1c089063|function_with_dashes");
+	const result = await invoke("plugin:3d46778dded1f0fb|function_with_dashes");
+	return result;
 }
+/**
+ * @returns {Promise<[]>}
+ */
 export async function functionWithNoWeirdCharacters() {
-	await invoke("plugin:48646a1b1c089063|function_with_no_weird_characters");
+	const result = await invoke(
+		"plugin:3d46778dded1f0fb|function_with_no_weird_characters",
+	);
+	return result;
 }
+/**
+ * @returns {Promise<[]>}
+ */
 export async function apple() {
-	await invoke("plugin:48646a1b1c089063|apple");
+	const result = await invoke("plugin:3d46778dded1f0fb|apple");
+	return result;
 }
+/**
+ * @returns {Promise<[]>}
+ */
 export async function applePear() {
-	await invoke("plugin:48646a1b1c089063|apple_pear");
+	const result = await invoke("plugin:3d46778dded1f0fb|apple_pear");
+	return result;
 }
+/**
+ * @returns {Promise<[]>}
+ */
 export async function applePearGrape() {
-	await invoke("plugin:48646a1b1c089063|apple_pear_grape");
+	const result = await invoke("plugin:3d46778dded1f0fb|apple_pear_grape");
+	return result;
 }
+/**
+ * @returns {Promise<[]>}
+ */
 export async function a0() {
-	await invoke("plugin:48646a1b1c089063|a0");
+	const result = await invoke("plugin:3d46778dded1f0fb|a0");
+	return result;
 }
+/**
+ * @returns {Promise<[]>}
+ */
 export async function isXml() {
-	await invoke("plugin:48646a1b1c089063|is_xml");
+	const result = await invoke("plugin:3d46778dded1f0fb|is_xml");
+	return result;
 }
+/**
+ * @returns {Promise<[]>}
+ */
 export async function explicit() {
-	await invoke("plugin:48646a1b1c089063|explicit");
+	const result = await invoke("plugin:3d46778dded1f0fb|explicit");
+	return result;
 }
+/**
+ * @returns {Promise<[]>}
+ */
 export async function explicitKebab() {
-	await invoke("plugin:48646a1b1c089063|explicit_kebab");
+	const result = await invoke("plugin:3d46778dded1f0fb|explicit_kebab");
+	return result;
 }
+/**
+ * @returns {Promise<[]>}
+ */
 export async function bool() {
-	await invoke("plugin:48646a1b1c089063|bool");
+	const result = await invoke("plugin:3d46778dded1f0fb|bool");
+	return result;
 }
 

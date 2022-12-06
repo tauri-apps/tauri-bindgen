@@ -1,7 +1,7 @@
 #[allow(clippy::all)]
-pub mod imports {
-    pub const WORLD_HASH: &str = "b2ded0ef970e6596";
-    pub trait Imports: Sized {
+pub mod floats {
+    pub const WORLD_HASH: &str = "979575fda4ffb8b9";
+    pub trait Floats: Sized {
         fn float32_param(&self, x: f32) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn float64_param(&self, x: f64) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn float32_result(&self) -> ::tauri_bindgen_host::anyhow::Result<f32>;
@@ -10,14 +10,14 @@ pub mod imports {
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: Imports + Send + Sync + 'static,
+        U: Floats + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| {
             let span = ::tauri_bindgen_host::tracing::span!(
             ::tauri_bindgen_host::tracing::Level::TRACE,
             "tauri-bindgen invoke handler",
-            module = "imports", function = invoke.message.command(), payload = ?invoke.message.payload()
+            module = "floats", function = invoke.message.command(), payload = ?invoke.message.payload()
             );
             let _enter = span.enter();
 
@@ -38,7 +38,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "floats",
                                 function = "float32-param",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -69,7 +69,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "floats",
                                 function = "float64-param",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -110,7 +110,7 @@ pub mod imports {
                 }
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
-                        module = "imports",
+                        module = "floats",
                         function = func_name,
                         "Not Found"
                     );
