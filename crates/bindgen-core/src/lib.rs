@@ -208,7 +208,7 @@ impl Types {
                 let info = self.type_info.get_mut(id).unwrap();
 
                 if !info.symmetric_difference(new_info).is_empty() {
-                    *info = *info | new_info;
+                    *info |= new_info;
                     self.set_param_result_id(iface, *id, new_info);
                 }
             }
@@ -246,14 +246,11 @@ impl Files {
     }
 
     pub fn get_size(&mut self, name: &str) -> Option<usize> {
-        match self.files.get(name) {
-            Some(data) => Some(data.len()),
-            None => None,
-        }
+        self.files.get(name).map(|data|data.len())
     }
 
     pub fn remove(&mut self, name: &str) -> Option<Vec<u8>> {
-        self.files.remove(name);
+        self.files.remove(name)
     }
 
     pub fn iter(&self) -> impl Iterator<Item = (&'_ str, &'_ [u8])> {

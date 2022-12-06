@@ -4,7 +4,7 @@ use std::fmt::{self, Write};
 use tauri_bindgen_core::TypeInfo;
 use wit_parser::*;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum TypeMode {
     Owned,
     AllBorrowed(&'static str),
@@ -444,7 +444,7 @@ pub trait RustGenerator<'a> {
         param_mode: TypeMode,
         sig: &FnSig,
     ) -> Vec<String> {
-        let params = self.print_docs_and_params(func, param_mode, &sig);
+        let params = self.print_docs_and_params(func, param_mode, sig);
         self.push_str(" -> ");
         self.print_result_params(&func.results, TypeMode::Owned);
         params
@@ -632,7 +632,7 @@ pub trait RustGenerator<'a> {
         {
             result.push((self.result_name(ty), TypeMode::Owned));
         }
-        return result;
+        result
     }
 
     fn param_name(&self, ty: TypeId) -> String {

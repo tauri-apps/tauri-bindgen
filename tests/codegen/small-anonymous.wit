@@ -1,4 +1,4 @@
-interface anon {
+interface small-anonymous {
   enum error {
     success,
     failure,

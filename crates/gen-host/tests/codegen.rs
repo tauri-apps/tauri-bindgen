@@ -77,9 +77,9 @@ fn flags() {
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "flags", "../../tests/codegen/flags.wit");
+    let (filename, contents) = gen_world(gen, "flegs", "../../tests/codegen/flags.wit");
 
-    assert_eq!(filename, "flags.rs");
+    assert_eq!(filename, "flegs.rs");
     assert_eq!(contents, include_str!("./flegs.rs"));
 }
 

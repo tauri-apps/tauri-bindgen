@@ -25,9 +25,7 @@ pub struct Opts {
 
 impl Opts {
     pub fn build(self) -> Box<dyn WorldGenerator> {
-        let mut r = Host::default();
-        r.opts = self;
-        Box::new(r)
+        Box::new(Host { opts: self, ..Default::default() })
     }
 }
 
@@ -107,11 +105,12 @@ impl<'a> InterfaceGenerator<'a> {
         uwriteln!(self.src, "pub trait {camel}: Sized {{");
 
         for func in self.iface.functions.iter() {
-            let mut fnsig = FnSig::default();
-
-            fnsig.async_ = self.gen.opts.async_;
-            fnsig.private = true;
-            fnsig.self_arg = Some("&self".to_string());
+            let fnsig = FnSig {
+                async_: self.gen.opts.async_,
+                private: true,
+                self_arg: Some("&self".to_string()),
+                ..Default::default()
+            };
 
             self.print_docs_and_params(func, TypeMode::Owned, &fnsig);
             self.push_str(" -> ");
@@ -307,7 +306,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str("::tauri_bindgen_host::bitflags::bitflags! {\n");
         self.print_rustdoc(docs);
 
-        let repr = RustFlagsRepr::new(&flags);
+        let repr = RustFlagsRepr::new(flags);
         let info = self.info(id);
 
         if let Some(attrs) = get_serde_attrs(name, self.uses_two_names(&info), info) {

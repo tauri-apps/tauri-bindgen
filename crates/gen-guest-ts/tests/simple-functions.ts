@@ -7,21 +7,24 @@ declare global {
 	}
 }
 const invoke = window.__TAURI_INVOKE__;
-export async function f1(): Promise<void> {
-	await invoke<void>("plugin:ebb2d6f0441e00a0|f1");
+export async function f1(): Promise<[]> {
+	const result = await invoke<[]>("plugin:d52f0e93c1bb4daa|f1");
+	return result;
 }
-export async function f2(a: number): Promise<void> {
-	await invoke<void>("plugin:ebb2d6f0441e00a0|f2", { a: a });
+export async function f2(a: number): Promise<[]> {
+	const result = await invoke<[]>("plugin:d52f0e93c1bb4daa|f2", { a: a });
+	return result;
 }
-export async function f3(a: number, b: number): Promise<void> {
-	await invoke<void>("plugin:ebb2d6f0441e00a0|f3", { a: a, b: b });
+export async function f3(a: number, b: number): Promise<[]> {
+	const result = await invoke<[]>("plugin:d52f0e93c1bb4daa|f3", { a: a, b: b });
+	return result;
 }
 export async function f4(): Promise<number> {
-	const result = await invoke<number>("plugin:ebb2d6f0441e00a0|f4");
+	const result = await invoke<number>("plugin:d52f0e93c1bb4daa|f4");
 	return result;
 }
 export async function f5(): Promise<[number, number]> {
-	const result = await invoke<[number, number]>("plugin:ebb2d6f0441e00a0|f5");
+	const result = await invoke<[number, number]>("plugin:d52f0e93c1bb4daa|f5");
 	return result;
 }
 export async function f6(
@@ -30,7 +33,7 @@ export async function f6(
 	c: number,
 ): Promise<[number, number, number]> {
 	const result = await invoke<[number, number, number]>(
-		"plugin:ebb2d6f0441e00a0|f6",
+		"plugin:d52f0e93c1bb4daa|f6",
 		{ a: a, b: b, c: c },
 	);
 	return result;

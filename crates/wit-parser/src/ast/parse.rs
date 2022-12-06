@@ -513,7 +513,7 @@ mod test {
         ";
         let mut tokens = Tokens::from_str(input);
 
-        let ty = InterfaceItem::parse(&mut tokens)
+        let _ty = InterfaceItem::parse(&mut tokens)
             .map_err(|error| error.with_source_code(NamedSource::new("test.wit", input)))?;
 
         // assert_eq!(ty.name, "color");
@@ -537,7 +537,7 @@ mod test {
         }";
         let mut tokens = Tokens::from_str(input);
 
-        let ty = InterfaceItem::parse(&mut tokens)
+        let _ty = InterfaceItem::parse(&mut tokens)
             .map_err(|error| error.with_source_code(NamedSource::new("test.wit", input)))?;
 
         // assert_eq!(ty.name, "properties");
@@ -560,7 +560,7 @@ mod test {
         ";
         let mut tokens = Tokens::from_str(input);
 
-        let ty = Interface::parse(&mut tokens)
+        let _ty = Interface::parse(&mut tokens)
             .map_err(|error| error.with_source_code(NamedSource::new("test.wit", input)))?;
 
         // assert_eq!(ty.name, "configuration");
@@ -581,7 +581,7 @@ mod test {
         ";
         let mut tokens = Tokens::from_str(input);
 
-        let ty = InterfaceItem::parse(&mut tokens)
+        let _ty = InterfaceItem::parse(&mut tokens)
             .map_err(|error| error.with_source_code(NamedSource::new("test.wit", input)))?;
 
         // assert_eq!(ty.name, "filter");

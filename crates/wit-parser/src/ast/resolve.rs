@@ -49,7 +49,7 @@ impl<'a> Resolver<'a> {
                     name: name.to_string(),
                 });
 
-                if self.name2id.insert(&name, id).is_some() {
+                if self.name2id.insert(name, id).is_some() {
                     bail!(Error::already_defined(item.name, *names.get(name).unwrap()));
                 }
                 names.insert(name, item.name);
@@ -106,7 +106,7 @@ impl<'a> Resolver<'a> {
                 let results = cases.iter().map(|case| -> Result<crate::VariantCase> {
                     let mut ty = None;
                     if let Some(ty_) = &case.ty {
-                        ty = Some(self.resolve_type(&ty_)?);
+                        ty = Some(self.resolve_type(ty_)?);
                     }
 
                     Ok(crate::VariantCase {
@@ -122,7 +122,7 @@ impl<'a> Resolver<'a> {
             }
             Flags(ast::Flags { fields, .. }) => {
                 let flags = fields
-                    .into_iter()
+                    .iter()
                     .map(|case| crate::Flag {
                         docs: Self::resolve_docs(&case.docs),
                         name: self.read_span(case.name).to_string(),
@@ -145,7 +145,7 @@ impl<'a> Resolver<'a> {
             }
             Enum(ast::Enum { cases, .. }) => {
                 let cases = cases
-                    .into_iter()
+                    .iter()
                     .map(|case| crate::EnumCase {
                         docs: Self::resolve_docs(&case.docs),
                         name: self.read_span(case.name).to_string(),
@@ -155,7 +155,7 @@ impl<'a> Resolver<'a> {
                 crate::TypeDefKind::Enum(crate::Enum { cases })
             }
             Alias(ty) => {
-                let ty = self.resolve_type(&ty)?;
+                let ty = self.resolve_type(ty)?;
 
                 crate::TypeDefKind::Type(ty)
             }
@@ -263,7 +263,7 @@ impl<'a> Resolver<'a> {
             }
             ast::Type::Id(span) => {
                 let name = self.read_span(*span);
-                let id = self.name2id.get(name).ok_or(Error::not_defined(*span))?;
+                let id = self.name2id.get(name).ok_or_else(|| Error::not_defined(*span))?;
 
                 Ok(crate::Type::Id(*id))
             }
@@ -274,7 +274,7 @@ impl<'a> Resolver<'a> {
         let docs = &docs.docs;
 
         let contents: String = docs
-            .into_iter()
+            .iter()
             .map(|line| {
                 let mut str = *line;
 
@@ -384,8 +384,7 @@ where
 
     let errors: Vec<_> = errors
         .into_iter()
-        .map(|res| Result::unwrap_err(res).into())
-        .flatten()
+        .flat_map(|res| Result::unwrap_err(res).into())
         .collect();
 
     if !errors.is_empty() {

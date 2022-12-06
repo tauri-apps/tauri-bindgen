@@ -8,7 +8,7 @@ use id_arena::{Arena, Id};
 use miette::{ErrReport, IntoDiagnostic, NamedSource};
 use std::path::Path;
 
-pub fn parse_file<'a>(path: impl AsRef<Path>) -> miette::Result<Interface> {
+pub fn parse_file(path: impl AsRef<Path>) -> miette::Result<Interface> {
     let path = path.as_ref();
     let input = std::fs::read_to_string(path).into_diagnostic()?;
 
@@ -20,11 +20,11 @@ pub fn parse_file<'a>(path: impl AsRef<Path>) -> miette::Result<Interface> {
 }
 
 fn parse(input: &str) -> miette::Result<Interface> {
-    let mut tokens = ast::lex::Tokens::from_str(&input);
+    let mut tokens = ast::lex::Tokens::from_str(input);
 
     let iface = ast::Interface::parse(&mut tokens)?;
 
-    let iface = ast::resolve::Resolver::new(&input).resolve(iface)?;
+    let iface = ast::resolve::Resolver::new(input).resolve(iface)?;
 
     Ok(iface)
 }
@@ -44,7 +44,7 @@ pub enum FlagsRepr {
     U32(usize),
 }
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Interface {
     pub docs: Docs,
     pub name: String,
@@ -52,7 +52,7 @@ pub struct Interface {
     pub types: Arena<TypeDef>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Function {
     pub docs: Docs,
     pub name: String,
@@ -60,7 +60,7 @@ pub struct Function {
     pub results: Results,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Results {
     Anon(Type),
     Named(Vec<(String, Type)>),
@@ -69,6 +69,10 @@ pub enum Results {
 impl Results {
     pub fn len(&self) -> usize {
         self.types().count()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
     }
 
     pub fn types(&self) -> ResultsTypeIter {
@@ -108,7 +112,7 @@ impl<'a> Iterator for ResultsTypeIter<'a> {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Type {
     U8,
     U16,
@@ -130,18 +134,18 @@ pub enum Type {
     Id(Id<TypeDef>),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Tuple {
     pub types: Vec<Type>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Result_ {
     pub ok: Option<Type>,
     pub err: Option<Type>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TypeDef {
     // pub pos: Range<usize>,
     pub docs: Docs,
@@ -149,7 +153,7 @@ pub struct TypeDef {
     pub kind: TypeDefKind,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TypeDefKind {
     Record(Record),
     Variant(Variant),
@@ -159,31 +163,31 @@ pub enum TypeDefKind {
     Type(Type),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Record {
     pub fields: Vec<RecordField>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RecordField {
     pub docs: Docs,
     pub name: String,
     pub ty: Type,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Variant {
     pub cases: Vec<VariantCase>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VariantCase {
     pub docs: Docs,
     pub name: String,
     pub ty: Option<Type>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Flags {
     pub flags: Vec<Flag>,
 }
@@ -200,24 +204,24 @@ impl Flags {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Flag {
     pub docs: Docs,
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Union {
     pub cases: Vec<UnionCase>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UnionCase {
     pub docs: Docs,
     pub ty: Type,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Enum {
     pub cases: Vec<EnumCase>,
 }
@@ -234,13 +238,13 @@ impl Enum {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EnumCase {
     pub docs: Docs,
     pub name: String,
 }
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Docs {
     pub contents: String,
 }

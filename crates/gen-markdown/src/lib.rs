@@ -8,7 +8,7 @@ use wit_parser::*;
 #[derive(Default)]
 struct Markdown {
     src: Source,
-    opts: Opts,
+    _opts: Opts,
     hrefs: HashMap<String, String>,
 }
 
@@ -20,9 +20,7 @@ pub struct Opts {
 
 impl Opts {
     pub fn build(&self) -> Box<dyn WorldGenerator> {
-        let mut r = Markdown::default();
-        r.opts = self.clone();
-        Box::new(r)
+        Box::new(Markdown { _opts: self.clone(), ..Default::default() })
     }
 }
 
@@ -97,7 +95,7 @@ impl InterfaceGenerator<'_> {
             self.push_str("\n\n");
             self.docs(&func.docs);
 
-            if func.params.len() > 0 {
+            if !func.params.is_empty() {
                 self.push_str("##### Params\n\n");
                 for (name, ty) in func.params.iter() {
                     self.push_str(&format!(
@@ -111,7 +109,7 @@ impl InterfaceGenerator<'_> {
                 }
             }
 
-            if func.results.len() > 0 {
+            if !func.results.is_empty() {
                 self.push_str("##### Results\n\n");
                 for (i, ty) in func.results.types().enumerate() {
                     self.push_str(&format!(
@@ -196,19 +194,19 @@ impl InterfaceGenerator<'_> {
             Type::Result(r) => match (&r.ok, &r.err) {
                 (Some(ok), Some(err)) => {
                     self.push_str("result<");
-                    self.print_ty(&ok, false);
+                    self.print_ty(ok, false);
                     self.push_str(", ");
-                    self.print_ty(&err, false);
+                    self.print_ty(err, false);
                     self.push_str(">");
                 }
                 (None, Some(err)) => {
                     self.push_str("result<_, ");
-                    self.print_ty(&err, false);
+                    self.print_ty(err, false);
                     self.push_str(">");
                 }
                 (Some(ok), None) => {
                     self.push_str("result<");
-                    self.print_ty(&ok, false);
+                    self.print_ty(ok, false);
                     self.push_str(">");
                 }
                 (None, None) => {

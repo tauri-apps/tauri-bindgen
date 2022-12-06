@@ -350,7 +350,7 @@ impl<'a> Tokens<'a> {
     pub fn location(&mut self) -> Result<SourceSpan> {
         match self.clone().next() {
             Some(Ok((loc, _))) => Ok(loc),
-            Some(Err(err)) => return Err(err),
+            Some(Err(err)) => Err(err),
             None => {
                 let pos = self.tokenizer.src.len();
                 Ok((pos..pos).into())
@@ -367,7 +367,7 @@ impl<'a> Tokens<'a> {
                     bail!(Error::unexpected_token(loc, [expected], found));
                 }
             }
-            Some(Err(err)) => return Err(err),
+            Some(Err(err)) => Err(err),
             None => bail!(Error::UnexpectedEof),
         }
     }
@@ -400,12 +400,12 @@ impl<'a> Iterator for Tokens<'a> {
 
 #[inline]
 fn is_alphabetic(chr: char) -> bool {
-    (chr >= 'A' && chr <= 'Z') || (chr >= 'a' && chr <= 'z')
+    ('A'..='Z').contains(&chr) || ('a'..='z').contains(&chr)
 }
 
 #[inline]
 fn is_digit(chr: char) -> bool {
-    chr >= '0' && chr <= '9'
+    ('0'..='9').contains(&chr)
 }
 
 #[inline]
@@ -420,7 +420,7 @@ fn is_space(chr: char) -> bool {
 
 #[inline]
 fn not_line_ending(chr: char) -> bool {
-    !(chr == '\n')
+    chr != '\n'
 }
 
 #[cfg(test)]

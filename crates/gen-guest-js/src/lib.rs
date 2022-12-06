@@ -25,10 +25,11 @@ pub struct Opts {
 
 impl Opts {
     pub fn build(self) -> Box<dyn WorldGenerator> {
-        let mut r = JavaScript::default();
-        r.skip = self.skip.iter().cloned().collect();
-        r.opts = self;
-        Box::new(r)
+        Box::new(JavaScript {
+            skip: self.skip.iter().cloned().collect(),
+            opts: self,
+            ..Default::default()
+        })
     }
 }
 
@@ -103,7 +104,7 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn print_jsdoc(&mut self, func: &Function) {
-        if func.docs.contents.is_empty() && func.params.is_empty() && func.results.len() == 0 {
+        if func.docs.contents.is_empty() && func.params.is_empty() && func.results.is_empty() {
             return;
         }
 
@@ -162,7 +163,7 @@ impl<'a> InterfaceGenerator<'a> {
         }
         self.push_str(") {\n");
 
-        if func.results.len() > 0 {
+        if !func.results.is_empty() {
             self.push_str("const result = ");
         }
 
@@ -187,7 +188,7 @@ impl<'a> InterfaceGenerator<'a> {
 
         self.push_str(");\n");
 
-        if func.results.len() > 0 {
+        if !func.results.is_empty() {
             self.push_str("return result\n");
         }
 
@@ -253,38 +254,12 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn print_list(&mut self, ty: &Type) {
-        match self.array_ty(self.iface, ty) {
+        match array_ty(self.iface, ty) {
             Some(ty) => self.push_str(ty),
             None => {
                 self.print_ty(ty);
                 self.push_str("[]");
             }
-        }
-    }
-
-    fn array_ty(&self, iface: &Interface, ty: &Type) -> Option<&'static str> {
-        match ty {
-            Type::Bool => None,
-            Type::U8 => Some("Uint8Array"),
-            Type::S8 => Some("Int8Array"),
-            Type::U16 => Some("Uint16Array"),
-            Type::S16 => Some("Int16Array"),
-            Type::U32 => Some("Uint32Array"),
-            Type::S32 => Some("Int32Array"),
-            Type::U64 => Some("BigUint64Array"),
-            Type::S64 => Some("BigInt64Array"),
-            Type::Float32 => Some("Float32Array"),
-            Type::Float64 => Some("Float64Array"),
-            Type::Id(id) => match &iface.types[*id].kind {
-                TypeDefKind::Type(t) => self.array_ty(iface, t),
-                _ => None,
-            },
-            Type::Tuple(_)
-            | Type::List(_)
-            | Type::Option(_)
-            | Type::Result(_)
-            | Type::Char
-            | Type::String => None,
         }
     }
 
@@ -321,5 +296,31 @@ fn to_js_ident(name: &str) -> &str {
         "in" => "in_",
         "import" => "import_",
         s => s,
+    }
+}
+
+fn array_ty(iface: &Interface, ty: &Type) -> Option<&'static str> {
+    match ty {
+        Type::Bool => None,
+        Type::U8 => Some("Uint8Array"),
+        Type::S8 => Some("Int8Array"),
+        Type::U16 => Some("Uint16Array"),
+        Type::S16 => Some("Int16Array"),
+        Type::U32 => Some("Uint32Array"),
+        Type::S32 => Some("Int32Array"),
+        Type::U64 => Some("BigUint64Array"),
+        Type::S64 => Some("BigInt64Array"),
+        Type::Float32 => Some("Float32Array"),
+        Type::Float64 => Some("Float64Array"),
+        Type::Id(id) => match &iface.types[*id].kind {
+            TypeDefKind::Type(t) => array_ty(iface, t),
+            _ => None,
+        },
+        Type::Tuple(_)
+        | Type::List(_)
+        | Type::Option(_)
+        | Type::Result(_)
+        | Type::Char
+        | Type::String => None,
     }
 }

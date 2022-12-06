@@ -1,7 +1,7 @@
 #[allow(clippy::all, unused)]
-pub mod imports {
+pub mod simple_functions {
     pub async fn f1() -> () {
-        ::tauri_bindgen_guest_rust::invoke("plugin:ebb2d6f0441e00a0|f1", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d52f0e93c1bb4daa|f1", ())
             .await
             .unwrap()
     }
@@ -12,7 +12,7 @@ pub mod imports {
             a: u32,
         }
         let params = Params { a };
-        ::tauri_bindgen_guest_rust::invoke("plugin:ebb2d6f0441e00a0|f2", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:d52f0e93c1bb4daa|f2", &params)
             .await
             .unwrap()
     }
@@ -24,17 +24,17 @@ pub mod imports {
             b: u32,
         }
         let params = Params { a, b };
-        ::tauri_bindgen_guest_rust::invoke("plugin:ebb2d6f0441e00a0|f3", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:d52f0e93c1bb4daa|f3", &params)
             .await
             .unwrap()
     }
     pub async fn f4() -> u32 {
-        ::tauri_bindgen_guest_rust::invoke("plugin:ebb2d6f0441e00a0|f4", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d52f0e93c1bb4daa|f4", ())
             .await
             .unwrap()
     }
     pub async fn f5() -> (u32, u32) {
-        ::tauri_bindgen_guest_rust::invoke("plugin:ebb2d6f0441e00a0|f5", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:d52f0e93c1bb4daa|f5", ())
             .await
             .unwrap()
     }
@@ -47,7 +47,7 @@ pub mod imports {
             c: u32,
         }
         let params = Params { a, b, c };
-        ::tauri_bindgen_guest_rust::invoke("plugin:ebb2d6f0441e00a0|f6", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:d52f0e93c1bb4daa|f6", &params)
             .await
             .unwrap()
     }

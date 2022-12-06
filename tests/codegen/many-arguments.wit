@@ -1,4 +1,4 @@
-interface manyarg {
+interface many-arguments {
   func many-args(
     a1: u64,
     a2: u64,

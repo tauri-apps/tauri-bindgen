@@ -28,10 +28,11 @@ pub struct Opts {
 
 impl Opts {
     pub fn build(self) -> Box<dyn WorldGenerator> {
-        let mut r = TypeScript::default();
-        r.skip = self.skip.iter().cloned().collect();
-        r.opts = self;
-        Box::new(r)
+        Box::new(TypeScript {
+            skip: self.skip.iter().cloned().collect(),
+            opts: self,
+            ..Default::default()
+        })
     }
 }
 
@@ -194,7 +195,7 @@ impl<'a> InterfaceGenerator<'a> {
         }
         self.push_str("> {\n");
 
-        if func.results.len() > 0 {
+        if !func.results.is_empty() {
             self.push_str("const result = ");
         }
 
@@ -238,7 +239,7 @@ impl<'a> InterfaceGenerator<'a> {
 
         self.push_str(");\n");
 
-        if func.results.len() > 0 {
+        if !func.results.is_empty() {
             self.push_str("return result\n");
         }
 
@@ -306,38 +307,12 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn print_list(&mut self, ty: &Type) {
-        match self.array_ty(self.iface, ty) {
+        match array_ty(self.iface, ty) {
             Some(ty) => self.push_str(ty),
             None => {
                 self.print_ty(ty);
                 self.push_str("[]");
             }
-        }
-    }
-
-    fn array_ty(&self, iface: &Interface, ty: &Type) -> Option<&'static str> {
-        match ty {
-            Type::Bool => None,
-            Type::U8 => Some("Uint8Array"),
-            Type::S8 => Some("Int8Array"),
-            Type::U16 => Some("Uint16Array"),
-            Type::S16 => Some("Int16Array"),
-            Type::U32 => Some("Uint32Array"),
-            Type::S32 => Some("Int32Array"),
-            Type::U64 => Some("BigUint64Array"),
-            Type::S64 => Some("BigInt64Array"),
-            Type::Float32 => Some("Float32Array"),
-            Type::Float64 => Some("Float64Array"),
-            Type::Id(id) => match &iface.types[*id].kind {
-                TypeDefKind::Type(t) => self.array_ty(iface, t),
-                _ => None,
-            },
-            Type::Tuple(_)
-            | Type::List(_)
-            | Type::Option(_)
-            | Type::Result(_)
-            | Type::Char
-            | Type::String => None,
         }
     }
 
@@ -443,19 +418,6 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str("}\n");
     }
 
-    // fn type_tuple(
-    //     &mut self,
-    //     _id: wit_parser::TypeId,
-    //     name: &str,
-    //     tuple: &wit_parser::Tuple,
-    //     docs: &wit_parser::Docs,
-    // ) {
-    //     self.print_typedoc(docs);
-    //     self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
-    //     self.print_tuple(tuple);
-    //     self.push_str(";\n");
-    // }
-
     fn type_variant(
         &mut self,
         _id: wit_parser::TypeId,
@@ -486,52 +448,12 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
 
             if let Some(ty) = &case.ty {
                 self.push_str("val: ");
-                self.print_ty(&ty);
+                self.print_ty(ty);
                 self.push_str(",\n");
             }
             self.push_str("}\n");
         }
     }
-
-    // fn type_option(
-    //     &mut self,
-    //     _id: wit_parser::TypeId,
-    //     name: &str,
-    //     payload: &wit_parser::Type,
-    //     docs: &wit_parser::Docs,
-    // ) {
-    //     self.print_typedoc(docs);
-    //     self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
-    //     if self.is_nullable(payload) {
-    //         self.needs_ty_option = true;
-    //         self.push_str("Option<");
-    //         self.print_ty(payload);
-    //         self.push_str(">");
-    //     } else {
-    //         self.print_ty(payload);
-    //         self.push_str(" | null");
-    //     }
-    //     self.push_str(";\n");
-    // }
-
-    // fn type_result(
-    //     &mut self,
-    //     _id: wit_parser::TypeId,
-    //     name: &str,
-    //     result: &wit_parser::Result_,
-    //     docs: &wit_parser::Docs,
-    // ) {
-    //     self.needs_ty_result = true;
-    //     self.print_typedoc(docs);
-    //     self.push_str(&format!(
-    //         "export type {} = Result<",
-    //         name.to_upper_camel_case()
-    //     ));
-    //     self.print_optional_ty(result.ok.as_ref());
-    //     self.push_str(", ");
-    //     self.print_optional_ty(result.err.as_ref());
-    //     self.push_str(">;\n");
-    // }
 
     fn type_union(
         &mut self,
@@ -593,29 +515,6 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.print_ty(ty);
         self.push_str(";\n");
     }
-
-    // fn type_list(
-    //     &mut self,
-    //     _id: wit_parser::TypeId,
-    //     name: &str,
-    //     ty: &wit_parser::Type,
-    //     docs: &wit_parser::Docs,
-    // ) {
-    //     self.print_typedoc(docs);
-    //     self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
-    //     self.print_list(ty);
-    //     self.push_str(";\n");
-    // }
-
-    // fn type_builtin(
-    //     &mut self,
-    //     id: wit_parser::TypeId,
-    //     name: &str,
-    //     ty: &wit_parser::Type,
-    //     docs: &wit_parser::Docs,
-    // ) {
-    //     drop((id, name, ty, docs));
-    // }
 }
 
 fn to_js_ident(name: &str) -> &str {
@@ -623,5 +522,31 @@ fn to_js_ident(name: &str) -> &str {
         "in" => "in_",
         "import" => "import_",
         s => s,
+    }
+}
+
+fn array_ty(iface: &Interface, ty: &Type) -> Option<&'static str> {
+    match ty {
+        Type::Bool => None,
+        Type::U8 => Some("Uint8Array"),
+        Type::S8 => Some("Int8Array"),
+        Type::U16 => Some("Uint16Array"),
+        Type::S16 => Some("Int16Array"),
+        Type::U32 => Some("Uint32Array"),
+        Type::S32 => Some("Int32Array"),
+        Type::U64 => Some("BigUint64Array"),
+        Type::S64 => Some("BigInt64Array"),
+        Type::Float32 => Some("Float32Array"),
+        Type::Float64 => Some("Float64Array"),
+        Type::Id(id) => match &iface.types[*id].kind {
+            TypeDefKind::Type(t) => array_ty(iface, t),
+            _ => None,
+        },
+        Type::Tuple(_)
+        | Type::List(_)
+        | Type::Option(_)
+        | Type::Result(_)
+        | Type::Char
+        | Type::String => None,
     }
 }

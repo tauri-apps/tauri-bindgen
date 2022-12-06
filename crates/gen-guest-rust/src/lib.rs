@@ -28,10 +28,11 @@ pub struct Opts {
 
 impl Opts {
     pub fn build(self) -> Box<dyn WorldGenerator> {
-        let mut r = RustWasm::default();
-        r.skip = self.skip.iter().cloned().collect();
-        r.opts = self;
-        Box::new(r)
+        Box::new(RustWasm {
+            skip: self.skip.iter().cloned().collect(),
+            opts: self,
+            ..Default::default()
+        })
     }
 }
 
@@ -117,8 +118,10 @@ impl<'a> InterfaceGenerator<'a> {
             return;
         }
 
-        let mut sig = FnSig::default();
-        sig.async_ = true;
+        let sig = FnSig {
+            async_: true,
+            ..Default::default()
+        };
 
         let param_mode = TypeMode::AllBorrowed("'_");
 
@@ -242,7 +245,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str("::tauri_bindgen_guest_rust::bitflags::bitflags! {\n");
         self.print_rustdoc(docs);
 
-        let repr = RustFlagsRepr::new(&flags);
+        let repr = RustFlagsRepr::new(flags);
         let info = self.info(id);
 
         if let Some(attrs) = get_serde_attrs(name, self.uses_two_names(&info), info) {

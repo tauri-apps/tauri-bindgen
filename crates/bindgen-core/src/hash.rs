@@ -25,30 +25,24 @@ pub fn hash_file(path: impl AsRef<Path>) -> Result<String, Error> {
 fn maybe_memmap_file(file: &File) -> Result<Option<memmap2::Mmap>, Error> {
     let metadata = file.metadata()?;
     let file_size = metadata.len();
-    Ok(if !metadata.is_file() {
-        // Not a real file.
-        None
-    } else if file_size > isize::max_value() as u64 {
-        // Too long to safely map.
-        // https://github.com/danburkert/memmap-rs/issues/69
-        None
-    } else if file_size == 0 {
-        // Mapping an empty file currently fails.
-        // https://github.com/danburkert/memmap-rs/issues/72
-        None
-    } else if file_size < 16 * 1024 {
-        // Mapping small files is not worth it.
-        None
-    } else {
-        // Explicitly set the length of the memory map, so that filesystem
-        // changes can't race to violate the invariants we just checked.
-        let map = unsafe {
-            memmap2::MmapOptions::new()
-                .len(file_size as usize)
-                .map(file)?
-        };
-        Some(map)
-    })
+    Ok(
+        if !metadata.is_file()
+            || file_size > isize::max_value() as u64
+            || file_size == 0
+            || file_size < 16 * 1024
+        {
+            None
+        } else {
+            // Explicitly set the length of the memory map, so that filesystem
+            // changes can't race to violate the invariants we just checked.
+            let map = unsafe {
+                memmap2::MmapOptions::new()
+                    .len(file_size as usize)
+                    .map(file)?
+            };
+            Some(map)
+        },
+    )
 }
 
 fn copy_wide(mut reader: impl io::Read, hasher: &mut blake3::Hasher) -> Result<u64, Error> {
