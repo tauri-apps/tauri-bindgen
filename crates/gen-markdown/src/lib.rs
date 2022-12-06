@@ -8,7 +8,7 @@ use wit_parser::*;
 #[derive(Default)]
 struct Markdown {
     src: Source,
-    opts: Opts,
+    _opts: Opts,
     hrefs: HashMap<String, String>,
 }
 
@@ -20,9 +20,7 @@ pub struct Opts {
 
 impl Opts {
     pub fn build(&self) -> Box<dyn WorldGenerator> {
-        let mut r = Markdown::default();
-        r.opts = self.clone();
-        Box::new(r)
+        Box::new(Markdown { _opts: self.clone(), ..Default::default() })
     }
 }
 
@@ -59,12 +57,12 @@ impl WorldGenerator for Markdown {
 
 impl Markdown {
     fn interface<'a>(&'a mut self, iface: &'a Interface) -> InterfaceGenerator<'_> {
-        let mut sizes = SizeAlign::default();
-        sizes.fill(iface);
+        // let mut sizes = SizeAlign::default();
+        // sizes.fill(iface);
         InterfaceGenerator {
             gen: self,
             iface,
-            sizes,
+            // sizes,
             types_header_printed: false,
         }
     }
@@ -73,7 +71,7 @@ impl Markdown {
 struct InterfaceGenerator<'a> {
     gen: &'a mut Markdown,
     iface: &'a Interface,
-    sizes: SizeAlign,
+    // sizes: SizeAlign,
     types_header_printed: bool,
 }
 
@@ -97,7 +95,7 @@ impl InterfaceGenerator<'_> {
             self.push_str("\n\n");
             self.docs(&func.docs);
 
-            if func.params.len() > 0 {
+            if !func.params.is_empty() {
                 self.push_str("##### Params\n\n");
                 for (name, ty) in func.params.iter() {
                     self.push_str(&format!(
@@ -111,9 +109,9 @@ impl InterfaceGenerator<'_> {
                 }
             }
 
-            if func.results.len() > 0 {
+            if !func.results.is_empty() {
                 self.push_str("##### Results\n\n");
-                for (i, ty) in func.results.iter_types().enumerate() {
+                for (i, ty) in func.results.types().enumerate() {
                     self.push_str(&format!(
                         "- <a href=\"#{f}.{p}{i}\" name=\"{f}.{p}{i}\"></a> `{}{i}`: ",
                         "result",
@@ -133,7 +131,7 @@ impl InterfaceGenerator<'_> {
         self.gen.src.push_str(s);
     }
 
-    fn print_ty(&mut self, ty: &Type, skip_name: bool) {
+    fn print_ty(&mut self, ty: &Type, _skip_name: bool) {
         match ty {
             Type::Bool => self.push_str("`bool`"),
             Type::U8 => self.push_str("`u8`"),
@@ -150,110 +148,76 @@ impl InterfaceGenerator<'_> {
             Type::String => self.push_str("`string`"),
             Type::Id(id) => {
                 let ty = &self.iface.types[*id];
-                if !skip_name {
-                    if let Some(name) = &ty.name {
-                        self.push_str("[`");
-                        self.push_str(name);
-                        self.push_str("`](#");
-                        self.push_str(&name.to_snake_case());
-                        self.push_str(")");
-                        return;
-                    }
-                }
+                // if !skip_name {
+                //     if let Some(name) = &ty.name {
+                //         self.push_str("[`");
+                //         self.push_str(name);
+                //         self.push_str("`](#");
+                //         self.push_str(&name.to_snake_case());
+                //         self.push_str(")");
+                //         return;
+                //     }
+                // }
                 match &ty.kind {
                     TypeDefKind::Type(t) => self.print_ty(t, false),
-                    TypeDefKind::Tuple(t) => {
-                        self.push_str("(");
-                        for (i, t) in t.types.iter().enumerate() {
-                            if i > 0 {
-                                self.push_str(", ");
-                            }
-                            self.print_ty(t, false);
-                        }
-                        self.push_str(")");
-                    }
+                    // TypeDefKind::Tuple(t) =>
                     TypeDefKind::Record(_)
                     | TypeDefKind::Flags(_)
                     | TypeDefKind::Enum(_)
                     | TypeDefKind::Variant(_)
                     | TypeDefKind::Union(_) => {
                         unreachable!()
-                    }
-                    TypeDefKind::Option(t) => {
-                        self.push_str("option<");
-                        self.print_ty(t, false);
-                        self.push_str(">");
-                    }
-                    TypeDefKind::Result(r) => match (r.ok, r.err) {
-                        (Some(ok), Some(err)) => {
-                            self.push_str("result<");
-                            self.print_ty(&ok, false);
-                            self.push_str(", ");
-                            self.print_ty(&err, false);
-                            self.push_str(">");
-                        }
-                        (None, Some(err)) => {
-                            self.push_str("result<_, ");
-                            self.print_ty(&err, false);
-                            self.push_str(">");
-                        }
-                        (Some(ok), None) => {
-                            self.push_str("result<");
-                            self.print_ty(&ok, false);
-                            self.push_str(">");
-                        }
-                        (None, None) => {
-                            self.push_str("result");
-                        }
-                    },
-                    TypeDefKind::List(t) => {
-                        self.push_str("list<");
-                        self.print_ty(t, false);
-                        self.push_str(">");
-                    }
-                    TypeDefKind::Future(t) => match t {
-                        Some(t) => {
-                            self.push_str("future<");
-                            self.print_ty(t, false);
-                            self.push_str(">");
-                        }
-                        None => {
-                            self.push_str("future");
-                        }
-                    },
-                    TypeDefKind::Stream(s) => match (s.element, s.end) {
-                        (Some(element), Some(end)) => {
-                            self.push_str("stream<");
-                            self.print_ty(&element, false);
-                            self.push_str(", ");
-                            self.print_ty(&end, false);
-                            self.push_str(">");
-                        }
-                        (None, Some(end)) => {
-                            self.push_str("stream<_, ");
-                            self.print_ty(&end, false);
-                            self.push_str(">");
-                        }
-                        (Some(element), None) => {
-                            self.push_str("stream<");
-                            self.print_ty(&element, false);
-                            self.push_str(">");
-                        }
-                        (None, None) => {
-                            self.push_str("stream");
-                        }
-                    },
+                    } // TypeDefKind::Option(t) =>
+                      // TypeDefKind::Result(r) =>
                 }
             }
+            Type::Tuple(ty) => {
+                self.push_str("(");
+                for (i, ty) in ty.types.iter().enumerate() {
+                    if i > 0 {
+                        self.push_str(", ");
+                    }
+                    self.print_ty(ty, false);
+                }
+                self.push_str(")");
+            }
+            Type::List(ty) => {
+                self.push_str("list<");
+                self.print_ty(ty, false);
+                self.push_str(">");
+            }
+            Type::Option(ty) => {
+                self.push_str("option<");
+                self.print_ty(ty, false);
+                self.push_str(">");
+            }
+            Type::Result(r) => match (&r.ok, &r.err) {
+                (Some(ok), Some(err)) => {
+                    self.push_str("result<");
+                    self.print_ty(ok, false);
+                    self.push_str(", ");
+                    self.print_ty(err, false);
+                    self.push_str(">");
+                }
+                (None, Some(err)) => {
+                    self.push_str("result<_, ");
+                    self.print_ty(err, false);
+                    self.push_str(">");
+                }
+                (Some(ok), None) => {
+                    self.push_str("result<");
+                    self.print_ty(ok, false);
+                    self.push_str(">");
+                }
+                (None, None) => {
+                    self.push_str("result");
+                }
+            },
         }
     }
 
     fn docs(&mut self, docs: &Docs) {
-        let docs = match &docs.contents {
-            Some(docs) => docs,
-            None => return,
-        };
-        for line in docs.lines() {
+        for line in docs.contents.lines() {
             self.push_str(line.trim());
             self.push_str("\n");
         }
@@ -274,11 +238,11 @@ impl InterfaceGenerator<'_> {
             .insert(name.to_string(), format!("#{}", name.to_snake_case()));
     }
 
-    fn print_type_info(&mut self, ty: TypeId, docs: &Docs) {
+    fn print_type_info(&mut self, _ty: TypeId, docs: &Docs) {
         self.docs(docs);
         self.push_str("\n");
-        self.push_str(&format!("Size: {}, ", self.sizes.size(&Type::Id(ty))));
-        self.push_str(&format!("Alignment: {}\n", self.sizes.align(&Type::Id(ty))));
+        // self.push_str(&format!("Size: {}, ", self.sizes.size(&Type::Id(ty))));
+        // self.push_str(&format!("Alignment: {}\n", self.sizes.align(&Type::Id(ty))));
     }
 }
 
@@ -312,26 +276,26 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         }
     }
 
-    fn type_tuple(&mut self, id: TypeId, name: &str, tuple: &Tuple, docs: &Docs) {
-        self.print_type_header(name);
-        self.push_str("tuple\n\n");
-        self.print_type_info(id, docs);
-        self.push_str("\n### Tuple Fields\n\n");
-        for (i, ty) in tuple.types.iter().enumerate() {
-            self.push_str(&format!(
-                "- <a href=\"{r}.{f}\" name=\"{r}.{f}\"></a> [`{name}`](#{r}.{f}): ",
-                r = name.to_snake_case(),
-                f = i,
-                name = i,
-            ));
-            self.gen.hrefs.insert(
-                format!("{}::{}", name, i),
-                format!("#{}.{}", name.to_snake_case(), i),
-            );
-            self.print_ty(ty, false);
-            self.push_str("\n");
-        }
-    }
+    // fn type_tuple(&mut self, id: TypeId, name: &str, tuple: &Tuple, docs: &Docs) {
+    //     self.print_type_header(name);
+    //     self.push_str("tuple\n\n");
+    //     self.print_type_info(id, docs);
+    //     self.push_str("\n### Tuple Fields\n\n");
+    //     for (i, ty) in tuple.types.iter().enumerate() {
+    //         self.push_str(&format!(
+    //             "- <a href=\"{r}.{f}\" name=\"{r}.{f}\"></a> [`{name}`](#{r}.{f}): ",
+    //             r = name.to_snake_case(),
+    //             f = i,
+    //             name = i,
+    //         ));
+    //         self.gen.hrefs.insert(
+    //             format!("{}::{}", name, i),
+    //             format!("#{}.{}", name.to_snake_case(), i),
+    //         );
+    //         self.print_ty(ty, false);
+    //         self.push_str("\n");
+    //     }
+    // }
 
     fn type_flags(&mut self, id: TypeId, name: &str, flags: &Flags, docs: &Docs) {
         self.print_type_header(name);
@@ -433,40 +397,40 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         }
     }
 
-    fn type_option(&mut self, id: TypeId, name: &str, payload: &Type, docs: &Docs) {
-        self.print_type_header(name);
-        self.push_str("option<");
-        self.print_ty(payload, false);
-        self.push_str(">");
-        self.print_type_info(id, docs);
-    }
+    // fn type_option(&mut self, id: TypeId, name: &str, payload: &Type, docs: &Docs) {
+    //     self.print_type_header(name);
+    //     self.push_str("option<");
+    //     self.print_ty(payload, false);
+    //     self.push_str(">");
+    //     self.print_type_info(id, docs);
+    // }
 
-    fn type_result(&mut self, id: TypeId, name: &str, result: &Result_, docs: &Docs) {
-        self.print_type_header(name);
-        match (result.ok, result.err) {
-            (Some(ok), Some(err)) => {
-                self.push_str("result<");
-                self.print_ty(&ok, false);
-                self.push_str(", ");
-                self.print_ty(&err, false);
-                self.push_str(">");
-            }
-            (None, Some(err)) => {
-                self.push_str("result<_, ");
-                self.print_ty(&err, false);
-                self.push_str(">");
-            }
-            (Some(ok), None) => {
-                self.push_str("result<");
-                self.print_ty(&ok, false);
-                self.push_str(">");
-            }
-            (None, None) => {
-                self.push_str("result");
-            }
-        }
-        self.print_type_info(id, docs);
-    }
+    // fn type_result(&mut self, id: TypeId, name: &str, result: &Result_, docs: &Docs) {
+    //     self.print_type_header(name);
+    //     match (result.ok, result.err) {
+    //         (Some(ok), Some(err)) => {
+    //             self.push_str("result<");
+    //             self.print_ty(&ok, false);
+    //             self.push_str(", ");
+    //             self.print_ty(&err, false);
+    //             self.push_str(">");
+    //         }
+    //         (None, Some(err)) => {
+    //             self.push_str("result<_, ");
+    //             self.print_ty(&err, false);
+    //             self.push_str(">");
+    //         }
+    //         (Some(ok), None) => {
+    //             self.push_str("result<");
+    //             self.print_ty(&ok, false);
+    //             self.push_str(">");
+    //         }
+    //         (None, None) => {
+    //             self.push_str("result");
+    //         }
+    //     }
+    //     self.print_type_info(id, docs);
+    // }
 
     fn type_alias(&mut self, id: TypeId, name: &str, ty: &Type, docs: &Docs) {
         self.print_type_header(name);
@@ -476,11 +440,11 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str("\n");
     }
 
-    fn type_list(&mut self, id: TypeId, name: &str, _ty: &Type, docs: &Docs) {
-        self.type_alias(id, name, &Type::Id(id), docs);
-    }
+    // fn type_list(&mut self, id: TypeId, name: &str, _ty: &Type, docs: &Docs) {
+    //     self.type_alias(id, name, &Type::Id(id), docs);
+    // }
 
-    fn type_builtin(&mut self, id: TypeId, name: &str, ty: &Type, docs: &Docs) {
-        self.type_alias(id, name, ty, docs)
-    }
+    // fn type_builtin(&mut self, id: TypeId, name: &str, ty: &Type, docs: &Docs) {
+    //     self.type_alias(id, name, ty, docs)
+    // }
 }

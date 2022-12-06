@@ -2,14 +2,13 @@ use std::path::Path;
 
 use tauri_bindgen_core::{Files, WorldGenerator};
 use tauri_bindgen_gen_guest_ts::*;
-use wit_parser::World;
 
 fn gen_world(
     mut gen: Box<dyn WorldGenerator>,
     name: impl AsRef<str>,
     path: impl AsRef<Path>,
 ) -> (String, String) {
-    let world = World::parse_file(&path).unwrap();
+    let world = wit_parser::parse_file(&path).unwrap();
     let world_hash = tauri_bindgen_core::hash::hash_file(path).unwrap();
 
     let mut files = Files::default();

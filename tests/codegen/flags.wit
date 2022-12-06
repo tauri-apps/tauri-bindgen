@@ -38,17 +38,11 @@ interface flegs {
     b56, b57, b58, b59, b60, b61, b62, b63,
   }
 
-  roundtrip-flag1: func(x: flag1) -> flag1
-  roundtrip-flag2: func(x: flag2) -> flag2
-  roundtrip-flag4: func(x: flag4) -> flag4
-  roundtrip-flag8: func(x: flag8) -> flag8
-  roundtrip-flag16: func(x: flag16) -> flag16
-  roundtrip-flag32: func(x: flag32) -> flag32
-  roundtrip-flag64: func(x: flag64) -> flag64
-}
-
-world flegs {
-  import import-flags: flegs
-  export export-flags: flegs
-  default export flegs
+  func roundtrip-flag1(x: flag1) -> flag1
+  func roundtrip-flag2(x: flag2) -> flag2
+  func roundtrip-flag4(x: flag4) -> flag4
+  func roundtrip-flag8(x: flag8) -> flag8
+  func roundtrip-flag16(x: flag16) -> flag16
+  func roundtrip-flag32(x: flag32) -> flag32
+  func roundtrip-flag64(x: flag64) -> flag64
 }

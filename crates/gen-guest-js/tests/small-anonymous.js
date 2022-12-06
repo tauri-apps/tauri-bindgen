@@ -1,9 +1,9 @@
 const invoke = window.__TAURI_INVOKE__;
 /**
- * @returns {Promise<string | null>}
+ * @returns {Promise<Result<string | null, Error>>}
  */
 export async function optionTest() {
-	const result = await invoke("plugin:bee731db80799df9|option_test");
+	const result = await invoke("plugin:f831ebf42dd49cbb|option_test");
 	return result;
 }
 

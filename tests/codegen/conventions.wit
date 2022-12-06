@@ -1,39 +1,33 @@
 // hello 🐱 world
 
 interface conventions {
-  kebab-case: func()
+  func kebab-case()
 
   record ludicrous-speed {
     how-fast-are-you-going: u32,
     i-am-going-extremely-slow: u64,
   }
 
-  foo: func(x: ludicrous-speed)
-  %function-with-dashes: func()
-  %function-with-no-weird-characters: func()
+  func foo(x: ludicrous-speed)
+  func %function-with-dashes()
+  func %function-with-no-weird-characters()
 
-  apple: func()
-  apple-pear: func()
-  apple-pear-grape: func()
-  a0: func()
+  func apple()
+  func apple-pear()
+  func apple-pear-grape()
+  func a0()
 
   // Comment out identifiers that collide when mapped to snake_case, for now; see
   // https://github.com/WebAssembly/component-model/issues/118
-  //APPLE: func()
-  //APPLE-pear-GRAPE: func()
-  //apple-PEAR-grape: func()
+  //func APPLE()
+  //func APPLE-pear-GRAPE()
+  //func apple-PEAR-grape()
 
-  is-XML: func()
+  func is-XML()
 
-  %explicit: func()
-  %explicit-kebab: func()
+  func %explicit()
+  func %explicit-kebab()
 
   // Identifiers with the same name as keywords are quoted.
-  %bool: func()
-}
-
-world conventions {
-  import imports: conventions
-  export exports: conventions
-  default export conventions
+  func %bool()
 }

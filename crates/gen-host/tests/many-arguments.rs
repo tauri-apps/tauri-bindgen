@@ -1,6 +1,6 @@
 #[allow(clippy::all)]
-pub mod imports {
-    pub const WORLD_HASH: &str = "92d5120c899c41cc";
+pub mod many_arguments {
+    pub const WORLD_HASH: &str = "b26e5107ff225c6b";
     #[derive(Debug, Clone, PartialEq, ::tauri_bindgen_host::serde::Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct BigStruct {
@@ -25,7 +25,7 @@ pub mod imports {
         pub a19: String,
         pub a20: String,
     }
-    pub trait Imports: Sized {
+    pub trait ManyArguments: Sized {
         fn many_args(
             &self,
             a1: u64,
@@ -50,14 +50,14 @@ pub mod imports {
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: Imports + Send + Sync + 'static,
+        U: ManyArguments + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| {
             let span = ::tauri_bindgen_host::tracing::span!(
             ::tauri_bindgen_host::tracing::Level::TRACE,
             "tauri-bindgen invoke handler",
-            module = "imports", function = invoke.message.command(), payload = ?invoke.message.payload()
+            module = "many-arguments", function = invoke.message.command(), payload = ?invoke.message.payload()
             );
             let _enter = span.enter();
 
@@ -78,7 +78,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -97,7 +97,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -116,7 +116,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -135,7 +135,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -154,7 +154,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -173,7 +173,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -192,7 +192,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -211,7 +211,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -230,7 +230,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -249,7 +249,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -268,7 +268,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -287,7 +287,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -306,7 +306,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -325,7 +325,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -344,7 +344,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -363,7 +363,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "many-args",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -396,7 +396,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "many-arguments",
                                 function = "big-argument",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -413,7 +413,7 @@ pub mod imports {
                 }
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
-                        module = "imports",
+                        module = "many-arguments",
                         function = func_name,
                         "Not Found"
                     );

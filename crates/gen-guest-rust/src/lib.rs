@@ -28,10 +28,11 @@ pub struct Opts {
 
 impl Opts {
     pub fn build(self) -> Box<dyn WorldGenerator> {
-        let mut r = RustWasm::default();
-        r.skip = self.skip.iter().cloned().collect();
-        r.opts = self;
-        Box::new(r)
+        Box::new(RustWasm {
+            skip: self.skip.iter().cloned().collect(),
+            opts: self,
+            ..Default::default()
+        })
     }
 }
 
@@ -117,25 +118,17 @@ impl<'a> InterfaceGenerator<'a> {
             return;
         }
 
-        let mut sig = FnSig::default();
-        sig.async_ = true;
+        let sig = FnSig {
+            async_: true,
+            ..Default::default()
+        };
 
         let param_mode = TypeMode::AllBorrowed("'_");
-        match &func.kind {
-            FunctionKind::Freestanding => {}
-        }
-        self.print_signature(func, param_mode, &sig);
-        self.src.push_str("{\n");
 
-        let lifetime = func.params.iter().any(|(_, ty)| match ty {
-            Type::String => true,
-            Type::Id(id) => {
-                let info = self.info(*id);
-                self.lifetime_for(&info, TypeMode::AllBorrowed("'a"))
-                    .is_some()
-            }
-            _ => false,
-        });
+        self.print_signature(func, param_mode, &sig);
+        self.src.push_str(" {\n");
+
+        let lifetime = func.params.iter().any(|(_, ty)| self.needs_lifetime(ty));
 
         if !func.params.is_empty() {
             self.push_str("#[derive(::serde::Serialize)]\n");
@@ -179,9 +172,31 @@ impl<'a> InterfaceGenerator<'a> {
         self.push_str(").await.unwrap()\n");
 
         self.src.push_str("}\n");
+    }
 
-        match &func.kind {
-            FunctionKind::Freestanding => {}
+    fn needs_lifetime(&self, ty: &Type) -> bool {
+        match ty {
+            Type::String => true,
+            Type::Tuple(ty) => ty.types.iter().any(|ty| self.needs_lifetime(ty)),
+            Type::List(_) => true,
+            Type::Option(ty) => self.needs_lifetime(ty),
+            Type::Result(res) => {
+                res.ok
+                    .as_ref()
+                    .map(|ty| self.needs_lifetime(ty))
+                    .unwrap_or_default()
+                    || res
+                        .err
+                        .as_ref()
+                        .map(|ty| self.needs_lifetime(ty))
+                        .unwrap_or_default()
+            }
+            Type::Id(id) => {
+                let info = self.info(*id);
+                self.lifetime_for(&info, TypeMode::AllBorrowed("'a"))
+                    .is_some()
+            }
+            _ => false,
         }
     }
 }
@@ -226,15 +241,11 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.print_typedef_record(id, record, docs, get_serde_attrs);
     }
 
-    fn type_tuple(&mut self, id: TypeId, _name: &str, tuple: &Tuple, docs: &Docs) {
-        self.print_typedef_tuple(id, tuple, docs);
-    }
-
     fn type_flags(&mut self, id: TypeId, name: &str, flags: &Flags, docs: &Docs) {
         self.push_str("::tauri_bindgen_guest_rust::bitflags::bitflags! {\n");
         self.print_rustdoc(docs);
 
-        let repr = RustFlagsRepr::new(&flags);
+        let repr = RustFlagsRepr::new(flags);
         let info = self.info(id);
 
         if let Some(attrs) = get_serde_attrs(name, self.uses_two_names(&info), info) {
@@ -267,14 +278,6 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.print_typedef_union(id, union, docs, get_serde_attrs);
     }
 
-    fn type_option(&mut self, id: TypeId, _name: &str, payload: &Type, docs: &Docs) {
-        self.print_typedef_option(id, payload, docs);
-    }
-
-    fn type_result(&mut self, id: TypeId, _name: &str, result: &Result_, docs: &Docs) {
-        self.print_typedef_result(id, result, docs);
-    }
-
     fn type_enum(&mut self, id: TypeId, _name: &str, enum_: &Enum, docs: &Docs) {
         self.print_typedef_enum(id, enum_, docs, get_serde_attrs);
     }
@@ -282,42 +285,25 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     fn type_alias(&mut self, id: TypeId, _name: &str, ty: &Type, docs: &Docs) {
         self.print_typedef_alias(id, ty, docs);
     }
-
-    fn type_list(&mut self, id: TypeId, _name: &str, ty: &Type, docs: &Docs) {
-        self.print_typedef_list(id, ty, docs);
-    }
-
-    fn type_builtin(&mut self, _id: TypeId, name: &str, ty: &Type, docs: &Docs) {
-        self.print_rustdoc(docs);
-        self.src
-            .push_str(&format!("pub type {}", name.to_upper_camel_case()));
-        self.src.push_str(" = ");
-        self.print_ty(ty, TypeMode::Owned);
-        self.src.push_str(";\n");
-    }
 }
 
 fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<String> {
     let mut attrs = vec![];
 
-    match (info.param, info.result) {
-        (true, false) => {
+    if uses_two_names {
+        if name.ends_with("Param") {
             attrs.push("::serde::Serialize");
         }
-        (true, true) if uses_two_names && name.ends_with("Param") => {
+        if name.ends_with("Result") {
+            attrs.push("::serde::Deserialize")
+        }
+    } else {
+        if info.contains(TypeInfo::PARAM) {
             attrs.push("::serde::Serialize");
         }
-        (false, true) => {
-            attrs.push("::serde::Deserialize");
+        if info.contains(TypeInfo::RESULT) {
+            attrs.push("::serde::Deserialize")
         }
-        (true, true) if uses_two_names && name.ends_with("Result") => {
-            attrs.push("::serde::Deserialize");
-        }
-        (true, true) => {
-            attrs.push("::serde::Serialize");
-            attrs.push("::serde::Deserialize");
-        }
-        _ => return None,
     }
 
     Some(format!("#[derive({})]\n", attrs.join(", ")))

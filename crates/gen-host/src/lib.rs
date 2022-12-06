@@ -25,9 +25,7 @@ pub struct Opts {
 
 impl Opts {
     pub fn build(self) -> Box<dyn WorldGenerator> {
-        let mut r = Host::default();
-        r.opts = self;
-        Box::new(r)
+        Box::new(Host { opts: self, ..Default::default() })
     }
 }
 
@@ -107,11 +105,12 @@ impl<'a> InterfaceGenerator<'a> {
         uwriteln!(self.src, "pub trait {camel}: Sized {{");
 
         for func in self.iface.functions.iter() {
-            let mut fnsig = FnSig::default();
-
-            fnsig.async_ = self.gen.opts.async_;
-            fnsig.private = true;
-            fnsig.self_arg = Some("&self".to_string());
+            let fnsig = FnSig {
+                async_: self.gen.opts.async_,
+                private: true,
+                self_arg: Some("&self".to_string()),
+                ..Default::default()
+            };
 
             self.print_docs_and_params(func, TypeMode::Owned, &fnsig);
             self.push_str(" -> ");
@@ -307,7 +306,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str("::tauri_bindgen_host::bitflags::bitflags! {\n");
         self.print_rustdoc(docs);
 
-        let repr = RustFlagsRepr::new(&flags);
+        let repr = RustFlagsRepr::new(flags);
         let info = self.info(id);
 
         if let Some(attrs) = get_serde_attrs(name, self.uses_two_names(&info), info) {
@@ -332,10 +331,6 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str("}\n}\n");
     }
 
-    fn type_tuple(&mut self, id: TypeId, _name: &str, tuple: &wit_parser::Tuple, docs: &Docs) {
-        self.print_typedef_tuple(id, tuple, docs);
-    }
-
     fn type_variant(
         &mut self,
         id: TypeId,
@@ -344,14 +339,6 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         docs: &Docs,
     ) {
         self.print_typedef_variant(id, variant, docs, get_serde_attrs);
-    }
-
-    fn type_option(&mut self, id: TypeId, _name: &str, payload: &Type, docs: &Docs) {
-        self.print_typedef_option(id, payload, docs);
-    }
-
-    fn type_result(&mut self, id: TypeId, _name: &str, result: &wit_parser::Result_, docs: &Docs) {
-        self.print_typedef_result(id, result, docs);
     }
 
     fn type_union(&mut self, id: TypeId, _name: &str, union: &wit_parser::Union, docs: &Docs) {
@@ -365,42 +352,24 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     fn type_alias(&mut self, id: TypeId, _name: &str, ty: &Type, docs: &Docs) {
         self.print_typedef_alias(id, ty, docs);
     }
-
-    fn type_list(&mut self, id: TypeId, _name: &str, ty: &Type, docs: &Docs) {
-        self.print_typedef_list(id, ty, docs);
-    }
-
-    fn type_builtin(&mut self, _id: TypeId, name: &str, ty: &Type, docs: &Docs) {
-        self.print_rustdoc(docs);
-        self.src
-            .push_str(&format!("pub type {}", name.to_upper_camel_case()));
-        self.src.push_str(" = ");
-        self.print_ty(ty, TypeMode::Owned);
-        self.src.push_str(";\n");
-    }
 }
 
 fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<String> {
     let mut attrs = vec![];
 
-    match (info.param, info.result) {
-        (true, false) => {
+    if uses_two_names {
+        if name.ends_with("Param") {
             attrs.push("::tauri_bindgen_host::serde::Deserialize");
-        }
-        (true, true) if uses_two_names && name.ends_with("Param") => {
-            attrs.push("::tauri_bindgen_host::serde::Deserialize");
-        }
-        (false, true) => {
+        } else if name.ends_with("Result") {
             attrs.push("::tauri_bindgen_host::serde::Serialize");
         }
-        (true, true) if uses_two_names && name.ends_with("Result") => {
-            attrs.push("::tauri_bindgen_host::serde::Serialize");
-        }
-        (true, true) => {
-            attrs.push("::tauri_bindgen_host::serde::Serialize");
+    } else {
+        if info.contains(TypeInfo::PARAM) {
             attrs.push("::tauri_bindgen_host::serde::Deserialize");
         }
-        _ => return None,
+        if info.contains(TypeInfo::RESULT) {
+            attrs.push("::tauri_bindgen_host::serde::Serialize");
+        }
     }
 
     Some(format!("#[derive({})]\n", attrs.join(", ")))

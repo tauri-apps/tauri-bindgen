@@ -103,32 +103,36 @@ export type MyErrno = "bad1" | "bad2";
 export interface IsClone {
 	v1: V1;
 }
-export async function e1Arg(x: E1): Promise<void> {
-	await invoke<void>("plugin:d5901a6520084a85|e1-arg", { x: x });
+export async function e1Arg(x: E1): Promise<[]> {
+	const result = await invoke<[]>("plugin:8178d1f91285bbc1|e1-arg", { x: x });
+	return result;
 }
 export async function e1Result(): Promise<E1> {
-	const result = await invoke<E1>("plugin:d5901a6520084a85|e1-result");
+	const result = await invoke<E1>("plugin:8178d1f91285bbc1|e1-result");
 	return result;
 }
-export async function u1Arg(x: U1): Promise<void> {
-	await invoke<void>("plugin:d5901a6520084a85|u1-arg", { x: x });
+export async function u1Arg(x: U1): Promise<[]> {
+	const result = await invoke<[]>("plugin:8178d1f91285bbc1|u1-arg", { x: x });
+	return result;
 }
 export async function u1Result(): Promise<U1> {
-	const result = await invoke<U1>("plugin:d5901a6520084a85|u1-result");
+	const result = await invoke<U1>("plugin:8178d1f91285bbc1|u1-result");
 	return result;
 }
-export async function v1Arg(x: V1): Promise<void> {
-	await invoke<void>("plugin:d5901a6520084a85|v1-arg", { x: x });
+export async function v1Arg(x: V1): Promise<[]> {
+	const result = await invoke<[]>("plugin:8178d1f91285bbc1|v1-arg", { x: x });
+	return result;
 }
 export async function v1Result(): Promise<V1> {
-	const result = await invoke<V1>("plugin:d5901a6520084a85|v1-result");
+	const result = await invoke<V1>("plugin:8178d1f91285bbc1|v1-result");
 	return result;
 }
-export async function boolArg(x: boolean): Promise<void> {
-	await invoke<void>("plugin:d5901a6520084a85|bool-arg", { x: x });
+export async function boolArg(x: boolean): Promise<[]> {
+	const result = await invoke<[]>("plugin:8178d1f91285bbc1|bool-arg", { x: x });
+	return result;
 }
 export async function boolResult(): Promise<boolean> {
-	const result = await invoke<boolean>("plugin:d5901a6520084a85|bool-result");
+	const result = await invoke<boolean>("plugin:8178d1f91285bbc1|bool-result");
 	return result;
 }
 export async function optionArg(
@@ -138,9 +142,9 @@ export async function optionArg(
 	d: E1 | null,
 	e: number | null,
 	f: U1 | null,
-	g: Option<boolean | null>,
-): Promise<void> {
-	await invoke<void>("plugin:d5901a6520084a85|option-arg", {
+	g: boolean | null | null,
+): Promise<[]> {
+	const result = await invoke<[]>("plugin:8178d1f91285bbc1|option-arg", {
 		a: a,
 		b: b,
 		c: c,
@@ -149,6 +153,7 @@ export async function optionArg(
 		f: f,
 		g: g,
 	});
+	return result;
 }
 export async function optionResult(): Promise<
 	[
@@ -158,7 +163,7 @@ export async function optionResult(): Promise<
 		E1 | null,
 		number | null,
 		U1 | null,
-		Option<boolean | null>,
+		boolean | null | null,
 	]
 > {
 	const result = await invoke<
@@ -169,9 +174,9 @@ export async function optionResult(): Promise<
 			E1 | null,
 			number | null,
 			U1 | null,
-			Option<boolean | null>,
+			boolean | null | null,
 		]
-	>("plugin:d5901a6520084a85|option-result");
+	>("plugin:8178d1f91285bbc1|option-result");
 	return result;
 }
 export async function casts(
@@ -183,7 +188,7 @@ export async function casts(
 	f: Casts6,
 ): Promise<[Casts1, Casts2, Casts3, Casts4, Casts5, Casts6]> {
 	const result = await invoke<[Casts1, Casts2, Casts3, Casts4, Casts5, Casts6]>(
-		"plugin:d5901a6520084a85|casts",
+		"plugin:8178d1f91285bbc1|casts",
 		{ a: a, b: b, c: c, d: d, e: e, f: f },
 	);
 	return result;
@@ -195,8 +200,8 @@ export async function resultArg(
 	d: Result<[], []>,
 	e: Result<number, V1>,
 	f: Result<string, Uint8Array>,
-): Promise<void> {
-	await invoke<void>("plugin:d5901a6520084a85|result-arg", {
+): Promise<[]> {
+	const result = await invoke<[]>("plugin:8178d1f91285bbc1|result-arg", {
 		a: a,
 		b: b,
 		c: c,
@@ -204,6 +209,7 @@ export async function resultArg(
 		e: e,
 		f: f,
 	});
+	return result;
 }
 export async function resultResult(): Promise<
 	[
@@ -224,70 +230,72 @@ export async function resultResult(): Promise<
 			Result<number, V1>,
 			Result<string, Uint8Array>,
 		]
-	>("plugin:d5901a6520084a85|result-result");
+	>("plugin:8178d1f91285bbc1|result-result");
 	return result;
 }
 export async function returnResultSugar(): Promise<number> {
 	const result = await invoke<number>(
-		"plugin:d5901a6520084a85|return-result-sugar",
+		"plugin:8178d1f91285bbc1|return-result-sugar",
 	);
 	return result;
 }
 export async function returnResultSugar2(): Promise<void> {
 	const result = await invoke<void>(
-		"plugin:d5901a6520084a85|return-result-sugar2",
+		"plugin:8178d1f91285bbc1|return-result-sugar2",
 	);
 	return result;
 }
 export async function returnResultSugar3(): Promise<MyErrno> {
 	const result = await invoke<MyErrno>(
-		"plugin:d5901a6520084a85|return-result-sugar3",
+		"plugin:8178d1f91285bbc1|return-result-sugar3",
 	);
 	return result;
 }
 export async function returnResultSugar4(): Promise<[number, number]> {
 	const result = await invoke<[number, number]>(
-		"plugin:d5901a6520084a85|return-result-sugar4",
+		"plugin:8178d1f91285bbc1|return-result-sugar4",
 	);
 	return result;
 }
 export async function returnOptionSugar(): Promise<number | null> {
 	const result = await invoke<number | null>(
-		"plugin:d5901a6520084a85|return-option-sugar",
+		"plugin:8178d1f91285bbc1|return-option-sugar",
 	);
 	return result;
 }
 export async function returnOptionSugar2(): Promise<MyErrno | null> {
 	const result = await invoke<MyErrno | null>(
-		"plugin:d5901a6520084a85|return-option-sugar2",
+		"plugin:8178d1f91285bbc1|return-option-sugar2",
 	);
 	return result;
 }
 export async function resultSimple(): Promise<number> {
-	const result = await invoke<number>("plugin:d5901a6520084a85|result-simple");
+	const result = await invoke<number>("plugin:8178d1f91285bbc1|result-simple");
 	return result;
 }
-export async function isCloneArg(a: IsClone): Promise<void> {
-	await invoke<void>("plugin:d5901a6520084a85|is-clone-arg", { a: a });
+export async function isCloneArg(a: IsClone): Promise<[]> {
+	const result = await invoke<[]>("plugin:8178d1f91285bbc1|is-clone-arg", {
+		a: a,
+	});
+	return result;
 }
 export async function isCloneReturn(): Promise<IsClone> {
 	const result = await invoke<IsClone>(
-		"plugin:d5901a6520084a85|is-clone-return",
+		"plugin:8178d1f91285bbc1|is-clone-return",
 	);
 	return result;
 }
 export async function returnNamedOption(): Promise<number | null> {
 	const result = await invoke<number | null>(
-		"plugin:d5901a6520084a85|return-named-option",
+		"plugin:8178d1f91285bbc1|return-named-option",
 	);
 	return result;
 }
 export async function returnNamedResult(): Promise<number> {
 	const result = await invoke<number>(
-		"plugin:d5901a6520084a85|return-named-result",
+		"plugin:8178d1f91285bbc1|return-named-result",
 	);
 	return result;
 }
-export type Option<T> = { tag: "none" } | { tag: "some"; val; T };
 export type Result<T, E> = { tag: "ok"; val: T } | { tag: "err"; val: E };
 

@@ -1,8 +1,10 @@
 use std::{cmp, fs::File, io, path::Path};
 
+use crate::Error;
+
 const TRUNCATE_LEN: usize = 8;
 
-pub fn hash_file(path: impl AsRef<Path>) -> anyhow::Result<String> {
+pub fn hash_file(path: impl AsRef<Path>) -> Result<String, Error> {
     let file = File::open(path)?;
     let mut hasher = blake3::Hasher::new();
 
@@ -20,36 +22,30 @@ pub fn hash_file(path: impl AsRef<Path>) -> anyhow::Result<String> {
 // Mmap a file, if it looks like a good idea. Return None in cases where we
 // know mmap will fail, or if the file is short enough that mmapping isn't
 // worth it. However, if we do try to mmap and it fails, return the error.
-fn maybe_memmap_file(file: &File) -> anyhow::Result<Option<memmap2::Mmap>> {
+fn maybe_memmap_file(file: &File) -> Result<Option<memmap2::Mmap>, Error> {
     let metadata = file.metadata()?;
     let file_size = metadata.len();
-    Ok(if !metadata.is_file() {
-        // Not a real file.
-        None
-    } else if file_size > isize::max_value() as u64 {
-        // Too long to safely map.
-        // https://github.com/danburkert/memmap-rs/issues/69
-        None
-    } else if file_size == 0 {
-        // Mapping an empty file currently fails.
-        // https://github.com/danburkert/memmap-rs/issues/72
-        None
-    } else if file_size < 16 * 1024 {
-        // Mapping small files is not worth it.
-        None
-    } else {
-        // Explicitly set the length of the memory map, so that filesystem
-        // changes can't race to violate the invariants we just checked.
-        let map = unsafe {
-            memmap2::MmapOptions::new()
-                .len(file_size as usize)
-                .map(file)?
-        };
-        Some(map)
-    })
+    Ok(
+        if !metadata.is_file()
+            || file_size > isize::max_value() as u64
+            || file_size == 0
+            || file_size < 16 * 1024
+        {
+            None
+        } else {
+            // Explicitly set the length of the memory map, so that filesystem
+            // changes can't race to violate the invariants we just checked.
+            let map = unsafe {
+                memmap2::MmapOptions::new()
+                    .len(file_size as usize)
+                    .map(file)?
+            };
+            Some(map)
+        },
+    )
 }
 
-fn copy_wide(mut reader: impl io::Read, hasher: &mut blake3::Hasher) -> io::Result<u64> {
+fn copy_wide(mut reader: impl io::Read, hasher: &mut blake3::Hasher) -> Result<u64, Error> {
     let mut buffer = [0; 65536];
     let mut total = 0;
     loop {
@@ -60,7 +56,7 @@ fn copy_wide(mut reader: impl io::Read, hasher: &mut blake3::Hasher) -> io::Resu
                 total += n as u64;
             }
             Err(ref e) if e.kind() == io::ErrorKind::Interrupted => continue,
-            Err(e) => return Err(e),
+            Err(e) => return Err(e.into()),
         }
     }
 }

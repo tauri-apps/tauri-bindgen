@@ -1,7 +1,7 @@
 #[allow(clippy::all)]
-pub mod imports {
-    pub const WORLD_HASH: &str = "678374cfb5cdb2b5";
-    pub trait Imports: Sized {
+pub mod chars {
+    pub const WORLD_HASH: &str = "58d944fc9a2c8431";
+    pub trait Chars: Sized {
         /// A function that accepts a character
         fn take_char(&self, x: char) -> ::tauri_bindgen_host::anyhow::Result<()>;
         /// A function that returns a character
@@ -10,14 +10,14 @@ pub mod imports {
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: Imports + Send + Sync + 'static,
+        U: Chars + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| {
             let span = ::tauri_bindgen_host::tracing::span!(
             ::tauri_bindgen_host::tracing::Level::TRACE,
             "tauri-bindgen invoke handler",
-            module = "imports", function = invoke.message.command(), payload = ?invoke.message.payload()
+            module = "chars", function = invoke.message.command(), payload = ?invoke.message.payload()
             );
             let _enter = span.enter();
 
@@ -38,7 +38,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "chars",
                                 function = "take-char",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -67,7 +67,7 @@ pub mod imports {
                 }
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
-                        module = "imports",
+                        module = "chars",
                         function = func_name,
                         "Not Found"
                     );

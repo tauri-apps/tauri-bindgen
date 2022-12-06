@@ -1,13 +1,7 @@
 interface multi-return {
-  mra: func()
-  mrb: func() -> ()
-  mrc: func() -> u32
-  mrd: func() -> (a: u32)
-  mre: func() -> (a: u32, b: float32)
-}
-
-world multi-return {
-  import imports: multi-return
-  export exports: multi-return
-  default export multi-return
+  func mra()
+  func mrb() -> ()
+  func mrc() -> u32
+  func mrd() -> (a: u32)
+  func mre() -> (a: u32, b: float32)
 }

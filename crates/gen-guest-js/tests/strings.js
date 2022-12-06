@@ -1,15 +1,17 @@
 const invoke = window.__TAURI_INVOKE__;
 /**
  * @param {string} x
+ * @returns {Promise<[]>}
  */
 export async function a(x) {
-	await invoke("plugin:16c3ebd2deefea81|a", { x: x });
+	const result = await invoke("plugin:4883b53925a5f618|a", { x: x });
+	return result;
 }
 /**
  * @returns {Promise<string>}
  */
 export async function b() {
-	const result = await invoke("plugin:16c3ebd2deefea81|b");
+	const result = await invoke("plugin:4883b53925a5f618|b");
 	return result;
 }
 /**
@@ -18,7 +20,7 @@ export async function b() {
  * @returns {Promise<string>}
  */
 export async function c(a, b) {
-	const result = await invoke("plugin:16c3ebd2deefea81|c", { a: a, b: b });
+	const result = await invoke("plugin:4883b53925a5f618|c", { a: a, b: b });
 	return result;
 }
 

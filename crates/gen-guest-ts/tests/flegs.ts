@@ -152,49 +152,49 @@ export const Flag64 = {
 };
 export async function roundtripFlag1(x: Flag1): Promise<Flag1> {
 	const result = await invoke<Flag1>(
-		"plugin:8ecd22d5a53ba1eb|roundtrip-flag1",
+		"plugin:13a360f690a38bbb|roundtrip-flag1",
 		{ x: x },
 	);
 	return result;
 }
 export async function roundtripFlag2(x: Flag2): Promise<Flag2> {
 	const result = await invoke<Flag2>(
-		"plugin:8ecd22d5a53ba1eb|roundtrip-flag2",
+		"plugin:13a360f690a38bbb|roundtrip-flag2",
 		{ x: x },
 	);
 	return result;
 }
 export async function roundtripFlag4(x: Flag4): Promise<Flag4> {
 	const result = await invoke<Flag4>(
-		"plugin:8ecd22d5a53ba1eb|roundtrip-flag4",
+		"plugin:13a360f690a38bbb|roundtrip-flag4",
 		{ x: x },
 	);
 	return result;
 }
 export async function roundtripFlag8(x: Flag8): Promise<Flag8> {
 	const result = await invoke<Flag8>(
-		"plugin:8ecd22d5a53ba1eb|roundtrip-flag8",
+		"plugin:13a360f690a38bbb|roundtrip-flag8",
 		{ x: x },
 	);
 	return result;
 }
 export async function roundtripFlag16(x: Flag16): Promise<Flag16> {
 	const result = await invoke<Flag16>(
-		"plugin:8ecd22d5a53ba1eb|roundtrip-flag16",
+		"plugin:13a360f690a38bbb|roundtrip-flag16",
 		{ x: x },
 	);
 	return result;
 }
 export async function roundtripFlag32(x: Flag32): Promise<Flag32> {
 	const result = await invoke<Flag32>(
-		"plugin:8ecd22d5a53ba1eb|roundtrip-flag32",
+		"plugin:13a360f690a38bbb|roundtrip-flag32",
 		{ x: x },
 	);
 	return result;
 }
 export async function roundtripFlag64(x: Flag64): Promise<Flag64> {
 	const result = await invoke<Flag64>(
-		"plugin:8ecd22d5a53ba1eb|roundtrip-flag64",
+		"plugin:13a360f690a38bbb|roundtrip-flag64",
 		{ x: x },
 	);
 	return result;

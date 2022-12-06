@@ -4,7 +4,7 @@ use std::fmt::{self, Write};
 use tauri_bindgen_core::TypeInfo;
 use wit_parser::*;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum TypeMode {
     Owned,
     AllBorrowed(&'static str),
@@ -38,6 +38,27 @@ pub trait RustGenerator<'a> {
             Type::Float32 => self.push_str("f32"),
             Type::Float64 => self.push_str("f64"),
             Type::Char => self.push_str("char"),
+            Type::Tuple(ty) => {
+                self.push_str("(");
+                for ty in ty.types.iter() {
+                    self.print_ty(ty, mode);
+                    self.push_str(",");
+                }
+                self.push_str(")");
+            }
+            Type::List(ty) => self.print_list(ty, mode),
+            Type::Option(ty) => {
+                self.push_str("Option<");
+                self.print_ty(ty, mode);
+                self.push_str(">");
+            }
+            Type::Result(r) => {
+                self.push_str("Result<");
+                self.print_optional_ty(r.ok.as_ref(), mode);
+                self.push_str(",");
+                self.print_optional_ty(r.err.as_ref(), mode);
+                self.push_str(">");
+            }
             Type::String => match mode {
                 TypeMode::Owned => self.push_str("String"),
                 TypeMode::AllBorrowed(lt) | TypeMode::LeafBorrowed(lt) => {
@@ -56,77 +77,64 @@ pub trait RustGenerator<'a> {
     }
 
     fn print_tyid(&mut self, id: TypeId, mode: TypeMode) {
-        let info = self.info(id);
         let ty = &self.iface().types[id];
+        let info = self.info(id);
         let lt = self.lifetime_for(&info, mode);
 
-        if ty.name.is_some() {
-            let name = if lt.is_some() {
-                self.param_name(id)
-            } else {
-                self.result_name(id)
-            };
-            self.push_str(&name);
+        // if ty.name.is_some() {
+        let name = if lt.is_some() {
+            self.param_name(id)
+        } else {
+            self.result_name(id)
+        };
+        self.push_str(&name);
 
-            // If the type recursively owns data and it's a
-            // variant/record/list, then we need to place the
-            // lifetime parameter on the type as well.
-            if info.owns_data() && needs_generics(self.iface(), &ty.kind) {
-                self.print_generics(lt);
-            }
-
-            return;
-
-            fn needs_generics(iface: &Interface, ty: &TypeDefKind) -> bool {
-                match ty {
-                    TypeDefKind::Variant(_)
-                    | TypeDefKind::Record(_)
-                    | TypeDefKind::Option(_)
-                    | TypeDefKind::Result(_)
-                    | TypeDefKind::Future(_)
-                    | TypeDefKind::Stream(_)
-                    | TypeDefKind::List(_)
-                    | TypeDefKind::Flags(_)
-                    | TypeDefKind::Enum(_)
-                    | TypeDefKind::Tuple(_)
-                    | TypeDefKind::Union(_) => true,
-                    TypeDefKind::Type(Type::Id(t)) => needs_generics(iface, &iface.types[*t].kind),
-                    TypeDefKind::Type(Type::String) => true,
-                    TypeDefKind::Type(_) => false,
-                }
-            }
+        // If the type recursively owns data and it's a
+        // variant/record/list, then we need to place the
+        // lifetime parameter on the type as well.
+        if info.owns_data() && self.typedef_needs_generics(&ty.kind) {
+            self.print_generics(lt);
         }
+    }
 
-        match &ty.kind {
-            TypeDefKind::Type(ty) => self.print_ty(ty, mode),
-            TypeDefKind::List(ty) => self.print_list(ty, mode),
-            TypeDefKind::Result(ty) => {
-                self.push_str("Result<");
-                self.print_optional_ty(ty.ok.as_ref(), mode);
-                self.push_str(",");
-                self.print_optional_ty(ty.err.as_ref(), mode);
-                self.push_str(">");
+    fn typedef_needs_generics(&self, ty: &TypeDefKind) -> bool {
+        match ty {
+            TypeDefKind::Variant(_)
+            | TypeDefKind::Record(_)
+            | TypeDefKind::Flags(_)
+            | TypeDefKind::Enum(_)
+            | TypeDefKind::Union(_) => true,
+            TypeDefKind::Type(Type::Id(t)) => {
+                self.typedef_needs_generics(&self.iface().types[*t].kind)
             }
-            TypeDefKind::Tuple(ty) => {
-                self.push_str("(");
-                for ty in ty.types.iter() {
-                    self.print_ty(ty, mode);
-                    self.push_str(",");
-                }
-                self.push_str(")");
+            TypeDefKind::Type(Type::String) => true,
+            TypeDefKind::Type(ty) => self.type_needs_generics(ty),
+        }
+    }
+
+    fn type_needs_generics(&self, ty: &Type) -> bool {
+        match ty {
+            Type::String => true,
+            Type::Tuple(ty) => ty.types.iter().any(|ty| self.type_needs_generics(ty)),
+            Type::List(_) => true,
+            Type::Option(ty) => self.type_needs_generics(ty),
+            Type::Result(res) => {
+                res.ok
+                    .as_ref()
+                    .map(|ty| self.type_needs_generics(ty))
+                    .unwrap_or_default()
+                    || res
+                        .err
+                        .as_ref()
+                        .map(|ty| self.type_needs_generics(ty))
+                        .unwrap_or_default()
             }
-            TypeDefKind::Option(ty) => {
-                self.push_str("Option<");
-                self.print_ty(ty, mode);
-                self.push_str(">");
+            Type::Id(id) => {
+                let info = self.info(*id);
+                self.lifetime_for(&info, TypeMode::AllBorrowed("'a"))
+                    .is_some()
             }
-            TypeDefKind::Enum(_) => panic!("unsupported anonymous type reference: enum"),
-            TypeDefKind::Variant(_) => panic!("unsupported anonymous type reference: variant"),
-            TypeDefKind::Flags(_) => panic!("unsupported anonymous type reference: flags"),
-            TypeDefKind::Union(_) => panic!("unsupported anonymous type reference: union"),
-            TypeDefKind::Record(_) => panic!("unsupported anonymous type reference: record"),
-            TypeDefKind::Future(_) => panic!("unsupported anonymous type reference: future"),
-            TypeDefKind::Stream(_) => panic!("unsupported anonymous type reference: stream"),
+            _ => false,
         }
     }
 
@@ -137,16 +145,18 @@ pub trait RustGenerator<'a> {
                 self.print_ty(ty, mode);
                 self.push_str(">");
             }
-            TypeMode::AllBorrowed(lt) => self.print_borrowed_slice(false, ty, lt),
-            TypeMode::LeafBorrowed(lt) => {
-                if self.iface().all_bits_valid(ty) {
-                    self.print_borrowed_slice(false, ty, lt);
-                } else {
-                    self.push_str("Vec<");
-                    self.print_ty(ty, mode);
-                    self.push_str(">");
-                }
-            }
+            TypeMode::LeafBorrowed(lt) | TypeMode::AllBorrowed(lt) => {
+                self.print_borrowed_slice(false, ty, lt)
+            } // FIXME: bring this back
+              // TypeMode::LeafBorrowed(lt) => {
+              //     if self.iface().all_bits_valid(ty) {
+              //         self.print_borrowed_slice(false, ty, lt);
+              //     } else {
+              //         self.push_str("Vec<");
+              //         self.print_ty(ty, mode);
+              //         self.push_str(">");
+              //     }
+              // }
         }
     }
 
@@ -188,6 +198,7 @@ pub trait RustGenerator<'a> {
         attrs: impl Fn(&str, bool, TypeInfo) -> Option<String>,
     ) {
         let info = self.info(id);
+        // dbg!(&info.);
         for (name, mode) in self.modes_of(id) {
             let lt = self.lifetime_for(&info, mode);
             self.print_rustdoc(docs);
@@ -433,7 +444,7 @@ pub trait RustGenerator<'a> {
         param_mode: TypeMode,
         sig: &FnSig,
     ) -> Vec<String> {
-        let params = self.print_docs_and_params(func, param_mode, &sig);
+        let params = self.print_docs_and_params(func, param_mode, sig);
         self.push_str(" -> ");
         self.print_result_params(&func.results, TypeMode::Owned);
         params
@@ -460,12 +471,7 @@ pub trait RustGenerator<'a> {
             self.push_str("async ");
         }
         self.push_str("fn ");
-        let func_name = if sig.use_item_name {
-            func.item_name()
-        } else {
-            &func.name
-        };
-        self.push_str(&to_rust_ident(&func_name));
+        self.push_str(&to_rust_ident(&func.name));
         if let Some(generics) = &sig.generics {
             self.push_str(generics);
         }
@@ -494,10 +500,10 @@ pub trait RustGenerator<'a> {
     fn print_result_params(&mut self, results: &Results, mode: TypeMode) {
         match results.len() {
             0 => self.push_str("()"),
-            1 => self.print_ty(results.iter_types().next().unwrap(), mode),
+            1 => self.print_ty(results.types().next().unwrap(), mode),
             _ => {
                 self.push_str("(");
-                for ty in results.iter_types() {
+                for ty in results.types() {
                     self.print_ty(ty, mode);
                     self.push_str(", ")
                 }
@@ -507,11 +513,7 @@ pub trait RustGenerator<'a> {
     }
 
     fn print_rustdoc(&mut self, docs: &Docs) {
-        let docs = match &docs.contents {
-            Some(docs) => docs,
-            None => return,
-        };
-        for line in docs.trim().lines() {
+        for line in docs.contents.trim().lines() {
             self.push_str("/// ");
             self.push_str(line);
             self.push_str("\n");
@@ -534,38 +536,25 @@ pub trait RustGenerator<'a> {
             Type::Float64 => out.push_str("F64"),
             Type::Char => out.push_str("Char"),
             Type::String => out.push_str("String"),
+            Type::Tuple(_) => out.push_str("Tuple"),
+            Type::List(ty) => {
+                self.write_name(ty, out);
+                out.push_str("List")
+            }
+            Type::Option(_) => {
+                out.push_str("Optional");
+                self.write_name(ty, out);
+            }
+            Type::Result(_) => out.push_str("Result"),
             Type::Id(id) => {
                 let ty = &self.iface().types[*id];
-                match &ty.name {
-                    Some(name) => out.push_str(&name.to_upper_camel_case()),
-                    None => match &ty.kind {
-                        TypeDefKind::Option(ty) => {
-                            out.push_str("Optional");
-                            self.write_name(ty, out);
-                        }
-                        TypeDefKind::Result(_) => out.push_str("Result"),
-                        TypeDefKind::Tuple(_) => out.push_str("Tuple"),
-                        TypeDefKind::List(ty) => {
-                            self.write_name(ty, out);
-                            out.push_str("List")
-                        }
-                        TypeDefKind::Future(ty) => {
-                            self.write_optional_name(ty.as_ref(), out);
-                            out.push_str("Future");
-                        }
-                        TypeDefKind::Stream(s) => {
-                            self.write_optional_name(s.element.as_ref(), out);
-                            self.write_optional_name(s.end.as_ref(), out);
-                            out.push_str("Stream");
-                        }
-
-                        TypeDefKind::Type(ty) => self.write_name(ty, out),
-                        TypeDefKind::Record(_) => out.push_str("Record"),
-                        TypeDefKind::Flags(_) => out.push_str("Flags"),
-                        TypeDefKind::Variant(_) => out.push_str("Variant"),
-                        TypeDefKind::Enum(_) => out.push_str("Enum"),
-                        TypeDefKind::Union(_) => out.push_str("Union"),
-                    },
+                match &ty.kind {
+                    TypeDefKind::Type(ty) => self.write_name(ty, out),
+                    TypeDefKind::Record(_) => out.push_str("Record"),
+                    TypeDefKind::Flags(_) => out.push_str("Flags"),
+                    TypeDefKind::Variant(_) => out.push_str("Variant"),
+                    TypeDefKind::Enum(_) => out.push_str("Enum"),
+                    TypeDefKind::Union(_) => out.push_str("Union"),
                 }
             }
         }
@@ -635,22 +624,20 @@ pub trait RustGenerator<'a> {
     fn modes_of(&self, ty: TypeId) -> Vec<(String, TypeMode)> {
         let info = self.info(ty);
         let mut result = Vec::new();
-        if info.param {
+        if info.contains(TypeInfo::PARAM) {
             result.push((self.param_name(ty), self.default_param_mode()));
         }
-        if info.result && (!info.param || self.uses_two_names(&info)) {
+        if info.contains(TypeInfo::RESULT)
+            && (!info.contains(TypeInfo::PARAM) || self.uses_two_names(&info))
+        {
             result.push((self.result_name(ty), TypeMode::Owned));
         }
-        return result;
+        result
     }
 
     fn param_name(&self, ty: TypeId) -> String {
         let info = self.info(ty);
-        let name = self.iface().types[ty]
-            .name
-            .as_ref()
-            .unwrap()
-            .to_upper_camel_case();
+        let name = self.iface().types[ty].name.to_upper_camel_case();
         if self.uses_two_names(&info) {
             format!("{}Param", name)
         } else {
@@ -660,11 +647,7 @@ pub trait RustGenerator<'a> {
 
     fn result_name(&self, ty: TypeId) -> String {
         let info = self.info(ty);
-        let name = self.iface().types[ty]
-            .name
-            .as_ref()
-            .unwrap()
-            .to_upper_camel_case();
+        let name = self.iface().types[ty].name.to_upper_camel_case();
         if self.uses_two_names(&info) {
             format!("{}Result", name)
         } else {
@@ -674,8 +657,7 @@ pub trait RustGenerator<'a> {
 
     fn uses_two_names(&self, info: &TypeInfo) -> bool {
         info.owns_data()
-            && info.param
-            && info.result
+            && info.contains(TypeInfo::PARAM | TypeInfo::RESULT)
             && match self.default_param_mode() {
                 TypeMode::AllBorrowed(_) | TypeMode::LeafBorrowed(_) => true,
                 TypeMode::Owned => false,
@@ -684,7 +666,11 @@ pub trait RustGenerator<'a> {
 
     fn lifetime_for(&self, info: &TypeInfo, mode: TypeMode) -> Option<&'static str> {
         match mode {
-            TypeMode::AllBorrowed(s) | TypeMode::LeafBorrowed(s) if info.has_list => Some(s),
+            TypeMode::AllBorrowed(s) | TypeMode::LeafBorrowed(s)
+                if info.contains(TypeInfo::HAS_LIST) =>
+            {
+                Some(s)
+            }
             _ => None,
         }
     }
@@ -693,13 +679,13 @@ pub trait RustGenerator<'a> {
         match ty {
             Type::Id(id) => {
                 let info = self.info(*id);
-                let ty = &self.iface().types[*id];
 
-                match &ty.kind {
-                    TypeDefKind::List(Type::U8) => false,
-                    _ => self.lifetime_for(&info, mode).is_some(),
-                }
+                self.lifetime_for(&info, mode).is_some()
             }
+            Type::Tuple(ty) => ty.types.iter().any(|ty| self.needs_borrow(ty, mode)),
+            Type::List(ty) => self.needs_borrow(ty, mode),
+            Type::Option(ty) => self.needs_borrow(ty, mode),
+            // Type::Result(res) => ,
             _ => false,
         }
     }
@@ -788,18 +774,16 @@ pub enum RustFlagsRepr {
     U16,
     U32,
     U64,
-    U128,
 }
 
 impl RustFlagsRepr {
     pub fn new(f: &Flags) -> RustFlagsRepr {
         match f.repr() {
-            FlagsRepr::U8 => RustFlagsRepr::U8,
-            FlagsRepr::U16 => RustFlagsRepr::U16,
-            FlagsRepr::U32(1) => RustFlagsRepr::U32,
-            FlagsRepr::U32(2) => RustFlagsRepr::U64,
-            FlagsRepr::U32(3 | 4) => RustFlagsRepr::U128,
-            FlagsRepr::U32(n) => panic!("unsupported number of flags: {}", n * 32),
+            Int::U8 => RustFlagsRepr::U8,
+            Int::U16 => RustFlagsRepr::U16,
+            Int::U32 => RustFlagsRepr::U32,
+            Int::U64 => RustFlagsRepr::U64,
+            // FlagsRepr::U32(n) => panic!("unsupported number of flags: {}", n * 32),
         }
     }
 }
@@ -811,7 +795,7 @@ impl fmt::Display for RustFlagsRepr {
             RustFlagsRepr::U16 => "u16".fmt(f),
             RustFlagsRepr::U32 => "u32".fmt(f),
             RustFlagsRepr::U64 => "u64".fmt(f),
-            RustFlagsRepr::U128 => "u128".fmt(f),
+            // RustFlagsRepr::U128 => "u128".fmt(f),
         }
     }
 }

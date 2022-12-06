@@ -1,5 +1,5 @@
 #[allow(clippy::all, unused)]
-pub mod imports {
+pub mod many_arguments {
     #[derive(Debug, Clone, PartialEq, ::serde::Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct BigStruct<'a> {
@@ -80,7 +80,7 @@ pub mod imports {
             a15,
             a16,
         };
-        ::tauri_bindgen_guest_rust::invoke("plugin:92d5120c899c41cc|many-args", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:b26e5107ff225c6b|many-args", &params)
             .await
             .unwrap()
     }
@@ -91,7 +91,7 @@ pub mod imports {
             x: BigStruct<'a>,
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:92d5120c899c41cc|big-argument", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:b26e5107ff225c6b|big-argument", &params)
             .await
             .unwrap()
     }

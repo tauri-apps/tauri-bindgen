@@ -1,7 +1,7 @@
 #[allow(clippy::all)]
-pub mod imports {
-    pub const WORLD_HASH: &str = "ebb2d6f0441e00a0";
-    pub trait Imports: Sized {
+pub mod simple_functions {
+    pub const WORLD_HASH: &str = "d52f0e93c1bb4daa";
+    pub trait SimpleFunctions: Sized {
         fn f1(&self) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn f2(&self, a: u32) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn f3(&self, a: u32, b: u32) -> ::tauri_bindgen_host::anyhow::Result<()>;
@@ -17,14 +17,14 @@ pub mod imports {
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: Imports + Send + Sync + 'static,
+        U: SimpleFunctions + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| {
             let span = ::tauri_bindgen_host::tracing::span!(
             ::tauri_bindgen_host::tracing::Level::TRACE,
             "tauri-bindgen invoke handler",
-            module = "imports", function = invoke.message.command(), payload = ?invoke.message.payload()
+            module = "simple-functions", function = invoke.message.command(), payload = ?invoke.message.payload()
             );
             let _enter = span.enter();
 
@@ -57,7 +57,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "simple-functions",
                                 function = "f2",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -88,7 +88,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "simple-functions",
                                 function = "f3",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -107,7 +107,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "simple-functions",
                                 function = "f3",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -162,7 +162,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "simple-functions",
                                 function = "f6",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -181,7 +181,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "simple-functions",
                                 function = "f6",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -200,7 +200,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "simple-functions",
                                 function = "f6",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -217,7 +217,7 @@ pub mod imports {
                 }
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
-                        module = "imports",
+                        module = "simple-functions",
                         function = func_name,
                         "Not Found"
                     );

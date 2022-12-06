@@ -1,6 +1,6 @@
 #[allow(clippy::all)]
-pub mod imports {
-    pub const WORLD_HASH: &str = "48646a1b1c089063";
+pub mod conventions {
+    pub const WORLD_HASH: &str = "3d46778dded1f0fb";
     #[repr(C)]
     #[derive(Debug, Copy, Clone, PartialEq, ::tauri_bindgen_host::serde::Deserialize)]
     #[serde(rename_all = "camelCase")]
@@ -8,7 +8,7 @@ pub mod imports {
         pub how_fast_are_you_going: u32,
         pub i_am_going_extremely_slow: u64,
     }
-    pub trait Imports: Sized {
+    pub trait Conventions: Sized {
         fn kebab_case(&self) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn foo(&self, x: LudicrousSpeed) -> ::tauri_bindgen_host::anyhow::Result<()>;
         fn function_with_dashes(&self) -> ::tauri_bindgen_host::anyhow::Result<()>;
@@ -25,14 +25,14 @@ pub mod imports {
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: Imports + Send + Sync + 'static,
+        U: Conventions + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| {
             let span = ::tauri_bindgen_host::tracing::span!(
             ::tauri_bindgen_host::tracing::Level::TRACE,
             "tauri-bindgen invoke handler",
-            module = "imports", function = invoke.message.command(), payload = ?invoke.message.payload()
+            module = "conventions", function = invoke.message.command(), payload = ?invoke.message.payload()
             );
             let _enter = span.enter();
 
@@ -65,7 +65,7 @@ pub mod imports {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "imports",
+                                module = "conventions",
                                 function = "foo",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -202,7 +202,7 @@ pub mod imports {
                 }
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
-                        module = "imports",
+                        module = "conventions",
                         function = func_name,
                         "Not Found"
                     );

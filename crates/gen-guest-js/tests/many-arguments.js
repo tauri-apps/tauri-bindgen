@@ -16,6 +16,7 @@ const invoke = window.__TAURI_INVOKE__;
  * @param {bigint} a14
  * @param {bigint} a15
  * @param {bigint} a16
+ * @returns {Promise<[]>}
  */
 export async function manyArgs(
 	a1,
@@ -35,7 +36,7 @@ export async function manyArgs(
 	a15,
 	a16,
 ) {
-	await invoke("plugin:92d5120c899c41cc|many_args", {
+	const result = await invoke("plugin:b26e5107ff225c6b|many_args", {
 		a1: a1,
 		a2: a2,
 		a3: a3,
@@ -53,11 +54,14 @@ export async function manyArgs(
 		a15: a15,
 		a16: a16,
 	});
+	return result;
 }
 /**
  * @param {BigStruct} x
+ * @returns {Promise<[]>}
  */
 export async function bigArgument(x) {
-	await invoke("plugin:92d5120c899c41cc|big_argument", { x: x });
+	const result = await invoke("plugin:b26e5107ff225c6b|big_argument", { x: x });
+	return result;
 }
 

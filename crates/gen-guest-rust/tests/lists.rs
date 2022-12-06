@@ -1,5 +1,5 @@
 #[allow(clippy::all, unused)]
-pub mod import_lists {
+pub mod lists {
     #[derive(Debug, Clone, PartialEq, ::serde::Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct SomeRecordParam<'a> {
@@ -86,7 +86,7 @@ pub mod import_lists {
             x: &'a [u8],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-u8-param", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-u8-param", &params)
             .await
             .unwrap()
     }
@@ -97,7 +97,7 @@ pub mod import_lists {
             x: &'a [u16],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-u16-param", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-u16-param", &params)
             .await
             .unwrap()
     }
@@ -108,7 +108,7 @@ pub mod import_lists {
             x: &'a [u32],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-u32-param", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-u32-param", &params)
             .await
             .unwrap()
     }
@@ -119,7 +119,7 @@ pub mod import_lists {
             x: &'a [u64],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-u64-param", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-u64-param", &params)
             .await
             .unwrap()
     }
@@ -130,7 +130,7 @@ pub mod import_lists {
             x: &'a [i8],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-s8-param", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-s8-param", &params)
             .await
             .unwrap()
     }
@@ -141,7 +141,7 @@ pub mod import_lists {
             x: &'a [i16],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-s16-param", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-s16-param", &params)
             .await
             .unwrap()
     }
@@ -152,7 +152,7 @@ pub mod import_lists {
             x: &'a [i32],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-s32-param", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-s32-param", &params)
             .await
             .unwrap()
     }
@@ -163,7 +163,7 @@ pub mod import_lists {
             x: &'a [i64],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-s64-param", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-s64-param", &params)
             .await
             .unwrap()
     }
@@ -174,7 +174,7 @@ pub mod import_lists {
             x: &'a [f32],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-float32-param", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-float32-param", &params)
             .await
             .unwrap()
     }
@@ -185,57 +185,57 @@ pub mod import_lists {
             x: &'a [f64],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-float64-param", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-float64-param", &params)
             .await
             .unwrap()
     }
     pub async fn list_u8_ret() -> Vec<u8> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-u8-ret", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-u8-ret", ())
             .await
             .unwrap()
     }
     pub async fn list_u16_ret() -> Vec<u16> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-u16-ret", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-u16-ret", ())
             .await
             .unwrap()
     }
     pub async fn list_u32_ret() -> Vec<u32> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-u32-ret", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-u32-ret", ())
             .await
             .unwrap()
     }
     pub async fn list_u64_ret() -> Vec<u64> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-u64-ret", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-u64-ret", ())
             .await
             .unwrap()
     }
     pub async fn list_s8_ret() -> Vec<i8> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-s8-ret", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-s8-ret", ())
             .await
             .unwrap()
     }
     pub async fn list_s16_ret() -> Vec<i16> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-s16-ret", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-s16-ret", ())
             .await
             .unwrap()
     }
     pub async fn list_s32_ret() -> Vec<i32> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-s32-ret", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-s32-ret", ())
             .await
             .unwrap()
     }
     pub async fn list_s64_ret() -> Vec<i64> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-s64-ret", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-s64-ret", ())
             .await
             .unwrap()
     }
     pub async fn list_float32_ret() -> Vec<f32> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-float32-ret", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-float32-ret", ())
             .await
             .unwrap()
     }
     pub async fn list_float64_ret() -> Vec<f64> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|list-float64-ret", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|list-float64-ret", ())
             .await
             .unwrap()
     }
@@ -246,7 +246,7 @@ pub mod import_lists {
             x: &'a [(u8, i8)],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|tuple-list", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|tuple-list", &params)
             .await
             .unwrap()
     }
@@ -257,12 +257,12 @@ pub mod import_lists {
             a: &'a [&'a str],
         }
         let params = Params { a };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|string-list-arg", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|string-list-arg", &params)
             .await
             .unwrap()
     }
     pub async fn string_list_ret() -> Vec<String> {
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|string-list-ret", ())
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|string-list-ret", ())
             .await
             .unwrap()
     }
@@ -273,7 +273,7 @@ pub mod import_lists {
             x: &'a [(u8, &'a str)],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|tuple-string-list", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|tuple-string-list", &params)
             .await
             .unwrap()
     }
@@ -284,7 +284,7 @@ pub mod import_lists {
             x: &'a [&'a str],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|string-list", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|string-list", &params)
             .await
             .unwrap()
     }
@@ -295,7 +295,7 @@ pub mod import_lists {
             x: &'a [SomeRecordParam<'a>],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|record-list", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|record-list", &params)
             .await
             .unwrap()
     }
@@ -306,7 +306,7 @@ pub mod import_lists {
             x: &'a [OtherRecordParam<'a>],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|record-list-reverse", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|record-list-reverse", &params)
             .await
             .unwrap()
     }
@@ -317,7 +317,7 @@ pub mod import_lists {
             x: &'a [SomeVariant<'a>],
         }
         let params = Params { x };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|variant-list", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|variant-list", &params)
             .await
             .unwrap()
     }
@@ -328,7 +328,7 @@ pub mod import_lists {
             a: LoadStoreAllSizesParam<'a>,
         }
         let params = Params { a };
-        ::tauri_bindgen_guest_rust::invoke("plugin:a744d1c6fec40184|load-store-everything", &params)
+        ::tauri_bindgen_guest_rust::invoke("plugin:3d9d99368dfa9a39|load-store-everything", &params)
             .await
             .unwrap()
     }

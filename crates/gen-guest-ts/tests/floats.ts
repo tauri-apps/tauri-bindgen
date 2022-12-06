@@ -7,18 +7,24 @@ declare global {
 	}
 }
 const invoke = window.__TAURI_INVOKE__;
-export async function float32Param(x: number): Promise<void> {
-	await invoke<void>("plugin:b2ded0ef970e6596|float32-param", { x: x });
+export async function float32Param(x: number): Promise<[]> {
+	const result = await invoke<[]>("plugin:979575fda4ffb8b9|float32-param", {
+		x: x,
+	});
+	return result;
 }
-export async function float64Param(x: number): Promise<void> {
-	await invoke<void>("plugin:b2ded0ef970e6596|float64-param", { x: x });
+export async function float64Param(x: number): Promise<[]> {
+	const result = await invoke<[]>("plugin:979575fda4ffb8b9|float64-param", {
+		x: x,
+	});
+	return result;
 }
 export async function float32Result(): Promise<number> {
-	const result = await invoke<number>("plugin:b2ded0ef970e6596|float32-result");
+	const result = await invoke<number>("plugin:979575fda4ffb8b9|float32-result");
 	return result;
 }
 export async function float64Result(): Promise<number> {
-	const result = await invoke<number>("plugin:b2ded0ef970e6596|float64-result");
+	const result = await invoke<number>("plugin:979575fda4ffb8b9|float64-result");
 	return result;
 }
 

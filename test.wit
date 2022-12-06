@@ -1,0 +1,207 @@
+interface roundtrip {
+    record empty {}
+
+    func empty(x: empty) -> empty
+
+    /// A record containing two scalar fields
+    /// that both have the same type
+    record scalars {
+        /// The first field, named a
+        a: u32,
+        /// The second field, named b
+        b: u32,
+    }
+
+    func record-scalars(val: scalars) -> scalars
+
+    /// A record that is really just flags
+    /// All of the fields are bool
+    record really-flags {
+        a: bool,
+        b: bool,
+        c: bool,
+        d: bool,
+        e: bool,
+        f: bool,
+        g: bool,
+        h: bool,
+        i: bool,
+    }
+
+    func record-really-flags(val: really-flags) -> really-flags
+
+    record aggregates {
+        a: scalars,
+        b: u32,
+        c: empty,
+        d: string,
+        e: really-flags,
+    }
+
+    func record-aggregates(val: aggregates) -> aggregates
+
+    flags flag1 {
+        b0,
+    }
+
+    flags flag2 {
+        b0, b1,
+    }
+
+    flags flag4 {
+        b0, b1, b2, b3,
+    }
+
+    flags flag8 {
+        b0, b1, b2, b3, b4, b5, b6, b7,
+    }
+
+    flags flag16 {
+        b0, b1, b2, b3, b4, b5, b6, b7,
+        b8, b9, b10, b11, b12, b13, b14, b15,
+    }
+
+    flags flag32 {
+        b0, b1, b2, b3, b4, b5, b6, b7,
+        b8, b9, b10, b11, b12, b13, b14, b15,
+        b16, b17, b18, b19, b20, b21, b22, b23,
+        b24, b25, b26, b27, b28, b29, b30, b31,
+    }
+
+    flags flag64 {
+        b0, b1, b2, b3, b4, b5, b6, b7,
+        b8, b9, b10, b11, b12, b13, b14, b15,
+        b16, b17, b18, b19, b20, b21, b22, b23,
+        b24, b25, b26, b27, b28, b29, b30, b31,
+        b32, b33, b34, b35, b36, b37, b38, b39,
+        b40, b41, b42, b43, b44, b45, b46, b47,
+        b48, b49, b50, b51, b52, b53, b54, b55,
+        b56, b57, b58, b59, b60, b61, b62, b63,
+    }
+
+    func flag1(x: flag1) -> flag1
+    func flag2(x: flag2) -> flag2
+    func flag4(x: flag4) -> flag4
+    func flag8(x: flag8) -> flag8
+    func flag16(x: flag16) -> flag16
+    func flag32(x: flag32) -> flag32
+    func flag64(x: flag64) -> flag64
+
+    func %float32(x: float32) -> float32
+    func %float64(x: float64) -> float64
+
+    func %u8(x: u8) -> u8
+    func %s8(x: s8) -> s8
+    func %u16(x: u16) -> u16
+    func %s16(x: s16) -> s16
+    func %u32(x: u32) -> u32
+    func %s32(x: s32) -> s32
+    func %u64(x: u64) -> u64
+    func %s64(x: s64) -> s64
+
+    func list-u8(x: list<u8>) -> list<u8>
+    func list-u16(x: list<u16>) -> list<u16>
+    func list-u32(x: list<u32>) -> list<u32>
+    func list-u64(x: list<u64>) -> list<u64>
+    func list-s8(x: list<s8>) -> list<s8>
+    func list-s16(x: list<s16>) -> list<s16>
+    func list-s32(x: list<s32>) -> list<s32>
+    func list-s64(x: list<s64>) -> list<s64>
+    func list-float32(x: list<float32>) -> list<float32>
+    func list-float64(x: list<float64>) -> list<float64>
+
+    func tuple-list(x: list<tuple<u8, s8>>) -> list<tuple<u8, s8>>
+    func string-list(a: list<string>) -> list<string>
+    func tuple-string-list(x: list<tuple<u8, string>>) -> list<tuple<u8, string>>
+
+    record some-record {
+        x: string,
+        y: other-record,
+        z: list<other-record>,
+        c1: u32,
+        c2: u64,
+        c3: s32,
+        c4: s64,
+    }
+    record other-record {
+        a1: u32,
+        a2: u64,
+        a3: s32,
+        a4: s64,
+        b: string,
+        c: list<u8>,
+    }
+    func record-list(somer: list<some-record>) -> list<other-record>
+
+    union all-integers {
+        bool,
+        u8, u16, u32, u64,
+        s8, s16, s32, s64
+    }
+    func all-integers(x: all-integers) -> all-integers
+
+    union all-floats {
+        float32, float64
+    }
+    func all-floats(x: all-floats) -> all-floats
+
+    union all-text {
+        char, string
+    }
+    func all-text(x: all-text) -> all-text
+
+    enum e1 {
+        a,
+    }
+    func e1(x: e1) -> e1
+
+    union u1 {
+        u32,
+        float32,
+    }
+
+    variant v1 {
+        a,
+        b(u1),
+        c(e1),
+        d(string),
+        e(empty),
+        f,
+        g(u32),
+    }
+    func v1(x: v1) -> v1
+
+    func options(
+        a: option<bool>,
+        b: option<tuple<>>,
+        c: option<u32>,
+        d: option<e1>,
+        e: option<float32>,
+        f: option<u1>,
+        g: option<option<bool>>,
+    ) -> tuple<
+        option<bool>,
+        option<tuple<>>,
+        option<u32>,
+        option<e1>,
+        option<float32>,
+        option<u1>,
+        option<option<bool>>,
+    >
+
+    func results(
+        a: result,
+        b: result<_, e1>,
+        c: result<e1>,
+        d: result<tuple<>, tuple<>>,
+        e: result<u32, v1>,
+        f: result<string, list<u8>>,
+    ) -> tuple<
+        result,
+        result<_, e1>,
+        result<e1>,
+        result<tuple<>, tuple<>>,
+        result<u32, v1>,
+        result<string, list<u8>>,
+    >
+}

@@ -1,21 +1,21 @@
 #[allow(clippy::all)]
-pub mod import_flags {
-    pub const WORLD_HASH: &str = "8ecd22d5a53ba1eb";
+pub mod flegs {
+    pub const WORLD_HASH: &str = "13a360f690a38bbb";
     ::tauri_bindgen_host::bitflags::bitflags! {
-      #[derive(::tauri_bindgen_host::serde::Serialize, ::tauri_bindgen_host::serde::Deserialize)]
+      #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
       pub struct Flag1: u8 {
         const B0 = 1 << 0;
       }
     }
     ::tauri_bindgen_host::bitflags::bitflags! {
-      #[derive(::tauri_bindgen_host::serde::Serialize, ::tauri_bindgen_host::serde::Deserialize)]
+      #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
       pub struct Flag2: u8 {
         const B0 = 1 << 0;
         const B1 = 1 << 1;
       }
     }
     ::tauri_bindgen_host::bitflags::bitflags! {
-      #[derive(::tauri_bindgen_host::serde::Serialize, ::tauri_bindgen_host::serde::Deserialize)]
+      #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
       pub struct Flag4: u8 {
         const B0 = 1 << 0;
         const B1 = 1 << 1;
@@ -24,7 +24,7 @@ pub mod import_flags {
       }
     }
     ::tauri_bindgen_host::bitflags::bitflags! {
-      #[derive(::tauri_bindgen_host::serde::Serialize, ::tauri_bindgen_host::serde::Deserialize)]
+      #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
       pub struct Flag8: u8 {
         const B0 = 1 << 0;
         const B1 = 1 << 1;
@@ -37,7 +37,7 @@ pub mod import_flags {
       }
     }
     ::tauri_bindgen_host::bitflags::bitflags! {
-      #[derive(::tauri_bindgen_host::serde::Serialize, ::tauri_bindgen_host::serde::Deserialize)]
+      #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
       pub struct Flag16: u16 {
         const B0 = 1 << 0;
         const B1 = 1 << 1;
@@ -58,7 +58,7 @@ pub mod import_flags {
       }
     }
     ::tauri_bindgen_host::bitflags::bitflags! {
-      #[derive(::tauri_bindgen_host::serde::Serialize, ::tauri_bindgen_host::serde::Deserialize)]
+      #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
       pub struct Flag32: u32 {
         const B0 = 1 << 0;
         const B1 = 1 << 1;
@@ -95,7 +95,7 @@ pub mod import_flags {
       }
     }
     ::tauri_bindgen_host::bitflags::bitflags! {
-      #[derive(::tauri_bindgen_host::serde::Serialize, ::tauri_bindgen_host::serde::Deserialize)]
+      #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
       pub struct Flag64: u64 {
         const B0 = 1 << 0;
         const B1 = 1 << 1;
@@ -163,7 +163,7 @@ pub mod import_flags {
         const B63 = 1 << 63;
       }
     }
-    pub trait ImportFlags: Sized {
+    pub trait Flegs: Sized {
         fn roundtrip_flag1(&self, x: Flag1) -> ::tauri_bindgen_host::anyhow::Result<Flag1>;
         fn roundtrip_flag2(&self, x: Flag2) -> ::tauri_bindgen_host::anyhow::Result<Flag2>;
         fn roundtrip_flag4(&self, x: Flag4) -> ::tauri_bindgen_host::anyhow::Result<Flag4>;
@@ -175,14 +175,14 @@ pub mod import_flags {
 
     pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
     where
-        U: ImportFlags + Send + Sync + 'static,
+        U: Flegs + Send + Sync + 'static,
         R: ::tauri_bindgen_host::tauri::Runtime + 'static,
     {
         move |invoke| {
             let span = ::tauri_bindgen_host::tracing::span!(
             ::tauri_bindgen_host::tracing::Level::TRACE,
             "tauri-bindgen invoke handler",
-            module = "import-flags", function = invoke.message.command(), payload = ?invoke.message.payload()
+            module = "flegs", function = invoke.message.command(), payload = ?invoke.message.payload()
             );
             let _enter = span.enter();
 
@@ -203,7 +203,7 @@ pub mod import_flags {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-flags",
+                                module = "flegs",
                                 function = "roundtrip-flag1",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -234,7 +234,7 @@ pub mod import_flags {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-flags",
+                                module = "flegs",
                                 function = "roundtrip-flag2",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -265,7 +265,7 @@ pub mod import_flags {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-flags",
+                                module = "flegs",
                                 function = "roundtrip-flag4",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -296,7 +296,7 @@ pub mod import_flags {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-flags",
+                                module = "flegs",
                                 function = "roundtrip-flag8",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -327,7 +327,7 @@ pub mod import_flags {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-flags",
+                                module = "flegs",
                                 function = "roundtrip-flag16",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -358,7 +358,7 @@ pub mod import_flags {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-flags",
+                                module = "flegs",
                                 function = "roundtrip-flag32",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -389,7 +389,7 @@ pub mod import_flags {
                         Ok(arg) => arg,
                         Err(err) => {
                             ::tauri_bindgen_host::tracing::error!(
-                                module = "import-flags",
+                                module = "flegs",
                                 function = "roundtrip-flag64",
                                 "Invoke handler returned error {:?}",
                                 err
@@ -406,7 +406,7 @@ pub mod import_flags {
                 }
                 func_name => {
                     ::tauri_bindgen_host::tracing::error!(
-                        module = "import-flags",
+                        module = "flegs",
                         function = func_name,
                         "Not Found"
                     );
