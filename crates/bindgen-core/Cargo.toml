@@ -12,4 +12,3 @@ hex = "0.4.3"
 thiserror.workspace = true
 miette.workspace = true
 bitflags.workspace = true
-# anyhow.workspace = true
