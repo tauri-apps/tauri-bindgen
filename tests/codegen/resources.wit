@@ -1,0 +1,31 @@
+interface resources {
+    /// empty resource
+    resource a
+
+    /// empty resource with braces
+    resource b {}
+
+    /// regular resource
+    resource c {
+        /// regular function with empty signature
+        func foo()
+        /// regular function with primitives
+        static func bar(name: string) -> string
+        /// static function
+        static func fiz() -> string
+    }
+
+    /// regular resource without static functions (this type should not be generated)
+    resource d {
+        /// regular function with empty signature
+        func foo()
+    }
+
+    /// regular resource without static functions that appears in function (this type will be generated)
+    resource f {
+        /// regular function with empty signature
+        func foo()
+    }
+
+    func roundtrip(x: f) -> f
+}

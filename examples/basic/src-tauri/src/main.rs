@@ -3,6 +3,8 @@
     windows_subsystem = "windows"
 )]
 
+mod resources;
+
 mod plugin {
     use tauri::{
         plugin::{self, TauriPlugin},

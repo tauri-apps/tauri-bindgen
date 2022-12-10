@@ -4,6 +4,15 @@ use crate::Error;
 
 const TRUNCATE_LEN: usize = 8;
 
+pub fn hash(input: &str) -> Result<String, Error> {
+    let mut hasher = blake3::Hasher::new();
+
+    copy_wide(input.as_bytes(), &mut hasher)?;
+
+    let output = hasher.finalize_xof();
+    Ok(encode_hex(output))
+}
+
 pub fn hash_file(path: impl AsRef<Path>) -> Result<String, Error> {
     let file = File::open(path)?;
     let mut hasher = blake3::Hasher::new();

@@ -1,8 +1,8 @@
 use heck::ToUpperCamelCase;
 use heck::*;
-use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::mem;
+use std::{collections::HashSet, sync::Arc};
 use tauri_bindgen_core::{
     postprocess, uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator,
 };
@@ -345,17 +345,11 @@ impl<'a> InterfaceGenerator<'a> {
 }
 
 impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
-    fn iface(&self) -> &'a wit_parser::Interface {
-        self.iface
+    fn iface(&self) -> &'a Interface {
+        todo!()
     }
 
-    fn type_record(
-        &mut self,
-        _id: wit_parser::TypeId,
-        name: &str,
-        record: &wit_parser::Record,
-        docs: &wit_parser::Docs,
-    ) {
+    fn type_record(&mut self, ty: &Arc<TypeDef>, name: &str, record: &Record, docs: &Docs) {
         self.print_typedoc(docs);
         self.push_str(&format!(
             "export interface {} {{\n",
@@ -377,144 +371,287 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str("};\n");
     }
 
-    fn type_flags(&mut self, _id: TypeId, name: &str, flags: &Flags, docs: &Docs) {
-        self.print_typedoc(docs);
-
-        match flags.repr() {
-            Int::U8 | Int::U16 => {
-                self.push_str(&format!("export enum {} {{\n", name.to_upper_camel_case()))
-            }
-            Int::U32 | Int::U64 => {
-                self.push_str(&format!(
-                    "export type {} = typeof {};",
-                    name.to_upper_camel_case(),
-                    name.to_upper_camel_case()
-                ));
-                self.push_str(&format!(
-                    "export const {} = {{\n",
-                    name.to_upper_camel_case()
-                ))
-            }
-        }
-
-        let base: usize = 1;
-        for (i, flag) in flags.flags.iter().enumerate() {
-            self.print_typedoc(&flag.docs);
-
-            match flags.repr() {
-                Int::U8 | Int::U16 => self.push_str(&format!(
-                    "{} = {},\n",
-                    flag.name.to_upper_camel_case(),
-                    base << i
-                )),
-                Int::U32 | Int::U64 => self.push_str(&format!(
-                    "{}: BigInt({}),\n",
-                    flag.name.to_upper_camel_case(),
-                    base << i
-                )),
-            }
-        }
-
-        self.push_str("}\n");
+    fn type_flags(&mut self, ty: &Arc<TypeDef>, name: &str, flags: &Flags, docs: &Docs) {
+        todo!()
     }
 
-    fn type_variant(
-        &mut self,
-        _id: wit_parser::TypeId,
-        name: &str,
-        variant: &wit_parser::Variant,
-        docs: &wit_parser::Docs,
-    ) {
-        self.print_typedoc(docs);
-        self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
-        for (i, case) in variant.cases.iter().enumerate() {
-            if i > 0 {
-                self.push_str("| ");
-            }
-            self.push_str(&format!("{}_{}", name, case.name).to_upper_camel_case());
-        }
-        self.push_str(";\n");
-
-        for case in variant.cases.iter() {
-            self.print_typedoc(&case.docs);
-            self.push_str(&format!(
-                "export interface {} {{\n",
-                format!("{}_{}", name, case.name).to_upper_camel_case()
-            ));
-
-            self.push_str("tag: '");
-            self.push_str(&case.name);
-            self.push_str("',\n");
-
-            if let Some(ty) = &case.ty {
-                self.push_str("val: ");
-                self.print_ty(ty);
-                self.push_str(",\n");
-            }
-            self.push_str("}\n");
-        }
+    fn type_variant(&mut self, ty: &Arc<TypeDef>, name: &str, variant: &Variant, docs: &Docs) {
+        todo!()
     }
 
-    fn type_union(
-        &mut self,
-        _id: wit_parser::TypeId,
-        name: &str,
-        union: &wit_parser::Union,
-        docs: &wit_parser::Docs,
-    ) {
-        self.print_typedoc(docs);
-        let name = name.to_upper_camel_case();
-        self.push_str(&format!("export type {name} = "));
-        for i in 0..union.cases.len() {
-            if i > 0 {
-                self.push_str(" | ");
-            }
-            self.push_str(&format!("{name}{i}"));
-        }
-        self.push_str(";\n");
-        for (i, case) in union.cases.iter().enumerate() {
-            self.print_typedoc(&case.docs);
-            self.push_str(&format!("export interface {name}{i} {{\n"));
-            self.push_str(&format!("tag: {i},\n"));
-            self.push_str("val: ");
-            self.print_ty(&case.ty);
-            self.push_str(",\n");
-            self.push_str("}\n");
-        }
+    fn type_union(&mut self, ty: &Arc<TypeDef>, name: &str, union: &Union, docs: &Docs) {
+        todo!()
     }
 
-    fn type_enum(
-        &mut self,
-        _id: wit_parser::TypeId,
-        name: &str,
-        enum_: &wit_parser::Enum,
-        docs: &wit_parser::Docs,
-    ) {
-        self.print_typedoc(docs);
-
-        self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
-        for (i, case) in enum_.cases.iter().enumerate() {
-            if i != 0 {
-                self.push_str(" | ");
-            }
-            self.push_str(&format!("'{}'", case.name));
-        }
-
-        self.push_str(";\n");
+    fn type_enum(&mut self, ty: &Arc<TypeDef>, name: &str, enum_: &Enum, docs: &Docs) {
+        todo!()
     }
 
-    fn type_alias(
-        &mut self,
-        _id: wit_parser::TypeId,
-        name: &str,
-        ty: &wit_parser::Type,
-        docs: &wit_parser::Docs,
-    ) {
-        self.print_typedoc(docs);
-        self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
-        self.print_ty(ty);
-        self.push_str(";\n");
+    fn type_alias(&mut self, ty: &Arc<TypeDef>, name: &str, ty: &Type, docs: &Docs) {
+        todo!()
     }
+
+    fn type_resource(&mut self, ty: &Arc<TypeDef>, name: &str, ty: &Resource, docs: &Docs) {
+        todo!()
+    }
+
+    // fn type_record(
+    //     &mut self,
+    //     _id: wit_parser::TypeId,
+    //     name: &str,
+    //     record: &wit_parser::Record,
+    //     docs: &wit_parser::Docs,
+    // ) {
+
+    // }
+
+    // fn type_flags(&mut self, _id: TypeId, name: &str, flags: &Flags, docs: &Docs) {
+    //     self.print_typedoc(docs);
+
+    //     match flags.repr() {
+    //         Int::U8 | Int::U16 => {
+    //             self.push_str(&format!("export enum {} {{\n", name.to_upper_camel_case()))
+    //         }
+    //         Int::U32 | Int::U64 => {
+    //             self.push_str(&format!(
+    //                 "export type {} = typeof {};",
+    //                 name.to_upper_camel_case(),
+    //                 name.to_upper_camel_case()
+    //             ));
+    //             self.push_str(&format!(
+    //                 "export const {} = {{\n",
+    //                 name.to_upper_camel_case()
+    //             ))
+    //         }
+    //     }
+
+    //     let base: usize = 1;
+    //     for (i, flag) in flags.flags.iter().enumerate() {
+    //         self.print_typedoc(&flag.docs);
+
+    //         match flags.repr() {
+    //             Int::U8 | Int::U16 => self.push_str(&format!(
+    //                 "{} = {},\n",
+    //                 flag.name.to_upper_camel_case(),
+    //                 base << i
+    //             )),
+    //             Int::U32 | Int::U64 => self.push_str(&format!(
+    //                 "{}: BigInt({}),\n",
+    //                 flag.name.to_upper_camel_case(),
+    //                 base << i
+    //             )),
+    //         }
+    //     }
+
+    //     self.push_str("}\n");
+    // }
+
+    // fn type_variant(
+    //     &mut self,
+    //     _id: wit_parser::TypeId,
+    //     name: &str,
+    //     variant: &wit_parser::Variant,
+    //     docs: &wit_parser::Docs,
+    // ) {
+    //     self.print_typedoc(docs);
+    //     self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
+    //     for (i, case) in variant.cases.iter().enumerate() {
+    //         if i > 0 {
+    //             self.push_str("| ");
+    //         }
+    //         self.push_str(&format!("{}_{}", name, case.name).to_upper_camel_case());
+    //     }
+    //     self.push_str(";\n");
+
+    //     for case in variant.cases.iter() {
+    //         self.print_typedoc(&case.docs);
+    //         self.push_str(&format!(
+    //             "export interface {} {{\n",
+    //             format!("{}_{}", name, case.name).to_upper_camel_case()
+    //         ));
+
+    //         self.push_str("tag: '");
+    //         self.push_str(&case.name);
+    //         self.push_str("',\n");
+
+    //         if let Some(ty) = &case.ty {
+    //             self.push_str("val: ");
+    //             self.print_ty(ty);
+    //             self.push_str(",\n");
+    //         }
+    //         self.push_str("}\n");
+    //     }
+    // }
+
+    // fn type_union(
+    //     &mut self,
+    //     _id: wit_parser::TypeId,
+    //     name: &str,
+    //     union: &wit_parser::Union,
+    //     docs: &wit_parser::Docs,
+    // ) {
+    //     self.print_typedoc(docs);
+    //     let name = name.to_upper_camel_case();
+    //     self.push_str(&format!("export type {name} = "));
+    //     for i in 0..union.cases.len() {
+    //         if i > 0 {
+    //             self.push_str(" | ");
+    //         }
+    //         self.push_str(&format!("{name}{i}"));
+    //     }
+    //     self.push_str(";\n");
+    //     for (i, case) in union.cases.iter().enumerate() {
+    //         self.print_typedoc(&case.docs);
+    //         self.push_str(&format!("export interface {name}{i} {{\n"));
+    //         self.push_str(&format!("tag: {i},\n"));
+    //         self.push_str("val: ");
+    //         self.print_ty(&case.ty);
+    //         self.push_str(",\n");
+    //         self.push_str("}\n");
+    //     }
+    // }
+
+    // fn type_enum(
+    //     &mut self,
+    //     _id: wit_parser::TypeId,
+    //     name: &str,
+    //     enum_: &wit_parser::Enum,
+    //     docs: &wit_parser::Docs,
+    // ) {
+    //     self.print_typedoc(docs);
+
+    //     self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
+    //     for (i, case) in enum_.cases.iter().enumerate() {
+    //         if i != 0 {
+    //             self.push_str(" | ");
+    //         }
+    //         self.push_str(&format!("'{}'", case.name));
+    //     }
+
+    //     self.push_str(";\n");
+    // }
+
+    // fn type_alias(
+    //     &mut self,
+    //     _id: wit_parser::TypeId,
+    //     name: &str,
+    //     ty: &wit_parser::Type,
+    //     docs: &wit_parser::Docs,
+    // ) {
+    //     self.print_typedoc(docs);
+    //     self.push_str(&format!("export type {} = ", name.to_upper_camel_case()));
+    //     self.print_ty(ty);
+    //     self.push_str(";\n");
+    // }
+
+    // fn type_resource(&mut self, _id: TypeId, name: &str, ty: &Resource, docs: &Docs) {
+    //     self.print_typedoc(docs);
+    //     self.push_str(&format!("export class {} {{\n", name.to_upper_camel_case()));
+    //     self.push_str("#id: number\n");
+    //     self.push_str(
+    //         "constructor(id: number) {
+    //         this.#id = id;
+    //     }\n",
+    //     );
+
+    //     for method in &ty.methods {
+    //         self.print_typedoc(&method.docs);
+
+    //         if method.static_ {
+    //             self.push_str("static ");
+    //         }
+
+    //         self.push_str("async ");
+    //         self.push_str(&method.name.to_lower_camel_case());
+    //         self.push_str("(");
+
+    //         for (i, (name, ty)) in method.params.iter().enumerate() {
+    //             if i > 0 {
+    //                 self.push_str(", ");
+    //             }
+    //             self.push_str(to_js_ident(&name.to_lower_camel_case()));
+    //             self.push_str(": ");
+    //             self.print_ty(ty);
+    //         }
+    //         self.push_str("): Promise<");
+    //         if let Some((ok_ty, _)) = method.results.throws() {
+    //             self.print_optional_ty(ok_ty);
+    //         } else {
+    //             match method.results.len() {
+    //                 0 => self.push_str("void"),
+    //                 1 => self.print_ty(method.results.types().next().unwrap()),
+    //                 _ => {
+    //                     self.push_str("[");
+    //                     for (i, ty) in method.results.types().enumerate() {
+    //                         if i != 0 {
+    //                             self.push_str(", ");
+    //                         }
+    //                         self.print_ty(ty);
+    //                     }
+    //                     self.push_str("]");
+    //                 }
+    //             }
+    //         }
+    //         self.push_str("> {\n");
+
+    //         if !method.results.is_empty() {
+    //             self.push_str("const result = ");
+    //         }
+
+    //         self.push_str("await invoke<");
+
+    //         if let Some((ok_ty, _)) = method.results.throws() {
+    //             self.print_optional_ty(ok_ty);
+    //         } else {
+    //             match method.results.len() {
+    //                 0 => self.push_str("void"),
+    //                 1 => self.print_ty(method.results.types().next().unwrap()),
+    //                 _ => {
+    //                     self.push_str("[");
+    //                     for (i, ty) in method.results.types().enumerate() {
+    //                         if i != 0 {
+    //                             self.push_str(", ");
+    //                         }
+    //                         self.print_ty(ty);
+    //                     }
+    //                     self.push_str("]");
+    //                 }
+    //             }
+    //         }
+
+    //         self.push_str(">(");
+
+    //         self.push_str(&format!("\"plugin:{}|{}\",", self.world_hash, method.name));
+
+    //         if !method.static_ || !method.params.is_empty() {
+    //             self.push_str("{");
+
+    //             if !method.static_ {
+    //                 self.push_str("__id: this.#id,");
+    //             }
+
+    //             for (i, (name, _ty)) in method.params.iter().enumerate() {
+    //                 if i > 0 {
+    //                     self.push_str(", ");
+    //                 }
+    //                 self.push_str(&name.to_lower_camel_case());
+    //                 self.push_str(": ");
+    //                 self.push_str(to_js_ident(&name.to_lower_camel_case()));
+    //             }
+    //             self.push_str("}");
+    //         }
+
+    //         self.push_str(");\n");
+
+    //         if !method.results.is_empty() {
+    //             self.push_str("return result\n");
+    //         }
+
+    //         self.push_str("}\n");
+    //     }
+
+    //     self.push_str("}");
+    // }
 }
 
 fn to_js_ident(name: &str) -> &str {

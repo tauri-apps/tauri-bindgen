@@ -160,15 +160,14 @@ impl InterfaceGenerator<'_> {
                 // }
                 match &ty.kind {
                     TypeDefKind::Type(t) => self.print_ty(t, false),
-                    // TypeDefKind::Tuple(t) =>
                     TypeDefKind::Record(_)
                     | TypeDefKind::Flags(_)
                     | TypeDefKind::Enum(_)
                     | TypeDefKind::Variant(_)
+                    | TypeDefKind::Resource(_)
                     | TypeDefKind::Union(_) => {
                         unreachable!()
-                    } // TypeDefKind::Option(t) =>
-                      // TypeDefKind::Result(r) =>
+                    }
                 }
             }
             Type::Tuple(ty) => {
@@ -276,32 +275,11 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         }
     }
 
-    // fn type_tuple(&mut self, id: TypeId, name: &str, tuple: &Tuple, docs: &Docs) {
-    //     self.print_type_header(name);
-    //     self.push_str("tuple\n\n");
-    //     self.print_type_info(id, docs);
-    //     self.push_str("\n### Tuple Fields\n\n");
-    //     for (i, ty) in tuple.types.iter().enumerate() {
-    //         self.push_str(&format!(
-    //             "- <a href=\"{r}.{f}\" name=\"{r}.{f}\"></a> [`{name}`](#{r}.{f}): ",
-    //             r = name.to_snake_case(),
-    //             f = i,
-    //             name = i,
-    //         ));
-    //         self.gen.hrefs.insert(
-    //             format!("{}::{}", name, i),
-    //             format!("#{}.{}", name.to_snake_case(), i),
-    //         );
-    //         self.print_ty(ty, false);
-    //         self.push_str("\n");
-    //     }
-    // }
-
     fn type_flags(&mut self, id: TypeId, name: &str, flags: &Flags, docs: &Docs) {
         self.print_type_header(name);
-        self.push_str("record\n\n");
+        self.push_str("flags\n\n");
         self.print_type_info(id, docs);
-        self.push_str("\n### Record Fields\n\n");
+        self.push_str("\n### Flag Fields\n\n");
         for (i, flag) in flags.flags.iter().enumerate() {
             self.push_str(&format!(
                 "- <a href=\"{r}.{f}\" name=\"{r}.{f}\"></a> [`{name}`](#{r}.{f}): ",
@@ -397,41 +375,6 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         }
     }
 
-    // fn type_option(&mut self, id: TypeId, name: &str, payload: &Type, docs: &Docs) {
-    //     self.print_type_header(name);
-    //     self.push_str("option<");
-    //     self.print_ty(payload, false);
-    //     self.push_str(">");
-    //     self.print_type_info(id, docs);
-    // }
-
-    // fn type_result(&mut self, id: TypeId, name: &str, result: &Result_, docs: &Docs) {
-    //     self.print_type_header(name);
-    //     match (result.ok, result.err) {
-    //         (Some(ok), Some(err)) => {
-    //             self.push_str("result<");
-    //             self.print_ty(&ok, false);
-    //             self.push_str(", ");
-    //             self.print_ty(&err, false);
-    //             self.push_str(">");
-    //         }
-    //         (None, Some(err)) => {
-    //             self.push_str("result<_, ");
-    //             self.print_ty(&err, false);
-    //             self.push_str(">");
-    //         }
-    //         (Some(ok), None) => {
-    //             self.push_str("result<");
-    //             self.print_ty(&ok, false);
-    //             self.push_str(">");
-    //         }
-    //         (None, None) => {
-    //             self.push_str("result");
-    //         }
-    //     }
-    //     self.print_type_info(id, docs);
-    // }
-
     fn type_alias(&mut self, id: TypeId, name: &str, ty: &Type, docs: &Docs) {
         self.print_type_header(name);
         self.print_ty(ty, true);
@@ -440,11 +383,54 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str("\n");
     }
 
-    // fn type_list(&mut self, id: TypeId, name: &str, _ty: &Type, docs: &Docs) {
-    //     self.type_alias(id, name, &Type::Id(id), docs);
-    // }
+    fn type_resource(&mut self, id: TypeId, name: &str, resource: &Resource, docs: &Docs) {
+        self.print_type_header(name);
+        self.push_str("resource\n\n");
+        self.print_type_info(id, docs);
+        self.push_str("\n### Resource Methods\n\n");
+        for method in resource.methods.iter() {
+            self.push_str("----\n\n");
+            self.push_str(&format!(
+                "#### <a href=\"#{0}\" name=\"{0}\"></a> `",
+                method.name.to_snake_case()
+            ));
+            self.gen
+                .hrefs
+                .insert(method.name.clone(), format!("#{}", method.name.to_snake_case()));
+            self.push_str(&method.name);
+            self.push_str("` ");
+            self.push_str("\n\n");
+            self.docs(&method.docs);
 
-    // fn type_builtin(&mut self, id: TypeId, name: &str, ty: &Type, docs: &Docs) {
-    //     self.type_alias(id, name, ty, docs)
-    // }
+            if !method.params.is_empty() {
+                self.push_str("##### Params\n\n");
+                for (name, ty) in method.params.iter() {
+                    self.push_str(&format!(
+                        "- <a href=\"#{f}.{p}\" name=\"{f}.{p}\"></a> `{}`: ",
+                        name,
+                        f = method.name.to_snake_case(),
+                        p = name.to_snake_case(),
+                    ));
+                    self.print_ty(ty, false);
+                    self.push_str("\n");
+                }
+            }
+
+            if !method.results.is_empty() {
+                self.push_str("##### Results\n\n");
+                for (i, ty) in method.results.types().enumerate() {
+                    self.push_str(&format!(
+                        "- <a href=\"#{f}.{p}{i}\" name=\"{f}.{p}{i}\"></a> `{}{i}`: ",
+                        "result",
+                        f = method.name.to_snake_case(),
+                        p = "result",
+                    ));
+                    self.print_ty(ty, false);
+                    self.push_str("\n");
+                }
+            }
+
+            self.push_str("\n");
+        }
+    }
 }

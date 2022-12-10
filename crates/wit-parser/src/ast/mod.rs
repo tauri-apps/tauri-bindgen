@@ -5,6 +5,36 @@ pub mod parse;
 pub mod resolve;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Type {
+    U8,
+    U16,
+    U32,
+    U64,
+    S8,
+    S16,
+    S32,
+    S64,
+    Float32,
+    Float64,
+    Char,
+    String,
+    Bool,
+    Tuple(Vec<Type>),
+    List(Box<Type>),
+    Option(Box<Type>),
+    Result {
+        ok: Option<Box<Type>>,
+        err: Option<Box<Type>>,
+    },
+    Id(SourceSpan),
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub struct Docs<'a> {
+    docs: Vec<&'a str>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Interface<'a> {
     docs: Docs<'a>,
     name: SourceSpan,
@@ -28,6 +58,7 @@ pub enum InterfaceItemKind<'a> {
     Alias(Type),
     Func(Func),
     Use(Use),
+    Resource(Resource<'a>)
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -129,31 +160,15 @@ pub struct UseName {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Type {
-    U8,
-    U16,
-    U32,
-    U64,
-    S8,
-    S16,
-    S32,
-    S64,
-    Float32,
-    Float64,
-    Char,
-    String,
-    Bool,
-    Tuple(Vec<Type>),
-    List(Box<Type>),
-    Option(Box<Type>),
-    Result {
-        ok: Option<Box<Type>>,
-        err: Option<Box<Type>>,
-    },
-    Id(SourceSpan),
+pub struct Resource<'a> {
+    methods: Vec<Method<'a>>
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Eq)]
-pub struct Docs<'a> {
-    docs: Vec<&'a str>,
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Method<'a> {
+    docs: Docs<'a>,
+    name: SourceSpan,
+    static_: bool,
+    params: NamedTypeList,
+    results: Results,
 }

@@ -9,7 +9,6 @@ fst = "0.4.7"
 
 [dependencies]
 thiserror.workspace = true
-id-arena = "2.2.1"
-codespan-reporting = "0.11.1"
 miette.workspace = true
 fst = { version = "0.4.7", features = ["levenshtein"] }
+bitflags.workspace = true

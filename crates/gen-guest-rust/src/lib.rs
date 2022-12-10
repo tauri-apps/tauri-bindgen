@@ -51,6 +51,7 @@ impl WorldGenerator for RustWasm {
         _files: &mut Files,
         world_hash: &str,
     ) {
+
         let mut gen = InterfaceGenerator::new(self, iface, TypeMode::AllBorrowed("'a"), world_hash);
 
         gen.types();
@@ -125,6 +126,7 @@ impl<'a> InterfaceGenerator<'a> {
 
         let param_mode = TypeMode::AllBorrowed("'_");
 
+        self.print_rustdoc(&func.docs);
         self.print_signature(func, param_mode, &sig);
         self.src.push_str(" {\n");
 
@@ -202,16 +204,8 @@ impl<'a> InterfaceGenerator<'a> {
 }
 
 impl<'a> RustGenerator<'a> for InterfaceGenerator<'a> {
-    fn iface(&self) -> &'a Interface {
-        self.iface
-    }
-
     fn use_std(&self) -> bool {
         !self.gen.opts.no_std
-    }
-
-    fn info(&self, ty: TypeId) -> TypeInfo {
-        self.types.get(ty)
     }
 
     fn default_param_mode(&self) -> TypeMode {
@@ -284,6 +278,94 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
 
     fn type_alias(&mut self, id: TypeId, _name: &str, ty: &Type, docs: &Docs) {
         self.print_typedef_alias(id, ty, docs);
+    }
+
+    fn type_resource(&mut self, id: TypeId, name: &str, resource: &Resource, docs: &Docs) {
+        let info = self.info(id);
+
+        if info.intersects(TypeInfo::PARAM_AND_RESULT | TypeInfo::HAS_STATICS) {
+            self.print_rustdoc(docs);
+            self.push_str("#[derive(Debug, Copy, Clone, PartialEq)]\n");
+            if let Some(attrs) = get_serde_attrs(name, self.uses_two_names(&info), info) {
+                self.push_str(&attrs);
+            }
+            self.push_str(&format!("pub struct {}(u32);\n", name.to_upper_camel_case()));
+    
+            if resource.methods.is_empty() {
+                return;
+            }
+    
+            self.push_str(&format!("impl {} {{\n", name.to_upper_camel_case()));
+    
+            for method in resource.methods.iter() {
+                let sig = FnSig {
+                    async_: true,
+                    // self_is_first_param: !method.static_,
+                    self_arg: (!method.static_).then_some("&self".to_string()),
+                    ..Default::default()
+                };
+        
+                let param_mode = TypeMode::AllBorrowed("'_");
+        
+                self.print_signature(&method.clone().into(), param_mode, &sig);
+                self.src.push_str(" {\n");
+        
+                let lifetime = method.params.iter().any(|(_, ty)| self.needs_lifetime(ty));
+        
+                if !method.static_ || !method.params.is_empty() {
+                    self.push_str("#[derive(::serde::Serialize)]\n");
+                    self.push_str("#[serde(rename_all = \"camelCase\")]\n");
+                    self.src.push_str("struct Params");
+                    self.print_generics(lifetime.then_some("'a"));
+                    self.src.push_str(" {\n");
+    
+                    if !method.static_ {
+                        self.src.push_str("__id: u32,");
+                    }
+    
+                    for (param, ty) in method.params.iter() {
+                        self.src.push_str(&param.to_snake_case());
+                        self.src.push_str(" : ");
+                        self.print_ty(ty, TypeMode::AllBorrowed("'a"));
+                        self.push_str(",\n");
+                    }
+        
+                    self.src.push_str("}\n");
+        
+                    self.src.push_str("let params = Params {");
+    
+                    if !method.static_ {
+                        self.src.push_str("__id: self.0,");
+                    }
+    
+                    for (param, _) in method.params.iter() {
+                        self.src.push_str(&param.to_snake_case());
+                        self.src.push_str(",");
+                    }
+        
+                    self.src.push_str("};\n");
+                }
+        
+                uwrite!(
+                    self.src,
+                    r#"::tauri_bindgen_guest_rust::invoke("plugin:{}|{}", "#,
+                    self.world_hash,
+                    method.name
+                );
+        
+                if method.params.is_empty() {
+                    self.push_str("()");
+                } else {
+                    self.push_str("&params");
+                }
+        
+                self.push_str(").await.unwrap()\n");
+        
+                self.src.push_str("}\n");
+            }
+    
+            self.push_str("}");
+        }
     }
 }
 

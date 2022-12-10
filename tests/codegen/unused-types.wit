@@ -1,0 +1,5 @@
+interface unused-types {
+    record foo {
+        bar: u32
+    }
+}

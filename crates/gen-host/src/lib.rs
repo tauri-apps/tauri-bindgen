@@ -25,7 +25,10 @@ pub struct Opts {
 
 impl Opts {
     pub fn build(self) -> Box<dyn WorldGenerator> {
-        Box::new(Host { opts: self, ..Default::default() })
+        Box::new(Host {
+            opts: self,
+            ..Default::default()
+        })
     }
 }
 
@@ -104,6 +107,24 @@ impl<'a> InterfaceGenerator<'a> {
 
         uwriteln!(self.src, "pub trait {camel}: Sized {{");
 
+        for (id, _) in self.iface.types.iter() {
+            let info = self.info(id);
+
+            if info.intersects(TypeInfo::PARAM_AND_RESULT | TypeInfo::HAS_STATICS) {
+                if let TypeDef {
+                    docs,
+                    name,
+                    kind: TypeDefKind::Resource(_),
+                } = &self.iface.types[id]
+                {
+                    let name = name.to_upper_camel_case();
+                    self.print_rustdoc(docs);
+                    uwriteln!(self.src, "type {name}: {name};");
+
+                }
+            }
+        }
+
         for func in self.iface.functions.iter() {
             let fnsig = FnSig {
                 async_: self.gen.opts.async_,
@@ -150,6 +171,7 @@ impl<'a> InterfaceGenerator<'a> {
 
         uwriteln!(self.src, "match invoke.message.command() {{");
 
+        // handle function calls
         for func in self.iface.functions.iter() {
             uwrite!(self.src, "\"{}\" => {{", &func.name);
             uwriteln!(
@@ -230,6 +252,68 @@ impl<'a> InterfaceGenerator<'a> {
             uwriteln!(self.src, "}},");
         }
 
+        // handle method calls
+        for (id, _) in self.iface.types.iter() {
+            let info = self.info(id);
+
+            if info.intersects(TypeInfo::PARAM_AND_RESULT | TypeInfo::HAS_STATICS) {
+                if let TypeDef {
+                    docs,
+                    name,
+                    kind: TypeDefKind::Resource(r),
+                } = &self.iface.types[id]
+                {
+                    for method in r.methods.iter() {
+                        uwrite!(self.src, "\"{}.{}\" => {{", &name, &method.name);
+                        uwriteln!(
+                            self.src,
+                            "
+                        #[allow(unused_variables)]
+                        let ::tauri_bindgen_host::tauri::Invoke {{
+                            message: __tauri_message__,
+                            resolver: __tauri_resolver__,
+                        }} = invoke;"
+                        );
+
+                        uwriteln!(
+                            self.src,
+                            r#"let resource_id = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {{
+                                name: "{}.{}",
+                                key: "__id",
+                                message: &__tauri_message__,
+                            }}) {{
+                                Ok(arg) => arg,
+                                Err(err) => {{"#,
+                            &name,
+                            &method.name
+                        );
+
+                        if self.gen.opts.tracing {
+                            uwriteln!(
+                                self.src,
+                                r#"::tauri_bindgen_host::tracing::error!(module = "{name}", resource = "{name}", method = "{}", "Invoke handler returned error {{:?}}", err);"#,
+                                method.name
+                            );
+                        }
+
+                        uwriteln!(
+                            self.src,
+                            r#"return __tauri_resolver__.invoke_error(err);
+                                }},
+                            }};
+                            "#
+                        );
+
+                        uwriteln!(self.src, "}},");
+                    }
+                    // let name = name.to_upper_camel_case();
+                    // self.print_rustdoc(docs);
+                    // uwriteln!(self.src, "type {name}: {name};");
+                }
+            }
+        }
+
+        // handle 404
         uwriteln!(self.src, "func_name => {{");
         if self.gen.opts.tracing {
             uwriteln!(
@@ -291,6 +375,31 @@ impl<'a> RustGenerator<'a> for InterfaceGenerator<'a> {
     fn info(&self, ty: TypeId) -> TypeInfo {
         self.types.get(ty)
     }
+
+    // override the default implementation with a specialization for the resource type
+    fn print_tyid(&mut self, id: TypeId, mode: TypeMode) {
+        let ty = &self.iface.types[id];
+        let info = self.info(id);
+        let lt = self.lifetime_for(&info, mode);
+
+        if let TypeDefKind::Resource(_) = ty.kind {
+            return self.push_str(&format!("Self::{}", ty.name.to_upper_camel_case()));
+        }
+
+        let name = if lt.is_some() {
+            self.param_name(id)
+        } else {
+            self.result_name(id)
+        };
+        self.push_str(&name);
+
+        // If the type recursively owns data and it's a
+        // variant/record/list, then we need to place the
+        // lifetime parameter on the type as well.
+        if info.owns_data() && self.typedef_needs_generics(&ty.kind) {
+            self.print_generics(lt);
+        }
+    }
 }
 
 impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
@@ -351,6 +460,40 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
 
     fn type_alias(&mut self, id: TypeId, _name: &str, ty: &Type, docs: &Docs) {
         self.print_typedef_alias(id, ty, docs);
+    }
+
+    fn type_resource(&mut self, id: TypeId, name: &str, resource: &Resource, docs: &Docs) {
+        let info = self.info(id);
+
+        if info.intersects(TypeInfo::PARAM_AND_RESULT | TypeInfo::HAS_STATICS) {
+            let camel = name.to_upper_camel_case();
+
+            self.print_rustdoc(docs);
+
+            if self.gen.opts.async_ {
+                uwriteln!(self.src, "#[::tauri_bindgen_host::async_trait]")
+            }
+
+            uwriteln!(self.src, "pub trait {camel}: Sized {{");
+
+            for method in resource.methods.iter() {
+                let fnsig = FnSig {
+                    async_: self.gen.opts.async_,
+                    private: true,
+                    self_arg: (!method.static_).then_some("&self".to_string()),
+                    ..Default::default()
+                };
+
+                self.print_docs_and_params(&method.clone().into(), TypeMode::Owned, &fnsig);
+                self.push_str(" -> ");
+
+                self.push_str("::tauri_bindgen_host::anyhow::Result<");
+                self.print_result_ty(&method.results, TypeMode::Owned);
+                self.push_str(">;\n");
+            }
+
+            uwriteln!(self.src, "}}");
+        }
     }
 }
 

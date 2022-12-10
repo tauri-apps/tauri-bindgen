@@ -1,8 +1,8 @@
 use super::{
     lex::{Token, Tokens},
     Docs, Enum, EnumCase, Flags, FlagsField, Func, Interface, InterfaceItem, InterfaceItemKind,
-    NamedType, NamedTypeList, Record, RecordField, Results, Type, Union, UnionCase, Use, UseName,
-    UseNames, Variant, VariantCase,
+    Method, NamedType, NamedTypeList, Record, RecordField, Resource, Results, Type, Union,
+    UnionCase, Use, UseName, UseNames, Variant, VariantCase,
 };
 use crate::{
     util::{find_similar, print_list},
@@ -86,6 +86,7 @@ impl<'a> FromTokens<'a> for InterfaceItem<'a> {
             }
             Token::Func => InterfaceItemKind::Func(FromTokens::parse(tokens)?),
             Token::Use => InterfaceItemKind::Use(FromTokens::parse(tokens)?),
+            Token::Resource => InterfaceItemKind::Resource(FromTokens::parse(tokens)?),
 
             found => {
                 let expected = [
@@ -278,6 +279,48 @@ impl<'a> FromTokens<'a> for UseName {
         };
 
         Ok(UseName { name, alias })
+    }
+}
+
+impl<'a> FromTokens<'a> for Resource<'a> {
+    fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {     
+        let methods = if tokens.take_token(Token::LeftBrace)? {
+            let mut methods = Vec::new();
+            loop {
+                // if we found an end token then we're done
+                if tokens.take_token(Token::RightBrace)? {
+                    break;
+                }
+    
+                methods.push(Method::parse(tokens)?);
+            }
+            methods
+        } else {
+            Vec::new()
+        };
+
+        Ok(Resource { methods })
+    }
+}
+
+impl<'a> FromTokens<'a> for Method<'a> {
+    fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
+        let docs = Docs::parse(tokens)?;
+        let static_ = tokens.take_token(Token::Static)?;
+
+        tokens.expect_token(Token::Func)?;
+
+        let name = tokens.expect_token(Token::Id)?;
+
+        let func = Func::parse(tokens)?;
+
+        Ok(Method {
+            docs,
+            name,
+            static_,
+            params: func.params,
+            results: func.results,
+        })
     }
 }
 

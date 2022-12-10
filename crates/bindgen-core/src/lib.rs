@@ -8,6 +8,7 @@ use std::{
     collections::{btree_map::Entry, BTreeMap, HashMap},
     fmt::{self, Write},
     ops::Deref,
+    sync::Arc,
 };
 use wit_parser::*;
 
@@ -34,197 +35,186 @@ pub trait WorldGenerator {
 pub trait InterfaceGenerator<'a> {
     fn iface(&self) -> &'a Interface;
 
-    fn type_record(&mut self, id: TypeId, name: &str, record: &Record, docs: &Docs);
-    fn type_flags(&mut self, id: TypeId, name: &str, flags: &Flags, docs: &Docs);
-    fn type_variant(&mut self, id: TypeId, name: &str, variant: &Variant, docs: &Docs);
-    fn type_union(&mut self, id: TypeId, name: &str, union: &Union, docs: &Docs);
-    fn type_enum(&mut self, id: TypeId, name: &str, enum_: &Enum, docs: &Docs);
-    fn type_alias(&mut self, id: TypeId, name: &str, ty: &Type, docs: &Docs);
+    fn type_record(&mut self, ty: &Arc<TypeDef>, name: &str, record: &Record, docs: &Docs);
+    fn type_flags(&mut self, ty: &Arc<TypeDef>, name: &str, flags: &Flags, docs: &Docs);
+    fn type_variant(&mut self, ty: &Arc<TypeDef>, name: &str, variant: &Variant, docs: &Docs);
+    fn type_union(&mut self, ty: &Arc<TypeDef>, name: &str, union: &Union, docs: &Docs);
+    fn type_enum(&mut self, ty: &Arc<TypeDef>, name: &str, enum_: &Enum, docs: &Docs);
+    fn type_alias(&mut self, ty: &Arc<TypeDef>, name: &str, ty: &Type, docs: &Docs);
+    fn type_resource(&mut self, ty: &Arc<TypeDef>, name: &str, ty: &Resource, docs: &Docs);
 
     fn types(&mut self) {
-        for (id, ty) in self.iface().types.iter() {
+        for ty in self.iface().types.values() {
+            dbg!("in types", &ty.kind);
             match &ty.kind {
-                TypeDefKind::Record(record) => self.type_record(id, &ty.name, record, &ty.docs),
-                TypeDefKind::Flags(flags) => self.type_flags(id, &ty.name, flags, &ty.docs),
-                TypeDefKind::Enum(enum_) => self.type_enum(id, &ty.name, enum_, &ty.docs),
-                TypeDefKind::Variant(variant) => self.type_variant(id, &ty.name, variant, &ty.docs),
-                TypeDefKind::Union(u) => self.type_union(id, &ty.name, u, &ty.docs),
-                TypeDefKind::Type(t) => self.type_alias(id, &ty.name, t, &ty.docs),
+                TypeDefKind::Record(record) => self.type_record(ty, &ty.name, record, &ty.docs),
+                TypeDefKind::Flags(flags) => self.type_flags(ty, &ty.name, flags, &ty.docs),
+                TypeDefKind::Enum(enum_) => self.type_enum(ty, &ty.name, enum_, &ty.docs),
+                TypeDefKind::Variant(variant) => self.type_variant(ty, &ty.name, variant, &ty.docs),
+                TypeDefKind::Union(u) => self.type_union(ty, &ty.name, u, &ty.docs),
+                TypeDefKind::Type(t) => self.type_alias(ty, &ty.name, t, &ty.docs),
+                TypeDefKind::Resource(resource) => {
+                    self.type_resource(ty, &ty.name, resource, &ty.docs)
+                }
             }
         }
     }
 }
 
-bitflags::bitflags! {
-    pub struct TypeInfo: u32 {
-        /// Whether or not this type is ever used (transitively) within the
-        /// parameter of a function.
-        const PARAM = 0b00000001;
-        /// Whether or not this type is ever used (transitively) within the
-        /// result of a function.
-        const RESULT = 0b00000010;
-        /// Whether or not this type is ever used (transitively) within the
-        /// error case in the result of a function.
-        const ERROR = 0b00000100;
-        /// Whether or not this type (transitively) has a list.
-        const HAS_LIST = 0b00001000;
+// impl Types {
+pub fn analyze(iface: &mut Interface) {
+    for (_, ty) in iface.types.iter_mut() {
+        type_id_info(ty);
+    }
+    for f in iface.functions.iter_mut() {
+        for (_, ty) in f.params.iter_mut() {
+            set_param_result_ty(ty, TypeInfo::PARAM);
+        }
+        for ty in f.results.types_mut() {
+            set_param_result_ty(ty, TypeInfo::RESULT);
+        }
+    }
 
-        const PARAM_AND_RESULT = Self::PARAM.bits | Self::RESULT.bits;
+    for (_, ty) in iface.types.iter_mut() {
+        let ty = Arc::make_mut(ty);
+        if let TypeDefKind::Resource(r) = &mut ty.kind {
+            for m in r.methods.iter_mut() {
+                for (_, ty) in m.params.iter_mut() {
+                    set_param_result_ty(ty, TypeInfo::PARAM);
+                }
+                for ty in m.results.types_mut() {
+                    set_param_result_ty(ty, TypeInfo::RESULT);
+                }
+            }
+        }
     }
 }
 
-impl TypeInfo {
-    pub fn owns_data(&self) -> bool {
-        self.contains(TypeInfo::HAS_LIST)
+fn type_id_info(ty: &mut Arc<TypeDef>) -> TypeInfo {
+    let ty = Arc::make_mut(ty);
+
+    let mut info = TypeInfo::empty();
+    match &mut ty.kind {
+        TypeDefKind::Record(r) => {
+            for field in r.fields.iter_mut() {
+                info |= type_info(&mut field.ty);
+            }
+        }
+        TypeDefKind::Variant(v) => {
+            for case in v.cases.iter_mut() {
+                info |= optional_type_info(case.ty.as_mut());
+            }
+        }
+        TypeDefKind::Union(u) => {
+            for case in u.cases.iter_mut() {
+                info |= type_info(&mut case.ty);
+            }
+        }
+        TypeDefKind::Type(ty) => {
+            info = type_info(ty);
+        }
+        TypeDefKind::Flags(_) => {}
+        TypeDefKind::Enum(_) => {}
+        TypeDefKind::Resource(r) => {
+            let has_statics = r.methods.iter().any(|m| m.static_);
+
+            if has_statics {
+                info |= TypeInfo::HAS_STATICS;
+            }
+        }
+    };
+
+    ty.info |= info;
+    info
+}
+
+fn type_info(ty: &mut Type) -> TypeInfo {
+    let mut info = TypeInfo::empty();
+    match ty {
+        Type::String => info |= TypeInfo::HAS_LIST,
+        Type::Tuple(ty) => {
+            for ty in ty.types.iter_mut() {
+                info |= type_info(ty);
+            }
+        }
+        Type::List(ty) => {
+            info = type_info(ty);
+            info |= TypeInfo::HAS_LIST;
+        }
+        Type::Option(ty) => {
+            info = type_info(ty);
+        }
+        Type::Result(res) => {
+            info = optional_type_info(res.ok.as_mut());
+            info |= optional_type_info(res.err.as_mut());
+        }
+        Type::Id(id) => return type_id_info(id),
+        _ => {}
+    }
+    info
+}
+
+fn optional_type_info(ty: Option<&mut Type>) -> TypeInfo {
+    match ty {
+        Some(ty) => type_info(ty),
+        None => TypeInfo::empty(),
     }
 }
 
-#[derive(Debug, Default)]
-pub struct Types {
-    type_info: HashMap<TypeId, TypeInfo>,
+fn set_param_result_id(ty: &mut Arc<TypeDef>, new_info: TypeInfo) {
+    let ty = Arc::make_mut(ty);
+    match &mut ty.kind {
+        TypeDefKind::Record(r) => {
+            for field in r.fields.iter_mut() {
+                set_param_result_ty(&mut field.ty, new_info)
+            }
+        }
+        TypeDefKind::Flags(_) => {}
+        TypeDefKind::Enum(_) => {}
+        TypeDefKind::Variant(v) => {
+            for case in v.cases.iter_mut() {
+                set_optional_param_result_ty(case.ty.as_mut(), new_info)
+            }
+        }
+        TypeDefKind::Union(u) => {
+            for case in u.cases.iter_mut() {
+                set_param_result_ty(&mut case.ty, new_info)
+            }
+        }
+        TypeDefKind::Type(ty) => set_param_result_ty(ty, new_info),
+        TypeDefKind::Resource(_) => {}
+    }
 }
 
-impl Types {
-    pub fn analyze(&mut self, iface: &Interface) {
-        for (t, _) in iface.types.iter() {
-            self.type_id_info(iface, t);
-        }
-        for f in iface.functions.iter() {
-            for (_, ty) in f.params.iter() {
-                self.set_param_result_ty(iface, ty, TypeInfo::PARAM);
-            }
-            for ty in f.results.types() {
-                self.set_param_result_ty(iface, ty, TypeInfo::RESULT);
+pub fn set_param_result_ty(ty: &mut Type, new_info: TypeInfo) {
+    match ty {
+        Type::Tuple(ty) => {
+            for ty in ty.types.iter_mut() {
+                set_param_result_ty(ty, new_info)
             }
         }
+        Type::List(ty) | Type::Option(ty) => set_param_result_ty(ty, new_info),
+        Type::Result(res) => {
+            set_optional_param_result_ty(res.ok.as_mut(), new_info);
+            set_optional_param_result_ty(res.err.as_mut(), new_info);
+        }
+        Type::Id(id) => {
+            let info = &mut Arc::make_mut(id).info;
+            // type_id_info(iface, *id);
+            // let info = type_info.get_mut(id).unwrap();
+
+            if !info.symmetric_difference(new_info).is_empty() {
+                *info |= new_info;
+                set_param_result_id(id, new_info);
+            }
+        }
+        _ => {}
     }
+}
 
-    pub fn get(&self, id: TypeId) -> TypeInfo {
-        self.type_info[&id]
-    }
-
-    fn type_id_info(&mut self, iface: &Interface, id: TypeId) -> TypeInfo {
-        if let Some(info) = self.type_info.get(&id) {
-            return *info;
-        }
-
-        let mut info = TypeInfo::empty();
-        match &iface.types[id].kind {
-            TypeDefKind::Record(r) => {
-                for field in r.fields.iter() {
-                    info |= self.type_info(iface, &field.ty);
-                }
-            }
-            TypeDefKind::Variant(v) => {
-                for case in v.cases.iter() {
-                    info |= self.optional_type_info(iface, case.ty.as_ref());
-                }
-            }
-            TypeDefKind::Union(u) => {
-                for case in u.cases.iter() {
-                    info |= self.type_info(iface, &case.ty);
-                }
-            }
-            TypeDefKind::Type(ty) => {
-                info = self.type_info(iface, ty);
-            }
-            TypeDefKind::Flags(_) => {}
-            TypeDefKind::Enum(_) => {}
-        }
-        self.type_info.insert(id, info);
-        info
-    }
-
-    fn type_info(&mut self, iface: &Interface, ty: &Type) -> TypeInfo {
-        let mut info = TypeInfo::empty();
-        match ty {
-            Type::String => info |= TypeInfo::HAS_LIST,
-            Type::Tuple(ty) => {
-                for ty in ty.types.iter() {
-                    info |= self.type_info(iface, ty);
-                }
-            }
-            Type::List(ty) => {
-                info = self.type_info(iface, ty);
-                info |= TypeInfo::HAS_LIST;
-            }
-            Type::Option(ty) => {
-                info = self.type_info(iface, ty);
-            }
-            Type::Result(res) => {
-                info = self.optional_type_info(iface, res.ok.as_ref());
-                info |= self.optional_type_info(iface, res.err.as_ref());
-            }
-            Type::Id(id) => return self.type_id_info(iface, *id),
-            _ => {}
-        }
-        info
-    }
-
-    fn optional_type_info(&mut self, iface: &Interface, ty: Option<&Type>) -> TypeInfo {
-        match ty {
-            Some(ty) => self.type_info(iface, ty),
-            None => TypeInfo::empty(),
-        }
-    }
-
-    fn set_param_result_id(&mut self, iface: &Interface, ty: TypeId, new_info: TypeInfo) {
-        match &iface.types[ty].kind {
-            TypeDefKind::Record(r) => {
-                for field in r.fields.iter() {
-                    self.set_param_result_ty(iface, &field.ty, new_info)
-                }
-            }
-            TypeDefKind::Flags(_) => {}
-            TypeDefKind::Enum(_) => {}
-            TypeDefKind::Variant(v) => {
-                for case in v.cases.iter() {
-                    self.set_optional_param_result_ty(iface, case.ty.as_ref(), new_info)
-                }
-            }
-            TypeDefKind::Union(u) => {
-                for case in u.cases.iter() {
-                    self.set_param_result_ty(iface, &case.ty, new_info)
-                }
-            }
-            TypeDefKind::Type(ty) => self.set_param_result_ty(iface, ty, new_info),
-        }
-    }
-
-    pub fn set_param_result_ty(&mut self, iface: &Interface, ty: &Type, new_info: TypeInfo) {
-        match ty {
-            Type::Tuple(ty) => {
-                for ty in ty.types.iter() {
-                    self.set_param_result_ty(iface, ty, new_info)
-                }
-            }
-            Type::List(ty) | Type::Option(ty) => self.set_param_result_ty(iface, ty, new_info),
-            Type::Result(res) => {
-                self.set_optional_param_result_ty(iface, res.ok.as_ref(), new_info);
-                self.set_optional_param_result_ty(iface, res.err.as_ref(), new_info);
-            }
-            Type::Id(id) => {
-                self.type_id_info(iface, *id);
-                let info = self.type_info.get_mut(id).unwrap();
-
-                if !info.symmetric_difference(new_info).is_empty() {
-                    *info |= new_info;
-                    self.set_param_result_id(iface, *id, new_info);
-                }
-            }
-            _ => {}
-        }
-    }
-
-    fn set_optional_param_result_ty(
-        &mut self,
-        iface: &Interface,
-        ty: Option<&Type>,
-        new_info: TypeInfo,
-    ) {
-        if let Some(ty) = ty {
-            self.set_param_result_ty(iface, ty, new_info)
-        }
+fn set_optional_param_result_ty(ty: Option<&mut Type>, new_info: TypeInfo) {
+    if let Some(ty) = ty {
+        set_param_result_ty(ty, new_info)
     }
 }
 
@@ -246,7 +236,7 @@ impl Files {
     }
 
     pub fn get_size(&mut self, name: &str) -> Option<usize> {
-        self.files.get(name).map(|data|data.len())
+        self.files.get(name).map(|data| data.len())
     }
 
     pub fn remove(&mut self, name: &str) -> Option<Vec<u8>> {
@@ -255,6 +245,16 @@ impl Files {
 
     pub fn iter(&self) -> impl Iterator<Item = (&'_ str, &'_ [u8])> {
         self.files.iter().map(|p| (p.0.as_str(), p.1.as_slice()))
+    }
+}
+
+impl IntoIterator for Files {
+    type Item = (String, Vec<u8>);
+
+    type IntoIter = std::collections::btree_map::IntoIter<String, Vec<u8>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.files.into_iter()
     }
 }
 

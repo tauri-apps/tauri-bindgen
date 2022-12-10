@@ -1,18 +1,17 @@
 use super::InterfaceItemKind;
-use crate::{ast, error::MultiError, Error, TypeId};
-use id_arena::Arena;
+use crate::{ast, error::MultiError, Error};
 use miette::{bail, Result, SourceSpan};
 use std::{
     collections::{HashMap, HashSet},
     fmt::Debug,
     mem,
+    sync::Arc,
 };
 
 #[derive(Debug)]
 pub struct Resolver<'a> {
     src: &'a str,
-    name2id: HashMap<&'a str, TypeId>,
-    types: Arena<crate::TypeDef>,
+    types: HashMap<&'a str, Arc<crate::TypeDef>>,
     functions: Vec<crate::Function>,
 }
 
@@ -20,8 +19,8 @@ impl<'a> Resolver<'a> {
     pub fn new(src: &'a str) -> Self {
         Self {
             src,
-            name2id: HashMap::default(),
-            types: Arena::default(),
+            types: HashMap::default(),
+            // types: Arena::default(),
             functions: Vec::default(),
         }
     }
@@ -42,14 +41,15 @@ impl<'a> Resolver<'a> {
                     bail!(Error::already_defined(item.name, prev));
                 }
             } else {
-                let id = self.types.alloc(crate::TypeDef {
-                    // pos: item.pos.offset()..item.pos.offset() + item.pos.len(),
-                    docs: Self::resolve_docs(&mem::take(&mut item.docs)),
-                    kind: crate::TypeDefKind::Type(crate::Type::U8),
-                    name: name.to_string(),
-                });
+                let id = Arc::new(crate::TypeDef::Type(crate::Type::U8));
+                // {
+                //     info: crate::TypeInfo::empty(),
+                //     docs: Self::resolve_docs(&mem::take(&mut item.docs)),
+                //     kind: crate::TypeDefKind::Type(),
+                //     name: name.to_string(),
+                // });
 
-                if self.name2id.insert(name, id).is_some() {
+                if self.types.insert(name, id).is_some() {
                     bail!(Error::already_defined(item.name, *names.get(name).unwrap()));
                 }
                 names.insert(name, item.name);
@@ -70,25 +70,25 @@ impl<'a> Resolver<'a> {
             if let InterfaceItemKind::Func(_) = item.kind {
                 continue;
             }
-            let name = self.read_span(item.name);
-
-            let ty = self.name2id.get(name).unwrap();
-
-            self.verify_not_recursive(item.name, *ty, &mut visiting, &mut valid_types)?;
+            self.verify_not_recursive(item.name, &mut visiting, &mut valid_types)?;
         }
 
         Ok(crate::Interface {
             docs: Self::resolve_docs(&iface.docs),
             name: self.read_span(iface.name).to_string(),
             functions: self.functions,
-            types: self.types,
+            types: self
+                .types
+                .into_iter()
+                .map(|(name, ty)| (name.to_string(), ty))
+                .collect(),
         })
     }
 
     fn resolve_typedef(&mut self, typedef: &ast::InterfaceItem<'a>) -> Result<()> {
         use ast::InterfaceItemKind::*;
 
-        let kind = match &typedef.kind {
+        match &typedef.kind {
             Record(ast::Record { fields, .. }) => {
                 let results = fields.iter().map(|case| -> Result<crate::RecordField> {
                     Ok(crate::RecordField {
@@ -100,7 +100,16 @@ impl<'a> Resolver<'a> {
 
                 let fields = lift_errors(results)?.collect();
 
-                crate::TypeDefKind::Record(crate::Record { fields })
+                let name = self.read_span(typedef.name);
+
+                self.types.get_mut(name)
+
+                crate::TypeDef::Record(crate::Record {
+                    name: name.to_string(),
+                    docs: Self::resolve_docs(&typedef.docs),
+                    info: (),
+                    fields,
+                })
             }
             Variant(ast::Variant { cases, .. }) => {
                 let results = cases.iter().map(|case| -> Result<crate::VariantCase> {
@@ -159,14 +168,30 @@ impl<'a> Resolver<'a> {
 
                 crate::TypeDefKind::Type(ty)
             }
+            Resource(res) => {
+                let results = res.methods.iter().map(|m| -> Result<crate::Method> {
+                    let params = self.resolve_params(&m.params)?;
+                    let results = self.resolve_results(&m.results)?;
+
+                    Ok(crate::Method {
+                        docs: Self::resolve_docs(&m.docs),
+                        name: self.read_span(m.name).to_string(),
+                        static_: m.static_,
+                        params,
+                        results,
+                    })
+                });
+
+                let methods = lift_errors(results)?.collect();
+
+                crate::TypeDefKind::Resource(crate::Resource { methods })
+            }
             Func(_) => todo!(),
             Use(_) => todo!(),
         };
 
-        let name = self.read_span(typedef.name);
-        let id = self.name2id.get(name).unwrap();
-        self.types.get_mut(*id).unwrap().kind = kind;
-
+        // let name = self.read_span(typedef.name);
+        // Arc::make_mut(self.types.get_mut(name).unwrap()).kind = kind;
         Ok(())
     }
 
@@ -263,9 +288,12 @@ impl<'a> Resolver<'a> {
             }
             ast::Type::Id(span) => {
                 let name = self.read_span(*span);
-                let id = self.name2id.get(name).ok_or_else(|| Error::not_defined(*span))?;
+                let id = self
+                    .types
+                    .get(name)
+                    .ok_or_else(|| Error::not_defined(*span))?;
 
-                Ok(crate::Type::Id(*id))
+                Ok(crate::Type::Id(id.clone()))
             }
         }
     }
@@ -300,65 +328,64 @@ impl<'a> Resolver<'a> {
     fn verify_not_recursive(
         &self,
         name: SourceSpan,
-        ty: TypeId,
-        visiting: &mut HashSet<TypeId>,
-        valid: &mut HashSet<TypeId>,
+        visiting: &mut HashSet<&'a str>,
+        valid: &mut HashSet<&'a str>,
     ) -> Result<()> {
-        if valid.contains(&ty) {
+        if valid.contains(self.read_span(name)) {
             return Ok(());
         }
 
-        if !visiting.insert(ty) {
+        if !visiting.insert(self.read_span(name)) {
             bail!(Error::recursive_type(name));
         }
 
-        match &self.types[ty].kind {
+        match &self.types[self.read_span(name)].kind {
             crate::TypeDefKind::Union(union) => {
                 for case in union.cases.iter() {
-                    if let crate::Type::Id(id) = case.ty {
-                        self.verify_not_recursive(name, id, visiting, valid)?;
+                    if let crate::Type::Id(_) = &case.ty {
+                        self.verify_not_recursive(name, visiting, valid)?;
                     }
                 }
             }
             crate::TypeDefKind::Record(record) => {
                 for field in record.fields.iter() {
-                    if let crate::Type::Id(id) = field.ty {
-                        self.verify_not_recursive(name, id, visiting, valid)?;
+                    if let crate::Type::Id(_) = &field.ty {
+                        self.verify_not_recursive(name, visiting, valid)?;
                     }
                 }
             }
             crate::TypeDefKind::Variant(variant) => {
                 for case in variant.cases.iter() {
-                    if let Some(crate::Type::Id(id)) = case.ty {
-                        self.verify_not_recursive(name, id, visiting, valid)?;
+                    if let Some(crate::Type::Id(_)) = &case.ty {
+                        self.verify_not_recursive(name, visiting, valid)?;
                     }
                 }
             }
             crate::TypeDefKind::Type(ty) => match ty {
                 crate::Type::Tuple(tuple) => {
                     for ty in tuple.types.iter() {
-                        if let crate::Type::Id(id) = ty {
-                            self.verify_not_recursive(name, *id, visiting, valid)?;
+                        if let crate::Type::Id(_) = &ty {
+                            self.verify_not_recursive(name, visiting, valid)?;
                         }
                     }
                 }
                 crate::Type::List(ty) => {
-                    if let crate::Type::Id(id) = **ty {
-                        self.verify_not_recursive(name, id, visiting, valid)?;
+                    if let crate::Type::Id(_) = &**ty {
+                        self.verify_not_recursive(name, visiting, valid)?;
                     }
                 }
                 crate::Type::Option(ty) => {
-                    if let crate::Type::Id(id) = **ty {
-                        self.verify_not_recursive(name, id, visiting, valid)?;
+                    if let crate::Type::Id(_) = &**ty {
+                        self.verify_not_recursive(name, visiting, valid)?;
                     }
                 }
                 crate::Type::Result(result) => {
-                    if let Some(crate::Type::Id(id)) = result.ok {
-                        self.verify_not_recursive(name, id, visiting, valid)?;
+                    if let Some(crate::Type::Id(_)) = &result.ok {
+                        self.verify_not_recursive(name, visiting, valid)?;
                     }
 
-                    if let Some(crate::Type::Id(id)) = result.err {
-                        self.verify_not_recursive(name, id, visiting, valid)?;
+                    if let Some(crate::Type::Id(_)) = &result.err {
+                        self.verify_not_recursive(name, visiting, valid)?;
                     }
                 }
                 _ => {}
@@ -366,8 +393,8 @@ impl<'a> Resolver<'a> {
             _ => {}
         }
 
-        valid.insert(ty);
-        visiting.remove(&ty);
+        valid.insert(self.read_span(name));
+        visiting.remove(&self.read_span(name));
 
         Ok(())
     }

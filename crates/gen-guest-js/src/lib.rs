@@ -227,9 +227,7 @@ impl<'a> InterfaceGenerator<'a> {
                 self.print_optional_ty(r.err.as_ref());
                 self.push_str(">");
             }
-            Type::Id(id) => {
-                let ty = &self.iface.types[*id];
-
+            Type::Id(ty) => {
                 self.push_str(&ty.name.to_upper_camel_case());
             }
         }
@@ -264,11 +262,11 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn is_nullable(&self, ty: &Type) -> bool {
-        let id = match ty {
-            Type::Id(id) => *id,
+        let ty = match ty {
+            Type::Id(ty) => ty,
             _ => return false,
         };
-        match &self.iface.types[id].kind {
+        match &ty.kind {
             // If `ty` points to an `option<T>`, then `ty` can be represented
             // with `null` if `t` itself can't be represented with null. For
             // example `option<option<u32>>` can't be represented with `null`
@@ -285,7 +283,7 @@ impl<'a> InterfaceGenerator<'a> {
             // It's doubtful anyone would actually rely on that though due to
             // how confusing it is.
             // TypeDefKind::Option(ty) => !self.is_nullable(ty),
-            TypeDefKind::Type(t) => self.is_nullable(t),
+            TypeDefKind::Type(t) => self.is_nullable(&t),
             _ => false,
         }
     }
@@ -312,7 +310,7 @@ fn array_ty(iface: &Interface, ty: &Type) -> Option<&'static str> {
         Type::S64 => Some("BigInt64Array"),
         Type::Float32 => Some("Float32Array"),
         Type::Float64 => Some("Float64Array"),
-        Type::Id(id) => match &iface.types[*id].kind {
+        Type::Id(ty) => match &ty.kind {
             TypeDefKind::Type(t) => array_ty(iface, t),
             _ => None,
         },
