@@ -1,8 +1,4 @@
-use fst::automaton::Levenshtein;
-use fst::{IntoStreamer, Set};
 use std::fmt::{Display, Write};
-
-use crate::Error;
 
 pub fn print_list<T: Display>(iter: impl IntoIterator<Item = T>) -> String {
     let mut iter = iter.into_iter().peekable();
@@ -24,20 +20,16 @@ pub fn print_list<T: Display>(iter: impl IntoIterator<Item = T>) -> String {
 pub fn find_similar<I, T>(
     words: I,
     query: impl AsRef<str>,
-) -> std::result::Result<Vec<String>, Error>
+) -> Vec<String>
 where
-    T: AsRef<[u8]>,
+    T: AsRef<str>,
     I: IntoIterator<Item = T>,
 {
-    let words = Set::from_iter(words)?;
-
-    // Build our fuzzy query.
-    let lev = Levenshtein::new(query.as_ref(), 3)?;
-
-    // Apply our fuzzy query to the set we built.
-    let stream = words.search(lev).into_stream();
-
-    let suggestions = stream.into_strs()?;
-
-    Ok(suggestions)
+    words.into_iter().filter_map(|word| {
+        if distance::damerau_levenshtein(word.as_ref(), query.as_ref()) <= 3 {
+            Some(word.as_ref().to_string())
+        } else {
+            None
+        }
+    }).collect()
 }

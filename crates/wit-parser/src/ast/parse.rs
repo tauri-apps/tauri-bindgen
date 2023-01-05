@@ -102,7 +102,7 @@ impl<'a> FromTokens<'a> for InterfaceItem<'a> {
                 let suggestions = find_similar(
                     expected.iter().map(ToString::to_string),
                     tokens.read_span(loc),
-                )?;
+                );
 
                 if !suggestions.is_empty() {
                     bail!(Error::unexpected_token_with_help(

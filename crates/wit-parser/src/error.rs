@@ -6,12 +6,6 @@ pub enum Error {
     #[error(transparent)]
     #[diagnostic(url(docsrs))]
     IoError(#[from] std::io::Error),
-    #[error(transparent)]
-    #[diagnostic(url(docsrs))]
-    FST(#[from] fst::Error),
-    #[error(transparent)]
-    #[diagnostic(url(docsrs))]
-    Levenshtein(#[from] fst::automaton::LevenshteinError),
     #[error("unexpected end of file")]
     UnexpectedEof,
     #[error("unterminated block comment")]
