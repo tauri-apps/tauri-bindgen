@@ -4,7 +4,10 @@ use heck::{ToSnakeCase, ToUpperCamelCase};
 use std::collections::HashMap;
 use std::fmt::{self, Write};
 use tauri_bindgen_core::TypeInfo;
-use wit_parser::{Docs, Enum, Flags, Function, Int, Interface, Record, Result_, Results, Tuple, Type, TypeDefKind, TypeId, Union, Variant};
+use wit_parser::{
+    Docs, Enum, Flags, Function, Int, Interface, Record, Result_, Results, Tuple, Type,
+    TypeDefKind, TypeId, Union, Variant,
+};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum TypeMode {
@@ -684,7 +687,7 @@ pub trait RustGenerator<'a> {
                 self.lifetime_for(&info, mode).is_some()
             }
             Type::Tuple(ty) => ty.types.iter().any(|ty| self.needs_borrow(ty, mode)),
-            Type::List(ty) | Type::Option(ty)=> self.needs_borrow(ty, mode),
+            Type::List(ty) | Type::Option(ty) => self.needs_borrow(ty, mode),
             _ => false,
         }
     }

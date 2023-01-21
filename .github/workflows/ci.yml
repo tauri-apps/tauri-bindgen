@@ -52,7 +52,9 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@clippy
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
       - run: cargo clippy --tests -- -Dclippy::all -Dclippy::pedantic
 
   miri:
@@ -63,7 +65,9 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@miri
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: miri
       - run: cargo miri test
         env:
           MIRIFLAGS: -Zmiri-strict-provenance

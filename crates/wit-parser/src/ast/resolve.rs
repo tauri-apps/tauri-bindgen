@@ -263,7 +263,10 @@ impl<'a> Resolver<'a> {
             }
             ast::Type::Id(span) => {
                 let name = self.read_span(*span);
-                let id = self.name2id.get(name).ok_or_else(|| Error::not_defined(*span))?;
+                let id = self
+                    .name2id
+                    .get(name)
+                    .ok_or_else(|| Error::not_defined(*span))?;
 
                 Ok(crate::Type::Id(*id))
             }

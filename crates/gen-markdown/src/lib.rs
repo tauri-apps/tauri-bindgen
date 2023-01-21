@@ -22,7 +22,10 @@ pub struct Opts {
 
 impl Opts {
     pub fn build(&self) -> Box<dyn WorldGenerator> {
-        Box::new(Markdown { _opts: self.clone(), ..Default::default() })
+        Box::new(Markdown {
+            _opts: self.clone(),
+            ..Default::default()
+        })
     }
 }
 

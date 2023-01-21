@@ -5,11 +5,11 @@ use std::{
 };
 
 /// # Errors
-/// 
+///
 /// Returns an error when the underlying postprocess command didn't finish successfully
-/// 
+///
 /// # Panics
-/// 
+///
 /// Attempts to take the stdin and stdout pipes from the spawned child, will panic otherwise
 pub fn postprocess<I, S>(
     file: &mut String,

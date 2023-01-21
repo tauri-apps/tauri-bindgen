@@ -5,7 +5,7 @@ use crate::Error;
 const TRUNCATE_LEN: usize = 8;
 
 /// # Errors
-/// 
+///
 /// Returns an error when the file couldn't be openend, memory mapping the file failed or when copying into the hasher failed.
 pub fn hash_file(path: impl AsRef<Path>) -> Result<String, Error> {
     let file = File::open(path)?;

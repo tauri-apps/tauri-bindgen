@@ -184,15 +184,16 @@ impl<'a> Iterator for TokensRaw<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         let (mut start, ch) = self.chars.next()?;
 
-        let token = match ch {
-            ' ' | '\t' | '\n' => {
-                self.take_char_while(is_space);
-                Token::Whitespace
-            }
-            '/' => {
-                let (loc, char) = self.chars.next()?;
+        let token =
+            match ch {
+                ' ' | '\t' | '\n' => {
+                    self.take_char_while(char::is_whitespace);
+                    Token::Whitespace
+                }
+                '/' => {
+                    let (loc, char) = self.chars.next()?;
 
-                match char {
+                    match char {
                     '/' if self.chars.peek().map(|e| e.1) == Some('/') => {
                         self.take_char_while(not_line_ending);
                         Token::DocComment
@@ -227,13 +228,11 @@ impl<'a> Iterator for TokensRaw<'a> {
                         while depth > 0 {
                             let (_, ch) = match self.chars.next() {
                                 Some(pair) => pair,
-                                None => {
-                                    return Some(Err(Error::unterminated_comment(
-                                        start,
-                                        self.src.len() - 1,
-                                    )
-                                    .into()))
-                                }
+                                None => {return Some(Err(Error::unterminated_comment(
+                                    start,
+                                    self.src.len() - 1,
+                                )
+                                .into()))}
                             };
                             match ch {
                                 '/' if self.take_char('*') => depth += 1,
@@ -250,78 +249,78 @@ impl<'a> Iterator for TokensRaw<'a> {
                     )
                     .into())),
                 }
-            }
-            '=' => Token::Equals,
-            ',' => Token::Comma,
-            ':' => Token::Colon,
-            ';' => Token::Semicolon,
-            '(' => Token::LeftParen,
-            ')' => Token::RightParen,
-            '{' => Token::LeftBrace,
-            '}' => Token::RightBrace,
-            '<' => Token::LessThan,
-            '>' => Token::GreaterThan,
-            '*' => Token::Star,
-            '-' if self.take_char('>') => Token::RArrow,
-            '_' => Token::Underscore,
-
-            '%' => {
-                self.take_char_while(is_identifier);
-
-                // skip the percent sign
-                start += 1;
-
-                Token::Id
-            }
-
-            c if is_alphabetic(c) => {
-                let start = self.chars.peek().map(|e| e.0 - 1).unwrap_or_default();
-                let len = self
-                    .take_char_while(is_identifier)
-                    .unwrap_or_default()
-                    .len();
-
-                let token = &self.src[start..=start + len];
-
-                match token {
-                    "use" => Token::Use,
-                    "type" => Token::Type,
-                    "resource" => Token::Resource,
-                    "func" => Token::Func,
-                    "u8" => Token::U8,
-                    "u16" => Token::U16,
-                    "u32" => Token::U32,
-                    "u64" => Token::U64,
-                    "s8" => Token::S8,
-                    "s16" => Token::S16,
-                    "s32" => Token::S32,
-                    "s64" => Token::S64,
-                    "float32" => Token::Float32,
-                    "float64" => Token::Float64,
-                    "char" => Token::Char,
-                    "record" => Token::Record,
-                    "flags" => Token::Flags,
-                    "variant" => Token::Variant,
-                    "enum" => Token::Enum,
-                    "union" => Token::Union,
-                    "bool" => Token::Bool,
-                    "string" => Token::String,
-                    "option" => Token::Option,
-                    "result" => Token::Result,
-                    "list" => Token::List,
-                    "_" => Token::Underscore,
-                    "as" => Token::As,
-                    "from" => Token::From,
-                    "static" => Token::Static,
-                    "interface" => Token::Interface,
-                    "tuple" => Token::Tuple,
-                    _ => Token::Id,
                 }
-            }
-            ch => {
-                return Some(Err(Error::unexpected_char(start, ch).into()));
-            }
-        };
+                '=' => Token::Equals,
+                ',' => Token::Comma,
+                ':' => Token::Colon,
+                ';' => Token::Semicolon,
+                '(' => Token::LeftParen,
+                ')' => Token::RightParen,
+                '{' => Token::LeftBrace,
+                '}' => Token::RightBrace,
+                '<' => Token::LessThan,
+                '>' => Token::GreaterThan,
+                '*' => Token::Star,
+                '-' if self.take_char('>') => Token::RArrow,
+                '_' => Token::Underscore,
+
+                '%' => {
+                    self.take_char_while(is_identifier);
+
+                    // skip the percent sign
+                    start += 1;
+
+                    Token::Id
+                }
+
+                c if c.is_alphabetic() => {
+                    let start = self.chars.peek().map(|e| e.0 - 1).unwrap_or_default();
+                    let len = self
+                        .take_char_while(is_identifier)
+                        .unwrap_or_default()
+                        .len();
+
+                    let token = &self.src[start..=start + len];
+
+                    match token {
+                        "use" => Token::Use,
+                        "type" => Token::Type,
+                        "resource" => Token::Resource,
+                        "func" => Token::Func,
+                        "u8" => Token::U8,
+                        "u16" => Token::U16,
+                        "u32" => Token::U32,
+                        "u64" => Token::U64,
+                        "s8" => Token::S8,
+                        "s16" => Token::S16,
+                        "s32" => Token::S32,
+                        "s64" => Token::S64,
+                        "float32" => Token::Float32,
+                        "float64" => Token::Float64,
+                        "char" => Token::Char,
+                        "record" => Token::Record,
+                        "flags" => Token::Flags,
+                        "variant" => Token::Variant,
+                        "enum" => Token::Enum,
+                        "union" => Token::Union,
+                        "bool" => Token::Bool,
+                        "string" => Token::String,
+                        "option" => Token::Option,
+                        "result" => Token::Result,
+                        "list" => Token::List,
+                        "_" => Token::Underscore,
+                        "as" => Token::As,
+                        "from" => Token::From,
+                        "static" => Token::Static,
+                        "interface" => Token::Interface,
+                        "tuple" => Token::Tuple,
+                        _ => Token::Id,
+                    }
+                }
+                ch => {
+                    return Some(Err(Error::unexpected_char(start, ch).into()));
+                }
+            };
 
         let end = match self.chars.clone().next() {
             Some((i, _)) => i,
@@ -400,23 +399,8 @@ impl<'a> Iterator for Tokens<'a> {
 }
 
 #[inline]
-fn is_alphabetic(chr: char) -> bool {
-    ('A'..='Z').contains(&chr) || ('a'..='z').contains(&chr)
-}
-
-#[inline]
-fn is_digit(chr: char) -> bool {
-    ('0'..='9').contains(&chr)
-}
-
-#[inline]
 fn is_identifier(chr: char) -> bool {
-    is_alphabetic(chr) || is_digit(chr) || chr == '-'
-}
-
-#[inline]
-fn is_space(chr: char) -> bool {
-    chr == ' ' || chr == '\t'
+    chr.is_ascii_alphabetic() || chr.is_ascii_digit() || chr == '-'
 }
 
 #[inline]

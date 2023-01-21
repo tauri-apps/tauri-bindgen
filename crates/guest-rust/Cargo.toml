@@ -1,12 +1,13 @@
 [package]
 name = "tauri-bindgen-guest-rust"
-version.workspace = true
-edition.workspace = true
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.59"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bitflags.workspace = true
+bitflags = "1.3.2"
 tauri-bindgen-guest-rust-macro = { path = "../guest-rust-macro" }
 serde-wasm-bindgen = "0.4.5"
 wasm-bindgen-futures = "0.4.33"

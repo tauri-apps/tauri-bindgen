@@ -10,13 +10,14 @@ use tauri_bindgen_core::{Files, WorldGenerator};
 use wit_parser::Interface;
 // use wit_parser::World;
 
-pub fn generate<F, O>(
+pub fn generate<F, O, G>(
     input: TokenStream,
-    mkgen: impl FnOnce(O) -> Box<dyn WorldGenerator>,
+    mkgen: G,
 ) -> TokenStream
 where
     F: Parse + Configure<O>,
     O: Default,
+    G: FnOnce(O) -> Box<dyn WorldGenerator>
 {
     let input = syn::parse_macro_input!(input as Opts<F, O>);
     let mut gen = mkgen(input.opts);

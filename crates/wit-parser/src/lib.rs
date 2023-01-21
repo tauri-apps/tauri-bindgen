@@ -11,8 +11,8 @@ use miette::{ErrReport, IntoDiagnostic, NamedSource};
 use std::path::Path;
 
 /// # Errors
-/// 
-/// Returns a `miette::Report` if the file could not be parsed. 
+///
+/// Returns a `miette::Report` if the file could not be parsed.
 /// The Report contains information on the exact location of the errors
 pub fn parse_file(path: impl AsRef<Path>) -> miette::Result<Interface> {
     let path = path.as_ref();

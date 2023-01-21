@@ -13,21 +13,24 @@ use wit_parser::{Docs, Flags, Interface, Results, Type, TypeId};
 #[cfg_attr(feature = "clap", derive(clap::Args))]
 pub struct Opts {
     /// Whether or not `rustfmt` is executed to format generated code.
-    #[cfg_attr(feature = "clap", arg(long))]
+    #[cfg_attr(feature = "clap", clap(long))]
     pub rustfmt: bool,
 
     /// Whether or not to emit `tracing` macro calls on function entry/exit.
-    #[cfg_attr(feature = "clap", arg(long))]
+    #[cfg_attr(feature = "clap", clap(long))]
     pub tracing: bool,
 
     /// Whether or not to use async rust functions and traits.
-    #[cfg_attr(feature = "clap", arg(long = "async"))]
+    #[cfg_attr(feature = "clap", clap(long = "async"))]
     pub async_: bool,
 }
 
 impl Opts {
     pub fn build(self) -> Box<dyn WorldGenerator> {
-        Box::new(Host { opts: self, ..Default::default() })
+        Box::new(Host {
+            opts: self,
+            ..Default::default()
+        })
     }
 }
 

@@ -17,19 +17,19 @@ pub fn print_list<T: Display>(iter: impl IntoIterator<Item = T>) -> String {
     out
 }
 
-pub fn find_similar<I, T>(
-    words: I,
-    query: impl AsRef<str>,
-) -> Vec<String>
+pub fn find_similar<I, T>(words: I, query: impl AsRef<str>) -> Vec<String>
 where
     T: AsRef<str>,
     I: IntoIterator<Item = T>,
 {
-    words.into_iter().filter_map(|word| {
-        if distance::damerau_levenshtein(word.as_ref(), query.as_ref()) <= 3 {
-            Some(word.as_ref().to_string())
-        } else {
-            None
-        }
-    }).collect()
+    words
+        .into_iter()
+        .filter_map(|word| {
+            if distance::damerau_levenshtein(word.as_ref(), query.as_ref()) <= 3 {
+                Some(word.as_ref().to_string())
+            } else {
+                None
+            }
+        })
+        .collect()
 }
