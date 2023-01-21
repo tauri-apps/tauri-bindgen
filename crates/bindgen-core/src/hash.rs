@@ -4,6 +4,9 @@ use crate::Error;
 
 const TRUNCATE_LEN: usize = 8;
 
+/// # Errors
+/// 
+/// Returns an error when the file couldn't be openend, memory mapping the file failed or when copying into the hasher failed.
 pub fn hash_file(path: impl AsRef<Path>) -> Result<String, Error> {
     let file = File::open(path)?;
     let mut hasher = blake3::Hasher::new();
@@ -22,6 +25,7 @@ pub fn hash_file(path: impl AsRef<Path>) -> Result<String, Error> {
 // Mmap a file, if it looks like a good idea. Return None in cases where we
 // know mmap will fail, or if the file is short enough that mmapping isn't
 // worth it. However, if we do try to mmap and it fails, return the error.
+#[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
 fn maybe_memmap_file(file: &File) -> Result<Option<memmap2::Mmap>, Error> {
     let metadata = file.metadata()?;
     let file_size = metadata.len();
@@ -72,7 +76,7 @@ fn encode_hex(mut output: blake3::OutputReader) -> String {
         let hex_str = hex::encode(&block[..]);
         let take_bytes = cmp::min(len, block.len());
 
-        str.push_str(&hex_str[..2 * take_bytes as usize]);
+        str.push_str(&hex_str[..2 * take_bytes]);
         len -= take_bytes;
     }
 

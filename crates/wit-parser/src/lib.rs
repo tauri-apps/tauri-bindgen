@@ -1,3 +1,5 @@
+#![allow(clippy::must_use_candidate, clippy::module_name_repetitions)]
+
 mod ast;
 mod error;
 pub(crate) mod util;
@@ -8,6 +10,10 @@ use id_arena::{Arena, Id};
 use miette::{ErrReport, IntoDiagnostic, NamedSource};
 use std::path::Path;
 
+/// # Errors
+/// 
+/// Returns a `miette::Report` if the file could not be parsed. 
+/// The Report contains information on the exact location of the errors
 pub fn parse_file(path: impl AsRef<Path>) -> miette::Result<Interface> {
     let path = path.as_ref();
     let input = std::fs::read_to_string(path).into_diagnostic()?;
@@ -83,11 +89,8 @@ impl Results {
     }
 
     pub fn throws(&self) -> Option<(Option<&Type>, Option<&Type>)> {
-        if self.len() != 1 {
-            return None;
-        }
-        match self.types().next().unwrap() {
-            Type::Result(r) => Some((r.ok.as_ref(), r.err.as_ref())),
+        match self.types().next() {
+            Some(Type::Result(r)) => Some((r.ok.as_ref(), r.err.as_ref())),
             // Type::Id(id) => match &iface.types[*id].kind {
             //     _ => None,
             // },
@@ -193,6 +196,9 @@ pub struct Flags {
 }
 
 impl Flags {
+    /// # Panics
+    ///
+    /// Panics if the flag has more tham 64 fields
     pub fn repr(&self) -> Int {
         match self.flags.len() {
             n if n <= 8 => Int::U8,
@@ -227,12 +233,15 @@ pub struct Enum {
 }
 
 impl Enum {
+    /// # Panics
+    ///
+    /// Panics when the enum has more than `u64::MAX` cases
     pub fn tag(&self) -> Int {
         match self.cases.len() {
-            n if n <= u8::MAX as usize => Int::U8,
-            n if n <= u16::MAX as usize => Int::U16,
-            n if n <= u32::MAX as usize => Int::U32,
-            n if n <= u64::MAX as usize => Int::U64,
+            n if u8::try_from(n).is_ok() => Int::U8,
+            n if u16::try_from(n).is_ok() => Int::U16,
+            n if u32::try_from(n).is_ok() => Int::U32,
+            n if u64::try_from(n).is_ok() => Int::U64,
             _ => panic!("too many cases to fit in a repr"),
         }
     }

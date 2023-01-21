@@ -1,9 +1,11 @@
-use heck::*;
+#![allow(clippy::must_use_candidate)]
+
+use heck::{ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
 use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::mem;
 use tauri_bindgen_core::{postprocess, uwriteln, Files, Source, WorldGenerator};
-use wit_parser::*;
+use wit_parser::{Function, Interface, Tuple, Type, TypeDefKind};
 
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -52,7 +54,7 @@ impl WorldGenerator for JavaScript {
 
         gen.print_intro();
 
-        for func in iface.functions.iter() {
+        for func in &iface.functions {
             gen.generate_guest_import(func);
         }
 
@@ -111,10 +113,10 @@ impl<'a> InterfaceGenerator<'a> {
         self.push_str("/**\n");
 
         for line in func.docs.contents.trim().lines() {
-            self.push_str(&format!(" * {}\n", line));
+            self.push_str(&format!(" * {line}\n"));
         }
 
-        for (param, ty) in func.params.iter() {
+        for (param, ty) in &func.params {
             self.push_str(" * @param {");
             self.print_ty(ty);
             self.push_str("} ");
@@ -254,12 +256,11 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn print_list(&mut self, ty: &Type) {
-        match array_ty(self.iface, ty) {
-            Some(ty) => self.push_str(ty),
-            None => {
-                self.print_ty(ty);
-                self.push_str("[]");
-            }
+        if let Some(ty) = array_ty(self.iface, ty) {
+            self.push_str(ty);
+        } else {
+            self.print_ty(ty);
+            self.push_str("[]");
         }
     }
 
@@ -301,7 +302,6 @@ fn to_js_ident(name: &str) -> &str {
 
 fn array_ty(iface: &Interface, ty: &Type) -> Option<&'static str> {
     match ty {
-        Type::Bool => None,
         Type::U8 => Some("Uint8Array"),
         Type::S8 => Some("Int8Array"),
         Type::U16 => Some("Uint16Array"),
@@ -316,7 +316,8 @@ fn array_ty(iface: &Interface, ty: &Type) -> Option<&'static str> {
             TypeDefKind::Type(t) => array_ty(iface, t),
             _ => None,
         },
-        Type::Tuple(_)
+        Type::Bool
+        | Type::Tuple(_)
         | Type::List(_)
         | Type::Option(_)
         | Type::Result(_)

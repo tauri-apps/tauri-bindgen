@@ -1,9 +1,11 @@
-use heck::*;
+#![allow(clippy::must_use_candidate)]
+
+use heck::{ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use std::fmt::Write as _;
 use std::{collections::HashSet, mem};
-use tauri_bindgen_core::{InterfaceGenerator as _, *};
+use tauri_bindgen_core::{InterfaceGenerator as _, Files, Source, TypeInfo, Types, WorldGenerator, postprocess, uwrite, uwriteln};
 use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, TypeMode};
-use wit_parser::*;
+use wit_parser::{Docs, Enum, Flags, Function, Interface, Record, Type, TypeId, Union, Variant};
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -55,7 +57,7 @@ impl WorldGenerator for RustWasm {
 
         gen.types();
 
-        for func in iface.functions.iter() {
+        for func in &iface.functions {
             gen.generate_guest_import(func);
         }
 
@@ -137,7 +139,7 @@ impl<'a> InterfaceGenerator<'a> {
             self.print_generics(lifetime.then_some("'a"));
             self.src.push_str(" {\n");
 
-            for (param, ty) in func.params.iter() {
+            for (param, ty) in &func.params {
                 self.src.push_str(&param.to_snake_case());
                 self.src.push_str(" : ");
                 self.print_ty(ty, TypeMode::AllBorrowed("'a"));
@@ -148,7 +150,7 @@ impl<'a> InterfaceGenerator<'a> {
 
             self.src.push_str("let params = Params {");
 
-            for (param, _) in func.params.iter() {
+            for (param, _) in &func.params { 
                 self.src.push_str(&param.to_snake_case());
                 self.src.push_str(",");
             }
@@ -176,9 +178,8 @@ impl<'a> InterfaceGenerator<'a> {
 
     fn needs_lifetime(&self, ty: &Type) -> bool {
         match ty {
-            Type::String => true,
             Type::Tuple(ty) => ty.types.iter().any(|ty| self.needs_lifetime(ty)),
-            Type::List(_) => true,
+            Type::List(_) | Type::String  => true,
             Type::Option(ty) => self.needs_lifetime(ty),
             Type::Result(res) => {
                 res.ok
@@ -287,6 +288,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     }
 }
 
+#[allow(clippy::unnecessary_wraps)]
 fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<String> {
     let mut attrs = vec![];
 
@@ -295,14 +297,14 @@ fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<S
             attrs.push("::serde::Serialize");
         }
         if name.ends_with("Result") {
-            attrs.push("::serde::Deserialize")
+            attrs.push("::serde::Deserialize");
         }
     } else {
         if info.contains(TypeInfo::PARAM) {
             attrs.push("::serde::Serialize");
         }
         if info.contains(TypeInfo::RESULT) {
-            attrs.push("::serde::Deserialize")
+            attrs.push("::serde::Deserialize");
         }
     }
 

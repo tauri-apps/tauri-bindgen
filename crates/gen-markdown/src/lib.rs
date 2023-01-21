@@ -1,9 +1,11 @@
-use heck::*;
+#![allow(clippy::must_use_candidate)]
+
+use heck::ToSnakeCase;
 use pulldown_cmark::{html, Event, LinkType, Parser, Tag};
 use std::collections::HashMap;
 use std::fmt::Write;
 use tauri_bindgen_core::{uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator};
-use wit_parser::*;
+use wit_parser::{Docs, Enum, Flags, Interface, Record, Type, TypeDefKind, TypeId, Union, Variant};
 
 #[derive(Default)]
 struct Markdown {
@@ -81,7 +83,7 @@ impl InterfaceGenerator<'_> {
             return;
         }
         self.push_str("## Functions\n\n");
-        for func in self.iface.functions.iter() {
+        for func in &self.iface.functions {
             self.push_str("----\n\n");
             self.push_str(&format!(
                 "#### <a href=\"#{0}\" name=\"{0}\"></a> `",
@@ -97,7 +99,7 @@ impl InterfaceGenerator<'_> {
 
             if !func.params.is_empty() {
                 self.push_str("##### Params\n\n");
-                for (name, ty) in func.params.iter() {
+                for (name, ty) in &func.params {
                     self.push_str(&format!(
                         "- <a href=\"#{f}.{p}\" name=\"{f}.{p}\"></a> `{}`: ",
                         name,
@@ -256,7 +258,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str("record\n\n");
         self.print_type_info(id, docs);
         self.push_str("\n### Record Fields\n\n");
-        for field in record.fields.iter() {
+        for field in &record.fields {
             self.push_str(&format!(
                 "- <a href=\"{r}.{f}\" name=\"{r}.{f}\"></a> [`{name}`](#{r}.{f}): ",
                 r = name.to_snake_case(),
@@ -264,7 +266,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
                 name = field.name,
             ));
             self.gen.hrefs.insert(
-                format!("{}::{}", name, field.name),
+                format!("{name}::{}", field.name),
                 format!("#{}.{}", name.to_snake_case(), field.name.to_snake_case()),
             );
             self.print_ty(&field.ty, false);
@@ -310,14 +312,14 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
                 name = flag.name,
             ));
             self.gen.hrefs.insert(
-                format!("{}::{}", name, flag.name),
+                format!("{name}::{}", flag.name),
                 format!("#{}.{}", name.to_snake_case(), flag.name.to_snake_case()),
             );
             self.gen.src.indent(1);
             self.push_str("\n\n");
             self.docs(&flag.docs);
             self.gen.src.deindent(1);
-            self.push_str(&format!("Bit: {}\n", i));
+            self.push_str(&format!("Bit: {i}\n"));
             self.push_str("\n");
         }
     }
@@ -327,7 +329,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str("variant\n\n");
         self.print_type_info(id, docs);
         self.push_str("\n### Variant Cases\n\n");
-        for case in variant.cases.iter() {
+        for case in &variant.cases {
             self.push_str(&format!(
                 "- <a href=\"{v}.{c}\" name=\"{v}.{c}\"></a> [`{name}`](#{v}.{c})",
                 v = name.to_snake_case(),
@@ -335,7 +337,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
                 name = case.name,
             ));
             self.gen.hrefs.insert(
-                format!("{}::{}", name, case.name),
+                format!("{name}::{}", case.name),
                 format!("#{}.{}", name.to_snake_case(), case.name.to_snake_case()),
             );
             if let Some(ty) = &case.ty {
@@ -378,7 +380,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str("enum\n\n");
         self.print_type_info(id, docs);
         self.push_str("\n### Enum Cases\n\n");
-        for case in enum_.cases.iter() {
+        for case in &enum_.cases {
             self.push_str(&format!(
                 "- <a href=\"{v}.{c}\" name=\"{v}.{c}\"></a> [`{name}`](#{v}.{c})",
                 v = name.to_snake_case(),
@@ -386,7 +388,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
                 name = case.name,
             ));
             self.gen.hrefs.insert(
-                format!("{}::{}", name, case.name),
+                format!("{name}::{}", case.name),
                 format!("#{}.{}", name.to_snake_case(), case.name.to_snake_case()),
             );
             self.gen.src.indent(1);

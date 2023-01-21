@@ -6,11 +6,11 @@ pub fn print_list<T: Display>(iter: impl IntoIterator<Item = T>) -> String {
 
     while let Some(el) = iter.next() {
         if iter.peek().is_some() {
-            write!(out, "{}, ", el).unwrap();
+            write!(out, "{el}, ").unwrap();
         } else if out.is_empty() {
-            write!(out, "{}", el).unwrap();
+            write!(out, "{el}").unwrap();
         } else {
-            write!(out, "or {}", el).unwrap();
+            write!(out, "or {el}").unwrap();
         }
     }
 

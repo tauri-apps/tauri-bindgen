@@ -1,12 +1,13 @@
-use heck::ToUpperCamelCase;
-use heck::*;
+#![allow(clippy::must_use_candidate)]
+
+use heck::{ToLowerCamelCase, ToUpperCamelCase};
 use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::mem;
 use tauri_bindgen_core::{
     postprocess, uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator,
 };
-use wit_parser::*;
+use wit_parser::{Docs, Flags, Function, Int, Interface, Tuple, Type, TypeDefKind, TypeId};
 
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -56,7 +57,7 @@ impl WorldGenerator for TypeScript {
         gen.print_intro();
         gen.types();
 
-        for func in iface.functions.iter() {
+        for func in &iface.functions {
             gen.generate_guest_import(func);
         }
 
@@ -126,7 +127,7 @@ impl<'a> InterfaceGenerator<'a> {
         if !docs.contents.is_empty() {
             self.push_str("/**\n");
             for line in docs.contents.trim().lines() {
-                self.push_str(&format!(" * {}\n", line));
+                self.push_str(&format!(" * {line}\n"));
             }
             self.push_str(" */\n");
         }
@@ -307,12 +308,11 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn print_list(&mut self, ty: &Type) {
-        match array_ty(self.iface, ty) {
-            Some(ty) => self.push_str(ty),
-            None => {
-                self.print_ty(ty);
-                self.push_str("[]");
-            }
+        if let Some(ty) = array_ty(self.iface, ty) {
+            self.push_str(ty);
+        } else {
+            self.print_ty(ty);
+            self.push_str("[]");
         }
     }
 
@@ -362,7 +362,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
             name.to_upper_camel_case()
         ));
 
-        for field in record.fields.iter() {
+        for field in &record.fields {
             self.print_typedoc(&field.docs);
             self.push_str(&field.name.to_lower_camel_case());
             if self.is_nullable(&field.ty) {
@@ -382,7 +382,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
 
         match flags.repr() {
             Int::U8 | Int::U16 => {
-                self.push_str(&format!("export enum {} {{\n", name.to_upper_camel_case()))
+                self.push_str(&format!("export enum {} {{\n", name.to_upper_camel_case()));
             }
             Int::U32 | Int::U64 => {
                 self.push_str(&format!(
@@ -393,7 +393,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
                 self.push_str(&format!(
                     "export const {} = {{\n",
                     name.to_upper_camel_case()
-                ))
+                ));
             }
         }
 
@@ -431,15 +431,15 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
             if i > 0 {
                 self.push_str("| ");
             }
-            self.push_str(&format!("{}_{}", name, case.name).to_upper_camel_case());
+            self.push_str(&format!("{name}_{}", case.name).to_upper_camel_case());
         }
         self.push_str(";\n");
 
-        for case in variant.cases.iter() {
+        for case in &variant.cases {
             self.print_typedoc(&case.docs);
             self.push_str(&format!(
                 "export interface {} {{\n",
-                format!("{}_{}", name, case.name).to_upper_camel_case()
+                format!("{name}_{}", case.name).to_upper_camel_case()
             ));
 
             self.push_str("tag: '");
@@ -527,7 +527,6 @@ fn to_js_ident(name: &str) -> &str {
 
 fn array_ty(iface: &Interface, ty: &Type) -> Option<&'static str> {
     match ty {
-        Type::Bool => None,
         Type::U8 => Some("Uint8Array"),
         Type::S8 => Some("Int8Array"),
         Type::U16 => Some("Uint16Array"),
@@ -542,7 +541,8 @@ fn array_ty(iface: &Interface, ty: &Type) -> Option<&'static str> {
             TypeDefKind::Type(t) => array_ty(iface, t),
             _ => None,
         },
-        Type::Tuple(_)
+        Type::Bool
+        | Type::Tuple(_)
         | Type::List(_)
         | Type::Option(_)
         | Type::Result(_)

@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use tauri_bindgen_core::{Files, WorldGenerator};
 
 /// Helper for passing VERSION to opt.
-/// If CARGO_VERSION_INFO is set, use it, otherwise use CARGO_PKG_VERSION.
+/// If `CARGO_VERSION_INFO` is set, use it, otherwise use `CARGO_PKG_VERSION`.
 fn version() -> &'static str {
     option_env!("CARGO_VERSION_INFO").unwrap_or(env!("CARGO_PKG_VERSION"))
 }
@@ -109,15 +109,15 @@ fn main() -> Result<()> {
             Some(path) => path.join(name),
             None => name.into(),
         };
-        println!("Generating {:?}", dst);
+        println!("Generating {dst:?}");
         if let Some(parent) = dst.parent() {
             std::fs::create_dir_all(parent)
                 .into_diagnostic()
-                .wrap_err(format!("failed to create {:?}", parent))?;
+                .wrap_err(format!("failed to create {parent:?}"))?;
         }
         std::fs::write(&dst, contents)
             .into_diagnostic()
-            .wrap_err(format!("failed to write {:?}", dst))?;
+            .wrap_err(format!("failed to write {dst:?}"))?;
     }
 
     Ok(())

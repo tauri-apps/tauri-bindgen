@@ -1,11 +1,13 @@
-use heck::*;
+#![allow(clippy::must_use_candidate)]
+
+use heck::{ToLowerCamelCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use std::{fmt::Write as _, mem};
 use tauri_bindgen_core::{
     postprocess, uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types,
     WorldGenerator,
 };
 use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, TypeMode};
-use wit_parser::*;
+use wit_parser::{Docs, Flags, Interface, Results, Type, TypeId};
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -95,16 +97,17 @@ impl<'a> InterfaceGenerator<'a> {
         }
     }
 
+    #[allow(clippy::too_many_lines)]
     pub(crate) fn generate_invoke_handler(&mut self, name: &str) {
         let camel = name.to_upper_camel_case();
 
         if self.gen.opts.async_ {
-            uwriteln!(self.src, "#[::tauri_bindgen_host::async_trait]")
+            uwriteln!(self.src, "#[::tauri_bindgen_host::async_trait]");
         }
 
         uwriteln!(self.src, "pub trait {camel}: Sized {{");
 
-        for func in self.iface.functions.iter() {
+        for func in &self.iface.functions {
             let fnsig = FnSig {
                 async_: self.gen.opts.async_,
                 private: true,
@@ -150,7 +153,7 @@ impl<'a> InterfaceGenerator<'a> {
 
         uwriteln!(self.src, "match invoke.message.command() {{");
 
-        for func in self.iface.functions.iter() {
+        for func in &self.iface.functions {
             uwrite!(self.src, "\"{}\" => {{", &func.name);
             uwriteln!(
                 self.src,
@@ -162,7 +165,7 @@ impl<'a> InterfaceGenerator<'a> {
             }} = invoke;"
             );
 
-            for (param, _) in func.params.iter() {
+            for (param, _) in &func.params {
                 let func_name = &func.name;
 
                 uwriteln!(
@@ -201,12 +204,12 @@ impl<'a> InterfaceGenerator<'a> {
                 __tauri_resolver__
                 .respond_async(async move {{
                 "
-                )
+                );
             }
 
             uwriteln!(self.src, "let result = ctx.{}(", func.name.to_snake_case());
 
-            for (param, _) in func.params.iter() {
+            for (param, _) in &func.params {
                 self.src.push_str(&param.to_snake_case());
                 self.src.push_str(", ");
             }
@@ -220,11 +223,11 @@ impl<'a> InterfaceGenerator<'a> {
                     result.await.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
                     }});
                 "
-                )
+                );
             } else {
                 uwriteln!(self.src, "
                     __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-                ")
+                ");
             }
 
             uwriteln!(self.src, "}},");
@@ -254,9 +257,9 @@ impl<'a> InterfaceGenerator<'a> {
                     self.push_str("(");
                     for (i, (_, ty)) in rs.iter().enumerate() {
                         if i > 0 {
-                            self.push_str(", ")
+                            self.push_str(", ");
                         }
-                        self.print_ty(ty, mode)
+                        self.print_ty(ty, mode);
                     }
                     self.push_str(")");
                 }
@@ -272,7 +275,7 @@ impl<'a> RustGenerator<'a> for InterfaceGenerator<'a> {
     }
 
     fn push_str(&mut self, s: &str) {
-        self.src.push_str(s)
+        self.src.push_str(s);
     }
 
     fn print_borrowed_str(&mut self, lifetime: &'static str) {
@@ -354,6 +357,7 @@ impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
     }
 }
 
+#[allow(clippy::unnecessary_wraps)]
 fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<String> {
     let mut attrs = vec![];
 

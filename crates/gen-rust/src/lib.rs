@@ -1,8 +1,10 @@
-use heck::*;
+#![allow(clippy::must_use_candidate)]
+
+use heck::{ToSnakeCase, ToUpperCamelCase};
 use std::collections::HashMap;
 use std::fmt::{self, Write};
 use tauri_bindgen_core::TypeInfo;
-use wit_parser::*;
+use wit_parser::{Docs, Enum, Flags, Function, Int, Interface, Record, Result_, Results, Tuple, Type, TypeDefKind, TypeId, Union, Variant};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum TypeMode {
@@ -40,7 +42,7 @@ pub trait RustGenerator<'a> {
             Type::Char => self.push_str("char"),
             Type::Tuple(ty) => {
                 self.push_str("(");
-                for ty in ty.types.iter() {
+                for ty in &ty.types {
                     self.print_ty(ty, mode);
                     self.push_str(",");
                 }
@@ -62,7 +64,7 @@ pub trait RustGenerator<'a> {
             Type::String => match mode {
                 TypeMode::Owned => self.push_str("String"),
                 TypeMode::AllBorrowed(lt) | TypeMode::LeafBorrowed(lt) => {
-                    self.print_borrowed_str(lt)
+                    self.print_borrowed_str(lt);
                 }
             },
         }
@@ -70,7 +72,7 @@ pub trait RustGenerator<'a> {
 
     fn print_optional_ty(&mut self, ty: Option<&Type>, mode: TypeMode) {
         if let Some(ty) = ty {
-            self.print_ty(ty, mode)
+            self.print_ty(ty, mode);
         } else {
             self.push_str("()");
         }
@@ -103,20 +105,19 @@ pub trait RustGenerator<'a> {
             | TypeDefKind::Record(_)
             | TypeDefKind::Flags(_)
             | TypeDefKind::Enum(_)
-            | TypeDefKind::Union(_) => true,
+            | TypeDefKind::Union(_)
+            | TypeDefKind::Type(Type::String) => true,
             TypeDefKind::Type(Type::Id(t)) => {
                 self.typedef_needs_generics(&self.iface().types[*t].kind)
             }
-            TypeDefKind::Type(Type::String) => true,
             TypeDefKind::Type(ty) => self.type_needs_generics(ty),
         }
     }
 
     fn type_needs_generics(&self, ty: &Type) -> bool {
         match ty {
-            Type::String => true,
             Type::Tuple(ty) => ty.types.iter().any(|ty| self.type_needs_generics(ty)),
-            Type::List(_) => true,
+            Type::List(_) | Type::String => true,
             Type::Option(ty) => self.type_needs_generics(ty),
             Type::Result(res) => {
                 res.ok
@@ -146,7 +147,7 @@ pub trait RustGenerator<'a> {
                 self.push_str(">");
             }
             TypeMode::LeafBorrowed(lt) | TypeMode::AllBorrowed(lt) => {
-                self.print_borrowed_slice(false, ty, lt)
+                self.print_borrowed_slice(false, ty, lt);
             } // FIXME: bring this back
               // TypeMode::LeafBorrowed(lt) => {
               //     if self.iface().all_bits_valid(ty) {
@@ -203,23 +204,23 @@ pub trait RustGenerator<'a> {
             let lt = self.lifetime_for(&info, mode);
             self.print_rustdoc(docs);
 
-            if !info.owns_data() {
+            if info.owns_data() {
+                self.push_str("#[derive(Debug, Clone, PartialEq)]\n");
+            } else {
                 self.push_str("#[repr(C)]\n");
                 self.push_str("#[derive(Debug, Copy, Clone, PartialEq)]\n");
-            } else {
-                self.push_str("#[derive(Debug, Clone, PartialEq)]\n");
             }
             if let Some(attrs) = attrs(&name, self.uses_two_names(&info), info) {
                 self.push_str(&attrs);
             }
             self.push_str("#[serde(rename_all = \"camelCase\")]\n");
-            self.push_str(&format!("pub struct {}", name));
+            self.push_str(&format!("pub struct {name}"));
             self.print_generics(lt);
             self.push_str(" {\n");
 
-            for field in record.fields.iter() {
+            for field in &record.fields {
                 if self.needs_borrow(&field.ty, mode) {
-                    self.push_str("#[serde(borrow)]\n")
+                    self.push_str("#[serde(borrow)]\n");
                 }
 
                 self.print_rustdoc(&field.docs);
@@ -241,11 +242,11 @@ pub trait RustGenerator<'a> {
             let lt = self.lifetime_for(&info, mode);
 
             self.print_rustdoc(docs);
-            self.push_str(&format!("pub type {} ", name));
+            self.push_str(&format!("pub type {name} "));
             self.print_generics(lt);
             self.push_str("= (");
 
-            for ty in tuple.types.iter() {
+            for ty in &tuple.types {
                 self.print_ty(ty, mode);
                 self.push_str(",");
             }
@@ -261,7 +262,7 @@ pub trait RustGenerator<'a> {
             let lt = self.lifetime_for(&info, mode);
 
             self.print_rustdoc(docs);
-            self.push_str(&format!("pub type {}", name));
+            self.push_str(&format!("pub type {name}"));
             self.print_generics(lt);
             self.push_str(" = ");
             self.print_list(ty, mode);
@@ -276,7 +277,7 @@ pub trait RustGenerator<'a> {
             let lt = self.lifetime_for(&info, mode);
 
             self.print_rustdoc(docs);
-            self.push_str(&format!("pub type {} ", name));
+            self.push_str(&format!("pub type {name} "));
             self.print_generics(lt);
             self.push_str("= ");
             self.print_ty(ty, mode);
@@ -291,7 +292,7 @@ pub trait RustGenerator<'a> {
             let lt = self.lifetime_for(&info, mode);
 
             self.print_rustdoc(docs);
-            self.push_str(&format!("pub type {} ", name));
+            self.push_str(&format!("pub type {name} "));
             self.print_generics(lt);
             self.push_str("= Option<");
             self.print_ty(payload, mode);
@@ -306,7 +307,7 @@ pub trait RustGenerator<'a> {
             let lt = self.lifetime_for(&info, mode);
 
             self.print_rustdoc(docs);
-            self.push_str(&format!("pub type {} ", name));
+            self.push_str(&format!("pub type {name} "));
             self.print_generics(lt);
             self.push_str("= Result<");
             self.print_optional_ty(result.ok.as_ref(), mode);
@@ -372,10 +373,10 @@ pub trait RustGenerator<'a> {
             let name = name.to_upper_camel_case();
 
             self.print_rustdoc(docs);
-            if !info.owns_data() {
-                self.push_str("#[derive(Debug, Clone, Copy, PartialEq)]\n");
-            } else {
+            if info.owns_data() {
                 self.push_str("#[derive(Debug, Clone, PartialEq)]\n");
+            } else {
+                self.push_str("#[derive(Debug, Clone, Copy, PartialEq)]\n");
             }
             if let Some(attrs) = attrs(&name, self.uses_two_names(&info), info) {
                 self.push_str(&attrs);
@@ -414,12 +415,12 @@ pub trait RustGenerator<'a> {
 
             self.print_rustdoc(docs);
             self.push_str("#[repr(");
-            self.int_repr(enum_.tag());
+            self.int_repr(&enum_.tag());
             self.push_str(")]\n");
-            if !info.owns_data() {
-                self.push_str("#[derive(Debug, Clone, Copy, PartialEq)]\n");
-            } else {
+            if info.owns_data() {
                 self.push_str("#[derive(Debug, Clone, PartialEq)]\n");
+            } else {
+                self.push_str("#[derive(Debug, Clone, Copy, PartialEq)]\n");
             }
             if let Some(attrs) = attrs(&name, self.uses_two_names(&info), info) {
                 self.push_str(&attrs);
@@ -428,7 +429,7 @@ pub trait RustGenerator<'a> {
             self.print_generics(lt);
             self.push_str("{\n");
 
-            for case in enum_.cases.iter() {
+            for case in &enum_.cases {
                 self.print_rustdoc(&case.docs);
                 self.push_str(&case.name.to_upper_camel_case());
                 self.push_str(",\n");
@@ -505,9 +506,9 @@ pub trait RustGenerator<'a> {
                 self.push_str("(");
                 for ty in results.types() {
                     self.print_ty(ty, mode);
-                    self.push_str(", ")
+                    self.push_str(", ");
                 }
-                self.push_str(")")
+                self.push_str(")");
             }
         }
     }
@@ -539,7 +540,7 @@ pub trait RustGenerator<'a> {
             Type::Tuple(_) => out.push_str("Tuple"),
             Type::List(ty) => {
                 self.write_name(ty, out);
-                out.push_str("List")
+                out.push_str("List");
             }
             Type::Option(_) => {
                 out.push_str("Optional");
@@ -617,7 +618,7 @@ pub trait RustGenerator<'a> {
         case_names
     }
 
-    fn int_repr(&mut self, repr: Int) {
+    fn int_repr(&mut self, repr: &Int) {
         self.push_str(int_repr(repr));
     }
 
@@ -639,7 +640,7 @@ pub trait RustGenerator<'a> {
         let info = self.info(ty);
         let name = self.iface().types[ty].name.to_upper_camel_case();
         if self.uses_two_names(&info) {
-            format!("{}Param", name)
+            format!("{name}Param")
         } else {
             name
         }
@@ -649,7 +650,7 @@ pub trait RustGenerator<'a> {
         let info = self.info(ty);
         let name = self.iface().types[ty].name.to_upper_camel_case();
         if self.uses_two_names(&info) {
-            format!("{}Result", name)
+            format!("{name}Result")
         } else {
             name
         }
@@ -683,15 +684,13 @@ pub trait RustGenerator<'a> {
                 self.lifetime_for(&info, mode).is_some()
             }
             Type::Tuple(ty) => ty.types.iter().any(|ty| self.needs_borrow(ty, mode)),
-            Type::List(ty) => self.needs_borrow(ty, mode),
-            Type::Option(ty) => self.needs_borrow(ty, mode),
-            // Type::Result(res) => ,
+            Type::List(ty) | Type::Option(ty)=> self.needs_borrow(ty, mode),
             _ => false,
         }
     }
 }
 
-pub fn int_repr(repr: Int) -> &'static str {
+pub fn int_repr(repr: &Int) -> &'static str {
     match repr {
         Int::U8 => "u8",
         Int::U16 => "u16",
@@ -758,6 +757,7 @@ pub fn to_rust_ident(name: &str) -> String {
     }
 }
 
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Debug, Default)]
 pub struct FnSig {
     pub async_: bool,

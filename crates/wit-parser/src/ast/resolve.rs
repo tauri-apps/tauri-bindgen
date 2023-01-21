@@ -34,7 +34,7 @@ impl<'a> Resolver<'a> {
         let mut funcs = HashMap::new();
         let mut names: HashMap<&'a str, SourceSpan> = HashMap::new();
 
-        for item in iface.items.iter_mut() {
+        for item in &mut iface.items {
             let name = self.read_span(item.name);
 
             if let InterfaceItemKind::Func(_) = item.kind {
@@ -56,7 +56,7 @@ impl<'a> Resolver<'a> {
             }
         }
 
-        for item in iface.items.iter() {
+        for item in &iface.items {
             if let InterfaceItemKind::Func(func) = &item.kind {
                 self.resolve_func(func, item.name, &item.docs)?;
             } else {
@@ -66,7 +66,7 @@ impl<'a> Resolver<'a> {
 
         let mut visiting = HashSet::new();
         let mut valid_types = HashSet::new();
-        for item in iface.items.iter() {
+        for item in &iface.items {
             if let InterfaceItemKind::Func(_) = item.kind {
                 continue;
             }
@@ -86,7 +86,7 @@ impl<'a> Resolver<'a> {
     }
 
     fn resolve_typedef(&mut self, typedef: &ast::InterfaceItem<'a>) -> Result<()> {
-        use ast::InterfaceItemKind::*;
+        use ast::InterfaceItemKind::{Alias, Enum, Flags, Func, Record, Union, Use, Variant};
 
         let kind = match &typedef.kind {
             Record(ast::Record { fields, .. }) => {
@@ -314,21 +314,21 @@ impl<'a> Resolver<'a> {
 
         match &self.types[ty].kind {
             crate::TypeDefKind::Union(union) => {
-                for case in union.cases.iter() {
+                for case in &union.cases {
                     if let crate::Type::Id(id) = case.ty {
                         self.verify_not_recursive(name, id, visiting, valid)?;
                     }
                 }
             }
             crate::TypeDefKind::Record(record) => {
-                for field in record.fields.iter() {
+                for field in &record.fields {
                     if let crate::Type::Id(id) = field.ty {
                         self.verify_not_recursive(name, id, visiting, valid)?;
                     }
                 }
             }
             crate::TypeDefKind::Variant(variant) => {
-                for case in variant.cases.iter() {
+                for case in &variant.cases {
                     if let Some(crate::Type::Id(id)) = case.ty {
                         self.verify_not_recursive(name, id, visiting, valid)?;
                     }
@@ -336,18 +336,13 @@ impl<'a> Resolver<'a> {
             }
             crate::TypeDefKind::Type(ty) => match ty {
                 crate::Type::Tuple(tuple) => {
-                    for ty in tuple.types.iter() {
+                    for ty in &tuple.types {
                         if let crate::Type::Id(id) = ty {
                             self.verify_not_recursive(name, *id, visiting, valid)?;
                         }
                     }
                 }
-                crate::Type::List(ty) => {
-                    if let crate::Type::Id(id) = **ty {
-                        self.verify_not_recursive(name, id, visiting, valid)?;
-                    }
-                }
-                crate::Type::Option(ty) => {
+                crate::Type::List(ty) | crate::Type::Option(ty) => {
                     if let crate::Type::Id(id) = **ty {
                         self.verify_not_recursive(name, id, visiting, valid)?;
                     }

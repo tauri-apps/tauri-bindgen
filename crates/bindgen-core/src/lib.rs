@@ -1,3 +1,5 @@
+#![allow(clippy::must_use_candidate, clippy::module_name_repetitions)]
+
 pub mod hash;
 mod postprocess;
 
@@ -9,7 +11,7 @@ use std::{
     fmt::{self, Write},
     ops::Deref,
 };
-use wit_parser::*;
+use wit_parser::{Docs, Enum, Flags, Interface, Record, Type, TypeDefKind, TypeId, Union, Variant};
 
 #[derive(Debug, thiserror::Error, Diagnostic)]
 pub enum Error {
@@ -59,15 +61,15 @@ bitflags::bitflags! {
     pub struct TypeInfo: u32 {
         /// Whether or not this type is ever used (transitively) within the
         /// parameter of a function.
-        const PARAM = 0b00000001;
+        const PARAM = 0b0000_0001;
         /// Whether or not this type is ever used (transitively) within the
         /// result of a function.
-        const RESULT = 0b00000010;
+        const RESULT = 0b0000_0010;
         /// Whether or not this type is ever used (transitively) within the
         /// error case in the result of a function.
-        const ERROR = 0b00000100;
+        const ERROR = 0b0000_0100;
         /// Whether or not this type (transitively) has a list.
-        const HAS_LIST = 0b00001000;
+        const HAS_LIST = 0b0000_1000;
 
         const PARAM_AND_RESULT = Self::PARAM.bits | Self::RESULT.bits;
     }
@@ -86,11 +88,11 @@ pub struct Types {
 
 impl Types {
     pub fn analyze(&mut self, iface: &Interface) {
-        for (t, _) in iface.types.iter() {
+        for (t, _) in &iface.types {
             self.type_id_info(iface, t);
         }
-        for f in iface.functions.iter() {
-            for (_, ty) in f.params.iter() {
+        for f in &iface.functions {
+            for (_, ty) in &f.params {
                 self.set_param_result_ty(iface, ty, TypeInfo::PARAM);
             }
             for ty in f.results.types() {
@@ -111,25 +113,24 @@ impl Types {
         let mut info = TypeInfo::empty();
         match &iface.types[id].kind {
             TypeDefKind::Record(r) => {
-                for field in r.fields.iter() {
+                for field in &r.fields {
                     info |= self.type_info(iface, &field.ty);
                 }
             }
             TypeDefKind::Variant(v) => {
-                for case in v.cases.iter() {
+                for case in &v.cases {
                     info |= self.optional_type_info(iface, case.ty.as_ref());
                 }
             }
             TypeDefKind::Union(u) => {
-                for case in u.cases.iter() {
+                for case in &u.cases {
                     info |= self.type_info(iface, &case.ty);
                 }
             }
             TypeDefKind::Type(ty) => {
                 info = self.type_info(iface, ty);
             }
-            TypeDefKind::Flags(_) => {}
-            TypeDefKind::Enum(_) => {}
+            TypeDefKind::Flags(_) | TypeDefKind::Enum(_) => {}
         }
         self.type_info.insert(id, info);
         info
@@ -140,7 +141,7 @@ impl Types {
         match ty {
             Type::String => info |= TypeInfo::HAS_LIST,
             Type::Tuple(ty) => {
-                for ty in ty.types.iter() {
+                for ty in &ty.types {
                     info |= self.type_info(iface, ty);
                 }
             }
@@ -171,31 +172,33 @@ impl Types {
     fn set_param_result_id(&mut self, iface: &Interface, ty: TypeId, new_info: TypeInfo) {
         match &iface.types[ty].kind {
             TypeDefKind::Record(r) => {
-                for field in r.fields.iter() {
-                    self.set_param_result_ty(iface, &field.ty, new_info)
+                for field in &r.fields {
+                    self.set_param_result_ty(iface, &field.ty, new_info);
                 }
             }
-            TypeDefKind::Flags(_) => {}
-            TypeDefKind::Enum(_) => {}
+            TypeDefKind::Flags(_) | TypeDefKind::Enum(_) => {}
             TypeDefKind::Variant(v) => {
-                for case in v.cases.iter() {
-                    self.set_optional_param_result_ty(iface, case.ty.as_ref(), new_info)
+                for case in &v.cases {
+                    self.set_optional_param_result_ty(iface, case.ty.as_ref(), new_info);
                 }
             }
             TypeDefKind::Union(u) => {
-                for case in u.cases.iter() {
-                    self.set_param_result_ty(iface, &case.ty, new_info)
+                for case in &u.cases {
+                    self.set_param_result_ty(iface, &case.ty, new_info);
                 }
             }
             TypeDefKind::Type(ty) => self.set_param_result_ty(iface, ty, new_info),
         }
     }
 
+    /// # Panics
+    ///
+    /// Panics when the `ty` points to a non-existent type definition
     pub fn set_param_result_ty(&mut self, iface: &Interface, ty: &Type, new_info: TypeInfo) {
         match ty {
             Type::Tuple(ty) => {
-                for ty in ty.types.iter() {
-                    self.set_param_result_ty(iface, ty, new_info)
+                for ty in &ty.types {
+                    self.set_param_result_ty(iface, ty, new_info);
                 }
             }
             Type::List(ty) | Type::Option(ty) => self.set_param_result_ty(iface, ty, new_info),
@@ -223,7 +226,7 @@ impl Types {
         new_info: TypeInfo,
     ) {
         if let Some(ty) = ty {
-            self.set_param_result_ty(iface, ty, new_info)
+            self.set_param_result_ty(iface, ty, new_info);
         }
     }
 }
@@ -246,7 +249,7 @@ impl Files {
     }
 
     pub fn get_size(&mut self, name: &str) -> Option<usize> {
-        self.files.get(name).map(|data|data.len())
+        self.files.get(name).map(Vec::len)
     }
 
     pub fn remove(&mut self, name: &str) -> Option<Vec<u8>> {

@@ -111,9 +111,9 @@ impl<'a> FromTokens<'a> for InterfaceItem<'a> {
                         found,
                         format!("Did you mean \"{}\"?", print_list(suggestions)),
                     ))
-                } else {
-                    bail!(Error::unexpected_token(loc, expected, found))
                 }
+
+                bail!(Error::unexpected_token(loc, expected, found))
             }
         };
 
@@ -248,7 +248,7 @@ impl<'a> FromTokens<'a> for UseNames {
 
         match token {
             Token::Star => {
-                let _ = tokens.next();
+                drop(tokens.next());
 
                 Ok(UseNames::All)
             }
@@ -417,7 +417,7 @@ mod test {
     use super::*;
     use miette::{NamedSource, Result};
     use pretty_assertions::assert_eq;
-    
+
     #[test]
     fn feature() -> Result<()> {
         let input = "record foo {}";

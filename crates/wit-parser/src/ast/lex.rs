@@ -180,6 +180,7 @@ impl<'a> TokensRaw<'a> {
 impl<'a> Iterator for TokensRaw<'a> {
     type Item = Result<(SourceSpan, Token)>;
 
+    #[allow(clippy::too_many_lines)]
     fn next(&mut self) -> Option<Self::Item> {
         let (mut start, ch) = self.chars.next()?;
 
@@ -391,7 +392,7 @@ impl<'a> Iterator for Tokens<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             match self.tokenizer.next()? {
-                Ok((_, Token::Whitespace)) | Ok((_, Token::Comment)) => continue,
+                Ok((_, Token::Whitespace | Token::Comment)) => continue,
                 res => return Some(res),
             }
         }
@@ -455,7 +456,7 @@ mod test {
         assert_eq!(
             tokens,
             vec![
-                ((0..10).into(), Token::Interface),
+                ((0..9).into(), Token::Interface),
                 ((9..10).into(), Token::Whitespace),
                 ((10..30).into(), Token::Id),
                 ((30..31).into(), Token::Whitespace),
