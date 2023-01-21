@@ -53,7 +53,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
-        components: clippy
+        with:
+          components: clippy
       - run: cargo clippy --tests -- -Dclippy::all -Dclippy::pedantic
 
   miri:
@@ -65,7 +66,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
-        components: clippy
+        with:
+          components: clippy
       - run: cargo miri test
         env:
           MIRIFLAGS: -Zmiri-strict-provenance
