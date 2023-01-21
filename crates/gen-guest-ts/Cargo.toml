@@ -11,4 +11,4 @@ heck =  { version = "0.4", features = ["unicode"] }
 clap = { version = "4.0.32", features = ["derive"], optional = true }
 
 [features]
-clap = ["clap"]
+cli = ["clap"]

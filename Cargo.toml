@@ -12,10 +12,10 @@ resolver = "2"
 [dependencies]
 clap = { version = "4.0.32", features = ["derive"] }
 tauri-bindgen-core = { path = "crates/bindgen-core" }
-tauri-bindgen-gen-host = { path = "crates/gen-host", features = ['clap'] }
-tauri-bindgen-gen-markdown = { path = "crates/gen-markdown", features = ['clap'] }
-tauri-bindgen-gen-guest-rust = { path = "crates/gen-guest-rust", features = ['clap'] }
-tauri-bindgen-gen-guest-ts = { path = "crates/gen-guest-ts", features = ['clap'] }
-tauri-bindgen-gen-guest-js = { path = "crates/gen-guest-js", features = ['clap'] }
+tauri-bindgen-gen-host = { path = "crates/gen-host", features = ['cli'] }
+tauri-bindgen-gen-markdown = { path = "crates/gen-markdown", features = ['cli'] }
+tauri-bindgen-gen-guest-rust = { path = "crates/gen-guest-rust", features = ['cli'] }
+tauri-bindgen-gen-guest-ts = { path = "crates/gen-guest-ts", features = ['cli'] }
+tauri-bindgen-gen-guest-js = { path = "crates/gen-guest-js", features = ['cli'] }
 wit-parser = { path = "crates/wit-parser" }
 miette = { version = "5.5.0", features = ["fancy"] }

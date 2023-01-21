@@ -17,4 +17,4 @@ tauri-bindgen-host = { path = "../host" }
 serde = { version = "1.0.152", features = ["derive"] }
 
 [features]
-clap = ["clap"]
+cli = ["clap"]

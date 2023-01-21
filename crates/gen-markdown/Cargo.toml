@@ -16,4 +16,4 @@ tauri-bindgen-core = { path = "../bindgen-core" }
 wit-parser = { path = "../wit-parser" }
 
 [features]
-clap = ["clap"]
+cli = ["clap"]
