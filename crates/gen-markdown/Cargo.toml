@@ -2,6 +2,7 @@
 name = "tauri-bindgen-gen-markdown"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.59"
 
 [lib]
 doctest = false
@@ -15,4 +16,4 @@ tauri-bindgen-core = { path = "../bindgen-core" }
 wit-parser = { path = "../wit-parser" }
 
 [features]
-clap = ["dep:clap"]
+clap = ["clap"]

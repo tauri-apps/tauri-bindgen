@@ -2,6 +2,7 @@
 name = "tauri-bindgen-gen-guest-ts"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.59"
 
 [dependencies]
 tauri-bindgen-core = { path = "../bindgen-core" }
@@ -10,4 +11,4 @@ heck =  { version = "0.4", features = ["unicode"] }
 clap = { version = "4.0.32", features = ["derive"], optional = true }
 
 [features]
-clap = ["dep:clap"]
+clap = ["clap"]

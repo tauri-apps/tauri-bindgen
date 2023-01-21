@@ -2,6 +2,7 @@
 name = "tauri-bindgen-gen-guest-rust"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.59"
 
 [dependencies]
 tauri-bindgen-gen-rust = { path = "../gen-rust" }
@@ -19,4 +20,4 @@ tauri-bindgen-guest-rust = { path = "../guest-rust" }
 serde = { version = "1.0.152", features = ["derive"] }
 
 [features]
-clap = ["dep:clap"]
+clap = ["clap"]

@@ -2,6 +2,7 @@
 name = "rust-macro-shared"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.59"
 
 [lib]
 doctest = false
