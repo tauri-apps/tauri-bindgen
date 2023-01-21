@@ -9,7 +9,7 @@ test = false
 
 [dependencies]
 heck =  { version = "0.4", features = ["unicode"] }
-pulldown-cmark.workspace = { version = "0.9", default-features = false }
+pulldown-cmark = { version = "0.9", default-features = false }
 clap = { version = "4.0.32", features = ["derive"], optional = true }
 tauri-bindgen-core = { path = "../bindgen-core" }
 wit-parser = { path = "../wit-parser" }
