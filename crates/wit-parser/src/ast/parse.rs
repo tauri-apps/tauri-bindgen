@@ -416,7 +416,8 @@ impl<'a> FromTokens<'a> for Docs<'a> {
 mod test {
     use super::*;
     use miette::{NamedSource, Result};
-
+    use pretty_assertions::assert_eq;
+    
     #[test]
     fn feature() -> Result<()> {
         let input = "record foo {}";

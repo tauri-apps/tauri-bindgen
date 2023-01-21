@@ -426,6 +426,7 @@ fn not_line_ending(chr: char) -> bool {
 #[cfg(test)]
 mod test {
     use super::*;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn comment() {
@@ -454,7 +455,7 @@ mod test {
         assert_eq!(
             tokens,
             vec![
-                ((0..9).into(), Token::Interface),
+                ((0..10).into(), Token::Interface),
                 ((9..10).into(), Token::Whitespace),
                 ((10..30).into(), Token::Id),
                 ((30..31).into(), Token::Whitespace),
