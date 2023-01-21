@@ -3,7 +3,10 @@
 use heck::{ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use std::fmt::Write as _;
 use std::{collections::HashSet, mem};
-use tauri_bindgen_core::{InterfaceGenerator as _, Files, Source, TypeInfo, Types, WorldGenerator, postprocess, uwrite, uwriteln};
+use tauri_bindgen_core::{
+    postprocess, uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types,
+    WorldGenerator,
+};
 use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, TypeMode};
 use wit_parser::{Docs, Enum, Flags, Function, Interface, Record, Type, TypeId, Union, Variant};
 
@@ -11,20 +14,20 @@ use wit_parser::{Docs, Enum, Flags, Function, Interface, Record, Type, TypeId, U
 #[cfg_attr(feature = "clap", derive(clap::Args))]
 pub struct Opts {
     /// Whether or not `rustfmt` is executed to format generated code.
-    #[cfg_attr(feature = "clap", arg(long))]
+    #[cfg_attr(feature = "clap", clap(long))]
     pub rustfmt: bool,
 
     /// Whether or not the bindings assume interface values are always
     /// well-formed or whether checks are performed.
-    #[cfg_attr(feature = "clap", arg(long))]
+    #[cfg_attr(feature = "clap", clap(long))]
     pub unchecked: bool,
 
     /// If true, code generation should avoid any features that depend on `std`.
-    #[cfg_attr(feature = "clap", arg(long))]
+    #[cfg_attr(feature = "clap", clap(long))]
     pub no_std: bool,
 
     /// Names of functions to skip generating bindings for.
-    #[cfg_attr(feature = "clap", arg(long))]
+    #[cfg_attr(feature = "clap", clap(long))]
     pub skip: Vec<String>,
 }
 
@@ -136,7 +139,7 @@ impl<'a> InterfaceGenerator<'a> {
             self.push_str("#[derive(::serde::Serialize)]\n");
             self.push_str("#[serde(rename_all = \"camelCase\")]\n");
             self.src.push_str("struct Params");
-            self.print_generics(lifetime.then_some("'a"));
+            self.print_generics(lifetime.then(|| "'a"));
             self.src.push_str(" {\n");
 
             for (param, ty) in &func.params {
@@ -150,7 +153,7 @@ impl<'a> InterfaceGenerator<'a> {
 
             self.src.push_str("let params = Params {");
 
-            for (param, _) in &func.params { 
+            for (param, _) in &func.params {
                 self.src.push_str(&param.to_snake_case());
                 self.src.push_str(",");
             }
@@ -179,7 +182,7 @@ impl<'a> InterfaceGenerator<'a> {
     fn needs_lifetime(&self, ty: &Type) -> bool {
         match ty {
             Type::Tuple(ty) => ty.types.iter().any(|ty| self.needs_lifetime(ty)),
-            Type::List(_) | Type::String  => true,
+            Type::List(_) | Type::String => true,
             Type::Option(ty) => self.needs_lifetime(ty),
             Type::Result(res) => {
                 res.ok

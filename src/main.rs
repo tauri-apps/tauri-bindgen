@@ -10,11 +10,11 @@ fn version() -> &'static str {
 }
 
 #[derive(Debug, Parser)]
-#[command(version = version())]
+#[clap(version = version())]
 struct Opt {
     #[clap(flatten)]
     common: Common,
-    #[command(subcommand)]
+    #[clap(subcommand)]
     category: Category,
 }
 
@@ -23,7 +23,7 @@ enum Category {
     /// Generator for creating bindings that are exposed to the WebView.
     Host(HostGenerator),
     /// Generators for webview libraries.
-    #[command(subcommand)]
+    #[clap(subcommand)]
     Guest(GuestGenerator),
     /// This generator outputs a Markdown file describing an interface.
     Markdown {
