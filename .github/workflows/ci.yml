@@ -64,7 +64,8 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@miri
+      - uses: dtolnay/rust-toolchain@stable
+        components: clippy
       - run: cargo miri test
         env:
           MIRIFLAGS: -Zmiri-strict-provenance
