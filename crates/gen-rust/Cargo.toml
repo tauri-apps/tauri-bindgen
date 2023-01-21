@@ -1,11 +1,11 @@
 [package]
 name = "tauri-bindgen-gen-rust"
-version.workspace = true
-edition.workspace = true
+version = "0.1.0"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tauri-bindgen-core.workspace = true
-wit-parser.workspace = true
-heck.workspace = true
+tauri-bindgen-core = { path = "../bindgen-core" }
+wit-parser = { path = "../wit-parser" }
+heck =  { version = "0.4", features = ["unicode"] }

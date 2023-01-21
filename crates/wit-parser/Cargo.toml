@@ -8,11 +8,10 @@ edition = "2021"
 fst = "0.4.7"
 
 [dependencies]
-thiserror.workspace = true
+thiserror = "1.0.38"
 id-arena = "2.2.1"
 codespan-reporting = "0.11.1"
-miette.workspace = true
-# fst = { version = "0.4.7", features = ["levenshtein"] }
+miette = { version = "5.5.0", features = ["fancy"] }
 distance = "0.4.0"
 
 [dev-dependencies]

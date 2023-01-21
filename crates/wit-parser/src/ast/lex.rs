@@ -186,7 +186,7 @@ impl<'a> Iterator for TokensRaw<'a> {
 
         let token = match ch {
             ' ' | '\t' | '\n' => {
-                self.take_char_while(is_space);
+                self.take_char_while(char::is_whitespace);
                 Token::Whitespace
             }
             '/' => {
@@ -200,15 +200,12 @@ impl<'a> Iterator for TokensRaw<'a> {
                     '*' if self.chars.peek().map(|e| e.1) == Some('*') => {
                         let mut depth = 1;
                         while depth > 0 {
-                            let (_, ch) = match self.chars.next() {
-                                Some(pair) => pair,
-                                None => {
-                                    return Some(Err(Error::unterminated_comment(
-                                        start,
-                                        self.src.len() - 1,
-                                    )
-                                    .into()))
-                                }
+                            let Some((_ ,ch)) = self.chars.next() else {
+                                return Some(Err(Error::unterminated_comment(
+                                    start,
+                                    self.src.len() - 1,
+                                )
+                                .into()))
                             };
                             match ch {
                                 '/' if self.take_char('*') => depth += 1,
@@ -225,15 +222,12 @@ impl<'a> Iterator for TokensRaw<'a> {
                     '*' => {
                         let mut depth = 1;
                         while depth > 0 {
-                            let (_, ch) = match self.chars.next() {
-                                Some(pair) => pair,
-                                None => {
-                                    return Some(Err(Error::unterminated_comment(
-                                        start,
-                                        self.src.len() - 1,
-                                    )
-                                    .into()))
-                                }
+                            let Some((_, ch)) = self.chars.next() else {
+                                return Some(Err(Error::unterminated_comment(
+                                    start,
+                                    self.src.len() - 1,
+                                )
+                                .into()))
                             };
                             match ch {
                                 '/' if self.take_char('*') => depth += 1,
@@ -274,7 +268,7 @@ impl<'a> Iterator for TokensRaw<'a> {
                 Token::Id
             }
 
-            c if is_alphabetic(c) => {
+            c if c.is_alphabetic() => {
                 let start = self.chars.peek().map(|e| e.0 - 1).unwrap_or_default();
                 let len = self
                     .take_char_while(is_identifier)
@@ -400,23 +394,8 @@ impl<'a> Iterator for Tokens<'a> {
 }
 
 #[inline]
-fn is_alphabetic(chr: char) -> bool {
-    ('A'..='Z').contains(&chr) || ('a'..='z').contains(&chr)
-}
-
-#[inline]
-fn is_digit(chr: char) -> bool {
-    ('0'..='9').contains(&chr)
-}
-
-#[inline]
 fn is_identifier(chr: char) -> bool {
-    is_alphabetic(chr) || is_digit(chr) || chr == '-'
-}
-
-#[inline]
-fn is_space(chr: char) -> bool {
-    chr == ' ' || chr == '\t'
+    chr.is_ascii_alphabetic() || chr.is_ascii_digit() || chr == '-'
 }
 
 #[inline]

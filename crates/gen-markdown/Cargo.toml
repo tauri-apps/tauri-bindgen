@@ -1,18 +1,18 @@
 [package]
 name = "tauri-bindgen-gen-markdown"
-version.workspace = true
-edition.workspace = true
+version = "0.1.0"
+edition = "2021"
 
 [lib]
 doctest = false
 test = false
 
 [dependencies]
-heck.workspace = true
-pulldown-cmark.workspace = true
-clap = { workspace = true, optional = true }
-tauri-bindgen-core.workspace = true
-wit-parser.workspace = true
+heck =  { version = "0.4", features = ["unicode"] }
+pulldown-cmark.workspace = { version = "0.9", default-features = false }
+clap = { version = "4.0.32", features = ["derive"], optional = true }
+tauri-bindgen-core = { path = "../bindgen-core" }
+wit-parser = { path = "../wit-parser" }
 
 [features]
 clap = ["dep:clap"]
