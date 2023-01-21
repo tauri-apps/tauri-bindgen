@@ -23,10 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rust: [beta, stable, 1.56.0]
-        include:
-          - rust: nightly
-            rustflags: --cfg async_trait_nightly_testing
+        rust: [nightly, stable, 1.59.0]
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v3
