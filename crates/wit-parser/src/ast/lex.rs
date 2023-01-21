@@ -430,36 +430,36 @@ mod test {
     #[test]
     fn comment() {
         let input = "// this is a comment";
-        let tokens: Vec<_> = Tokens::from_str(input).filter_map(Result::ok).collect();
+        let tokens: Vec<_> = TokensRaw::new(input).filter_map(Result::ok).collect();
 
-        assert_eq!(tokens, vec![((0, 20).into(), Token::Comment),]);
+        assert_eq!(tokens, vec![((0..20).into(), Token::Comment),]);
 
         let input = "/* this is a comment */";
-        let tokens: Vec<_> = Tokens::from_str(input).filter_map(Result::ok).collect();
+        let tokens: Vec<_> = TokensRaw::new(input).filter_map(Result::ok).collect();
 
         assert_eq!(tokens, vec![((0..23).into(), Token::Comment),]);
 
         let input = "/* this is a comment /* with nested comments */ */";
-        let tokens: Vec<_> = Tokens::from_str(input).filter_map(Result::ok).collect();
+        let tokens: Vec<_> = TokensRaw::new(input).filter_map(Result::ok).collect();
 
-        assert_eq!(tokens, vec![((0, 50).into(), Token::Comment),]);
+        assert_eq!(tokens, vec![((0..50).into(), Token::Comment),]);
     }
 
     #[test]
     fn basic() {
         let input = "interface this-is-an-interface {}";
 
-        let tokens: Vec<_> = Tokens::from_str(input).filter_map(Result::ok).collect();
+        let tokens: Vec<_> = TokensRaw::new(input).filter_map(Result::ok).collect();
 
         assert_eq!(
             tokens,
             vec![
-                ((0, 9).into(), Token::Interface),
-                ((9, 10).into(), Token::Whitespace),
-                ((10, 30).into(), Token::Id),
-                ((30, 31).into(), Token::Whitespace),
-                ((31, 32).into(), Token::LeftBrace),
-                ((32, 33).into(), Token::RightBrace),
+                ((0..9).into(), Token::Interface),
+                ((9..10).into(), Token::Whitespace),
+                ((10..30).into(), Token::Id),
+                ((30..31).into(), Token::Whitespace),
+                ((31..32).into(), Token::LeftBrace),
+                ((32..33).into(), Token::RightBrace),
             ]
         );
     }
@@ -468,17 +468,17 @@ mod test {
     fn basicv() {
         let input = "interface this-is-an-interface {}";
 
-        let tokens: Vec<_> = Tokens::from_str(input).filter_map(Result::ok).collect();
+        let tokens: Vec<_> = TokensRaw::new(input).filter_map(Result::ok).collect();
 
         assert_eq!(
             tokens,
             vec![
-                ((0, 9).into(), Token::Interface),
-                ((9, 10).into(), Token::Whitespace),
-                ((10, 30).into(), Token::Id),
-                ((30, 31).into(), Token::Whitespace),
-                ((31, 32).into(), Token::LeftBrace),
-                ((32, 33).into(), Token::RightBrace),
+                ((0..9).into(), Token::Interface),
+                ((9..10).into(), Token::Whitespace),
+                ((10..30).into(), Token::Id),
+                ((30..31).into(), Token::Whitespace),
+                ((31..32).into(), Token::LeftBrace),
+                ((32..33).into(), Token::RightBrace),
             ]
         );
     }
@@ -487,33 +487,33 @@ mod test {
     fn explicit_id() {
         let input = "%foo: func(a: char, b: u8,) -> %bar";
 
-        let tokens: Vec<_> = Tokens::from_str(input).filter_map(Result::ok).collect();
+        let tokens: Vec<_> = TokensRaw::new(input).filter_map(Result::ok).collect();
 
         assert_eq!(
             tokens,
             vec![
-                ((0, 4).into(), Token::Id),
-                ((4, 5).into(), Token::Colon),
-                ((5, 6).into(), Token::Whitespace),
-                ((6, 10).into(), Token::Func),
-                ((10, 11).into(), Token::LeftParen),
-                ((11, 12).into(), Token::Id),
-                ((12, 13).into(), Token::Colon),
-                ((13, 14).into(), Token::Whitespace),
-                ((14, 18).into(), Token::Char),
-                ((18, 19).into(), Token::Comma),
-                ((19, 20).into(), Token::Whitespace),
-                ((20, 21).into(), Token::Id),
-                ((21, 22).into(), Token::Colon),
-                ((22, 23).into(), Token::Whitespace),
-                ((23, 25).into(), Token::U8),
-                ((25, 26).into(), Token::Comma),
-                ((26, 27).into(), Token::RightParen),
-                ((27, 28).into(), Token::Whitespace),
-                ((28, 30).into(), Token::RArrow),
-                ((30, 31).into(), Token::Whitespace),
-                ((31, 35).into(), Token::Id),
-            ]
+                ((1..4).into(), Token::Id),
+                ((4..5).into(), Token::Colon),
+                ((5..6).into(), Token::Whitespace),
+                ((6..10).into(), Token::Func),
+                ((10..11).into(), Token::LeftParen),
+                ((11..12).into(), Token::Id),
+                ((12..13).into(), Token::Colon),
+                ((13..14).into(), Token::Whitespace),
+                ((14..18).into(), Token::Char),
+                ((18..19).into(), Token::Comma),
+                ((19..20).into(), Token::Whitespace),
+                ((20..21).into(), Token::Id),
+                ((21..22).into(), Token::Colon),
+                ((22..23).into(), Token::Whitespace),
+                ((23..25).into(), Token::U8),
+                ((25..26).into(), Token::Comma),
+                ((26..27).into(), Token::RightParen),
+                ((27..28).into(), Token::Whitespace),
+                ((28..30).into(), Token::RArrow),
+                ((30..31).into(), Token::Whitespace),
+                ((32..35).into(), Token::Id),
+            ],
         );
     }
 }
