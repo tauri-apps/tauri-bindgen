@@ -20,6 +20,24 @@ pub async fn invoke<P: Serialize, R: DeserializeOwned>(cmd: &str, val: P) -> Res
     serde_wasm_bindgen::from_value(raw).map_err(|_| ())
 }
 
+// pub async fn invoke<P: Writable, R: Readable>(cmd: &str, val: P) -> Result<R, ()> {
+//     let mut bytes: Vec<u8> = Vec::new();
+//     val.write_to(&mut bytes)
+//         .expect("failed to serialize parameters");
+
+//     let raw = __TAURI_INVOKE__(
+//         JsValue::from_str(cmd),
+//         JsValue::from_str(&general_purpose::STANDARD_NO_PAD.encode(bytes)),
+//     )
+//     .await
+//     .map_err(|_| ())?;
+
+//     let base64_encoded = raw.as_string().unwrap();
+//     let bytes = general_purpose::STANDARD_NO_PAD.decode(base64_encoded).expect("failed to base64 decode response");
+
+//     Readable::read_from(&mut bytes.as_slice()).map_err(|_| ())
+// }
+
 // Re-export `bitflags` so that we can reference it from macros.
 #[doc(hidden)]
 pub use bitflags;

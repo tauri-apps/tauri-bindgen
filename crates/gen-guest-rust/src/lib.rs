@@ -7,7 +7,7 @@ use tauri_bindgen_core::{
     postprocess, uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types,
     WorldGenerator,
 };
-use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, TypeMode};
+use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, BorrowMode};
 use wit_parser::{Docs, Enum, Flags, Function, Interface, Record, Type, TypeId, Union, Variant};
 
 #[derive(Default, Debug, Clone)]
@@ -56,7 +56,7 @@ impl WorldGenerator for RustWasm {
         _files: &mut Files,
         world_hash: &str,
     ) {
-        let mut gen = InterfaceGenerator::new(self, iface, TypeMode::AllBorrowed("'a"), world_hash);
+        let mut gen = InterfaceGenerator::new(self, iface, BorrowMode::AllBorrowed("'a"), world_hash);
 
         gen.types();
 
@@ -94,7 +94,7 @@ struct InterfaceGenerator<'a> {
     types: Types,
     gen: &'a mut RustWasm,
     iface: &'a Interface,
-    default_param_mode: TypeMode,
+    default_param_mode: BorrowMode,
     world_hash: &'a str,
 }
 
@@ -102,7 +102,7 @@ impl<'a> InterfaceGenerator<'a> {
     pub fn new(
         gen: &'a mut RustWasm,
         iface: &'a Interface,
-        default_param_mode: TypeMode,
+        default_param_mode: BorrowMode,
         world_hash: &'a str,
     ) -> Self {
         let mut types = Types::default();
@@ -128,7 +128,7 @@ impl<'a> InterfaceGenerator<'a> {
             ..Default::default()
         };
 
-        let param_mode = TypeMode::AllBorrowed("'_");
+        let param_mode = BorrowMode::AllBorrowed("'_");
 
         self.print_signature(func, param_mode, &sig);
         self.src.push_str(" {\n");
@@ -145,7 +145,7 @@ impl<'a> InterfaceGenerator<'a> {
             for (param, ty) in &func.params {
                 self.src.push_str(&param.to_snake_case());
                 self.src.push_str(" : ");
-                self.print_ty(ty, TypeMode::AllBorrowed("'a"));
+                self.print_ty(ty, BorrowMode::AllBorrowed("'a"));
                 self.push_str(",\n");
             }
 
@@ -197,7 +197,7 @@ impl<'a> InterfaceGenerator<'a> {
             }
             Type::Id(id) => {
                 let info = self.info(*id);
-                self.lifetime_for(&info, TypeMode::AllBorrowed("'a"))
+                self.lifetime_for(&info, BorrowMode::AllBorrowed("'a"))
                     .is_some()
             }
             _ => false,
@@ -218,7 +218,7 @@ impl<'a> RustGenerator<'a> for InterfaceGenerator<'a> {
         self.types.get(ty)
     }
 
-    fn default_param_mode(&self) -> TypeMode {
+    fn default_param_mode(&self) -> BorrowMode {
         self.default_param_mode
     }
 
@@ -313,3 +313,4 @@ fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<S
 
     Some(format!("#[derive({})]\n", attrs.join(", ")))
 }
+

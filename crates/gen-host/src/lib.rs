@@ -6,7 +6,7 @@ use tauri_bindgen_core::{
     postprocess, uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types,
     WorldGenerator,
 };
-use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, TypeMode};
+use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, BorrowMode};
 use wit_parser::{Docs, Flags, Interface, Results, Type, TypeId};
 
 #[derive(Default, Debug, Clone)]
@@ -43,7 +43,7 @@ struct Host {
 
 impl WorldGenerator for Host {
     fn import(&mut self, name: &str, iface: &Interface, _files: &mut Files, world_hash: &str) {
-        let mut gen = InterfaceGenerator::new(self, iface, TypeMode::Owned);
+        let mut gen = InterfaceGenerator::new(self, iface, BorrowMode::Owned);
         gen.types();
         gen.generate_invoke_handler(name);
 
@@ -79,7 +79,7 @@ struct InterfaceGenerator<'a> {
     src: Source,
     gen: &'a mut Host,
     iface: &'a Interface,
-    default_param_mode: TypeMode,
+    default_param_mode: BorrowMode,
     types: Types,
 }
 
@@ -87,7 +87,7 @@ impl<'a> InterfaceGenerator<'a> {
     fn new(
         gen: &'a mut Host,
         iface: &'a Interface,
-        default_param_mode: TypeMode,
+        default_param_mode: BorrowMode,
     ) -> InterfaceGenerator<'a> {
         let mut types = Types::default();
         types.analyze(iface);
@@ -118,11 +118,11 @@ impl<'a> InterfaceGenerator<'a> {
                 ..Default::default()
             };
 
-            self.print_docs_and_params(func, TypeMode::Owned, &fnsig);
+            self.print_docs_and_params(func, BorrowMode::Owned, &fnsig);
             self.push_str(" -> ");
 
             self.push_str("::tauri_bindgen_host::anyhow::Result<");
-            self.print_result_ty(&func.results, TypeMode::Owned);
+            self.print_result_ty(&func.results, BorrowMode::Owned);
             self.push_str(">;\n");
         }
 
@@ -251,7 +251,7 @@ impl<'a> InterfaceGenerator<'a> {
         uwriteln!(self.src, "}}");
     }
 
-    fn print_result_ty(&mut self, results: &Results, mode: TypeMode) {
+    fn print_result_ty(&mut self, results: &Results, mode: BorrowMode) {
         match results {
             Results::Named(rs) => match rs.len() {
                 0 => self.push_str("()"),
@@ -290,7 +290,7 @@ impl<'a> RustGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str(" str");
     }
 
-    fn default_param_mode(&self) -> TypeMode {
+    fn default_param_mode(&self) -> BorrowMode {
         self.default_param_mode
     }
 
