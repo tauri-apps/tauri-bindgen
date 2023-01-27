@@ -16,10 +16,7 @@ use std::path::Path;
 /// The Report contains information on the exact location of the errors
 pub fn parse_str(input: impl AsRef<str>) -> miette::Result<Interface> {
     let iface = parse(input.as_ref()).map_err(|error: ErrReport| {
-        error.with_source_code(NamedSource::new(
-            "virtual file",
-            input.as_ref().to_string(),
-        ))
+        error.with_source_code(NamedSource::new("virtual file", input.as_ref().to_string()))
     })?;
 
     Ok(iface)
