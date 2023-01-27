@@ -3,9 +3,12 @@ mod readable;
 mod writable;
 
 use quote::quote;
+use readable::{readable_enum, readable_flags, readable_struct};
 use syn::{parse_macro_input, DeriveInput};
-use readable::{readable_struct, readable_enum, readable_flags};
-use writable::{writable_struct, writable_enum, writable_flags, size_hint_flags, size_hint_struct, size_hint_enum};
+use writable::{
+    size_hint_enum, size_hint_flags, size_hint_struct, writable_enum, writable_flags,
+    writable_struct,
+};
 
 #[proc_macro_derive(Readable, attributes(abi))]
 pub fn derive_readable(input: proc_macro::TokenStream) -> proc_macro::TokenStream {

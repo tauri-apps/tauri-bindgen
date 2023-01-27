@@ -242,8 +242,11 @@ fn simple_lists() {
     };
     let gen = opts.build();
 
-    let (filename, contents) =
-        gen_world(gen, "simple-lists", include_str!("../../../tests/codegen/simple-lists.wit"));
+    let (filename, contents) = gen_world(
+        gen,
+        "simple-lists",
+        include_str!("../../../tests/codegen/simple-lists.wit"),
+    );
 
     assert_eq!(filename, "simple-lists.rs");
     assert_eq!(contents, include_str!("./simple-lists.rs"));
@@ -277,7 +280,11 @@ fn strings() {
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "strings", include_str!("../../../tests/codegen/strings.wit"));
+    let (filename, contents) = gen_world(
+        gen,
+        "strings",
+        include_str!("../../../tests/codegen/strings.wit"),
+    );
 
     assert_eq!(filename, "strings.rs");
     assert_eq!(contents, include_str!("./strings.rs"));
@@ -292,7 +299,11 @@ fn unions() {
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "unions", include_str!("../../../tests/codegen/unions.wit"));
+    let (filename, contents) = gen_world(
+        gen,
+        "unions",
+        include_str!("../../../tests/codegen/unions.wit"),
+    );
 
     assert_eq!(filename, "unions.rs");
     assert_eq!(contents, include_str!("./unions.rs"));
@@ -307,7 +318,11 @@ fn variants() {
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "variants", include_str!("../../../tests/codegen/variants.wit"));
+    let (filename, contents) = gen_world(
+        gen,
+        "variants",
+        include_str!("../../../tests/codegen/variants.wit"),
+    );
 
     assert_eq!(filename, "variants.rs");
     assert_eq!(contents, include_str!("./variants.rs"));

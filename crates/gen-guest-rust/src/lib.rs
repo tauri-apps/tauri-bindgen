@@ -7,7 +7,7 @@ use tauri_bindgen_core::{
     postprocess, uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types,
     WorldGenerator,
 };
-use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, BorrowMode};
+use tauri_bindgen_gen_rust::{BorrowMode, FnSig, RustFlagsRepr, RustGenerator};
 use wit_parser::{Docs, Enum, Flags, Function, Interface, Record, Type, TypeId, Union, Variant};
 
 #[derive(Default, Debug, Clone)]
@@ -56,7 +56,8 @@ impl WorldGenerator for RustWasm {
         _files: &mut Files,
         world_hash: &str,
     ) {
-        let mut gen = InterfaceGenerator::new(self, iface, BorrowMode::AllBorrowed("'a"), world_hash);
+        let mut gen =
+            InterfaceGenerator::new(self, iface, BorrowMode::AllBorrowed("'a"), world_hash);
 
         gen.types();
 
@@ -313,4 +314,3 @@ fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<S
 
     Some(format!("#[derive({})]\n", attrs.join(", ")))
 }
-

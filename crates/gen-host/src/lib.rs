@@ -6,7 +6,7 @@ use tauri_bindgen_core::{
     postprocess, uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types,
     WorldGenerator,
 };
-use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, BorrowMode};
+use tauri_bindgen_gen_rust::{BorrowMode, FnSig, RustFlagsRepr, RustGenerator};
 use wit_parser::{Docs, Flags, Interface, Results, Type, TypeId};
 
 #[derive(Default, Debug, Clone)]

@@ -24,12 +24,8 @@ fn derive_enum_unnamed() {
 fn derive_enum_named() {
     #[derive(Debug, Writable)]
     enum U1 {
-        A {
-            foo: String
-        },
-        B {
-            bar: u128
-        },
+        A { foo: String },
+        B { bar: u128 },
     }
 }
 
@@ -38,7 +34,7 @@ fn derive_struct() {
     #[derive(Debug, Writable)]
     struct U1 {
         foo: String,
-        bar: u128
+        bar: u128,
     }
 }
 

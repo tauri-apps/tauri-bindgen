@@ -240,7 +240,7 @@ pub trait RustGenerator<'a> {
     fn print_typedef_tuple(&mut self, id: TypeId, tuple: &Tuple, docs: &Docs) {
         let info = self.info(id);
 
-        for TypeVariant { name, borrow_mode }  in self.variants_of(id) {
+        for TypeVariant { name, borrow_mode } in self.variants_of(id) {
             let lt = self.lifetime_for(&info, borrow_mode);
 
             self.print_rustdoc(docs);
@@ -260,7 +260,7 @@ pub trait RustGenerator<'a> {
     fn print_typedef_list(&mut self, id: TypeId, ty: &Type, docs: &Docs) {
         let info = self.info(id);
 
-        for TypeVariant { name, borrow_mode }  in self.variants_of(id) {
+        for TypeVariant { name, borrow_mode } in self.variants_of(id) {
             let lt = self.lifetime_for(&info, borrow_mode);
 
             self.print_rustdoc(docs);
@@ -275,7 +275,7 @@ pub trait RustGenerator<'a> {
     fn print_typedef_alias(&mut self, id: TypeId, ty: &Type, docs: &Docs) {
         let info = self.info(id);
 
-        for TypeVariant { name, borrow_mode }  in self.variants_of(id) {
+        for TypeVariant { name, borrow_mode } in self.variants_of(id) {
             let lt = self.lifetime_for(&info, borrow_mode);
 
             self.print_rustdoc(docs);
@@ -290,7 +290,7 @@ pub trait RustGenerator<'a> {
     fn print_typedef_option(&mut self, id: TypeId, payload: &Type, docs: &Docs) {
         let info = self.info(id);
 
-        for TypeVariant { name, borrow_mode }  in self.variants_of(id) {
+        for TypeVariant { name, borrow_mode } in self.variants_of(id) {
             let lt = self.lifetime_for(&info, borrow_mode);
 
             self.print_rustdoc(docs);
@@ -382,7 +382,8 @@ pub trait RustGenerator<'a> {
             }
             if let Some(attrs) = attrs(&name, self.uses_two_names(&info), info) {
                 self.push_str(&attrs);
-            }            self.push_str(&format!("pub enum {name}"));
+            }
+            self.push_str(&format!("pub enum {name}"));
             self.print_generics(lt);
             self.push_str("{\n");
 
@@ -700,7 +701,7 @@ pub trait RustGenerator<'a> {
 
 pub struct TypeVariant {
     name: String,
-    borrow_mode: BorrowMode
+    borrow_mode: BorrowMode,
 }
 
 pub fn int_repr(repr: &Int) -> &'static str {

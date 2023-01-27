@@ -112,42 +112,40 @@ pub fn size_hint_enum(data: &DataEnum) -> TokenStream {
     let variants = data
         .variants
         .iter()
-        .map(|syn::Variant { ident, fields, .. }| {
-            match fields {
-                syn::Fields::Named(syn::FieldsNamed { named, .. }) => {
-                    let args = named.iter().map(|field| &field.ident);
+        .map(|syn::Variant { ident, fields, .. }| match fields {
+            syn::Fields::Named(syn::FieldsNamed { named, .. }) => {
+                let args = named.iter().map(|field| &field.ident);
 
-                    let fields = named.iter().map(|syn::Field { ident, .. }| {
-                        quote! {#ident.size_hint()}
-                    });
+                let fields = named.iter().map(|syn::Field { ident, .. }| {
+                    quote! {#ident.size_hint()}
+                });
 
-                    quote! {
-                        Self::#ident{ #(#args),* } => {
-                            #(#fields)+*
-                        }
+                quote! {
+                    Self::#ident{ #(#args),* } => {
+                        #(#fields)+*
                     }
                 }
-                syn::Fields::Unnamed(syn::FieldsUnnamed { unnamed, .. }) => {
-                    let args = unnamed
-                        .iter()
-                        .enumerate()
-                        .map(|(i, _)| format_ident!("_{}", i));
+            }
+            syn::Fields::Unnamed(syn::FieldsUnnamed { unnamed, .. }) => {
+                let args = unnamed
+                    .iter()
+                    .enumerate()
+                    .map(|(i, _)| format_ident!("_{}", i));
 
-                    let fields = unnamed.iter().enumerate().map(|(i, _)| {
-                        let ident = format_ident!("_{}", i);
-                        quote! {#ident.size_hint()}
-                    });
+                let fields = unnamed.iter().enumerate().map(|(i, _)| {
+                    let ident = format_ident!("_{}", i);
+                    quote! {#ident.size_hint()}
+                });
 
-                    quote! {
-                        Self::#ident(#(#args),*) => {
-                            #(#fields)+*
-                        }
+                quote! {
+                    Self::#ident(#(#args),*) => {
+                        #(#fields)+*
                     }
                 }
-                syn::Fields::Unit => {
-                    quote! {
-                        Self::#ident => 0
-                    }
+            }
+            syn::Fields::Unit => {
+                quote! {
+                    Self::#ident => 0
                 }
             }
         });

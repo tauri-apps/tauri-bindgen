@@ -10,8 +10,8 @@ extern "C" {
 }
 
 /// # Errors
-/// 
-/// Invoking commands can always fail when the Host implementation decides to fail the operation, 
+///
+/// Invoking commands can always fail when the Host implementation decides to fail the operation,
 /// when the Host implementation panics, or when somehting fails during serialization/deserialization or transmision of the message.
 pub async fn invoke<P: Serialize, R: DeserializeOwned>(cmd: &str, val: P) -> Result<R, ()> {
     let raw = __TAURI_INVOKE__(

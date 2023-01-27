@@ -11,16 +11,13 @@ use wit_parser::Interface;
 // use wit_parser::World;
 
 /// # Panics
-/// 
+///
 /// TODO
-pub fn generate<F, O, G>(
-    input: TokenStream,
-    mkgen: G,
-) -> TokenStream
+pub fn generate<F, O, G>(input: TokenStream, mkgen: G) -> TokenStream
 where
     F: Parse + Configure<O>,
     O: Default,
-    G: FnOnce(O) -> Box<dyn WorldGenerator>
+    G: FnOnce(O) -> Box<dyn WorldGenerator>,
 {
     let input = syn::parse_macro_input!(input as Opts<F, O>);
     let mut gen = mkgen(input.opts);
