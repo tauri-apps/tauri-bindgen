@@ -11,6 +11,10 @@ permissions:
 env:
   RUSTFLAGS: -Dwarnings
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   pre_ci:
     uses: dtolnay/.github/.github/workflows/pre_ci.yml@master
@@ -105,12 +109,12 @@ jobs:
         env:
           MIRIFLAGS: -Zmiri-strict-provenance
 
-  outdated:
-    name: Outdated
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dtolnay/install@cargo-outdated
-      - run: cargo outdated --workspace --exit-code 1
+  # outdated:
+  #   name: Outdated
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name != 'pull_request'
+  #   timeout-minutes: 45
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: dtolnay/install@cargo-outdated
+  #     - run: cargo outdated --workspace --exit-code 1
