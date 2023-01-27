@@ -51,7 +51,7 @@ impl rust_macro_shared::Configure<Opts> for Opt {
         match self {
             Opt::Unchecked(val) => opts.unchecked = val,
             Opt::NoStd(val) => opts.no_std = val,
-            Opt::Skip(val) => opts.skip.extend(val.iter().map(|i| i.value())),
+            Opt::Skip(val) => opts.skip.extend(val.iter().map(syn::LitStr::value)),
         }
     }
 }

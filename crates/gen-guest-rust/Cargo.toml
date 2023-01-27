@@ -19,5 +19,8 @@ js-sys = "0.3.60"
 tauri-bindgen-guest-rust = { path = "../guest-rust" }
 serde = { version = "1.0.152", features = ["derive"] }
 
+[target."cfg(miri)".dev-dependencies]
+tauri-bindgen-core = { path = "../bindgen-core", features = ["miri_test"] }
+
 [features]
 cli = ["clap"]

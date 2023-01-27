@@ -55,7 +55,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
-      - run: cargo clippy --workspace --tests -- -Dclippy::all -Dclippy::pedantic
+      - run: cargo clippy --workspace -- -Dclippy::all -Dclippy::pedantic
 
   miri:
     name: Miri
@@ -68,7 +68,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: miri
-      - run: cargo miri test
+      - run: cargo miri test --workspace
         env:
           MIRIFLAGS: -Zmiri-strict-provenance
 

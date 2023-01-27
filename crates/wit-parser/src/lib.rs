@@ -14,6 +14,21 @@ use std::path::Path;
 ///
 /// Returns a `miette::Report` if the file could not be parsed.
 /// The Report contains information on the exact location of the errors
+pub fn parse_str(input: impl AsRef<str>) -> miette::Result<Interface> {
+    let iface = parse(input.as_ref()).map_err(|error: ErrReport| {
+        error.with_source_code(NamedSource::new(
+            "virtual file".to_string(),
+            input.as_ref().to_string(),
+        ))
+    })?;
+
+    Ok(iface)
+}
+
+/// # Errors
+///
+/// Returns a `miette::Report` if the file could not be parsed.
+/// The Report contains information on the exact location of the errors
 pub fn parse_file(path: impl AsRef<Path>) -> miette::Result<Interface> {
     let path = path.as_ref();
     let input = std::fs::read_to_string(path).into_diagnostic()?;

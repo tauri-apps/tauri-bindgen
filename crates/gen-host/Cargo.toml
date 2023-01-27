@@ -12,9 +12,11 @@ heck =  { version = "0.4", features = ["unicode"] }
 clap = { version = "3.2.23", features = ["derive"], optional = true }
 
 [dev-dependencies]
-# anyhow.workspace = true
 tauri-bindgen-host = { path = "../host" }
 serde = { version = "1.0.152", features = ["derive"] }
+
+[target."cfg(miri)".dev-dependencies]
+tauri-bindgen-core = { path = "../bindgen-core", features = ["miri_test"] }
 
 [features]
 cli = ["clap"]

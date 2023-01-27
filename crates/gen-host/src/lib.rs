@@ -53,7 +53,7 @@ impl WorldGenerator for Host {
         uwriteln!(
             self.src,
             r#"
-                #[allow(clippy::all)]
+                #![allow(clippy::all, unused)]
                 pub mod {snake} {{
                     pub const WORLD_HASH: &str = "{world_hash}";
                     {module}
@@ -243,7 +243,7 @@ impl<'a> InterfaceGenerator<'a> {
                 r#"::tauri_bindgen_host::tracing::error!(module = "{name}", function = func_name, "Not Found");"#
             );
         }
-        uwriteln!(self.src, "invoke.resolver.reject(\"Not Found\")");
+        uwriteln!(self.src, "invoke.resolver.reject(\"Not Found\");");
         uwriteln!(self.src, "}}");
         uwriteln!(self.src, "}}");
         uwriteln!(self.src, "}}");

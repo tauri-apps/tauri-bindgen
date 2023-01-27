@@ -5,7 +5,7 @@ mod writable;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput};
 use readable::{readable_struct, readable_enum, readable_flags};
-use writable::{writable_struct, writable_enum, writable_flags};
+use writable::{writable_struct, writable_enum, writable_flags, size_hint_flags, size_hint_struct, size_hint_enum};
 
 #[proc_macro_derive(Readable, attributes(abi))]
 pub fn derive_readable(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
@@ -49,17 +49,28 @@ pub fn derive_writable(input: proc_macro::TokenStream) -> proc_macro::TokenStrea
         .map(|a| a.tokens.to_string() == "(flags)")
         .unwrap_or_default();
 
-    let inner = match data {
+    let write_to_inner = match &data {
         syn::Data::Struct(_) if uses_flags_abi => writable_flags(),
-        syn::Data::Struct(data) => writable_struct(&data),
-        syn::Data::Enum(data) => writable_enum(&data),
+        syn::Data::Struct(data) => writable_struct(data),
+        syn::Data::Enum(data) => writable_enum(data),
+        syn::Data::Union(_) => unimplemented!(),
+    };
+
+    let size_hint_inner = match &data {
+        syn::Data::Struct(_) if uses_flags_abi => size_hint_flags(),
+        syn::Data::Struct(data) => size_hint_struct(data),
+        syn::Data::Enum(data) => size_hint_enum(data),
         syn::Data::Union(_) => unimplemented!(),
     };
 
     let output = quote! {
         impl ::tauri_bindgen_abi::Writable for #ident {
             fn write_to(&self, write: &mut impl ::std::io::Write) -> Result<(), ::tauri_bindgen_abi::Error> {
-                #inner
+                #write_to_inner
+            }
+
+            fn size_hint(&self) -> usize {
+                #size_hint_inner
             }
         }
     };

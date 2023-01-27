@@ -48,6 +48,5 @@
 
 # ABI
 
-- Add size hint to `Writable`
 - improve error type
 - dont panic in `Vec`s `Writable` impl

@@ -10,5 +10,8 @@ wit-parser = { path = "../wit-parser" }
 heck =  { version = "0.4", features = ["unicode"] }
 clap = { version = "3.2.23", features = ["derive"], optional = true }
 
+[target."cfg(miri)".dev-dependencies]
+tauri-bindgen-core = { path = "../bindgen-core", features = ["miri_test"] }
+
 [features]
 cli = ["clap"]

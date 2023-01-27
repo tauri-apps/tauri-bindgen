@@ -1,15 +1,13 @@
-use std::path::Path;
-
 use tauri_bindgen_core::{Files, WorldGenerator};
-use tauri_bindgen_gen_guest_ts::*;
+use tauri_bindgen_gen_guest_ts::Opts;
 
 fn gen_world(
     mut gen: Box<dyn WorldGenerator>,
     name: impl AsRef<str>,
-    path: impl AsRef<Path>,
+    input: impl AsRef<str>,
 ) -> (String, String) {
-    let world = wit_parser::parse_file(&path).unwrap();
-    let world_hash = tauri_bindgen_core::hash::hash_file(path).unwrap();
+    let world = wit_parser::parse_str(&input).unwrap();
+    let world_hash = tauri_bindgen_core::hash::hash_str(&input).unwrap();
 
     let mut files = Files::default();
 
@@ -27,12 +25,12 @@ fn gen_world(
 fn chars() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "chars", "../../tests/codegen/chars.wit");
+    let (filename, contents) = gen_world(gen, "chars", include_str!("../../../tests/codegen/chars.wit"));
 
     assert_eq!(filename, "chars.ts");
     assert_eq!(contents, include_str!("./chars.ts"));
@@ -42,12 +40,12 @@ fn chars() {
 fn convention() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "conventions", "../../tests/codegen/conventions.wit");
+    let (filename, contents) = gen_world(gen, "conventions", include_str!("../../../tests/codegen/conventions.wit"));
 
     assert_eq!(filename, "conventions.ts");
     assert_eq!(contents, include_str!("./conventions.ts"));
@@ -57,12 +55,12 @@ fn convention() {
 fn empty() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "empty", "../../tests/codegen/empty.wit");
+    let (filename, contents) = gen_world(gen, "empty", include_str!("../../../tests/codegen/empty.wit"));
 
     assert_eq!(filename, "empty.ts");
     assert_eq!(contents, include_str!("./empty.ts"));
@@ -72,12 +70,12 @@ fn empty() {
 fn flags() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "flags", "../../tests/codegen/flags.wit");
+    let (filename, contents) = gen_world(gen, "flags", include_str!("../../../tests/codegen/flags.wit"));
 
     assert_eq!(filename, "flags.ts");
     assert_eq!(contents, include_str!("./flegs.ts"));
@@ -87,12 +85,12 @@ fn flags() {
 fn floats() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "floats", "../../tests/codegen/floats.wit");
+    let (filename, contents) = gen_world(gen, "floats", include_str!("../../../tests/codegen/floats.wit"));
 
     assert_eq!(filename, "floats.ts");
     assert_eq!(contents, include_str!("./floats.ts"));
@@ -102,12 +100,12 @@ fn floats() {
 fn integers() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "integers", "../../tests/codegen/integers.wit");
+    let (filename, contents) = gen_world(gen, "integers", include_str!("../../../tests/codegen/integers.wit"));
 
     assert_eq!(filename, "integers.ts");
     assert_eq!(contents, include_str!("./integers.ts"));
@@ -117,7 +115,7 @@ fn integers() {
 fn many_arguments() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
@@ -125,7 +123,7 @@ fn many_arguments() {
     let (filename, contents) = gen_world(
         gen,
         "many-arguments",
-        "../../tests/codegen/many-arguments.wit",
+        include_str!("../../../tests/codegen/many-arguments.wit"),
     );
 
     assert_eq!(filename, "many-arguments.ts");
@@ -136,13 +134,13 @@ fn many_arguments() {
 fn multi_return() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
 
     let (filename, contents) =
-        gen_world(gen, "multi-return", "../../tests/codegen/multi-return.wit");
+        gen_world(gen, "multi-return", include_str!("../../../tests/codegen/multi-return.wit"));
 
     assert_eq!(filename, "multi-return.ts");
     assert_eq!(contents, include_str!("./multi-return.ts"));
@@ -152,12 +150,12 @@ fn multi_return() {
 fn records() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "records", "../../tests/codegen/records.wit");
+    let (filename, contents) = gen_world(gen, "records", include_str!("../../../tests/codegen/records.wit"));
 
     assert_eq!(filename, "records.ts");
     assert_eq!(contents, include_str!("./records.ts"));
@@ -167,7 +165,7 @@ fn records() {
 fn simple_functions() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
@@ -175,7 +173,7 @@ fn simple_functions() {
     let (filename, contents) = gen_world(
         gen,
         "simple-functions",
-        "../../tests/codegen/simple-functions.wit",
+        include_str!("../../../tests/codegen/simple-functions.wit"),
     );
 
     assert_eq!(filename, "simple-functions.ts");
@@ -186,13 +184,13 @@ fn simple_functions() {
 fn simple_lists() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
 
     let (filename, contents) =
-        gen_world(gen, "simple-lists", "../../tests/codegen/simple-lists.wit");
+        gen_world(gen, "simple-lists", include_str!("../../../tests/codegen/simple-lists.wit"));
 
     assert_eq!(filename, "simple-lists.ts");
     assert_eq!(contents, include_str!("./simple-lists.ts"));
@@ -202,7 +200,7 @@ fn simple_lists() {
 fn small_anonymous() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
@@ -210,7 +208,7 @@ fn small_anonymous() {
     let (filename, contents) = gen_world(
         gen,
         "small-anonymous",
-        "../../tests/codegen/small-anonymous.wit",
+        include_str!("../../../tests/codegen/small-anonymous.wit"),
     );
 
     assert_eq!(filename, "small-anonymous.ts");
@@ -221,12 +219,12 @@ fn small_anonymous() {
 fn strings() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "strings", "../../tests/codegen/strings.wit");
+    let (filename, contents) = gen_world(gen, "strings", include_str!("../../../tests/codegen/strings.wit"));
 
     assert_eq!(filename, "strings.ts");
     assert_eq!(contents, include_str!("./strings.ts"));
@@ -236,12 +234,12 @@ fn strings() {
 fn unions() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "unions", "../../tests/codegen/unions.wit");
+    let (filename, contents) = gen_world(gen, "unions", include_str!("../../../tests/codegen/unions.wit"));
 
     assert_eq!(filename, "unions.ts");
     assert_eq!(contents, include_str!("./unions.ts"));
@@ -251,12 +249,12 @@ fn unions() {
 fn variants() {
     let opts = Opts {
         prettier: false,
-        romefmt: true,
+        romefmt: false,
         skip: vec![],
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "variants", "../../tests/codegen/variants.wit");
+    let (filename, contents) = gen_world(gen, "variants", include_str!("../../../tests/codegen/variants.wit"));
 
     assert_eq!(filename, "variants.ts");
     assert_eq!(contents, include_str!("./variants.ts"));

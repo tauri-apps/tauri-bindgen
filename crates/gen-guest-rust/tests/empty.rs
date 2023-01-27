@@ -1,2 +1,6 @@
-#[allow(clippy::all, unused)]
-pub mod empty {}
+
+#![allow(clippy::all, unused)]
+pub mod empty{
+  
+}
+

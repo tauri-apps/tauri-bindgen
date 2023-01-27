@@ -10,6 +10,9 @@ use tauri_bindgen_core::{Files, WorldGenerator};
 use wit_parser::Interface;
 // use wit_parser::World;
 
+/// # Panics
+/// 
+/// TODO
 pub fn generate<F, O, G>(
     input: TokenStream,
     mkgen: G,
@@ -33,7 +36,7 @@ where
     // Include a dummy `include_str!` for any files we read so rustc knows that
     // we depend on the contents of those files.
     let cwd = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-    for file in input.files.iter() {
+    for file in &input.files {
         contents.extend(
             format!(
                 "const _: &str = include_str!(r#\"{}\"#);\n",
@@ -44,7 +47,7 @@ where
         );
     }
 
-    return contents;
+    contents
 }
 
 pub trait Configure<O> {

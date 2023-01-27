@@ -1,6 +1,6 @@
 use std::{
     io::{self, Read},
-    mem::MaybeUninit,
+    mem::{self, MaybeUninit},
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -17,11 +17,66 @@ pub enum Error {
     InvalidFlags,
 }
 
+/// # Errors
+///
+/// This conversion can fail if the structure of the input does not match the structure expected by `T`,
+/// for example if `T` is an enum type but the input doesn't lead with a valid tag.
+/// It can also fail if the structure is correct but T’s implementation of `Readable` decides decides that something is wrong with the data,
+/// for example when the bytes given for a `char` are outside the allowed ranges.
+/// It will also fail if the [`std::io::Read`] ends prematurely without delivering enough data for deserializing the type.
+pub fn from_reader<R, T>(rdr: &mut R) -> Result<T, Error>
+where
+    R: Read,
+    T: Readable,
+{
+    T::read_from(rdr)
+}
+
+/// # Errors
+///
+/// This conversion can fail if the structure of the input does not match the structure expected by `T`,
+/// for example if `T` is an enum type but the input doesn't lead with a valid tag.
+/// It can also fail if the structure is correct but T’s implementation of `Readable` decides decides that something is wrong with the data,
+/// for example when the bytes given for a `char` are outside the allowed ranges.
+/// It will also fail if byte slice ends prematurely.
+pub fn from_slice<T>(mut v: &[u8]) -> Result<T, Error>
+where
+    T: Readable,
+{
+    T::read_from(&mut v)
+}
+
+/// # Errors
+///
+/// Serialization can fail if T’s implementation of `Writable` decides to fail, or if the `io::Write` fails.
+pub fn to_writer<W, T>(writer: &mut W, value: &T) -> Result<(), Error>
+where
+    W: io::Write,
+    T: ?Sized + Writable,
+{
+    value.write_to(writer).map_err(Into::into)
+}
+
+/// # Errors
+///
+/// Serialization can fail if T’s implementation of `Writable` decides to fail.
+pub fn to_bytes<T>(value: &T) -> Result<Vec<u8>, Error>
+where
+    T: ?Sized + Writable,
+{
+    let mut bytes = Vec::with_capacity(value.size_hint());
+    value.write_to(&mut bytes)?;
+
+    Ok(bytes)
+}
+
 pub trait Writable {
     /// # Errors
     ///
     /// Implementations should return errors when writing to the underlying [`std::io::Write`] implementation fails.
     fn write_to(&self, write: &mut impl io::Write) -> Result<(), Error>;
+
+    fn size_hint(&self) -> usize;
 }
 
 pub trait Readable: Sized {
@@ -350,12 +405,20 @@ impl Writable for u8 {
         write.write_all(&self.to_le_bytes())?;
         Ok(())
     }
+
+    fn size_hint(&self) -> usize {
+        mem::size_of::<Self>()
+    }
 }
 
 impl Writable for u16 {
     fn write_to(&self, write: &mut impl io::Write) -> Result<(), Error> {
         write.write_all(&self.to_le_bytes())?;
         Ok(())
+    }
+
+    fn size_hint(&self) -> usize {
+        mem::size_of::<Self>()
     }
 }
 
@@ -364,12 +427,20 @@ impl Writable for u32 {
         write.write_all(&self.to_le_bytes())?;
         Ok(())
     }
+
+    fn size_hint(&self) -> usize {
+        mem::size_of::<Self>()
+    }
 }
 
 impl Writable for u64 {
     fn write_to(&self, write: &mut impl io::Write) -> Result<(), Error> {
         write.write_all(&self.to_le_bytes())?;
         Ok(())
+    }
+
+    fn size_hint(&self) -> usize {
+        mem::size_of::<Self>()
     }
 }
 
@@ -378,12 +449,20 @@ impl Writable for u128 {
         write.write_all(&self.to_le_bytes())?;
         Ok(())
     }
+
+    fn size_hint(&self) -> usize {
+        mem::size_of::<Self>()
+    }
 }
 
 impl Writable for usize {
     fn write_to(&self, write: &mut impl io::Write) -> Result<(), Error> {
         write.write_all(&self.to_le_bytes()[0..4])?;
         Ok(())
+    }
+
+    fn size_hint(&self) -> usize {
+        4
     }
 }
 
@@ -392,12 +471,20 @@ impl Writable for i8 {
         write.write_all(&self.to_le_bytes())?;
         Ok(())
     }
+
+    fn size_hint(&self) -> usize {
+        mem::size_of::<Self>()
+    }
 }
 
 impl Writable for i16 {
     fn write_to(&self, write: &mut impl io::Write) -> Result<(), Error> {
         write.write_all(&self.to_le_bytes())?;
         Ok(())
+    }
+
+    fn size_hint(&self) -> usize {
+        mem::size_of::<Self>()
     }
 }
 
@@ -406,12 +493,20 @@ impl Writable for i32 {
         write.write_all(&self.to_le_bytes())?;
         Ok(())
     }
+
+    fn size_hint(&self) -> usize {
+        mem::size_of::<Self>()
+    }
 }
 
 impl Writable for i64 {
     fn write_to(&self, write: &mut impl io::Write) -> Result<(), Error> {
         write.write_all(&self.to_le_bytes())?;
         Ok(())
+    }
+
+    fn size_hint(&self) -> usize {
+        mem::size_of::<Self>()
     }
 }
 
@@ -420,12 +515,20 @@ impl Writable for i128 {
         write.write_all(&self.to_le_bytes())?;
         Ok(())
     }
+
+    fn size_hint(&self) -> usize {
+        mem::size_of::<Self>()
+    }
 }
 
 impl Writable for isize {
     fn write_to(&self, write: &mut impl io::Write) -> Result<(), Error> {
         write.write_all(&self.to_le_bytes()[0..4])?;
         Ok(())
+    }
+
+    fn size_hint(&self) -> usize {
+        4
     }
 }
 
@@ -434,6 +537,10 @@ impl Writable for f32 {
         write.write_all(&self.to_le_bytes())?;
         Ok(())
     }
+
+    fn size_hint(&self) -> usize {
+        mem::size_of::<Self>()
+    }
 }
 
 impl Writable for f64 {
@@ -441,11 +548,19 @@ impl Writable for f64 {
         write.write_all(&self.to_le_bytes())?;
         Ok(())
     }
+
+    fn size_hint(&self) -> usize {
+        mem::size_of::<Self>()
+    }
 }
 
 impl Writable for char {
     fn write_to(&self, write: &mut impl io::Write) -> Result<(), Error> {
         Writable::write_to(&(*self as u32), write)
+    }
+
+    fn size_hint(&self) -> usize {
+        mem::size_of::<Self>()
     }
 }
 
@@ -453,6 +568,10 @@ impl Writable for bool {
     fn write_to(&self, write: &mut impl io::Write) -> Result<(), Error> {
         write.write_all(&[u8::from(*self)])?;
         Ok(())
+    }
+
+    fn size_hint(&self) -> usize {
+        mem::size_of::<Self>()
     }
 }
 
@@ -466,6 +585,16 @@ impl<T: Writable> Writable for Vec<T> {
 
         Ok(())
     }
+
+    fn size_hint(&self) -> usize {
+        let mut size = self.len().size_hint();
+
+        for el in self {
+            size += el.size_hint();
+        }
+
+        size
+    }
 }
 
 impl Writable for String {
@@ -475,6 +604,10 @@ impl Writable for String {
         write.write_all(self.as_bytes())?;
 
         Ok(())
+    }
+
+    fn size_hint(&self) -> usize {
+        self.len().size_hint() + self.len()
     }
 }
 
@@ -486,6 +619,13 @@ impl<T: Writable> Writable for Option<T> {
                 1u8.write_to(write)?;
                 val.write_to(write)
             }
+        }
+    }
+
+    fn size_hint(&self) -> usize {
+        match self {
+            Some(val) => 1 + val.size_hint(),
+            None => 1,
         }
     }
 }
@@ -503,6 +643,13 @@ impl<T: Writable, E: Writable> Writable for Result<T, E> {
             }
         }
     }
+
+    fn size_hint(&self) -> usize {
+        match self {
+            Ok(val) => 1 + val.size_hint(),
+            Err(err) => 1 + err.size_hint(),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -511,7 +658,7 @@ mod test {
     use std::io;
 
     #[test]
-    fn struct_() {
+    fn struct_() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Debug, PartialEq)]
         struct Foo {
             a: u8,
@@ -537,6 +684,10 @@ mod test {
 
                 Ok(())
             }
+
+            fn size_hint(&self) -> usize {
+                self.a.size_hint() + self.b.size_hint() + self.c.size_hint()
+            }
         }
 
         let input = Foo {
@@ -545,21 +696,22 @@ mod test {
             c: "foo".to_string(),
         };
 
-        let mut bytes: Vec<u8> = vec![];
-        Writable::write_to(&input, &mut bytes).unwrap();
+        let bytes = crate::to_bytes(&input)?;
 
         assert_eq!(
             bytes,
             vec![3, 16, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 102, 111, 111]
         );
 
-        let output: Foo = Readable::read_from(&mut bytes.as_slice()).unwrap();
+        let output: Foo = crate::from_slice(&bytes)?;
 
         assert_eq!(output, input);
+
+        Ok(())
     }
 
     #[test]
-    fn variant() {
+    fn variant() -> Result<(), Box<dyn std::error::Error>> {
         #[derive(Debug, PartialEq)]
         pub enum U1 {
             U32(u32),
@@ -591,22 +743,30 @@ mod test {
                     }
                 }
             }
+
+            fn size_hint(&self) -> usize {
+                1 + match self {
+                    U1::U32(val) => val.size_hint(),
+                    U1::F32(val) => val.size_hint(),
+                }
+            }
         }
 
         let input = U1::U32(50);
 
-        let mut bytes: Vec<u8> = vec![];
-        Writable::write_to(&input, &mut bytes).unwrap();
+        let bytes = crate::to_bytes(&input)?;
 
         assert_eq!(bytes, vec![0, 50, 0, 0, 0]);
 
-        let output: U1 = Readable::read_from(&mut bytes.as_slice()).unwrap();
+        let output: U1 = crate::from_slice(&bytes)?;
 
         assert_eq!(output, input);
+
+        Ok(())
     }
 
     #[test]
-    fn flags() {
+    fn flags() -> Result<(), Box<dyn std::error::Error>> {
         bitflags::bitflags! {
           pub struct Flag4: u8 {
             const B0 = 1 << 0;
@@ -627,17 +787,24 @@ mod test {
             fn write_to(&self, write: &mut impl io::Write) -> Result<(), Error> {
                 self.bits().write_to(write)
             }
+
+            fn size_hint(&self) -> usize {
+                std::mem::size_of::<Self>()
+            }
         }
+
+        println!("{:?}", Flag4::B1.size_hint());
 
         let input = Flag4::B0 | Flag4::B2;
 
-        let mut bytes: Vec<u8> = vec![];
-        Writable::write_to(&input, &mut bytes).unwrap();
+        let bytes = crate::to_bytes(&input)?;
 
         assert_eq!(bytes, vec![0b0000_0101]);
 
-        let output: Flag4 = Readable::read_from(&mut bytes.as_slice()).unwrap();
+        let output: Flag4 = crate::from_slice(&bytes)?;
 
         assert_eq!(output, input);
+
+        Ok(())
     }
 }

@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use tauri_bindgen_abi_derive::Writable;
 
 #[test]
