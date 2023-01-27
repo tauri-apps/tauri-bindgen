@@ -47,6 +47,10 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v3
+      - name: install native dependecies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y webkit2gtk-4.0 libgtk-3-dev
       - uses: dtolnay/rust-toolchain@1.59.0
       - uses: Swatinem/rust-cache@v2
       - run: cargo check --workspace
@@ -67,6 +71,19 @@ jobs:
           components: clippy
       - uses: Swatinem/rust-cache@v2
       - run: cargo clippy --workspace -- -Dclippy::all -Dclippy::pedantic
+
+  clippy:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install rustfmt with nightly toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - run: cargo clippy --workspace -- --check
 
   miri:
     name: Miri
