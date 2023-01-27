@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod lists{
   #[derive(Debug, Clone, PartialEq)]
   #[derive(::serde::Serialize)]
@@ -270,4 +270,3 @@ pub mod lists{
   }
   
 }
-

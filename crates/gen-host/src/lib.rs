@@ -52,13 +52,12 @@ impl WorldGenerator for Host {
 
         uwriteln!(
             self.src,
-            r#"
-                #![allow(clippy::all, unused)]
-                pub mod {snake} {{
-                    pub const WORLD_HASH: &str = "{world_hash}";
-                    {module}
-                }}
-            "#
+            "#![allow(clippy::all, unused)]
+            #[rustfmt::skip]
+            pub mod {snake} {{
+                pub const WORLD_HASH: &str = \"{world_hash}\";
+                {module}
+            }}"
         );
 
         self.imports.push(snake);

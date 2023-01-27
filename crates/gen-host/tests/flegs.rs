@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod flegs{
   pub const WORLD_HASH: &str = "13a360f690a38bbb";
   ::tauri_bindgen_host::bitflags::bitflags! {
@@ -366,4 +366,3 @@ pub mod flegs{
   }
   
 }
-

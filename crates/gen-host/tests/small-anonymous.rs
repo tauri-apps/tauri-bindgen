@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod small_anonymous{
   pub const WORLD_HASH: &str = "f831ebf42dd49cbb";
   #[repr(u8)]
@@ -49,4 +49,3 @@ pub mod small_anonymous{
   }
   
 }
-

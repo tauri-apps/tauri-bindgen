@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod small_anonymous{
   #[repr(u8)]
   #[derive(Debug, Clone, Copy, PartialEq)]
@@ -13,4 +13,3 @@ pub mod small_anonymous{
   }
   
 }
-

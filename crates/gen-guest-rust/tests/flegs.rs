@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod flegs{
   ::tauri_bindgen_guest_rust::bitflags::bitflags! {
     #[derive(::serde::Serialize, ::serde::Deserialize)]
@@ -228,4 +228,3 @@ pub mod flegs{
   }
   
 }
-

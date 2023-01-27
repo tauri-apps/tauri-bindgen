@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod variants{
   #[repr(u8)]
   #[derive(Debug, Clone, Copy, PartialEq)]
@@ -235,4 +235,3 @@ pub mod variants{
   }
   
 }
-

@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod conventions{
   #[repr(C)]
   #[derive(Debug, Copy, Clone, PartialEq)]
@@ -53,4 +53,3 @@ pub mod conventions{
   }
   
 }
-

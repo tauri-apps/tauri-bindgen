@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod floats{
   pub async fn float32_param(x: f32,) -> () {
     #[derive(::serde::Serialize)]
@@ -27,4 +27,3 @@ pub mod floats{
   }
   
 }
-

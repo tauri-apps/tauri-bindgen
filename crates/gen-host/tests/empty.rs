@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod empty{
   pub const WORLD_HASH: &str = "882ecd0a3d152e5d";
   pub trait Empty: Sized {
@@ -29,4 +29,3 @@ pub mod empty{
   }
   
 }
-

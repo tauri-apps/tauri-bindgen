@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod unions{
   /// A union of all of the integral types
   #[derive(Debug, Clone, Copy, PartialEq)]
@@ -146,4 +146,3 @@ pub mod unions{
   }
   
 }
-

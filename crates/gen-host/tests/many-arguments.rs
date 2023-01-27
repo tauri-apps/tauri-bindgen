@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod many_arguments{
   pub const WORLD_HASH: &str = "b26e5107ff225c6b";
   #[derive(Debug, Clone, PartialEq)]
@@ -284,4 +284,3 @@ pub mod many_arguments{
   }
   
 }
-

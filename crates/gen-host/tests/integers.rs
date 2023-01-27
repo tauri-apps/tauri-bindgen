@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod integers{
   pub const WORLD_HASH: &str = "0c0ef23cf9639264";
   pub trait Integers: Sized {
@@ -455,4 +455,3 @@ pub mod integers{
   }
   
 }
-

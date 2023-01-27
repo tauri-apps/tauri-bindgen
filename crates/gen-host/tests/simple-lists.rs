@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod simple_lists{
   pub const WORLD_HASH: &str = "e8600e8d0423cbdb";
   pub trait SimpleLists: Sized {
@@ -92,4 +92,3 @@ pub mod simple_lists{
   }
   
 }
-

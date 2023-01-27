@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod floats{
   pub const WORLD_HASH: &str = "979575fda4ffb8b9";
   pub trait Floats: Sized {
@@ -105,4 +105,3 @@ pub mod floats{
   }
   
 }
-

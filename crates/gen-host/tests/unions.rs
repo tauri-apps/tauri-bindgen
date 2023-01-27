@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod unions{
   pub const WORLD_HASH: &str = "37da362e4966fe5b";
   /// A union of all of the integral types
@@ -337,4 +337,3 @@ pub mod unions{
   }
   
 }
-

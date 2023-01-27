@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod integers{
   pub async fn a1(x: u8,) -> () {
     #[derive(::serde::Serialize)]
@@ -118,4 +118,3 @@ pub mod integers{
   }
   
 }
-

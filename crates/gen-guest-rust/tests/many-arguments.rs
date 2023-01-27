@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod many_arguments{
   #[derive(Debug, Clone, PartialEq)]
   #[derive(::serde::Serialize)]
@@ -61,4 +61,3 @@ pub mod many_arguments{
   }
   
 }
-

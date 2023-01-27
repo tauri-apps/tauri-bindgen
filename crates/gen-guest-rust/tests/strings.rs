@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod strings{
   pub async fn a(x: &str,) -> () {
     #[derive(::serde::Serialize)]
@@ -25,4 +25,3 @@ pub mod strings{
   }
   
 }
-

@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod simple_lists{
   pub async fn simple_list1(l: &[u32],) -> () {
     #[derive(::serde::Serialize)]
@@ -24,4 +24,3 @@ pub mod simple_lists{
   }
   
 }
-

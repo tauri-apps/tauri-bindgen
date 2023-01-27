@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod chars{
   /// A function that accepts a character
   pub async fn take_char(x: char,) -> () {
@@ -17,4 +17,3 @@ pub mod chars{
   }
   
 }
-

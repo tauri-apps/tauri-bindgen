@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod multi_return{
   pub const WORLD_HASH: &str = "def17a258c1e4f4d";
   pub trait MultiReturn: Sized {
@@ -94,4 +94,3 @@ pub mod multi_return{
   }
   
 }
-

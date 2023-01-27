@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod records{
   pub const WORLD_HASH: &str = "ac98167d7d43eb21";
   #[repr(C)]
@@ -289,4 +289,3 @@ pub mod records{
   }
   
 }
-

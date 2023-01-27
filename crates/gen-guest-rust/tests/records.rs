@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod records{
   #[repr(C)]
   #[derive(Debug, Copy, Clone, PartialEq)]
@@ -127,4 +127,3 @@ pub mod records{
   }
   
 }
-

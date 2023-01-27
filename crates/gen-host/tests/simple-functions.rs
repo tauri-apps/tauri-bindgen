@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod simple_functions{
   pub const WORLD_HASH: &str = "d52f0e93c1bb4daa";
   pub trait SimpleFunctions: Sized {
@@ -179,4 +179,3 @@ pub mod simple_functions{
   }
   
 }
-

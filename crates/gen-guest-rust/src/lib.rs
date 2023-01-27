@@ -70,12 +70,11 @@ impl WorldGenerator for RustWasm {
 
         uwriteln!(
             self.src,
-            "
-                #![allow(clippy::all, unused)]
-                pub mod {snake} {{
-                    {module}
-                }}
-            "
+            "#![allow(clippy::all, unused)]
+            #[rustfmt::skip]
+            pub mod {snake} {{
+                {module}
+            }}"
         );
     }
 

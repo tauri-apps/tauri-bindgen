@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod simple_functions{
   pub async fn f1() -> () {
     ::tauri_bindgen_guest_rust::invoke("plugin:d52f0e93c1bb4daa|f1", ()).await.unwrap()
@@ -42,4 +42,3 @@ pub mod simple_functions{
   }
   
 }
-

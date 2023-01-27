@@ -1,5 +1,5 @@
-
 #![allow(clippy::all, unused)]
+#[rustfmt::skip]
 pub mod lists{
   pub const WORLD_HASH: &str = "3d9d99368dfa9a39";
   #[derive(Debug, Clone, PartialEq)]
@@ -661,4 +661,3 @@ pub mod lists{
   }
   
 }
-
