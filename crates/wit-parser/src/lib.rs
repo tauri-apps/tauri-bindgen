@@ -17,7 +17,7 @@ use std::path::Path;
 pub fn parse_str(input: impl AsRef<str>) -> miette::Result<Interface> {
     let iface = parse(input.as_ref()).map_err(|error: ErrReport| {
         error.with_source_code(NamedSource::new(
-            "virtual file".to_string(),
+            "virtual file",
             input.as_ref().to_string(),
         ))
     })?;
