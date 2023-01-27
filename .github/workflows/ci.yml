@@ -83,7 +83,7 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
         with:
           components: rustfmt
-      - run: cargo clippy --workspace -- --check
+      - run: cargo fmt --workspace -- --check
 
   miri:
     name: Miri
