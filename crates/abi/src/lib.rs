@@ -116,93 +116,88 @@ macro_rules! ensure {
 
 #[cfg(test)]
 mod test {
-    #[test]
-    fn struct_() -> Result<(), Box<dyn std::error::Error>> {
-        #[derive(Debug, PartialEq, crate::Writable, crate::Readable)]
-        struct Foo {
-            a: u8,
-            b: u64,
-            c: String,
-        }
+    use proptest::prelude::*;
+    use proptest_derive::Arbitrary;
 
-        let input = Foo {
-            a: 3,
-            b: 16,
-            c: "foo".to_string(),
-        };
-
-        let bytes = crate::to_bytes(&input)?;
-
-        assert_eq!(
-            bytes,
-            vec![3, 16, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 102, 111, 111]
-        );
-
-        let output: Foo = crate::from_slice(&bytes)?;
-
-        assert_eq!(output, input);
-
-        Ok(())
+    #[derive(Arbitrary, Debug, PartialEq, crate::Writable, crate::Readable)]
+    struct MyStruct {
+        a: u8,
+        b: u64,
+        c: String,
     }
 
-    #[test]
-    fn variant() -> Result<(), Box<dyn std::error::Error>> {
-        #[derive(Debug, PartialEq, crate::Writable, crate::Readable)]
-        pub enum U1 {
-            U32(u32),
-            F32(f32),
-        }
-
-        let input = U1::U32(50);
-
-        let bytes = crate::to_bytes(&input)?;
-
-        assert_eq!(bytes, vec![0, 50, 0, 0, 0]);
-
-        let output: U1 = crate::from_slice(&bytes)?;
-
-        assert_eq!(output, input);
-
-        Ok(())
+    #[derive(Arbitrary, Debug, PartialEq, crate::Writable, crate::Readable)]
+    pub enum MyEnumUnit {
+        U32(u32),
+        F32(f32),
     }
 
-    #[test]
-    fn flags() -> Result<(), Box<dyn std::error::Error>> {
-        bitflags::bitflags! {
-          #[derive(crate::Writable, crate::Readable)]
-          pub struct Flag4: u8 {
-            const B0 = 1 << 0;
-            const B1 = 1 << 1;
-            const B2 = 1 << 2;
-            const B3 = 1 << 3;
-          }
-        }
-
-        let input = Flag4::B0 | Flag4::B2;
-
-        let bytes = crate::to_bytes(&input)?;
-
-        assert_eq!(bytes, vec![0b0000_0101]);
-
-        let output: Flag4 = crate::from_slice(&bytes)?;
-
-        assert_eq!(output, input);
-
-        Ok(())
+    #[derive(Arbitrary, Debug, PartialEq, crate::Writable, crate::Readable)]
+    pub enum MyEnumUnnamed {
+        U32(u32),
+        F32(f32),
     }
 
-    #[test]
-    fn tuple() -> Result<(), Box<dyn std::error::Error>> {
-        let input = (4u8, "foo".to_string());
+    #[derive(Arbitrary, Debug, PartialEq, crate::Writable, crate::Readable)]
+    pub enum MyEnumNamed {
+        U32 { foo: u32 },
+        F32 { bar: f32 },
+    }
 
-        let bytes = crate::to_bytes(&input)?;
+    bitflags::bitflags! {
+      #[derive(Arbitrary, crate::Writable, crate::Readable)]
+      pub struct MyFlags: u8 {
+        const B0 = 1 << 0;
+        const B1 = 1 << 1;
+        const B2 = 1 << 2;
+        const B3 = 1 << 3;
+      }
+    }
 
-        assert_eq!(bytes, vec![4, 3, 0, 0, 0, 102, 111, 111]);
+    proptest! {
+        #[test]
+        fn struct_(input: MyStruct) {
+            let bytes = crate::to_bytes(&input)?;
 
-        let output: (u8, String) = crate::from_slice(&bytes)?;
+            let output: MyStruct = crate::from_slice(&bytes)?;
 
-        assert_eq!(output, input);
+            assert_eq!(output, input);
+        }
 
-        Ok(())
+        #[test]
+        fn enum_unit(input: MyEnumUnit) {
+            let bytes = crate::to_bytes(&input)?;
+
+            let output: MyEnumUnit = crate::from_slice(&bytes)?;
+
+            assert_eq!(output, input);
+        }
+
+        #[test]
+        fn enum_unnamed(input: MyEnumUnnamed) {
+            let bytes = crate::to_bytes(&input)?;
+
+            let output: MyEnumUnnamed = crate::from_slice(&bytes)?;
+
+            assert_eq!(output, input);
+        }
+
+        #[test]
+        fn enum_named(input: MyEnumNamed) {
+            let bytes = crate::to_bytes(&input)?;
+
+            let output: MyEnumNamed = crate::from_slice(&bytes)?;
+
+            assert_eq!(output, input);
+        }
+
+        #[test]
+        fn flags(input: MyFlags) {
+            let bytes = crate::to_bytes(&input)?;
+
+            let output: MyFlags = crate::from_slice(&bytes)?;
+
+            assert_eq!(output, input);
+        }
     }
 }
