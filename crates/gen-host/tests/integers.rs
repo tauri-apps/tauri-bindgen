@@ -1,6 +1,7 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod integers{
+  use ::tauri_bindgen_host::tauri_bindgen_abi;
   pub const WORLD_HASH: &str = "0c0ef23cf9639264";
   pub trait Integers: Sized {
     fn a1(&self,x: u8,) -> ::tauri_bindgen_host::anyhow::Result<()>;
@@ -30,6 +31,7 @@ pub mod integers{
   {
     
     move |invoke| {
+      
       let span = ::tauri_bindgen_host::tracing::span!(
       ::tauri_bindgen_host::tracing::Level::TRACE,
       "tauri-bindgen invoke handler",
@@ -44,23 +46,26 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let x= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            x : u8,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "a1",
-            key: "x",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a1", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.a1(
-          x, );
+          params.x, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "a2" => {
           #[allow(unused_variables)]
@@ -68,23 +73,26 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let x= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            x : i8,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "a2",
-            key: "x",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a2", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.a2(
-          x, );
+          params.x, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "a3" => {
           #[allow(unused_variables)]
@@ -92,23 +100,26 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let x= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            x : u16,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "a3",
-            key: "x",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a3", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.a3(
-          x, );
+          params.x, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "a4" => {
           #[allow(unused_variables)]
@@ -116,23 +127,26 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let x= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            x : i16,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "a4",
-            key: "x",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a4", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.a4(
-          x, );
+          params.x, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "a5" => {
           #[allow(unused_variables)]
@@ -140,23 +154,26 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let x= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            x : u32,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "a5",
-            key: "x",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a5", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.a5(
-          x, );
+          params.x, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "a6" => {
           #[allow(unused_variables)]
@@ -164,23 +181,26 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let x= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            x : i32,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "a6",
-            key: "x",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a6", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.a6(
-          x, );
+          params.x, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "a7" => {
           #[allow(unused_variables)]
@@ -188,23 +208,26 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let x= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            x : u64,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "a7",
-            key: "x",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a7", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.a7(
-          x, );
+          params.x, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "a8" => {
           #[allow(unused_variables)]
@@ -212,23 +235,26 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let x= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            x : i64,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "a8",
-            key: "x",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a8", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.a8(
-          x, );
+          params.x, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "a9" => {
           #[allow(unused_variables)]
@@ -236,107 +262,33 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let p1= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "a9",
-            key: "p1",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a9", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            p1 : u8,
+            p2 : i8,
+            p3 : u16,
+            p4 : i16,
+            p5 : u32,
+            p6 : i32,
+            p7 : u64,
+            p8 : i64,
+          }
           
-          let p2= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "a9",
-            key: "p2",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a9", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let p3= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "a9",
-            key: "p3",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a9", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let p4= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "a9",
-            key: "p4",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a9", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let p5= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "a9",
-            key: "p5",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a9", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let p6= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "a9",
-            key: "p6",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a9", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let p7= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "a9",
-            key: "p7",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a9", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let p8= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "a9",
-            key: "p8",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "integers", function = "a9", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.a9(
-          p1, p2, p3, p4, p5, p6, p7, p8, );
+          params.p1, params.p2, params.p3, params.p4, params.p5, params.p6, params.p7, params.p8, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "r1" => {
           #[allow(unused_variables)]
@@ -344,11 +296,25 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "r1",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.r1(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "r2" => {
           #[allow(unused_variables)]
@@ -356,11 +322,25 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "r2",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.r2(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "r3" => {
           #[allow(unused_variables)]
@@ -368,11 +348,25 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "r3",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.r3(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "r4" => {
           #[allow(unused_variables)]
@@ -380,11 +374,25 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "r4",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.r4(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "r5" => {
           #[allow(unused_variables)]
@@ -392,11 +400,25 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "r5",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.r5(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "r6" => {
           #[allow(unused_variables)]
@@ -404,11 +426,25 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "r6",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.r6(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "r7" => {
           #[allow(unused_variables)]
@@ -416,11 +452,25 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "r7",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.r7(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "r8" => {
           #[allow(unused_variables)]
@@ -428,11 +478,25 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "r8",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.r8(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "pair-ret" => {
           #[allow(unused_variables)]
@@ -440,16 +504,27 @@ pub mod integers{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "pair-ret",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.pair_ret(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
-        func_name => {
-          ::tauri_bindgen_host::tracing::error!(module = "integers", function = func_name, "Not Found");
-          invoke.resolver.reject("Not Found");
-        }
+        _ => todo!(),
       }
     }
   }

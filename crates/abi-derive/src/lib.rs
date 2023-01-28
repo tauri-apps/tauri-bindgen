@@ -13,7 +13,7 @@ use writable::{
 #[proc_macro_derive(Readable, attributes(abi))]
 pub fn derive_readable(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let DeriveInput {
-        ident, data, attrs, ..
+        ident, data, attrs, generics, ..
     } = parse_macro_input!(input);
 
     let uses_flags_abi = attrs
@@ -30,8 +30,8 @@ pub fn derive_readable(input: proc_macro::TokenStream) -> proc_macro::TokenStrea
     };
 
     let output = quote! {
-        impl ::tauri_bindgen_abi::Readable for #ident {
-            fn read_from(read: &mut impl ::std::io::Read) -> Result<Self, ::tauri_bindgen_abi::Error> {
+        impl #generics tauri_bindgen_abi::Readable for #ident #generics {
+            fn read_from(read: &mut impl ::std::io::Read) -> Result<Self, tauri_bindgen_abi::Error> {
                 #inner
             }
         }
@@ -43,7 +43,7 @@ pub fn derive_readable(input: proc_macro::TokenStream) -> proc_macro::TokenStrea
 #[proc_macro_derive(Writable, attributes(abi))]
 pub fn derive_writable(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let DeriveInput {
-        ident, data, attrs, ..
+        ident, data, attrs, generics, ..
     } = parse_macro_input!(input);
 
     let uses_flags_abi = attrs
@@ -67,8 +67,8 @@ pub fn derive_writable(input: proc_macro::TokenStream) -> proc_macro::TokenStrea
     };
 
     let output = quote! {
-        impl ::tauri_bindgen_abi::Writable for #ident {
-            fn write_to(&self, write: &mut impl ::std::io::Write) -> Result<(), ::tauri_bindgen_abi::Error> {
+        impl #generics tauri_bindgen_abi::Writable for #ident #generics {
+            fn write_to(&self, write: &mut impl ::std::io::Write) -> Result<(), tauri_bindgen_abi::Error> {
                 #write_to_inner
             }
 

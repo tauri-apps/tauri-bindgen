@@ -1,9 +1,10 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod unions{
+  use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
   /// A union of all of the integral types
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::serde::Serialize, ::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
   pub enum AllIntegers{
     /// Bool is equivalent to a 1 bit integer and is treated that way in some languages
     Bool(bool),
@@ -17,25 +18,25 @@ pub mod unions{
     I64(i64),
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::serde::Serialize, ::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
   pub enum AllFloats{
     F32(f32),
     F64(f64),
   }
   #[derive(Debug, Clone, PartialEq)]
-  #[derive(::serde::Serialize)]
+  #[derive(tauri_bindgen_abi::Writable)]
   pub enum AllTextParam<'a,>{
     Char(char),
     String(&'a str),
   }
   #[derive(Debug, Clone, PartialEq)]
-  #[derive(::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Readable)]
   pub enum AllTextResult{
     Char(char),
     String(String),
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::serde::Serialize, ::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
   pub enum DuplicatedS32{
     /// The first s32
     I320(i32),
@@ -46,7 +47,7 @@ pub mod unions{
   }
   /// A type containing numeric types that are distinct in most languages
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::serde::Serialize, ::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
   pub enum DistinguishableNum{
     /// A Floating Point Number
     F64(f64),
@@ -54,8 +55,7 @@ pub mod unions{
     I64(i64),
   }
   pub async fn add_one_integer(num: AllIntegers,) -> AllIntegers {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       num : AllIntegers,
     }
@@ -63,8 +63,7 @@ pub mod unions{
     ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|add-one-integer", &params).await.unwrap()
   }
   pub async fn add_one_float(num: AllFloats,) -> AllFloats {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       num : AllFloats,
     }
@@ -72,8 +71,7 @@ pub mod unions{
     ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|add-one-float", &params).await.unwrap()
   }
   pub async fn replace_first_char(text: AllTextParam<'_,>,letter: char,) -> AllTextResult {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params<'a,> {
       text : AllTextParam<'a,>,
       letter : char,
@@ -82,8 +80,7 @@ pub mod unions{
     ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|replace-first-char", &params).await.unwrap()
   }
   pub async fn identify_integer(num: AllIntegers,) -> u8 {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       num : AllIntegers,
     }
@@ -91,8 +88,7 @@ pub mod unions{
     ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|identify-integer", &params).await.unwrap()
   }
   pub async fn identify_float(num: AllFloats,) -> u8 {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       num : AllFloats,
     }
@@ -100,8 +96,7 @@ pub mod unions{
     ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|identify-float", &params).await.unwrap()
   }
   pub async fn identify_text(text: AllTextParam<'_,>,) -> u8 {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params<'a,> {
       text : AllTextParam<'a,>,
     }
@@ -109,8 +104,7 @@ pub mod unions{
     ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|identify-text", &params).await.unwrap()
   }
   pub async fn add_one_duplicated(num: DuplicatedS32,) -> DuplicatedS32 {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       num : DuplicatedS32,
     }
@@ -118,8 +112,7 @@ pub mod unions{
     ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|add-one-duplicated", &params).await.unwrap()
   }
   pub async fn identify_duplicated(num: DuplicatedS32,) -> u8 {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       num : DuplicatedS32,
     }
@@ -127,8 +120,7 @@ pub mod unions{
     ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|identify-duplicated", &params).await.unwrap()
   }
   pub async fn add_one_distinguishable_num(num: DistinguishableNum,) -> DistinguishableNum {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       num : DistinguishableNum,
     }
@@ -136,8 +128,7 @@ pub mod unions{
     ::tauri_bindgen_guest_rust::invoke("plugin:37da362e4966fe5b|add-one-distinguishable-num", &params).await.unwrap()
   }
   pub async fn identify_distinguishable_num(num: DistinguishableNum,) -> u8 {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       num : DistinguishableNum,
     }

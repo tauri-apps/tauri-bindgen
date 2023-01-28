@@ -70,9 +70,10 @@ impl WorldGenerator for RustWasm {
 
         uwriteln!(
             self.src,
-            "#![allow(clippy::all, unused)]
+            "#[allow(clippy::all, unused)]
             #[rustfmt::skip]
             pub mod {snake} {{
+                use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
                 {module}
             }}"
         );
@@ -133,23 +134,8 @@ impl<'a> InterfaceGenerator<'a> {
         self.print_signature(func, param_mode, &sig);
         self.src.push_str(" {\n");
 
-        let lifetime = func.params.iter().any(|(_, ty)| self.needs_lifetime(ty));
-
         if !func.params.is_empty() {
-            self.push_str("#[derive(::serde::Serialize)]\n");
-            self.push_str("#[serde(rename_all = \"camelCase\")]\n");
-            self.src.push_str("struct Params");
-            self.print_generics(lifetime.then(|| "'a"));
-            self.src.push_str(" {\n");
-
-            for (param, ty) in &func.params {
-                self.src.push_str(&param.to_snake_case());
-                self.src.push_str(" : ");
-                self.print_ty(ty, BorrowMode::AllBorrowed("'a"));
-                self.push_str(",\n");
-            }
-
-            self.src.push_str("}\n");
+            self.print_param_struct(func);
 
             self.src.push_str("let params = Params {");
 
@@ -157,7 +143,7 @@ impl<'a> InterfaceGenerator<'a> {
                 self.src.push_str(&param.to_snake_case());
                 self.src.push_str(",");
             }
-
+    
             self.src.push_str("};\n");
         }
 
@@ -179,29 +165,23 @@ impl<'a> InterfaceGenerator<'a> {
         self.src.push_str("}\n");
     }
 
-    fn needs_lifetime(&self, ty: &Type) -> bool {
-        match ty {
-            Type::Tuple(ty) => ty.types.iter().any(|ty| self.needs_lifetime(ty)),
-            Type::List(_) | Type::String => true,
-            Type::Option(ty) => self.needs_lifetime(ty),
-            Type::Result(res) => {
-                res.ok
-                    .as_ref()
-                    .map(|ty| self.needs_lifetime(ty))
-                    .unwrap_or_default()
-                    || res
-                        .err
-                        .as_ref()
-                        .map(|ty| self.needs_lifetime(ty))
-                        .unwrap_or_default()
-            }
-            Type::Id(id) => {
-                let info = self.info(*id);
-                self.lifetime_for(&info, BorrowMode::AllBorrowed("'a"))
-                    .is_some()
-            }
-            _ => false,
+    fn print_param_struct(&mut self, func: &Function) {
+        let lifetime = func.params.iter().any(|(_, ty)| self.needs_lifetime(ty));
+
+        self.push_str("#[derive(Debug, tauri_bindgen_abi::Writable)]\n");
+        // self.push_str("#[serde(rename_all = \"camelCase\")]\n");
+        self.src.push_str("struct Params");
+        self.print_generics(lifetime.then(|| "'a"));
+        self.src.push_str(" {\n");
+
+        for (param, ty) in &func.params {
+            self.src.push_str(&param.to_snake_case());
+            self.src.push_str(" : ");
+            self.print_ty(ty, BorrowMode::AllBorrowed("'a"));
+            self.push_str(",\n");
         }
+
+        self.src.push_str("}\n");
     }
 }
 
@@ -297,17 +277,17 @@ fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<S
 
     if uses_two_names {
         if name.ends_with("Param") {
-            attrs.push("::serde::Serialize");
+            attrs.push("tauri_bindgen_abi::Writable");
         }
         if name.ends_with("Result") {
-            attrs.push("::serde::Deserialize");
+            attrs.push("tauri_bindgen_abi::Readable");
         }
     } else {
         if info.contains(TypeInfo::PARAM) {
-            attrs.push("::serde::Serialize");
+            attrs.push("tauri_bindgen_abi::Writable");
         }
         if info.contains(TypeInfo::RESULT) {
-            attrs.push("::serde::Deserialize");
+            attrs.push("tauri_bindgen_abi::Readable");
         }
     }
 

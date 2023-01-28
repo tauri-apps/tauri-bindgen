@@ -215,16 +215,12 @@ pub trait RustGenerator<'a> {
             if let Some(attrs) = attrs(&name, self.uses_two_names(&info), info) {
                 self.push_str(&attrs);
             }
-            self.push_str("#[serde(rename_all = \"camelCase\")]\n");
+
             self.push_str(&format!("pub struct {name}"));
             self.print_generics(lt);
             self.push_str(" {\n");
 
             for field in &record.fields {
-                if self.needs_borrow(&field.ty, borrow_mode) {
-                    self.push_str("#[serde(borrow)]\n");
-                }
-
                 self.print_rustdoc(&field.docs);
                 self.push_str("pub ");
                 self.push_str(&to_rust_ident(&field.name));
@@ -694,6 +690,31 @@ pub trait RustGenerator<'a> {
             }
             Type::Tuple(ty) => ty.types.iter().any(|ty| self.needs_borrow(ty, mode)),
             Type::List(ty) | Type::Option(ty) => self.needs_borrow(ty, mode),
+            _ => false,
+        }
+    }
+
+    fn needs_lifetime(&self, ty: &Type) -> bool {
+        match ty {
+            Type::Tuple(ty) => ty.types.iter().any(|ty| self.needs_lifetime(ty)),
+            Type::List(_) | Type::String => true,
+            Type::Option(ty) => self.needs_lifetime(ty),
+            Type::Result(res) => {
+                res.ok
+                    .as_ref()
+                    .map(|ty| self.needs_lifetime(ty))
+                    .unwrap_or_default()
+                    || res
+                        .err
+                        .as_ref()
+                        .map(|ty| self.needs_lifetime(ty))
+                        .unwrap_or_default()
+            }
+            Type::Id(id) => {
+                let info = self.info(*id);
+                self.lifetime_for(&info, BorrowMode::AllBorrowed("'a"))
+                    .is_some()
+            }
             _ => false,
         }
     }

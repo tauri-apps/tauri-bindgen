@@ -1,10 +1,10 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod chars{
+  use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
   /// A function that accepts a character
   pub async fn take_char(x: char,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : char,
     }

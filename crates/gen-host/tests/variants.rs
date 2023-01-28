@@ -1,27 +1,27 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod variants{
+  use ::tauri_bindgen_host::tauri_bindgen_abi;
   pub const WORLD_HASH: &str = "8178d1f91285bbc1";
   #[repr(u8)]
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
+  #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
   pub enum E1{
     A,
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
+  #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
   pub enum U1{
     U32(u32),
     F32(f32),
   }
   #[repr(C)]
   #[derive(Debug, Copy, Clone, PartialEq)]
-  #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
-  #[serde(rename_all = "camelCase")]
+  #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
   pub struct Empty {
   }
   #[derive(Debug, Clone, PartialEq)]
-  #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
+  #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
   pub enum V1{
     A,
     B(U1),
@@ -32,51 +32,50 @@ pub mod variants{
     G(u32),
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
+  #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
   pub enum Casts1{
     A(i32),
     B(f32),
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
+  #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
   pub enum Casts2{
     A(f64),
     B(f32),
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
+  #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
   pub enum Casts3{
     A(f64),
     B(u64),
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
+  #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
   pub enum Casts4{
     A(u32),
     B(i64),
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
+  #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
   pub enum Casts5{
     A(f32),
     B(i64),
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
+  #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
   pub enum Casts6{
     A((f32,u32,)),
     B((u32,u32,)),
   }
   #[repr(u8)]
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::tauri_bindgen_host::serde::Serialize)]
+  #[derive(tauri_bindgen_abi::Writable)]
   pub enum MyErrno{
     Bad1,
     Bad2,
   }
   #[derive(Debug, Clone, PartialEq)]
-  #[derive(::tauri_bindgen_host::serde::Deserialize, ::tauri_bindgen_host::serde::Serialize)]
-  #[serde(rename_all = "camelCase")]
+  #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
   pub struct IsClone {
     pub v1: V1,
   }
@@ -114,6 +113,7 @@ pub mod variants{
   {
     
     move |invoke| {
+      
       let span = ::tauri_bindgen_host::tracing::span!(
       ::tauri_bindgen_host::tracing::Level::TRACE,
       "tauri-bindgen invoke handler",
@@ -128,23 +128,26 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let x= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            x : E1,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "e1-arg",
-            key: "x",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "e1-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.e1_arg(
-          x, );
+          params.x, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "e1-result" => {
           #[allow(unused_variables)]
@@ -152,11 +155,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "e1-result",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.e1_result(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "u1-arg" => {
           #[allow(unused_variables)]
@@ -164,23 +181,26 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let x= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            x : U1,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "u1-arg",
-            key: "x",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "u1-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.u1_arg(
-          x, );
+          params.x, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "u1-result" => {
           #[allow(unused_variables)]
@@ -188,11 +208,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "u1-result",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.u1_result(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "v1-arg" => {
           #[allow(unused_variables)]
@@ -200,23 +234,26 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let x= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            x : V1,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "v1-arg",
-            key: "x",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "v1-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.v1_arg(
-          x, );
+          params.x, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "v1-result" => {
           #[allow(unused_variables)]
@@ -224,11 +261,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "v1-result",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.v1_result(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "bool-arg" => {
           #[allow(unused_variables)]
@@ -236,23 +287,26 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let x= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            x : bool,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "bool-arg",
-            key: "x",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "bool-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.bool_arg(
-          x, );
+          params.x, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "bool-result" => {
           #[allow(unused_variables)]
@@ -260,11 +314,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "bool-result",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.bool_result(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "option-arg" => {
           #[allow(unused_variables)]
@@ -272,95 +340,32 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let a= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "option-arg",
-            key: "a",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "option-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            a : Option<bool>,
+            b : Option<()>,
+            c : Option<u32>,
+            d : Option<E1>,
+            e : Option<f32>,
+            f : Option<U1>,
+            g : Option<Option<bool>>,
+          }
           
-          let b= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "option-arg",
-            key: "b",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "option-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let c= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "option-arg",
-            key: "c",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "option-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let d= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "option-arg",
-            key: "d",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "option-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let e= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "option-arg",
-            key: "e",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "option-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let f= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "option-arg",
-            key: "f",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "option-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let g= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "option-arg",
-            key: "g",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "option-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.option_arg(
-          a, b, c, d, e, f, g, );
+          params.a, params.b, params.c, params.d, params.e, params.f, params.g, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "option-result" => {
           #[allow(unused_variables)]
@@ -368,11 +373,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "option-result",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.option_result(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "casts" => {
           #[allow(unused_variables)]
@@ -380,83 +399,31 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let a= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "casts",
-            key: "a",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "casts", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            a : Casts1,
+            b : Casts2,
+            c : Casts3,
+            d : Casts4,
+            e : Casts5,
+            f : Casts6,
+          }
           
-          let b= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "casts",
-            key: "b",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "casts", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let c= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "casts",
-            key: "c",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "casts", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let d= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "casts",
-            key: "d",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "casts", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let e= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "casts",
-            key: "e",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "casts", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let f= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "casts",
-            key: "f",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "casts", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.casts(
-          a, b, c, d, e, f, );
+          params.a, params.b, params.c, params.d, params.e, params.f, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "result-arg" => {
           #[allow(unused_variables)]
@@ -464,83 +431,31 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let a= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "result-arg",
-            key: "a",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "result-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            a : Result<(),()>,
+            b : Result<(),E1>,
+            c : Result<E1,()>,
+            d : Result<(),()>,
+            e : Result<u32,V1>,
+            f : Result<String,Vec<u8>>,
+          }
           
-          let b= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "result-arg",
-            key: "b",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "result-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let c= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "result-arg",
-            key: "c",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "result-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let d= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "result-arg",
-            key: "d",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "result-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let e= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "result-arg",
-            key: "e",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "result-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
-          
-          let f= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
-            name: "result-arg",
-            key: "f",
-            message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "result-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.result_arg(
-          a, b, c, d, e, f, );
+          params.a, params.b, params.c, params.d, params.e, params.f, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "result-result" => {
           #[allow(unused_variables)]
@@ -548,11 +463,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "result-result",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.result_result(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "return-result-sugar" => {
           #[allow(unused_variables)]
@@ -560,11 +489,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "return-result-sugar",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.return_result_sugar(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "return-result-sugar2" => {
           #[allow(unused_variables)]
@@ -572,11 +515,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "return-result-sugar2",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.return_result_sugar2(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "return-result-sugar3" => {
           #[allow(unused_variables)]
@@ -584,11 +541,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "return-result-sugar3",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.return_result_sugar3(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "return-result-sugar4" => {
           #[allow(unused_variables)]
@@ -596,11 +567,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "return-result-sugar4",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.return_result_sugar4(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "return-option-sugar" => {
           #[allow(unused_variables)]
@@ -608,11 +593,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "return-option-sugar",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.return_option_sugar(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "return-option-sugar2" => {
           #[allow(unused_variables)]
@@ -620,11 +619,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "return-option-sugar2",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.return_option_sugar2(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "result-simple" => {
           #[allow(unused_variables)]
@@ -632,11 +645,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "result-simple",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.result_simple(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "is-clone-arg" => {
           #[allow(unused_variables)]
@@ -644,23 +671,26 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let a= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            a : IsClone,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "is-clone-arg",
-            key: "a",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "variants", function = "is-clone-arg", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.is_clone_arg(
-          a, );
+          params.a, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "is-clone-return" => {
           #[allow(unused_variables)]
@@ -668,11 +698,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "is-clone-return",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.is_clone_return(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "return-named-option" => {
           #[allow(unused_variables)]
@@ -680,11 +724,25 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "return-named-option",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.return_named_option(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "return-named-result" => {
           #[allow(unused_variables)]
@@ -692,16 +750,27 @@ pub mod variants{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "return-named-result",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.return_named_result(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
-        func_name => {
-          ::tauri_bindgen_host::tracing::error!(module = "variants", function = func_name, "Not Found");
-          invoke.resolver.reject("Not Found");
-        }
+        _ => todo!(),
       }
     }
   }

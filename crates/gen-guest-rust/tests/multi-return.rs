@@ -1,6 +1,7 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod multi_return{
+  use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
   pub async fn mra() -> () {
     ::tauri_bindgen_guest_rust::invoke("plugin:def17a258c1e4f4d|mra", ()).await.unwrap()
   }

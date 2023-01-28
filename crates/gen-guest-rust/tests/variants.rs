@@ -1,26 +1,26 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod variants{
+  use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
   #[repr(u8)]
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::serde::Serialize, ::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
   pub enum E1{
     A,
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::serde::Serialize, ::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
   pub enum U1{
     U32(u32),
     F32(f32),
   }
   #[repr(C)]
   #[derive(Debug, Copy, Clone, PartialEq)]
-  #[derive(::serde::Serialize, ::serde::Deserialize)]
-  #[serde(rename_all = "camelCase")]
+  #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
   pub struct Empty {
   }
   #[derive(Debug, Clone, PartialEq)]
-  #[derive(::serde::Serialize)]
+  #[derive(tauri_bindgen_abi::Writable)]
   pub enum V1Param<'a,>{
     A,
     B(U1),
@@ -31,7 +31,7 @@ pub mod variants{
     G(u32),
   }
   #[derive(Debug, Clone, PartialEq)]
-  #[derive(::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Readable)]
   pub enum V1Result{
     A,
     B(U1),
@@ -42,64 +42,60 @@ pub mod variants{
     G(u32),
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::serde::Serialize, ::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
   pub enum Casts1{
     A(i32),
     B(f32),
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::serde::Serialize, ::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
   pub enum Casts2{
     A(f64),
     B(f32),
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::serde::Serialize, ::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
   pub enum Casts3{
     A(f64),
     B(u64),
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::serde::Serialize, ::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
   pub enum Casts4{
     A(u32),
     B(i64),
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::serde::Serialize, ::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
   pub enum Casts5{
     A(f32),
     B(i64),
   }
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::serde::Serialize, ::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
   pub enum Casts6{
     A((f32,u32,)),
     B((u32,u32,)),
   }
   #[repr(u8)]
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Readable)]
   pub enum MyErrno{
     Bad1,
     Bad2,
   }
   #[derive(Debug, Clone, PartialEq)]
-  #[derive(::serde::Serialize)]
-  #[serde(rename_all = "camelCase")]
+  #[derive(tauri_bindgen_abi::Writable)]
   pub struct IsCloneParam<'a,> {
-    #[serde(borrow)]
     pub v1: V1Param<'a,>,
   }
   #[derive(Debug, Clone, PartialEq)]
-  #[derive(::serde::Deserialize)]
-  #[serde(rename_all = "camelCase")]
+  #[derive(tauri_bindgen_abi::Readable)]
   pub struct IsCloneResult {
     pub v1: V1Result,
   }
   pub async fn e1_arg(x: E1,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : E1,
     }
@@ -110,8 +106,7 @@ pub mod variants{
     ::tauri_bindgen_guest_rust::invoke("plugin:8178d1f91285bbc1|e1-result", ()).await.unwrap()
   }
   pub async fn u1_arg(x: U1,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : U1,
     }
@@ -122,8 +117,7 @@ pub mod variants{
     ::tauri_bindgen_guest_rust::invoke("plugin:8178d1f91285bbc1|u1-result", ()).await.unwrap()
   }
   pub async fn v1_arg(x: V1Param<'_,>,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params<'a,> {
       x : V1Param<'a,>,
     }
@@ -134,8 +128,7 @@ pub mod variants{
     ::tauri_bindgen_guest_rust::invoke("plugin:8178d1f91285bbc1|v1-result", ()).await.unwrap()
   }
   pub async fn bool_arg(x: bool,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : bool,
     }
@@ -146,8 +139,7 @@ pub mod variants{
     ::tauri_bindgen_guest_rust::invoke("plugin:8178d1f91285bbc1|bool-result", ()).await.unwrap()
   }
   pub async fn option_arg(a: Option<bool>,b: Option<()>,c: Option<u32>,d: Option<E1>,e: Option<f32>,f: Option<U1>,g: Option<Option<bool>>,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       a : Option<bool>,
       b : Option<()>,
@@ -164,8 +156,7 @@ pub mod variants{
     ::tauri_bindgen_guest_rust::invoke("plugin:8178d1f91285bbc1|option-result", ()).await.unwrap()
   }
   pub async fn casts(a: Casts1,b: Casts2,c: Casts3,d: Casts4,e: Casts5,f: Casts6,) -> (Casts1,Casts2,Casts3,Casts4,Casts5,Casts6,) {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       a : Casts1,
       b : Casts2,
@@ -178,8 +169,7 @@ pub mod variants{
     ::tauri_bindgen_guest_rust::invoke("plugin:8178d1f91285bbc1|casts", &params).await.unwrap()
   }
   pub async fn result_arg(a: Result<(),()>,b: Result<(),E1>,c: Result<E1,()>,d: Result<(),()>,e: Result<u32,V1Param<'_,>>,f: Result<&str,&[u8]>,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params<'a,> {
       a : Result<(),()>,
       b : Result<(),E1>,
@@ -216,8 +206,7 @@ pub mod variants{
     ::tauri_bindgen_guest_rust::invoke("plugin:8178d1f91285bbc1|result-simple", ()).await.unwrap()
   }
   pub async fn is_clone_arg(a: IsCloneParam<'_,>,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params<'a,> {
       a : IsCloneParam<'a,>,
     }

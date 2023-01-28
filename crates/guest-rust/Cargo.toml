@@ -9,8 +9,11 @@ rust-version = "1.59"
 [dependencies]
 bitflags = "1.3.2"
 tauri-bindgen-guest-rust-macro = { path = "../guest-rust-macro" }
-serde-wasm-bindgen = "0.4.5"
 wasm-bindgen-futures = "0.4.33"
 js-sys = "0.3.60" 
 wasm-bindgen = { version = "0.2.83", features = ["serde-serialize"] }
+serde-wasm-bindgen = "0.4.5"
 serde = { version = "1.0.152", features = ["derive"] }
+tauri-bindgen-abi = { path = "../abi", features = ["derive"] }
+base64 = "0.21.0"
+tracing = "0.1.37"

@@ -1,21 +1,22 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod flegs{
+  use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
   ::tauri_bindgen_guest_rust::bitflags::bitflags! {
-    #[derive(::serde::Serialize, ::serde::Deserialize)]
+    #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
     pub struct Flag1: u8 {
       const B0 = 1 << 0;
     }
   }
   ::tauri_bindgen_guest_rust::bitflags::bitflags! {
-    #[derive(::serde::Serialize, ::serde::Deserialize)]
+    #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
     pub struct Flag2: u8 {
       const B0 = 1 << 0;
       const B1 = 1 << 1;
     }
   }
   ::tauri_bindgen_guest_rust::bitflags::bitflags! {
-    #[derive(::serde::Serialize, ::serde::Deserialize)]
+    #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
     pub struct Flag4: u8 {
       const B0 = 1 << 0;
       const B1 = 1 << 1;
@@ -24,7 +25,7 @@ pub mod flegs{
     }
   }
   ::tauri_bindgen_guest_rust::bitflags::bitflags! {
-    #[derive(::serde::Serialize, ::serde::Deserialize)]
+    #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
     pub struct Flag8: u8 {
       const B0 = 1 << 0;
       const B1 = 1 << 1;
@@ -37,7 +38,7 @@ pub mod flegs{
     }
   }
   ::tauri_bindgen_guest_rust::bitflags::bitflags! {
-    #[derive(::serde::Serialize, ::serde::Deserialize)]
+    #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
     pub struct Flag16: u16 {
       const B0 = 1 << 0;
       const B1 = 1 << 1;
@@ -58,7 +59,7 @@ pub mod flegs{
     }
   }
   ::tauri_bindgen_guest_rust::bitflags::bitflags! {
-    #[derive(::serde::Serialize, ::serde::Deserialize)]
+    #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
     pub struct Flag32: u32 {
       const B0 = 1 << 0;
       const B1 = 1 << 1;
@@ -95,7 +96,7 @@ pub mod flegs{
     }
   }
   ::tauri_bindgen_guest_rust::bitflags::bitflags! {
-    #[derive(::serde::Serialize, ::serde::Deserialize)]
+    #[derive(tauri_bindgen_abi::Writable, tauri_bindgen_abi::Readable)]
     pub struct Flag64: u64 {
       const B0 = 1 << 0;
       const B1 = 1 << 1;
@@ -164,8 +165,7 @@ pub mod flegs{
     }
   }
   pub async fn roundtrip_flag1(x: Flag1,) -> Flag1 {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : Flag1,
     }
@@ -173,8 +173,7 @@ pub mod flegs{
     ::tauri_bindgen_guest_rust::invoke("plugin:13a360f690a38bbb|roundtrip-flag1", &params).await.unwrap()
   }
   pub async fn roundtrip_flag2(x: Flag2,) -> Flag2 {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : Flag2,
     }
@@ -182,8 +181,7 @@ pub mod flegs{
     ::tauri_bindgen_guest_rust::invoke("plugin:13a360f690a38bbb|roundtrip-flag2", &params).await.unwrap()
   }
   pub async fn roundtrip_flag4(x: Flag4,) -> Flag4 {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : Flag4,
     }
@@ -191,8 +189,7 @@ pub mod flegs{
     ::tauri_bindgen_guest_rust::invoke("plugin:13a360f690a38bbb|roundtrip-flag4", &params).await.unwrap()
   }
   pub async fn roundtrip_flag8(x: Flag8,) -> Flag8 {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : Flag8,
     }
@@ -200,8 +197,7 @@ pub mod flegs{
     ::tauri_bindgen_guest_rust::invoke("plugin:13a360f690a38bbb|roundtrip-flag8", &params).await.unwrap()
   }
   pub async fn roundtrip_flag16(x: Flag16,) -> Flag16 {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : Flag16,
     }
@@ -209,8 +205,7 @@ pub mod flegs{
     ::tauri_bindgen_guest_rust::invoke("plugin:13a360f690a38bbb|roundtrip-flag16", &params).await.unwrap()
   }
   pub async fn roundtrip_flag32(x: Flag32,) -> Flag32 {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : Flag32,
     }
@@ -218,8 +213,7 @@ pub mod flegs{
     ::tauri_bindgen_guest_rust::invoke("plugin:13a360f690a38bbb|roundtrip-flag32", &params).await.unwrap()
   }
   pub async fn roundtrip_flag64(x: Flag64,) -> Flag64 {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : Flag64,
     }

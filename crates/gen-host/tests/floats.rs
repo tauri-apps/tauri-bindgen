@@ -1,6 +1,7 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod floats{
+  use ::tauri_bindgen_host::tauri_bindgen_abi;
   pub const WORLD_HASH: &str = "979575fda4ffb8b9";
   pub trait Floats: Sized {
     fn float32_param(&self,x: f32,) -> ::tauri_bindgen_host::anyhow::Result<()>;
@@ -16,6 +17,7 @@ pub mod floats{
   {
     
     move |invoke| {
+      
       let span = ::tauri_bindgen_host::tracing::span!(
       ::tauri_bindgen_host::tracing::Level::TRACE,
       "tauri-bindgen invoke handler",
@@ -30,23 +32,26 @@ pub mod floats{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let x= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            x : f32,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "float32-param",
-            key: "x",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "floats", function = "float32-param", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.float32_param(
-          x, );
+          params.x, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "float64-param" => {
           #[allow(unused_variables)]
@@ -54,23 +59,26 @@ pub mod floats{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
-          let x= match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+            x : f64,
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
             name: "float64-param",
-            key: "x",
+            key: "encoded",
             message: &__tauri_message__,
-          }) {
-            Ok(arg) => arg,
-            Err(err) => {
-              ::tauri_bindgen_host::tracing::error!(module = "floats", function = "float64-param", "Invoke handler returned error {:?}", err);
-              return __tauri_resolver__.invoke_error(err);
-            },
-          };
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
           
           let result = ctx.float64_param(
-          x, );
+          params.x, );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "float32-result" => {
           #[allow(unused_variables)]
@@ -78,11 +86,25 @@ pub mod floats{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "float32-result",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.float32_result(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
         "float64-result" => {
           #[allow(unused_variables)]
@@ -90,16 +112,27 @@ pub mod floats{
             message: __tauri_message__,
             resolver: __tauri_resolver__,
           } = invoke;
+          #[derive(tauri_bindgen_abi::Readable)]
+          struct Params {
+          }
+          
+          let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {
+            name: "float64-result",
+            key: "encoded",
+            message: &__tauri_message__,
+          }).unwrap();
+          let message = ::tauri_bindgen_host::decode_base64(&message);
+          let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+          
           let result = ctx.float64_result(
           );
           
-          __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-          
+          __tauri_resolver__.respond(result
+          .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+          .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+          );
         },
-        func_name => {
-          ::tauri_bindgen_host::tracing::error!(module = "floats", function = func_name, "Not Found");
-          invoke.resolver.reject("Not Found");
-        }
+        _ => todo!(),
       }
     }
   }

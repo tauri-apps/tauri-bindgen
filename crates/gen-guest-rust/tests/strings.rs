@@ -1,9 +1,9 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod strings{
+  use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
   pub async fn a(x: &str,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params<'a,> {
       x : &'a str,
     }
@@ -14,8 +14,7 @@ pub mod strings{
     ::tauri_bindgen_guest_rust::invoke("plugin:4883b53925a5f618|b", ()).await.unwrap()
   }
   pub async fn c(a: &str,b: &str,) -> String {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params<'a,> {
       a : &'a str,
       b : &'a str,

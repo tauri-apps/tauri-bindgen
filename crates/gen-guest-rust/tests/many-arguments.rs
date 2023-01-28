@@ -1,9 +1,9 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod many_arguments{
+  use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
   #[derive(Debug, Clone, PartialEq)]
-  #[derive(::serde::Serialize)]
-  #[serde(rename_all = "camelCase")]
+  #[derive(tauri_bindgen_abi::Writable)]
   pub struct BigStruct<'a,> {
     pub a1: &'a str,
     pub a2: &'a str,
@@ -27,8 +27,7 @@ pub mod many_arguments{
     pub a20: &'a str,
   }
   pub async fn many_args(a1: u64,a2: u64,a3: u64,a4: u64,a5: u64,a6: u64,a7: u64,a8: u64,a9: u64,a10: u64,a11: u64,a12: u64,a13: u64,a14: u64,a15: u64,a16: u64,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       a1 : u64,
       a2 : u64,
@@ -51,8 +50,7 @@ pub mod many_arguments{
     ::tauri_bindgen_guest_rust::invoke("plugin:b26e5107ff225c6b|many-args", &params).await.unwrap()
   }
   pub async fn big_argument(x: BigStruct<'_,>,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params<'a,> {
       x : BigStruct<'a,>,
     }

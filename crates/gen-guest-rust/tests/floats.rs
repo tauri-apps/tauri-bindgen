@@ -1,9 +1,9 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod floats{
+  use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
   pub async fn float32_param(x: f32,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : f32,
     }
@@ -11,8 +11,7 @@ pub mod floats{
     ::tauri_bindgen_guest_rust::invoke("plugin:979575fda4ffb8b9|float32-param", &params).await.unwrap()
   }
   pub async fn float64_param(x: f64,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : f64,
     }

@@ -90,12 +90,16 @@ pub fn writable_flags() -> TokenStream {
 }
 
 pub fn size_hint_struct(data: &DataStruct) -> TokenStream {
-    let fields = data.fields.iter().map(|syn::Field { ident, .. }| {
-        quote! { self.#ident.size_hint() }
-    });
+    if data.fields.is_empty() {
+        quote! { 0 }
+    } else {
+        let fields = data.fields.iter().map(|syn::Field { ident, .. }| {
+            quote! { self.#ident.size_hint() }
+        });
 
-    quote! {
-        #(#fields)+*
+        quote! {
+            #(#fields)+*
+        }
     }
 }
 

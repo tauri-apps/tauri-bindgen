@@ -1,9 +1,9 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod integers{
+  use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
   pub async fn a1(x: u8,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : u8,
     }
@@ -11,8 +11,7 @@ pub mod integers{
     ::tauri_bindgen_guest_rust::invoke("plugin:0c0ef23cf9639264|a1", &params).await.unwrap()
   }
   pub async fn a2(x: i8,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : i8,
     }
@@ -20,8 +19,7 @@ pub mod integers{
     ::tauri_bindgen_guest_rust::invoke("plugin:0c0ef23cf9639264|a2", &params).await.unwrap()
   }
   pub async fn a3(x: u16,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : u16,
     }
@@ -29,8 +27,7 @@ pub mod integers{
     ::tauri_bindgen_guest_rust::invoke("plugin:0c0ef23cf9639264|a3", &params).await.unwrap()
   }
   pub async fn a4(x: i16,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : i16,
     }
@@ -38,8 +35,7 @@ pub mod integers{
     ::tauri_bindgen_guest_rust::invoke("plugin:0c0ef23cf9639264|a4", &params).await.unwrap()
   }
   pub async fn a5(x: u32,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : u32,
     }
@@ -47,8 +43,7 @@ pub mod integers{
     ::tauri_bindgen_guest_rust::invoke("plugin:0c0ef23cf9639264|a5", &params).await.unwrap()
   }
   pub async fn a6(x: i32,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : i32,
     }
@@ -56,8 +51,7 @@ pub mod integers{
     ::tauri_bindgen_guest_rust::invoke("plugin:0c0ef23cf9639264|a6", &params).await.unwrap()
   }
   pub async fn a7(x: u64,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : u64,
     }
@@ -65,8 +59,7 @@ pub mod integers{
     ::tauri_bindgen_guest_rust::invoke("plugin:0c0ef23cf9639264|a7", &params).await.unwrap()
   }
   pub async fn a8(x: i64,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : i64,
     }
@@ -74,8 +67,7 @@ pub mod integers{
     ::tauri_bindgen_guest_rust::invoke("plugin:0c0ef23cf9639264|a8", &params).await.unwrap()
   }
   pub async fn a9(p1: u8,p2: i8,p3: u16,p4: i16,p5: u32,p6: i32,p7: u64,p8: i64,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       p1 : u8,
       p2 : i8,

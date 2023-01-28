@@ -6,7 +6,7 @@ pub fn readable_struct(data: &DataStruct) -> TokenStream {
     let fields = data
         .fields
         .iter()
-        .map(|syn::Field { ident, .. }| quote! { #ident : ::tauri_bindgen_abi::Readable::read_from(read)?});
+        .map(|syn::Field { ident, .. }| quote! { #ident : tauri_bindgen_abi::Readable::read_from(read)?});
 
     quote! {
         Ok(Self {
@@ -34,7 +34,7 @@ pub fn readable_enum(data: &DataEnum) -> TokenStream {
                     syn::Fields::Named(fields) => {
                         let fields = fields.named.iter().map(|syn::Field { ident, .. }| {
                             quote! {
-                                #ident: ::tauri_bindgen_abi::Readable::read_from(read)?
+                                #ident: tauri_bindgen_abi::Readable::read_from(read)?
                             }
                         });
 
@@ -44,7 +44,7 @@ pub fn readable_enum(data: &DataEnum) -> TokenStream {
                         let fields = fields
                             .unnamed
                             .iter()
-                            .map(|_| quote! { ::tauri_bindgen_abi::Readable::read_from(read)? });
+                            .map(|_| quote! { tauri_bindgen_abi::Readable::read_from(read)? });
 
                         quote! { (#(#fields),*) }
                     }
@@ -67,7 +67,7 @@ pub fn readable_enum(data: &DataEnum) -> TokenStream {
 
 pub fn readable_flags() -> TokenStream {
     quote! {
-        let bits = ::tauri_bindgen_abi::Readable::read_from(read)?;
-        Self::from_bits(bits).ok_or(::tauri_bindgen_abi::Error::InvalidFlags)
+        let bits = tauri_bindgen_abi::Readable::read_from(read)?;
+        Self::from_bits(bits).ok_or(tauri_bindgen_abi::Error::InvalidFlags)
     }
 }

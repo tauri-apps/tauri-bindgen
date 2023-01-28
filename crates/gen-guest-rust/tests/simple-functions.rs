@@ -1,12 +1,12 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod simple_functions{
+  use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
   pub async fn f1() -> () {
     ::tauri_bindgen_guest_rust::invoke("plugin:d52f0e93c1bb4daa|f1", ()).await.unwrap()
   }
   pub async fn f2(a: u32,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       a : u32,
     }
@@ -14,8 +14,7 @@ pub mod simple_functions{
     ::tauri_bindgen_guest_rust::invoke("plugin:d52f0e93c1bb4daa|f2", &params).await.unwrap()
   }
   pub async fn f3(a: u32,b: u32,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       a : u32,
       b : u32,
@@ -30,8 +29,7 @@ pub mod simple_functions{
     ::tauri_bindgen_guest_rust::invoke("plugin:d52f0e93c1bb4daa|f5", ()).await.unwrap()
   }
   pub async fn f6(a: u32,b: u32,c: u32,) -> (u32,u32,u32,) {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       a : u32,
       b : u32,

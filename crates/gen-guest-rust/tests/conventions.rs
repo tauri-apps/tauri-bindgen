@@ -1,10 +1,10 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod conventions{
+  use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
   #[repr(C)]
   #[derive(Debug, Copy, Clone, PartialEq)]
-  #[derive(::serde::Serialize)]
-  #[serde(rename_all = "camelCase")]
+  #[derive(tauri_bindgen_abi::Writable)]
   pub struct LudicrousSpeed {
     pub how_fast_are_you_going: u32,
     pub i_am_going_extremely_slow: u64,
@@ -13,8 +13,7 @@ pub mod conventions{
     ::tauri_bindgen_guest_rust::invoke("plugin:3d46778dded1f0fb|kebab-case", ()).await.unwrap()
   }
   pub async fn foo(x: LudicrousSpeed,) -> () {
-    #[derive(::serde::Serialize)]
-    #[serde(rename_all = "camelCase")]
+    #[derive(Debug, tauri_bindgen_abi::Writable)]
     struct Params {
       x : LudicrousSpeed,
     }

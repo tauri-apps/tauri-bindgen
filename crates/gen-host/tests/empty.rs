@@ -1,6 +1,7 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod empty{
+  use ::tauri_bindgen_host::tauri_bindgen_abi;
   pub const WORLD_HASH: &str = "882ecd0a3d152e5d";
   pub trait Empty: Sized {
   }
@@ -12,6 +13,7 @@ pub mod empty{
   {
     
     move |invoke| {
+      
       let span = ::tauri_bindgen_host::tracing::span!(
       ::tauri_bindgen_host::tracing::Level::TRACE,
       "tauri-bindgen invoke handler",
@@ -20,10 +22,7 @@ pub mod empty{
       let _enter = span.enter();
       
       match invoke.message.command() {
-        func_name => {
-          ::tauri_bindgen_host::tracing::error!(module = "empty", function = func_name, "Not Found");
-          invoke.resolver.reject("Not Found");
-        }
+        _ => todo!(),
       }
     }
   }

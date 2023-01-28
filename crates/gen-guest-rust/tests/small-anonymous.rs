@@ -1,9 +1,10 @@
-#![allow(clippy::all, unused)]
+#[allow(clippy::all, unused)]
 #[rustfmt::skip]
 pub mod small_anonymous{
+  use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
   #[repr(u8)]
   #[derive(Debug, Clone, Copy, PartialEq)]
-  #[derive(::serde::Deserialize)]
+  #[derive(tauri_bindgen_abi::Readable)]
   pub enum Error{
     Success,
     Failure,
