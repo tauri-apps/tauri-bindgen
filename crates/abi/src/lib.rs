@@ -156,6 +156,7 @@ mod test {
 
     proptest! {
         #[test]
+        #[cfg_attr(miri, ignore)] // MIRI cannot run proptest tests
         fn struct_(input: MyStruct) {
             let bytes = crate::to_bytes(&input)?;
 
@@ -165,6 +166,7 @@ mod test {
         }
 
         #[test]
+        #[cfg_attr(miri, ignore)] // MIRI cannot run proptest tests
         fn enum_unit(input: MyEnumUnit) {
             let bytes = crate::to_bytes(&input)?;
 
@@ -174,6 +176,7 @@ mod test {
         }
 
         #[test]
+        #[cfg_attr(miri, ignore)] // MIRI cannot run proptest tests
         fn enum_unnamed(input: MyEnumUnnamed) {
             let bytes = crate::to_bytes(&input)?;
 
@@ -183,6 +186,7 @@ mod test {
         }
 
         #[test]
+        #[cfg_attr(miri, ignore)] // MIRI cannot run proptest tests
         fn enum_named(input: MyEnumNamed) {
             let bytes = crate::to_bytes(&input)?;
 
@@ -192,6 +196,7 @@ mod test {
         }
 
         #[test]
+        #[cfg_attr(miri, ignore)] // MIRI cannot run proptest tests
         fn flags(input: MyFlags) {
             let bytes = crate::to_bytes(&input)?;
 
