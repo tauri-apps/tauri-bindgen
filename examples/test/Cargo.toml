@@ -13,6 +13,7 @@ serde = { version = "1.0.147", features = ["derive"] }
 log = { version = "0.4.17", features = ["serde"] }
 tauri-bindgen-guest-rust = { path = "../../crates/guest-rust" }
 wasm-logger = "0.2.0"
+tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys" }
 
 # futures = "0.3.25"
 # gloo-timers = { version = "0.2.4", features = ["futures"] }

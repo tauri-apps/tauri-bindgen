@@ -1,13 +1,10 @@
-// mod tauri_log;
 mod roundtrip;
 
 extern crate console_error_panic_hook;
-// use log::LevelFilter;
 use std::future::Future;
 use std::panic;
 use sycamore::prelude::*;
 use sycamore::suspense::Suspense;
-// use tauri_log::TauriLogger;
 
 #[cfg(feature = "ci")]
 async fn exit_with_error(e: String) {
