@@ -109,6 +109,36 @@ jobs:
         env:
           MIRIFLAGS: -Zmiri-strict-provenance
 
+    e2e:
+    name: E2E Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install stable toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+        target: wasm32-unknown-unknown
+    - uses: Swatinem/rust-cache@v1
+    - name: Install native deps
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y webkit2gtk-4.0 at-spi2-core
+    - name: Install Tauri CLI
+      run: |
+        cd examples/test
+        wget -qO- https://github.com/tauri-apps/tauri/releases/download/cli.rs-v1.2.0/cargo-tauri-x86_64-unknown-linux-gnu.tgz | tar -xzf- -C ~/.cargo/bin
+    - name: Install Trunk
+      run: |
+        cd examples/test
+        wget -qO- https://github.com/thedodd/trunk/releases/download/v0.16.0/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf- -C ~/.cargo/bin
+    - name: Run test app
+      run: |
+        cd examples/test
+        export CARGO_UNSTABLE_SPARSE_REGISTRY=true
+        xvfb-run cargo tauri dev --exit-on-panic --config ./src-tauri/ci.tauri.conf.json
   # outdated:
   #   name: Outdated
   #   runs-on: ubuntu-latest
