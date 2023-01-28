@@ -19,28 +19,30 @@ extern "C" {
 ///
 /// Invoking commands can always fail when the Host implementation decides to fail the operation,
 /// when the Host implementation panics, or when somehting fails during serialization/deserialization or transmision of the message.
-/// 
+///
 /// # Panics
-/// 
+///
 /// TODO
 #[tracing::instrument]
 pub async fn invoke<P: Writable + Debug, R: Readable + Debug>(cmd: &str, val: P) -> Result<R, ()> {
-    let bytes = tauri_bindgen_abi::to_bytes(&val)
-        .expect("failed to serialize parameters");
+    let bytes = tauri_bindgen_abi::to_bytes(&val).expect("failed to serialize parameters");
 
     tracing::debug!("request bytes: {:#01x?}", bytes);
 
     let raw = __TAURI_INVOKE__(
         JsValue::from_str(cmd),
         serde_wasm_bindgen::to_value(&Request {
-            encoded: general_purpose::STANDARD_NO_PAD.encode(bytes)
-        }).unwrap()
+            encoded: general_purpose::STANDARD_NO_PAD.encode(bytes),
+        })
+        .unwrap(),
     )
     .await
     .map_err(|_| ())?;
 
     let base64_encoded = raw.as_string().unwrap();
-    let bytes = general_purpose::STANDARD_NO_PAD.decode(base64_encoded).expect("failed to base64 decode response");
+    let bytes = general_purpose::STANDARD_NO_PAD
+        .decode(base64_encoded)
+        .expect("failed to base64 decode response");
 
     tracing::debug!("response bytes: {:?}", bytes);
 
@@ -49,7 +51,7 @@ pub async fn invoke<P: Writable + Debug, R: Readable + Debug>(cmd: &str, val: P)
 
 #[derive(Serialize)]
 struct Request {
-    encoded: String
+    encoded: String,
 }
 
 // pub async fn invoke<P: Serialize, R: DeserializeOwned>(cmd: &str, val: P) -> Result<R, ()> {

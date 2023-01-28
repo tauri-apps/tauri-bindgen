@@ -203,7 +203,8 @@ impl<'a> InterfaceGenerator<'a> {
             }}).unwrap();
             let message = ::tauri_bindgen_host::decode_base64(&message);
             let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
-        "#, func.name
+        "#,
+            func.name
         );
 
         // call method

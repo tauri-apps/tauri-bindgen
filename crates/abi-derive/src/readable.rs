@@ -3,10 +3,9 @@ use quote::quote;
 use syn::{DataEnum, DataStruct};
 
 pub fn readable_struct(data: &DataStruct) -> TokenStream {
-    let fields = data
-        .fields
-        .iter()
-        .map(|syn::Field { ident, .. }| quote! { #ident : tauri_bindgen_abi::Readable::read_from(read)?});
+    let fields = data.fields.iter().map(
+        |syn::Field { ident, .. }| quote! { #ident : tauri_bindgen_abi::Readable::read_from(read)?},
+    );
 
     quote! {
         Ok(Self {

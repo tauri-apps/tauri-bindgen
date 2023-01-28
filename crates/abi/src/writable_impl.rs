@@ -322,20 +322,20 @@ macro_rules! impl_for_tuple {
     }
 }
 
-impl_for_tuple!( A0 );
-impl_for_tuple!( A0, A1 );
-impl_for_tuple!( A0, A1, A2 );
-impl_for_tuple!( A0, A1, A2, A3 );
-impl_for_tuple!( A0, A1, A2, A3, A4 );
-impl_for_tuple!( A0, A1, A2, A3, A4, A5 );
-impl_for_tuple!( A0, A1, A2, A3, A4, A5, A6 );
-impl_for_tuple!( A0, A1, A2, A3, A4, A5, A6, A7 );
-impl_for_tuple!( A0, A1, A2, A3, A4, A5, A6, A7, A8 );
-impl_for_tuple!( A0, A1, A2, A3, A4, A5, A6, A7, A8, A9 );
-impl_for_tuple!( A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10 );
-impl_for_tuple!( A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11 );
-impl_for_tuple!( A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 );
-impl_for_tuple!( A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13 );
-impl_for_tuple!( A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14 );
-impl_for_tuple!( A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15 );
-impl_for_tuple!( A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16 );
+impl_for_tuple!(A0);
+impl_for_tuple!(A0, A1);
+impl_for_tuple!(A0, A1, A2);
+impl_for_tuple!(A0, A1, A2, A3);
+impl_for_tuple!(A0, A1, A2, A3, A4);
+impl_for_tuple!(A0, A1, A2, A3, A4, A5);
+impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6);
+impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6, A7);
+impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6, A7, A8);
+impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9);
+impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10);
+impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11);
+impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12);
+impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13);
+impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14);
+impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15);
+impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16);

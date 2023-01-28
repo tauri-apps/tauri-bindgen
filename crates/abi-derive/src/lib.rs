@@ -13,7 +13,11 @@ use writable::{
 #[proc_macro_derive(Readable, attributes(abi))]
 pub fn derive_readable(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let DeriveInput {
-        ident, data, attrs, generics, ..
+        ident,
+        data,
+        attrs,
+        generics,
+        ..
     } = parse_macro_input!(input);
 
     let uses_flags_abi = attrs
@@ -43,7 +47,11 @@ pub fn derive_readable(input: proc_macro::TokenStream) -> proc_macro::TokenStrea
 #[proc_macro_derive(Writable, attributes(abi))]
 pub fn derive_writable(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let DeriveInput {
-        ident, data, attrs, generics, ..
+        ident,
+        data,
+        attrs,
+        generics,
+        ..
     } = parse_macro_input!(input);
 
     let uses_flags_abi = attrs

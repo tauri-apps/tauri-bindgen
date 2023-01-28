@@ -143,7 +143,7 @@ impl<'a> InterfaceGenerator<'a> {
                 self.src.push_str(&param.to_snake_case());
                 self.src.push_str(",");
             }
-    
+
             self.src.push_str("};\n");
         }
 

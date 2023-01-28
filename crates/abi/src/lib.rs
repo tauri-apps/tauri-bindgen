@@ -1,6 +1,4 @@
-use std::{
-    io::{self, Read},
-};
+use std::io::{self, Read};
 
 mod readable_impl;
 mod writable_impl;
