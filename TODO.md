@@ -45,8 +45,3 @@
 - explore adding the `stream` type defined by wit
 - explore adding back exports (functions exposed from JS to Rust)
 - explore platform specific codegen
-
-# ABI
-
-- improve error type
-- dont panic in `Vec`s `Writable` impl

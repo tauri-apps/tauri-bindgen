@@ -3390,6 +3390,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "tauri-sys"
+version = "0.1.0"
+source = "git+https://github.com/JonasKruckenberg/tauri-sys#0d2dcccac3529ae49792202d8765efb43f6d0b7a"
+dependencies = [
+ "js-sys",
+ "log",
+ "serde",
+ "serde-wasm-bindgen",
+ "thiserror",
+ "url",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+]
+
+[[package]]
 name = "tauri-sys-test"
 version = "0.0.0"
 dependencies = [
@@ -3411,6 +3426,7 @@ dependencies = [
  "serde",
  "sycamore",
  "tauri-bindgen-guest-rust",
+ "tauri-sys",
  "wasm-bindgen-futures",
  "wasm-logger",
 ]
