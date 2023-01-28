@@ -10,6 +10,7 @@ interface roundtrip {
         a: u32,
         /// The second field, named b
         b: u32,
+        c: scalars
     }
 
     func record-scalars(val: scalars) -> scalars
