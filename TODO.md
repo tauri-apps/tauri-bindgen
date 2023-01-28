@@ -1,16 +1,12 @@
 # General
 
-- improve error DX
 - structured serialization for results
 - Validate serialization and deserialization works across the bridge
 - add logging across the board, both during gen and runtime
-- fork `wit-parser` and remove worlds & exports
 - publish to crates.io
 
 # CLI
 
-- fix out-dir option
-- add verbose option
 - add napi bindings
 
 # Host

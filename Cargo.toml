@@ -19,3 +19,5 @@ tauri-bindgen-gen-guest-ts = { path = "crates/gen-guest-ts", features = ['cli'] 
 tauri-bindgen-gen-guest-js = { path = "crates/gen-guest-js", features = ['cli'] }
 wit-parser = { path = "crates/wit-parser" }
 miette = { version = "5.5.0", features = ["fancy"] }
+env_logger = "0.10.0"
+log = { version = "0.4.17", features = [ "kv_unstable", "kv_unstable_std" ] }
