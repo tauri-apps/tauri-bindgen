@@ -1,15 +1,16 @@
 [package]
 name = "tauri-bindgen-gen-guest-rust"
-version = "0.1.0"
-edition = "2021"
-rust-version = "1.59"
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 tauri-bindgen-gen-rust = { path = "../gen-rust" }
-tauri-bindgen-core = { path = "../bindgen-core" }
-wit-parser = { path = "../wit-parser" }
-heck =  { version = "0.4", features = ["unicode"] }
-clap = { version = "3.2.23", features = ["derive"], optional = true }
+tauri-bindgen-core.workspace = true
+wit-parser.workspace = true
+heck.workspace = true
+clap = { workspace = true, optional = true }
 
 [dev-dependencies]
 wasm-bindgen = { version = "0.2.83", features = ["serde-serialize"] }
@@ -21,7 +22,7 @@ serde = { version = "1.0.152", features = ["derive"] }
 # tauri-bindgen-abi = { path = "../abi" }
 
 [target."cfg(miri)".dev-dependencies]
-tauri-bindgen-core = { path = "../bindgen-core", features = ["miri_test"] }
+tauri-bindgen-core = { workspace = true, features = ["miri_test"] }
 
 [features]
 cli = ["clap"]

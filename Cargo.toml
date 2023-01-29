@@ -1,15 +1,24 @@
 [package]
 name = "tauri-bindgen-cli"
-authors = ["Jonas Kruckenberg <iterpre@protonmail.com>"]
-version = "0.1.0"
-edition = "2021"
-rust-version = "1.59"
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 
 [workspace]
 members = ["crates/*"]
 resolver = "2"
 
-[dependencies]
+[workspace.package]
+authors = ["Jonas Kruckenberg <iterpre@protonmail.com>"]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.64"
+
+[workspace.dependencies]
+thiserror = "1.0.38"
+bitflags = "1.3.2"
+heck =  { version = "0.4", features = ["unicode"] }
 clap = { version = "3.2.23", features = ["derive"] }
 tauri-bindgen-core = { path = "crates/bindgen-core" }
 tauri-bindgen-gen-host = { path = "crates/gen-host", features = ['cli'] }
@@ -19,3 +28,14 @@ tauri-bindgen-gen-guest-ts = { path = "crates/gen-guest-ts", features = ['cli'] 
 tauri-bindgen-gen-guest-js = { path = "crates/gen-guest-js", features = ['cli'] }
 wit-parser = { path = "crates/wit-parser" }
 miette = { version = "5.5.0", features = ["fancy"] }
+
+[dependencies]
+clap.workspace = true
+tauri-bindgen-core.workspace = true
+tauri-bindgen-gen-host.workspace = true
+tauri-bindgen-gen-markdown.workspace = true
+tauri-bindgen-gen-guest-rust.workspace = true
+tauri-bindgen-gen-guest-ts.workspace = true
+tauri-bindgen-gen-guest-js.workspace = true
+wit-parser.workspace = true
+miette.workspace = true

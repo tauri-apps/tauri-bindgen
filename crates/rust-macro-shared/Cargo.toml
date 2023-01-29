@@ -1,8 +1,9 @@
 [package]
 name = "rust-macro-shared"
-version = "0.1.0"
-edition = "2021"
-rust-version = "1.59"
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 
 [lib]
 doctest = false
@@ -11,5 +12,5 @@ test = false
 [dependencies]
 proc-macro2 = "1.0"
 syn = "1.0"
-tauri-bindgen-core = { path = "../bindgen-core" }
-wit-parser = { path = "../wit-parser" }
+tauri-bindgen-core.workspace = true
+wit-parser.workspace = true

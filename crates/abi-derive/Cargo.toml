@@ -1,7 +1,9 @@
 [package]
 name = "tauri-bindgen-abi-derive"
-version = "0.1.0"
-edition = "2021"
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -16,4 +18,4 @@ syn = { version = "1.0.107", features = ["full"] }
 
 [dev-dependencies]
 tauri-bindgen-abi = { path = "../abi" }
-bitflags = "1.3.2"
+bitflags.workspace = true
