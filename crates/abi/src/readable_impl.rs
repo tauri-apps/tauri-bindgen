@@ -1,4 +1,5 @@
 use super::{ensure, Error, Readable};
+use std::fmt::Debug;
 use std::{
     io::{self, Read},
     mem::MaybeUninit,
@@ -269,13 +270,9 @@ impl<T: Readable> Readable for Vec<T> {
     fn read_from(read: &mut impl io::Read) -> Result<Self, Error> {
         let length = usize::read_from(read)?;
 
-        Ok((0..length)
-            .into_iter()
-            .map(|i| {
-                T::read_from(read)
-                    .unwrap_or_else(|err| panic!("failed to read el {i} with error {err}"))
-            })
-            .collect())
+        let value = lift_errors((0..length).into_iter().map(|_| T::read_from(read)))?.collect();
+
+        Ok(value)
     }
 }
 
@@ -348,3 +345,23 @@ impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13);
 impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14);
 impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15);
 impl_for_tuple!(A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16);
+
+fn lift_errors<T, E>(
+    iter: impl Iterator<Item = Result<T, E>>,
+) -> Result<impl Iterator<Item = T>, Error>
+where
+    E: Into<Error> + Debug,
+{
+    let (types, errors): (Vec<_>, Vec<_>) = iter.partition(Result::is_ok);
+
+    let errors: Vec<_> = errors
+        .into_iter()
+        // we use unwrap_err_unchecked() here so we don't have to impose `T: Debug`
+        .map(|err| unsafe { err.unwrap_err_unchecked().into() })
+        .collect();
+    if !errors.is_empty() {
+        return Err(Error::Multiple(errors));
+    }
+
+    Ok(types.into_iter().map(Result::unwrap))
+}

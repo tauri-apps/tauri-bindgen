@@ -34,6 +34,8 @@ pub enum Error {
     InvalidChar,
     #[error("Invalid Flags")]
     InvalidFlags,
+    #[error("Multiple errors {0:?}")]
+    Multiple(Vec<Error>),
 }
 
 /// # Errors
