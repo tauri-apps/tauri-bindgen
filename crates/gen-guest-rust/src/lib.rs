@@ -171,7 +171,7 @@ impl<'a> InterfaceGenerator<'a> {
         self.push_str("#[derive(Debug, tauri_bindgen_abi::Writable)]\n");
         // self.push_str("#[serde(rename_all = \"camelCase\")]\n");
         self.src.push_str("struct Params");
-        self.print_generics(lifetime.then(|| "'a"));
+        self.print_generics(lifetime.then_some("'a"));
         self.src.push_str(" {\n");
 
         for (param, ty) in &func.params {
