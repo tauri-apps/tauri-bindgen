@@ -165,13 +165,13 @@ fn verbosity_level(num: u8) -> Level {
 /// The default string representation for `Level` is all uppercaps which doesn't mix well with the other printed actions.
 fn prettyprint_level(lvl: Level) -> &'static str {
     match lvl {
-      Level::Error => "Error",
-      Level::Warn => "Warn",
-      Level::Info => "Info",
-      Level::Debug => "Debug",
-      Level::Trace => "Trace",
+        Level::Error => "Error",
+        Level::Warn => "Warn",
+        Level::Info => "Info",
+        Level::Debug => "Debug",
+        Level::Trace => "Trace",
     }
-  }
+}
 
 fn init_logger(verbosity: u8) {
     let mut builder = env_logger::Builder::from_default_env();
@@ -194,7 +194,11 @@ fn init_logger(verbosity: u8) {
                 let mut level_style = f.default_level_style(record.level());
                 level_style.set_bold(true);
 
-                write!(f, "{:>12} ", level_style.value(prettyprint_level(record.level())))?;
+                write!(
+                    f,
+                    "{:>12} ",
+                    level_style.value(prettyprint_level(record.level()))
+                )?;
             }
 
             if !is_command_output && log_enabled!(Level::Debug) {
