@@ -40,5 +40,5 @@ tauri-bindgen-gen-guest-ts.workspace = true
 tauri-bindgen-gen-guest-js.workspace = true
 wit-parser.workspace = true
 miette.workspace = true
-env_logger = "0.9.3"
+env_logger = "0.10.0"
 log.workspace = true
