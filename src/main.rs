@@ -1,5 +1,8 @@
-use clap::Parser;
+use clap::{ArgAction, Parser};
+use env_logger::fmt::Color;
+use log::{log_enabled, Level};
 use miette::{bail, IntoDiagnostic, Result, WrapErr};
+use std::io::Write;
 use std::path::PathBuf;
 use tauri_bindgen_core::{Files, WorldGenerator};
 
@@ -16,6 +19,9 @@ struct Opt {
     common: Common,
     #[clap(subcommand)]
     category: Category,
+    /// Enables verbose logging
+    #[clap(short, long, global = true, action = ArgAction::Count)]
+    verbose: u8,
 }
 
 #[derive(Debug, Parser)]
@@ -81,9 +87,17 @@ struct Common {
     out_dir: Option<PathBuf>,
 }
 
-fn main() -> Result<()> {
+// A thin wrapper around `run` so we can pretty-print the error
+fn main() {
+    if let Err(err) = run() {
+        log::error!("{:?}", err);
+    }
+}
+
+fn run() -> Result<()> {
     let opt: Opt = Opt::parse();
-    let common = opt.common;
+
+    init_logger(opt.verbose);
 
     let mut files = Files::default();
     match opt.category {
@@ -105,11 +119,11 @@ fn main() -> Result<()> {
     }
 
     for (name, contents) in files.iter() {
-        let dst = match &common.out_dir {
+        let dst = match &opt.common.out_dir {
             Some(path) => path.join(name),
             None => name.into(),
         };
-        println!("Generating {dst:?}");
+        log::info!("Generating {dst:?}");
         if let Some(parent) = dst.parent() {
             std::fs::create_dir_all(parent)
                 .into_diagnostic()
@@ -137,4 +151,60 @@ fn gen_world(
 
     generator.generate(&world.name, &world, files, &world_hash);
     Ok(())
+}
+
+/// This maps the occurrence of `--verbose` flags to the correct log level
+fn verbosity_level(num: u8) -> Level {
+    match num {
+        0 => Level::Info,
+        1 => Level::Debug,
+        2.. => Level::Trace,
+    }
+}
+
+/// The default string representation for `Level` is all uppercaps which doesn't mix well with the other printed actions.
+fn prettyprint_level(lvl: Level) -> &'static str {
+    match lvl {
+      Level::Error => "Error",
+      Level::Warn => "Warn",
+      Level::Info => "Info",
+      Level::Debug => "Debug",
+      Level::Trace => "Trace",
+    }
+  }
+
+fn init_logger(verbosity: u8) {
+    let mut builder = env_logger::Builder::from_default_env();
+
+    builder
+        .format_indent(Some(12))
+        .filter(None, verbosity_level(verbosity).to_level_filter())
+        .format(|f, record| {
+            let mut is_command_output = false;
+            if let Some(action) = record.key_values().get("action".into()) {
+                let action = action.to_str().unwrap();
+                is_command_output = action == "stdout" || action == "stderr";
+                if !is_command_output {
+                    let mut action_style = f.style();
+                    action_style.set_color(Color::Green).set_bold(true);
+
+                    write!(f, "{:>12} ", action_style.value(action))?;
+                }
+            } else {
+                let mut level_style = f.default_level_style(record.level());
+                level_style.set_bold(true);
+
+                write!(f, "{:>12} ", level_style.value(prettyprint_level(record.level())))?;
+            }
+
+            if !is_command_output && log_enabled!(Level::Debug) {
+                let mut target_style = f.style();
+                target_style.set_color(Color::Black);
+
+                write!(f, "[{}] ", target_style.value(record.target()))?;
+            }
+
+            writeln!(f, "{}", record.args())
+        })
+        .init();
 }

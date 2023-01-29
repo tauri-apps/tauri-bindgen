@@ -28,6 +28,7 @@ tauri-bindgen-gen-guest-ts = { path = "crates/gen-guest-ts", features = ['cli'] 
 tauri-bindgen-gen-guest-js = { path = "crates/gen-guest-js", features = ['cli'] }
 wit-parser = { path = "crates/wit-parser" }
 miette = { version = "5.5.0", features = ["fancy"] }
+log = { version = "0.4.17", features = [ "kv_unstable", "kv_unstable_std" ] }
 
 [dependencies]
 clap.workspace = true
@@ -39,3 +40,5 @@ tauri-bindgen-gen-guest-ts.workspace = true
 tauri-bindgen-gen-guest-js.workspace = true
 wit-parser.workspace = true
 miette.workspace = true
+env_logger = "0.9.3"
+log.workspace = true

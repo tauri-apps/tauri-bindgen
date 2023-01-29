@@ -5,7 +5,6 @@
 
 # CLI
 
-- add verbose option
 - add napi bindings
 
 # Host
