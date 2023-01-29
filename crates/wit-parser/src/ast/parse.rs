@@ -426,7 +426,7 @@ mod test {
         let ty = InterfaceItem::parse(&mut tokens)
             .map_err(|error| error.with_source_code(NamedSource::new("test.wit", input)))?;
 
-        println!("{:#?}", ty);
+        println!("{ty:#?}");
 
         Ok(())
     }
@@ -612,7 +612,7 @@ mod test {
         let iface = Interface::parse(&mut tokens)
             .map_err(|error| error.with_source_code(NamedSource::new("test.wit", input)))?;
 
-        println!("{:#?}", iface);
+        println!("{iface:#?}");
 
         Ok(())
     }
@@ -626,7 +626,7 @@ mod test {
         let iface = Interface::parse(&mut tokens)
             .map_err(|error| error.with_source_code(NamedSource::new("test.wit", input)))?;
 
-        println!("{:#?}", iface);
+        println!("{iface:#?}");
 
         Ok(())
     }

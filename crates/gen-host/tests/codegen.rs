@@ -1,3 +1,4 @@
+#![allow(clippy::all, unused)]
 use std::path::Path;
 
 use tauri_bindgen_core::{Files, WorldGenerator};
@@ -6,10 +7,10 @@ use tauri_bindgen_gen_host::*;
 fn gen_world(
     mut gen: Box<dyn WorldGenerator>,
     name: impl AsRef<str>,
-    path: impl AsRef<Path>,
+    input: impl AsRef<str>,
 ) -> (String, String) {
-    let world = wit_parser::parse_file(&path).unwrap();
-    let world_hash = tauri_bindgen_core::hash::hash_file(path).unwrap();
+    let world = wit_parser::parse_str(&input).unwrap();
+    let world_hash = tauri_bindgen_core::hash::hash_str(&input).unwrap();
 
     let mut files = Files::default();
 
@@ -26,13 +27,17 @@ fn gen_world(
 #[test]
 fn chars() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "chars", "../../tests/codegen/chars.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "chars",
+        include_str!("../../../tests/codegen/chars.wit"),
+    );
 
     assert_eq!(filename, "chars.rs");
     assert_eq!(contents, include_str!("./chars.rs"));
@@ -41,13 +46,17 @@ fn chars() {
 #[test]
 fn convention() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "conventions", "../../tests/codegen/conventions.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "conventions",
+        include_str!("../../../tests/codegen/conventions.wit"),
+    );
 
     assert_eq!(filename, "conventions.rs");
     assert_eq!(contents, include_str!("./conventions.rs"));
@@ -56,13 +65,17 @@ fn convention() {
 #[test]
 fn empty() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "empty", "../../tests/codegen/empty.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "empty",
+        include_str!("../../../tests/codegen/empty.wit"),
+    );
 
     assert_eq!(filename, "empty.rs");
     assert_eq!(contents, include_str!("./empty.rs"));
@@ -71,13 +84,17 @@ fn empty() {
 #[test]
 fn flags() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "flegs", "../../tests/codegen/flags.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "flegs",
+        include_str!("../../../tests/codegen/flags.wit"),
+    );
 
     assert_eq!(filename, "flegs.rs");
     assert_eq!(contents, include_str!("./flegs.rs"));
@@ -86,13 +103,17 @@ fn flags() {
 #[test]
 fn floats() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "floats", "../../tests/codegen/floats.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "floats",
+        include_str!("../../../tests/codegen/floats.wit"),
+    );
 
     assert_eq!(filename, "floats.rs");
     assert_eq!(contents, include_str!("./floats.rs"));
@@ -101,13 +122,17 @@ fn floats() {
 #[test]
 fn integers() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "integers", "../../tests/codegen/integers.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "integers",
+        include_str!("../../../tests/codegen/integers.wit"),
+    );
 
     assert_eq!(filename, "integers.rs");
     assert_eq!(contents, include_str!("./integers.rs"));
@@ -116,13 +141,17 @@ fn integers() {
 #[test]
 fn lists() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "lists", "../../tests/codegen/lists.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "lists",
+        include_str!("../../../tests/codegen/lists.wit"),
+    );
 
     assert_eq!(filename, "lists.rs");
     assert_eq!(contents, include_str!("./lists.rs"));
@@ -131,7 +160,7 @@ fn lists() {
 #[test]
 fn many_arguments() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
@@ -140,7 +169,7 @@ fn many_arguments() {
     let (filename, contents) = gen_world(
         gen,
         "many-arguments",
-        "../../tests/codegen/many-arguments.wit",
+        include_str!("../../../tests/codegen/many-arguments.wit"),
     );
 
     assert_eq!(filename, "many-arguments.rs");
@@ -150,14 +179,17 @@ fn many_arguments() {
 #[test]
 fn multi_return() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
     let gen = opts.build();
 
-    let (filename, contents) =
-        gen_world(gen, "multi-return", "../../tests/codegen/multi-return.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "multi-return",
+        include_str!("../../../tests/codegen/multi-return.wit"),
+    );
 
     assert_eq!(filename, "multi-return.rs");
     assert_eq!(contents, include_str!("./multi-return.rs"));
@@ -166,13 +198,17 @@ fn multi_return() {
 #[test]
 fn records() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "records", "../../tests/codegen/records.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "records",
+        include_str!("../../../tests/codegen/records.wit"),
+    );
 
     assert_eq!(filename, "records.rs");
     assert_eq!(contents, include_str!("./records.rs"));
@@ -181,7 +217,7 @@ fn records() {
 #[test]
 fn simple_functions() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
@@ -190,7 +226,7 @@ fn simple_functions() {
     let (filename, contents) = gen_world(
         gen,
         "simple-functions",
-        "../../tests/codegen/simple-functions.wit",
+        include_str!("../../../tests/codegen/simple-functions.wit"),
     );
 
     assert_eq!(filename, "simple-functions.rs");
@@ -200,14 +236,17 @@ fn simple_functions() {
 #[test]
 fn simple_lists() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
     let gen = opts.build();
 
-    let (filename, contents) =
-        gen_world(gen, "simple-lists", "../../tests/codegen/simple-lists.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "simple-lists",
+        include_str!("../../../tests/codegen/simple-lists.wit"),
+    );
 
     assert_eq!(filename, "simple-lists.rs");
     assert_eq!(contents, include_str!("./simple-lists.rs"));
@@ -216,7 +255,7 @@ fn simple_lists() {
 #[test]
 fn small_anonymous() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
@@ -225,7 +264,7 @@ fn small_anonymous() {
     let (filename, contents) = gen_world(
         gen,
         "small-anonymous",
-        "../../tests/codegen/small-anonymous.wit",
+        include_str!("../../../tests/codegen/small-anonymous.wit"),
     );
 
     assert_eq!(filename, "small-anonymous.rs");
@@ -235,13 +274,17 @@ fn small_anonymous() {
 #[test]
 fn strings() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "strings", "../../tests/codegen/strings.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "strings",
+        include_str!("../../../tests/codegen/strings.wit"),
+    );
 
     assert_eq!(filename, "strings.rs");
     assert_eq!(contents, include_str!("./strings.rs"));
@@ -250,13 +293,17 @@ fn strings() {
 #[test]
 fn unions() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "unions", "../../tests/codegen/unions.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "unions",
+        include_str!("../../../tests/codegen/unions.wit"),
+    );
 
     assert_eq!(filename, "unions.rs");
     assert_eq!(contents, include_str!("./unions.rs"));
@@ -265,13 +312,17 @@ fn unions() {
 #[test]
 fn variants() {
     let opts = Opts {
-        rustfmt: true,
+        rustfmt: false,
         tracing: true,
         async_: false,
     };
     let gen = opts.build();
 
-    let (filename, contents) = gen_world(gen, "variants", "../../tests/codegen/variants.wit");
+    let (filename, contents) = gen_world(
+        gen,
+        "variants",
+        include_str!("../../../tests/codegen/variants.wit"),
+    );
 
     assert_eq!(filename, "variants.rs");
     assert_eq!(contents, include_str!("./variants.rs"));

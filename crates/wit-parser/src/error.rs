@@ -72,11 +72,6 @@ pub enum Error {
         #[label("type cannot refer to itself")]
         location: SourceSpan,
     },
-    // /// Most types such as Options, Results, or Unions can't be empty as limitations in the default JSON serialization
-    // /// doesn't preserve these nuances. This might be removed in the future when the default serialization changes to a custom binary one.
-    // #[error("Type cannot be empty.")]
-    // #[diagnostic(url(docsrs))]
-    // EmptyType,
 }
 
 #[derive(Diagnostic, Debug, thiserror::Error)]

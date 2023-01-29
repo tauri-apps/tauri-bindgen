@@ -10,7 +10,7 @@ use wit_parser::{
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum TypeMode {
+pub enum BorrowMode {
     Owned,
     AllBorrowed(&'static str),
     LeafBorrowed(&'static str),
@@ -20,7 +20,7 @@ pub trait RustGenerator<'a> {
     fn iface(&self) -> &'a Interface;
 
     fn info(&self, ty: TypeId) -> TypeInfo;
-    fn default_param_mode(&self) -> TypeMode;
+    fn default_param_mode(&self) -> BorrowMode;
     fn push_str(&mut self, s: &str);
     fn print_borrowed_str(&mut self, lifetime: &'static str);
 
@@ -28,7 +28,7 @@ pub trait RustGenerator<'a> {
         true
     }
 
-    fn print_ty(&mut self, ty: &Type, mode: TypeMode) {
+    fn print_ty(&mut self, ty: &Type, mode: BorrowMode) {
         match ty {
             Type::Id(t) => self.print_tyid(*t, mode),
             Type::Bool => self.push_str("bool"),
@@ -65,15 +65,15 @@ pub trait RustGenerator<'a> {
                 self.push_str(">");
             }
             Type::String => match mode {
-                TypeMode::Owned => self.push_str("String"),
-                TypeMode::AllBorrowed(lt) | TypeMode::LeafBorrowed(lt) => {
+                BorrowMode::Owned => self.push_str("String"),
+                BorrowMode::AllBorrowed(lt) | BorrowMode::LeafBorrowed(lt) => {
                     self.print_borrowed_str(lt);
                 }
             },
         }
     }
 
-    fn print_optional_ty(&mut self, ty: Option<&Type>, mode: TypeMode) {
+    fn print_optional_ty(&mut self, ty: Option<&Type>, mode: BorrowMode) {
         if let Some(ty) = ty {
             self.print_ty(ty, mode);
         } else {
@@ -81,7 +81,7 @@ pub trait RustGenerator<'a> {
         }
     }
 
-    fn print_tyid(&mut self, id: TypeId, mode: TypeMode) {
+    fn print_tyid(&mut self, id: TypeId, mode: BorrowMode) {
         let ty = &self.iface().types[id];
         let info = self.info(id);
         let lt = self.lifetime_for(&info, mode);
@@ -135,24 +135,24 @@ pub trait RustGenerator<'a> {
             }
             Type::Id(id) => {
                 let info = self.info(*id);
-                self.lifetime_for(&info, TypeMode::AllBorrowed("'a"))
+                self.lifetime_for(&info, BorrowMode::AllBorrowed("'a"))
                     .is_some()
             }
             _ => false,
         }
     }
 
-    fn print_list(&mut self, ty: &Type, mode: TypeMode) {
+    fn print_list(&mut self, ty: &Type, mode: BorrowMode) {
         match mode {
-            TypeMode::Owned => {
+            BorrowMode::Owned => {
                 self.push_str("Vec<");
                 self.print_ty(ty, mode);
                 self.push_str(">");
             }
-            TypeMode::LeafBorrowed(lt) | TypeMode::AllBorrowed(lt) => {
+            BorrowMode::LeafBorrowed(lt) | BorrowMode::AllBorrowed(lt) => {
                 self.print_borrowed_slice(false, ty, lt);
             } // FIXME: bring this back
-              // TypeMode::LeafBorrowed(lt) => {
+              // BorrowMode::LeafBorrowed(lt) => {
               //     if self.iface().all_bits_valid(ty) {
               //         self.print_borrowed_slice(false, ty, lt);
               //     } else {
@@ -174,7 +174,7 @@ pub trait RustGenerator<'a> {
             self.push_str(" mut ");
         }
         self.push_str("[");
-        self.print_ty(ty, TypeMode::AllBorrowed(lifetime));
+        self.print_ty(ty, BorrowMode::AllBorrowed(lifetime));
         self.push_str("]");
     }
 
@@ -202,9 +202,8 @@ pub trait RustGenerator<'a> {
         attrs: impl Fn(&str, bool, TypeInfo) -> Option<String>,
     ) {
         let info = self.info(id);
-        // dbg!(&info.);
-        for (name, mode) in self.modes_of(id) {
-            let lt = self.lifetime_for(&info, mode);
+        for TypeVariant { name, borrow_mode } in self.variants_of(id) {
+            let lt = self.lifetime_for(&info, borrow_mode);
             self.print_rustdoc(docs);
 
             if info.owns_data() {
@@ -216,21 +215,17 @@ pub trait RustGenerator<'a> {
             if let Some(attrs) = attrs(&name, self.uses_two_names(&info), info) {
                 self.push_str(&attrs);
             }
-            self.push_str("#[serde(rename_all = \"camelCase\")]\n");
+
             self.push_str(&format!("pub struct {name}"));
             self.print_generics(lt);
             self.push_str(" {\n");
 
             for field in &record.fields {
-                if self.needs_borrow(&field.ty, mode) {
-                    self.push_str("#[serde(borrow)]\n");
-                }
-
                 self.print_rustdoc(&field.docs);
                 self.push_str("pub ");
                 self.push_str(&to_rust_ident(&field.name));
                 self.push_str(": ");
-                self.print_ty(&field.ty, mode);
+                self.print_ty(&field.ty, borrow_mode);
                 self.push_str(",\n");
             }
 
@@ -241,16 +236,16 @@ pub trait RustGenerator<'a> {
     fn print_typedef_tuple(&mut self, id: TypeId, tuple: &Tuple, docs: &Docs) {
         let info = self.info(id);
 
-        for (name, mode) in self.modes_of(id) {
-            let lt = self.lifetime_for(&info, mode);
+        for TypeVariant { name, borrow_mode } in self.variants_of(id) {
+            let lt = self.lifetime_for(&info, borrow_mode);
 
             self.print_rustdoc(docs);
-            self.push_str(&format!("pub type {name} "));
+            self.push_str(&format!("pub type {name}"));
             self.print_generics(lt);
-            self.push_str("= (");
+            self.push_str(" = (");
 
             for ty in &tuple.types {
-                self.print_ty(ty, mode);
+                self.print_ty(ty, borrow_mode);
                 self.push_str(",");
             }
 
@@ -261,14 +256,14 @@ pub trait RustGenerator<'a> {
     fn print_typedef_list(&mut self, id: TypeId, ty: &Type, docs: &Docs) {
         let info = self.info(id);
 
-        for (name, mode) in self.modes_of(id) {
-            let lt = self.lifetime_for(&info, mode);
+        for TypeVariant { name, borrow_mode } in self.variants_of(id) {
+            let lt = self.lifetime_for(&info, borrow_mode);
 
             self.print_rustdoc(docs);
             self.push_str(&format!("pub type {name}"));
             self.print_generics(lt);
             self.push_str(" = ");
-            self.print_list(ty, mode);
+            self.print_list(ty, borrow_mode);
             self.push_str(";\n");
         }
     }
@@ -276,14 +271,14 @@ pub trait RustGenerator<'a> {
     fn print_typedef_alias(&mut self, id: TypeId, ty: &Type, docs: &Docs) {
         let info = self.info(id);
 
-        for (name, mode) in self.modes_of(id) {
-            let lt = self.lifetime_for(&info, mode);
+        for TypeVariant { name, borrow_mode } in self.variants_of(id) {
+            let lt = self.lifetime_for(&info, borrow_mode);
 
             self.print_rustdoc(docs);
-            self.push_str(&format!("pub type {name} "));
+            self.push_str(&format!("pub type {name}"));
             self.print_generics(lt);
-            self.push_str("= ");
-            self.print_ty(ty, mode);
+            self.push_str(" = ");
+            self.print_ty(ty, borrow_mode);
             self.push_str(";\n");
         }
     }
@@ -291,14 +286,14 @@ pub trait RustGenerator<'a> {
     fn print_typedef_option(&mut self, id: TypeId, payload: &Type, docs: &Docs) {
         let info = self.info(id);
 
-        for (name, mode) in self.modes_of(id) {
-            let lt = self.lifetime_for(&info, mode);
+        for TypeVariant { name, borrow_mode } in self.variants_of(id) {
+            let lt = self.lifetime_for(&info, borrow_mode);
 
             self.print_rustdoc(docs);
-            self.push_str(&format!("pub type {name} "));
+            self.push_str(&format!("pub type {name}"));
             self.print_generics(lt);
-            self.push_str("= Option<");
-            self.print_ty(payload, mode);
+            self.push_str(" = Option<");
+            self.print_ty(payload, borrow_mode);
             self.push_str(">;\n");
         }
     }
@@ -306,16 +301,16 @@ pub trait RustGenerator<'a> {
     fn print_typedef_result(&mut self, id: TypeId, result: &Result_, docs: &Docs) {
         let info = self.info(id);
 
-        for (name, mode) in self.modes_of(id) {
-            let lt = self.lifetime_for(&info, mode);
+        for TypeVariant { name, borrow_mode } in self.variants_of(id) {
+            let lt = self.lifetime_for(&info, borrow_mode);
 
             self.print_rustdoc(docs);
-            self.push_str(&format!("pub type {name} "));
+            self.push_str(&format!("pub type {name}"));
             self.print_generics(lt);
-            self.push_str("= Result<");
-            self.print_optional_ty(result.ok.as_ref(), mode);
+            self.push_str(" = Result<");
+            self.print_optional_ty(result.ok.as_ref(), borrow_mode);
             self.push_str(", ");
-            self.print_optional_ty(result.err.as_ref(), mode);
+            self.print_optional_ty(result.err.as_ref(), borrow_mode);
             self.push_str(">;\n");
         }
     }
@@ -371,8 +366,8 @@ pub trait RustGenerator<'a> {
     {
         let info = self.info(id);
 
-        for (name, type_mode) in self.modes_of(id) {
-            let lt = self.lifetime_for(&info, type_mode);
+        for TypeVariant { name, borrow_mode } in self.variants_of(id) {
+            let lt = self.lifetime_for(&info, borrow_mode);
             let name = name.to_upper_camel_case();
 
             self.print_rustdoc(docs);
@@ -394,7 +389,7 @@ pub trait RustGenerator<'a> {
 
                 if let Some(payload) = payload {
                     self.push_str("(");
-                    self.print_ty(payload, type_mode);
+                    self.print_ty(payload, borrow_mode);
                     self.push_str(")");
                 }
 
@@ -413,8 +408,9 @@ pub trait RustGenerator<'a> {
     ) {
         let info = self.info(id);
 
-        for (name, type_mode) in self.modes_of(id) {
-            let lt = self.lifetime_for(&info, type_mode);
+        for TypeVariant { name, borrow_mode } in self.variants_of(id) {
+            let lt = self.lifetime_for(&info, borrow_mode);
+            let name = name.to_upper_camel_case();
 
             self.print_rustdoc(docs);
             self.push_str("#[repr(");
@@ -445,19 +441,19 @@ pub trait RustGenerator<'a> {
     fn print_signature(
         &mut self,
         func: &Function,
-        param_mode: TypeMode,
+        param_mode: BorrowMode,
         sig: &FnSig,
     ) -> Vec<String> {
         let params = self.print_docs_and_params(func, param_mode, sig);
         self.push_str(" -> ");
-        self.print_result_params(&func.results, TypeMode::Owned);
+        self.print_result_params(&func.results, BorrowMode::Owned);
         params
     }
 
     fn print_docs_and_params(
         &mut self,
         func: &Function,
-        param_mode: TypeMode,
+        param_mode: BorrowMode,
         sig: &FnSig,
     ) -> Vec<String> {
         self.print_rustdoc(&func.docs);
@@ -501,7 +497,7 @@ pub trait RustGenerator<'a> {
         params
     }
 
-    fn print_result_params(&mut self, results: &Results, mode: TypeMode) {
+    fn print_result_params(&mut self, results: &Results, mode: BorrowMode) {
         match results.len() {
             0 => self.push_str("()"),
             1 => self.print_ty(results.types().next().unwrap(), mode),
@@ -625,16 +621,22 @@ pub trait RustGenerator<'a> {
         self.push_str(int_repr(repr));
     }
 
-    fn modes_of(&self, ty: TypeId) -> Vec<(String, TypeMode)> {
+    fn variants_of(&self, ty: TypeId) -> Vec<TypeVariant> {
         let info = self.info(ty);
         let mut result = Vec::new();
         if info.contains(TypeInfo::PARAM) {
-            result.push((self.param_name(ty), self.default_param_mode()));
+            result.push(TypeVariant {
+                name: self.param_name(ty),
+                borrow_mode: self.default_param_mode(),
+            });
         }
         if info.contains(TypeInfo::RESULT)
             && (!info.contains(TypeInfo::PARAM) || self.uses_two_names(&info))
         {
-            result.push((self.result_name(ty), TypeMode::Owned));
+            result.push(TypeVariant {
+                name: self.result_name(ty),
+                borrow_mode: BorrowMode::Owned,
+            });
         }
         result
     }
@@ -663,14 +665,14 @@ pub trait RustGenerator<'a> {
         info.owns_data()
             && info.contains(TypeInfo::PARAM | TypeInfo::RESULT)
             && match self.default_param_mode() {
-                TypeMode::AllBorrowed(_) | TypeMode::LeafBorrowed(_) => true,
-                TypeMode::Owned => false,
+                BorrowMode::AllBorrowed(_) | BorrowMode::LeafBorrowed(_) => true,
+                BorrowMode::Owned => false,
             }
     }
 
-    fn lifetime_for(&self, info: &TypeInfo, mode: TypeMode) -> Option<&'static str> {
+    fn lifetime_for(&self, info: &TypeInfo, mode: BorrowMode) -> Option<&'static str> {
         match mode {
-            TypeMode::AllBorrowed(s) | TypeMode::LeafBorrowed(s)
+            BorrowMode::AllBorrowed(s) | BorrowMode::LeafBorrowed(s)
                 if info.contains(TypeInfo::HAS_LIST) =>
             {
                 Some(s)
@@ -679,7 +681,7 @@ pub trait RustGenerator<'a> {
         }
     }
 
-    fn needs_borrow(&self, ty: &Type, mode: TypeMode) -> bool {
+    fn needs_borrow(&self, ty: &Type, mode: BorrowMode) -> bool {
         match ty {
             Type::Id(id) => {
                 let info = self.info(*id);
@@ -691,6 +693,36 @@ pub trait RustGenerator<'a> {
             _ => false,
         }
     }
+
+    fn needs_lifetime(&self, ty: &Type) -> bool {
+        match ty {
+            Type::Tuple(ty) => ty.types.iter().any(|ty| self.needs_lifetime(ty)),
+            Type::List(_) | Type::String => true,
+            Type::Option(ty) => self.needs_lifetime(ty),
+            Type::Result(res) => {
+                res.ok
+                    .as_ref()
+                    .map(|ty| self.needs_lifetime(ty))
+                    .unwrap_or_default()
+                    || res
+                        .err
+                        .as_ref()
+                        .map(|ty| self.needs_lifetime(ty))
+                        .unwrap_or_default()
+            }
+            Type::Id(id) => {
+                let info = self.info(*id);
+                self.lifetime_for(&info, BorrowMode::AllBorrowed("'a"))
+                    .is_some()
+            }
+            _ => false,
+        }
+    }
+}
+
+pub struct TypeVariant {
+    name: String,
+    borrow_mode: BorrowMode,
 }
 
 pub fn int_repr(repr: &Int) -> &'static str {

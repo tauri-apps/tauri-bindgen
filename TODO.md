@@ -1,7 +1,5 @@
 # General
 
-- structured serialization for results
-- Validate serialization and deserialization works across the bridge
 - add logging across the board, both during gen and runtime
 - publish to crates.io
 
@@ -12,7 +10,6 @@
 # Host
 
 - improve host error type
-- add optional tracing to `gen-host`
 - improve integration with Tauri (possibly through a WIP impl of the new IPC routing system?)
 
 # Guest Rust
@@ -36,7 +33,6 @@
 
 - `rollup-plugin-tauri-bindgen`
 - switch `tauri-sys` and try implementing the Tauri API
-- explore binary serialization of types instead of JSON
 - explore adding the `stream` type defined by wit
 - explore adding back exports (functions exposed from JS to Rust)
 - explore platform specific codegen

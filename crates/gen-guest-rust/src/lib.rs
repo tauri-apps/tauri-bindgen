@@ -7,7 +7,7 @@ use tauri_bindgen_core::{
     postprocess, uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types,
     WorldGenerator,
 };
-use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, TypeMode};
+use tauri_bindgen_gen_rust::{BorrowMode, FnSig, RustFlagsRepr, RustGenerator};
 use wit_parser::{Docs, Enum, Flags, Function, Interface, Record, Type, TypeId, Union, Variant};
 
 #[derive(Default, Debug, Clone)]
@@ -56,7 +56,8 @@ impl WorldGenerator for RustWasm {
         _files: &mut Files,
         world_hash: &str,
     ) {
-        let mut gen = InterfaceGenerator::new(self, iface, TypeMode::AllBorrowed("'a"), world_hash);
+        let mut gen =
+            InterfaceGenerator::new(self, iface, BorrowMode::AllBorrowed("'a"), world_hash);
 
         gen.types();
 
@@ -69,12 +70,12 @@ impl WorldGenerator for RustWasm {
 
         uwriteln!(
             self.src,
-            "
-                #[allow(clippy::all, unused)]
-                pub mod {snake} {{
-                    {module}
-                }}
-            "
+            "#[allow(clippy::all, unused)]
+            #[rustfmt::skip]
+            pub mod {snake} {{
+                use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+                {module}
+            }}"
         );
     }
 
@@ -94,7 +95,7 @@ struct InterfaceGenerator<'a> {
     types: Types,
     gen: &'a mut RustWasm,
     iface: &'a Interface,
-    default_param_mode: TypeMode,
+    default_param_mode: BorrowMode,
     world_hash: &'a str,
 }
 
@@ -102,7 +103,7 @@ impl<'a> InterfaceGenerator<'a> {
     pub fn new(
         gen: &'a mut RustWasm,
         iface: &'a Interface,
-        default_param_mode: TypeMode,
+        default_param_mode: BorrowMode,
         world_hash: &'a str,
     ) -> Self {
         let mut types = Types::default();
@@ -128,28 +129,13 @@ impl<'a> InterfaceGenerator<'a> {
             ..Default::default()
         };
 
-        let param_mode = TypeMode::AllBorrowed("'_");
+        let param_mode = BorrowMode::AllBorrowed("'_");
 
         self.print_signature(func, param_mode, &sig);
         self.src.push_str(" {\n");
 
-        let lifetime = func.params.iter().any(|(_, ty)| self.needs_lifetime(ty));
-
         if !func.params.is_empty() {
-            self.push_str("#[derive(::serde::Serialize)]\n");
-            self.push_str("#[serde(rename_all = \"camelCase\")]\n");
-            self.src.push_str("struct Params");
-            self.print_generics(lifetime.then(|| "'a"));
-            self.src.push_str(" {\n");
-
-            for (param, ty) in &func.params {
-                self.src.push_str(&param.to_snake_case());
-                self.src.push_str(" : ");
-                self.print_ty(ty, TypeMode::AllBorrowed("'a"));
-                self.push_str(",\n");
-            }
-
-            self.src.push_str("}\n");
+            self.print_param_struct(func);
 
             self.src.push_str("let params = Params {");
 
@@ -179,29 +165,23 @@ impl<'a> InterfaceGenerator<'a> {
         self.src.push_str("}\n");
     }
 
-    fn needs_lifetime(&self, ty: &Type) -> bool {
-        match ty {
-            Type::Tuple(ty) => ty.types.iter().any(|ty| self.needs_lifetime(ty)),
-            Type::List(_) | Type::String => true,
-            Type::Option(ty) => self.needs_lifetime(ty),
-            Type::Result(res) => {
-                res.ok
-                    .as_ref()
-                    .map(|ty| self.needs_lifetime(ty))
-                    .unwrap_or_default()
-                    || res
-                        .err
-                        .as_ref()
-                        .map(|ty| self.needs_lifetime(ty))
-                        .unwrap_or_default()
-            }
-            Type::Id(id) => {
-                let info = self.info(*id);
-                self.lifetime_for(&info, TypeMode::AllBorrowed("'a"))
-                    .is_some()
-            }
-            _ => false,
+    fn print_param_struct(&mut self, func: &Function) {
+        let lifetime = func.params.iter().any(|(_, ty)| self.needs_lifetime(ty));
+
+        self.push_str("#[derive(Debug, tauri_bindgen_abi::Writable)]\n");
+        // self.push_str("#[serde(rename_all = \"camelCase\")]\n");
+        self.src.push_str("struct Params");
+        self.print_generics(lifetime.then_some("'a"));
+        self.src.push_str(" {\n");
+
+        for (param, ty) in &func.params {
+            self.src.push_str(&param.to_snake_case());
+            self.src.push_str(" : ");
+            self.print_ty(ty, BorrowMode::AllBorrowed("'a"));
+            self.push_str(",\n");
         }
+
+        self.src.push_str("}\n");
     }
 }
 
@@ -218,7 +198,7 @@ impl<'a> RustGenerator<'a> for InterfaceGenerator<'a> {
         self.types.get(ty)
     }
 
-    fn default_param_mode(&self) -> TypeMode {
+    fn default_param_mode(&self) -> BorrowMode {
         self.default_param_mode
     }
 
@@ -297,17 +277,17 @@ fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<S
 
     if uses_two_names {
         if name.ends_with("Param") {
-            attrs.push("::serde::Serialize");
+            attrs.push("tauri_bindgen_abi::Writable");
         }
         if name.ends_with("Result") {
-            attrs.push("::serde::Deserialize");
+            attrs.push("tauri_bindgen_abi::Readable");
         }
     } else {
         if info.contains(TypeInfo::PARAM) {
-            attrs.push("::serde::Serialize");
+            attrs.push("tauri_bindgen_abi::Writable");
         }
         if info.contains(TypeInfo::RESULT) {
-            attrs.push("::serde::Deserialize");
+            attrs.push("tauri_bindgen_abi::Readable");
         }
     }
 

@@ -1,8 +1,9 @@
 [package]
 name = "tauri-bindgen-guest-rust-macro"
-version = "0.1.0"
-edition = "2021"
-rust-version = "1.59"
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 
 [lib]
 proc-macro = true

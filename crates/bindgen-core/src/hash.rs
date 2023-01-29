@@ -6,6 +6,18 @@ const TRUNCATE_LEN: usize = 8;
 
 /// # Errors
 ///
+/// Returns an error when copying into the hasher failed.
+pub fn hash_str(input: impl AsRef<str>) -> Result<String, Error> {
+    let mut hasher = blake3::Hasher::new();
+
+    copy_wide(&mut input.as_ref().as_bytes(), &mut hasher)?;
+
+    let output = hasher.finalize_xof();
+    Ok(encode_hex(output))
+}
+
+/// # Errors
+///
 /// Returns an error when the file couldn't be openend, memory mapping the file failed or when copying into the hasher failed.
 pub fn hash_file(path: impl AsRef<Path>) -> Result<String, Error> {
     let file = File::open(path)?;
@@ -13,7 +25,10 @@ pub fn hash_file(path: impl AsRef<Path>) -> Result<String, Error> {
 
     if let Some(mmap) = maybe_memmap_file(&file)? {
         let cursor = io::Cursor::new(mmap);
+        #[cfg(feature = "rayon")]
         hasher.update_rayon(cursor.get_ref());
+        #[cfg(not(feature = "rayon"))]
+        hasher.update(cursor.get_ref());
     } else {
         copy_wide(file, &mut hasher)?;
     }

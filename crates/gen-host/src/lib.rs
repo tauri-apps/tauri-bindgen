@@ -1,13 +1,13 @@
 #![allow(clippy::must_use_candidate)]
 
-use heck::{ToLowerCamelCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
+use heck::{ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use std::{fmt::Write as _, mem};
 use tauri_bindgen_core::{
     postprocess, uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types,
     WorldGenerator,
 };
-use tauri_bindgen_gen_rust::{FnSig, RustFlagsRepr, RustGenerator, TypeMode};
-use wit_parser::{Docs, Flags, Interface, Results, Type, TypeId};
+use tauri_bindgen_gen_rust::{BorrowMode, FnSig, RustFlagsRepr, RustGenerator};
+use wit_parser::{Docs, Flags, Function, Interface, Results, Type, TypeId};
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -43,22 +43,23 @@ struct Host {
 
 impl WorldGenerator for Host {
     fn import(&mut self, name: &str, iface: &Interface, _files: &mut Files, world_hash: &str) {
-        let mut gen = InterfaceGenerator::new(self, iface, TypeMode::Owned);
+        let mut gen = InterfaceGenerator::new(self, iface, BorrowMode::Owned);
         gen.types();
-        gen.generate_invoke_handler(name);
+        gen.print_trait(name);
+        gen.print_invoke_handler(name);
 
         let snake = name.to_snake_case();
         let module = &gen.src[..];
 
         uwriteln!(
             self.src,
-            r#"
-                #[allow(clippy::all)]
-                pub mod {snake} {{
-                    pub const WORLD_HASH: &str = "{world_hash}";
-                    {module}
-                }}
-            "#
+            "#[allow(clippy::all, unused)]
+            #[rustfmt::skip]
+            pub mod {snake} {{
+                use ::tauri_bindgen_host::tauri_bindgen_abi;
+                pub const WORLD_HASH: &str = \"{world_hash}\";
+                {module}
+            }}"
         );
 
         self.imports.push(snake);
@@ -79,7 +80,7 @@ struct InterfaceGenerator<'a> {
     src: Source,
     gen: &'a mut Host,
     iface: &'a Interface,
-    default_param_mode: TypeMode,
+    default_param_mode: BorrowMode,
     types: Types,
 }
 
@@ -87,7 +88,7 @@ impl<'a> InterfaceGenerator<'a> {
     fn new(
         gen: &'a mut Host,
         iface: &'a Interface,
-        default_param_mode: TypeMode,
+        default_param_mode: BorrowMode,
     ) -> InterfaceGenerator<'a> {
         let mut types = Types::default();
         types.analyze(iface);
@@ -100,15 +101,20 @@ impl<'a> InterfaceGenerator<'a> {
         }
     }
 
-    #[allow(clippy::too_many_lines)]
-    pub(crate) fn generate_invoke_handler(&mut self, name: &str) {
-        let camel = name.to_upper_camel_case();
+    // pub(crate) fn generate_invoke_handler(&mut self, name: &str) {
+    //     self.print_trait(name);
+    // }
 
+    fn print_trait(&mut self, name: &str) {
         if self.gen.opts.async_ {
             uwriteln!(self.src, "#[::tauri_bindgen_host::async_trait]");
         }
 
-        uwriteln!(self.src, "pub trait {camel}: Sized {{");
+        uwriteln!(
+            self.src,
+            "pub trait {}: Sized {{",
+            name.to_upper_camel_case()
+        );
 
         for func in &self.iface.functions {
             let fnsig = FnSig {
@@ -118,28 +124,31 @@ impl<'a> InterfaceGenerator<'a> {
                 ..Default::default()
             };
 
-            self.print_docs_and_params(func, TypeMode::Owned, &fnsig);
+            self.print_docs_and_params(func, BorrowMode::Owned, &fnsig);
             self.push_str(" -> ");
 
             self.push_str("::tauri_bindgen_host::anyhow::Result<");
-            self.print_result_ty(&func.results, TypeMode::Owned);
+            self.print_result_ty(&func.results, BorrowMode::Owned);
             self.push_str(">;\n");
         }
 
         uwriteln!(self.src, "}}");
+    }
 
+    fn print_invoke_handler(&mut self, name: &str) {
         uwriteln!(
             self.src,
             "
                 pub fn invoke_handler<U, R>(ctx: U) -> impl Fn(::tauri_bindgen_host::tauri::Invoke<R>)
                 where
-                    U: {camel} + Send + Sync + 'static,
+                    U: {} + Send + Sync + 'static,
                     R: ::tauri_bindgen_host::tauri::Runtime + 'static
                 {{
-            "
-        );
 
-        uwriteln!(self.src, "move |invoke| {{");
+                move |invoke| {{
+            ",
+            name.to_upper_camel_case()
+        );
 
         if self.gen.opts.tracing {
             uwriteln!(
@@ -157,101 +166,166 @@ impl<'a> InterfaceGenerator<'a> {
         uwriteln!(self.src, "match invoke.message.command() {{");
 
         for func in &self.iface.functions {
-            uwrite!(self.src, "\"{}\" => {{", &func.name);
-            uwriteln!(
-                self.src,
-                "
+            self.print_handler_match(func);
+        }
+
+        uwriteln!(self.src, "_ => todo!(),");
+
+        uwriteln!(self.src, "}}");
+        uwriteln!(self.src, "}}");
+        uwriteln!(self.src, "}}");
+    }
+
+    fn print_handler_match(&mut self, func: &Function) {
+        uwrite!(self.src, "\"{}\" => {{", &func.name);
+
+        // extract message and resolver
+        uwriteln!(
+            self.src,
+            "
             #[allow(unused_variables)]
             let ::tauri_bindgen_host::tauri::Invoke {{
                 message: __tauri_message__,
                 resolver: __tauri_resolver__,
             }} = invoke;"
-            );
+        );
 
-            for (param, _) in &func.params {
-                let func_name = &func.name;
+        self.print_param_struct(func);
 
-                uwriteln!(
-                    self.src,
-                    r#"let {snake_param} = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {{
-                        name: "{func_name}",
-                        key: "{camel_param}",
-                        message: &__tauri_message__,
-                    }}) {{
-                        Ok(arg) => arg,
-                        Err(err) => {{"#,
-                    snake_param = param.to_snake_case(),
-                    camel_param = param.to_lower_camel_case()
-                );
+        // decode param from message
+        uwriteln!(
+            self.src,
+            r#"
+            let message: String = ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {{
+                name: "{}",
+                key: "encoded",
+                message: &__tauri_message__,
+            }}).unwrap();
+            let message = ::tauri_bindgen_host::decode_base64(&message);
+            let params: Params = ::tauri_bindgen_host::tauri_bindgen_abi::from_slice(&message).unwrap();
+        "#,
+            func.name
+        );
 
-                if self.gen.opts.tracing {
-                    uwriteln!(
-                        self.src,
-                        r#"::tauri_bindgen_host::tracing::error!(module = "{name}", function = "{func_name}", "Invoke handler returned error {{:?}}", err);"#
-                    );
-                }
+        // call method
+        uwriteln!(self.src, "let result = ctx.{}(", func.name.to_snake_case());
 
-                uwriteln!(
-                    self.src,
-                    r#"return __tauri_resolver__.invoke_error(err);
-                        }},
-                    }};
-                    "#
-                );
-            }
-
-            if self.gen.opts.async_ {
-                uwriteln!(
-                    self.src,
-                    "
-                __tauri_resolver__
-                .respond_async(async move {{
-                "
-                );
-            }
-
-            uwriteln!(self.src, "let result = ctx.{}(", func.name.to_snake_case());
-
-            for (param, _) in &func.params {
-                self.src.push_str(&param.to_snake_case());
-                self.src.push_str(", ");
-            }
-
-            uwriteln!(self.src, ");");
-
-            if self.gen.opts.async_ {
-                uwriteln!(
-                    self.src,
-                    "
-                    result.await.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
-                    }});
-                "
-                );
-            } else {
-                uwriteln!(self.src, "
-                    __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
-                ");
-            }
-
-            uwriteln!(self.src, "}},");
+        for (param, _) in &func.params {
+            self.src.push_str("params.");
+            self.src.push_str(&param.to_snake_case());
+            self.src.push_str(", ");
         }
 
-        uwriteln!(self.src, "func_name => {{");
-        if self.gen.opts.tracing {
-            uwriteln!(
-                self.src,
-                r#"::tauri_bindgen_host::tracing::error!(module = "{name}", function = func_name, "Not Found");"#
-            );
-        }
-        uwriteln!(self.src, "invoke.resolver.reject(\"Not Found\")");
-        uwriteln!(self.src, "}}");
-        uwriteln!(self.src, "}}");
-        uwriteln!(self.src, "}}");
+        uwriteln!(self.src, ");");
 
-        uwriteln!(self.src, "}}");
+        // serialize and encode result
+        uwriteln!(self.src, "
+            __tauri_resolver__.respond(result
+                .map(|ref val| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(val).unwrap()))
+                .map_err(|ref err| ::tauri_bindgen_host::encode_base64(&::tauri_bindgen_host::tauri_bindgen_abi::to_bytes(&err.to_string()).unwrap()).into())
+            );");
+
+        uwriteln!(self.src, "}},");
     }
 
-    fn print_result_ty(&mut self, results: &Results, mode: TypeMode) {
+    fn print_param_struct(&mut self, func: &Function) {
+        // let lifetime = func.params.iter().any(|(_, ty)| self.needs_lifetime(ty));
+
+        self.push_str("#[derive(tauri_bindgen_abi::Readable)]\n");
+        // self.push_str("#[serde(rename_all = \"camelCase\")]\n");
+        self.src.push_str("struct Params");
+        // self.print_generics(lifetime.then(|| "'a"));
+        self.src.push_str(" {\n");
+
+        for (param, ty) in &func.params {
+            self.src.push_str(&param.to_snake_case());
+            self.src.push_str(" : ");
+            self.print_ty(ty, BorrowMode::Owned);
+            self.push_str(",\n");
+        }
+
+        self.src.push_str("}\n");
+    }
+
+    //     for func in &self.iface.functions {
+
+    //         for (param, _) in &func.params {
+    //             let func_name = &func.name;
+
+    //             uwriteln!(
+    //                 self.src,
+    //                 r#"let {snake_param} = match ::tauri_bindgen_host::tauri::command::CommandArg::from_command(::tauri_bindgen_host::tauri::command::CommandItem {{
+    //                     name: "{func_name}",
+    //                     key: "{camel_param}",
+    //                     message: &__tauri_message__,
+    //                 }}) {{
+    //                     Ok(arg) => arg,
+    //                     Err(err) => {{"#,
+    //                 snake_param = param.to_snake_case(),
+    //                 camel_param = param.to_lower_camel_case()
+    //             );
+
+    //             uwriteln!(
+    //                 self.src,
+    //                 r#"return __tauri_resolver__.invoke_error(err);
+    //                     }},
+    //                 }};
+    //                 "#
+    //             );
+    //         }
+
+    //         if self.gen.opts.async_ {
+    //             uwriteln!(
+    //                 self.src,
+    //                 "
+    //             __tauri_resolver__
+    //             .respond_async(async move {{
+    //             "
+    //             );
+    //         }
+
+    //         uwriteln!(self.src, "let result = ctx.{}(", func.name.to_snake_case());
+
+    //         for (param, _) in &func.params {
+    //             self.src.push_str(&param.to_snake_case());
+    //             self.src.push_str(", ");
+    //         }
+
+    //         uwriteln!(self.src, ");");
+
+    //         if self.gen.opts.async_ {
+    //             uwriteln!(
+    //                 self.src,
+    //                 "
+    //                 result.await.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow)
+    //                 }});
+    //             "
+    //             );
+    //         } else {
+    //             uwriteln!(self.src, "
+    //                 __tauri_resolver__.respond(result.map_err(::tauri_bindgen_host::tauri::InvokeError::from_anyhow));
+    //             ");
+    //         }
+
+    //         uwriteln!(self.src, "}},");
+    //     }
+
+    //     uwriteln!(self.src, "func_name => {{");
+    //     if self.gen.opts.tracing {
+    //         uwriteln!(
+    //             self.src,
+    //             r#"::tauri_bindgen_host::tracing::error!(module = "{name}", function = func_name, "Not Found");"#
+    //         );
+    //     }
+    //     uwriteln!(self.src, "invoke.resolver.reject(\"Not Found\");");
+    //     uwriteln!(self.src, "}}");
+    //     uwriteln!(self.src, "}}");
+    //     uwriteln!(self.src, "}}");
+
+    //     uwriteln!(self.src, "}}");
+    // }
+
+    fn print_result_ty(&mut self, results: &Results, mode: BorrowMode) {
         match results {
             Results::Named(rs) => match rs.len() {
                 0 => self.push_str("()"),
@@ -290,7 +364,7 @@ impl<'a> RustGenerator<'a> for InterfaceGenerator<'a> {
         self.push_str(" str");
     }
 
-    fn default_param_mode(&self) -> TypeMode {
+    fn default_param_mode(&self) -> BorrowMode {
         self.default_param_mode
     }
 
@@ -366,16 +440,16 @@ fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<S
 
     if uses_two_names {
         if name.ends_with("Param") {
-            attrs.push("::tauri_bindgen_host::serde::Deserialize");
+            attrs.push("tauri_bindgen_abi::Readable");
         } else if name.ends_with("Result") {
-            attrs.push("::tauri_bindgen_host::serde::Serialize");
+            attrs.push("tauri_bindgen_abi::Writable");
         }
     } else {
         if info.contains(TypeInfo::PARAM) {
-            attrs.push("::tauri_bindgen_host::serde::Deserialize");
+            attrs.push("tauri_bindgen_abi::Readable");
         }
         if info.contains(TypeInfo::RESULT) {
-            attrs.push("::tauri_bindgen_host::serde::Serialize");
+            attrs.push("tauri_bindgen_abi::Writable");
         }
     }
 

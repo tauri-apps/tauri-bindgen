@@ -4,13 +4,19 @@ use app::App;
 
 #[cfg(all(not(debug_assertions), not(feature = "ssg")))]
 fn main() {
-    wasm_logger::init(wasm_logger::Config::default());
+    console_error_panic_hook::set_once();
+
+    tracing_wasm::set_as_global_default();
+
     sycamore::hydrate(App);
 }
 
 #[cfg(all(debug_assertions, not(feature = "ssg")))]
 fn main() {
-    wasm_logger::init(wasm_logger::Config::default());
+    console_error_panic_hook::set_once();
+
+    tracing_wasm::set_as_global_default();
+
     sycamore::render(App);
 }
 

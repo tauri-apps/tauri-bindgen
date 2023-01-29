@@ -409,7 +409,7 @@ mod test {
             .resolve(iface)
             .map_err(|error| error.with_source_code(NamedSource::new("test.wit", input)))?;
 
-        println!("{:?}", iface);
+        println!("{iface:?}");
 
         Ok(())
     }

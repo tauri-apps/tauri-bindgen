@@ -1,8 +1,9 @@
 [package]
 name = "tauri-bindgen-host-macro"
-version = "0.1.0"
-edition = "2021"
-rust-version = "1.59"
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 
 [lib]
 proc-macro = true
@@ -10,5 +11,5 @@ proc-macro = true
 [dependencies]
 proc-macro2 = "1.0"
 syn = "1.0"
-tauri-bindgen-gen-host = { path = "../gen-host" }
+tauri-bindgen-gen-host.workspace = true
 rust-macro-shared = { path = "../rust-macro-shared" }
