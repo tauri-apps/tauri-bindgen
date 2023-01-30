@@ -175,7 +175,7 @@ pub enum TypeDefKind {
     Flags(Flags),
     Union(Union),
     Enum(Enum),
-    Type(Type),
+    Alias(Type),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

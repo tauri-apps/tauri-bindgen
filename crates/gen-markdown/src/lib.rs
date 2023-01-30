@@ -164,7 +164,7 @@ impl InterfaceGenerator<'_> {
                 //     }
                 // }
                 match &ty.kind {
-                    TypeDefKind::Type(t) => self.print_ty(t, false),
+                    TypeDefKind::Alias(t) => self.print_ty(t, false),
                     // TypeDefKind::Tuple(t) =>
                     TypeDefKind::Record(_)
                     | TypeDefKind::Flags(_)

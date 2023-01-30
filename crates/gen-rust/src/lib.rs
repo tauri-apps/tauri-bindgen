@@ -109,11 +109,11 @@ pub trait RustGenerator<'a> {
             | TypeDefKind::Flags(_)
             | TypeDefKind::Enum(_)
             | TypeDefKind::Union(_)
-            | TypeDefKind::Type(Type::String) => true,
-            TypeDefKind::Type(Type::Id(t)) => {
+            | TypeDefKind::Alias(Type::String) => true,
+            TypeDefKind::Alias(Type::Id(t)) => {
                 self.typedef_needs_generics(&self.iface().types[*t].kind)
             }
-            TypeDefKind::Type(ty) => self.type_needs_generics(ty),
+            TypeDefKind::Alias(ty) => self.type_needs_generics(ty),
         }
     }
 
@@ -549,7 +549,7 @@ pub trait RustGenerator<'a> {
             Type::Id(id) => {
                 let ty = &self.iface().types[*id];
                 match &ty.kind {
-                    TypeDefKind::Type(ty) => self.write_name(ty, out),
+                    TypeDefKind::Alias(ty) => self.write_name(ty, out),
                     TypeDefKind::Record(_) => out.push_str("Record"),
                     TypeDefKind::Flags(_) => out.push_str("Flags"),
                     TypeDefKind::Variant(_) => out.push_str("Variant"),

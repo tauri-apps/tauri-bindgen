@@ -286,7 +286,7 @@ impl<'a> InterfaceGenerator<'a> {
             // It's doubtful anyone would actually rely on that though due to
             // how confusing it is.
             // TypeDefKind::Option(ty) => !self.is_nullable(ty),
-            TypeDefKind::Type(t) => self.is_nullable(t),
+            TypeDefKind::Alias(t) => self.is_nullable(t),
             _ => false,
         }
     }
@@ -313,7 +313,7 @@ fn array_ty(iface: &Interface, ty: &Type) -> Option<&'static str> {
         Type::Float32 => Some("Float32Array"),
         Type::Float64 => Some("Float64Array"),
         Type::Id(id) => match &iface.types[*id].kind {
-            TypeDefKind::Type(t) => array_ty(iface, t),
+            TypeDefKind::Alias(t) => array_ty(iface, t),
             _ => None,
         },
         Type::Bool

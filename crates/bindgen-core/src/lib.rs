@@ -51,7 +51,7 @@ pub trait InterfaceGenerator<'a> {
                 TypeDefKind::Enum(enum_) => self.type_enum(id, &ty.name, enum_, &ty.docs),
                 TypeDefKind::Variant(variant) => self.type_variant(id, &ty.name, variant, &ty.docs),
                 TypeDefKind::Union(u) => self.type_union(id, &ty.name, u, &ty.docs),
-                TypeDefKind::Type(t) => self.type_alias(id, &ty.name, t, &ty.docs),
+                TypeDefKind::Alias(t) => self.type_alias(id, &ty.name, t, &ty.docs),
             }
         }
     }
@@ -127,7 +127,7 @@ impl Types {
                     info |= self.type_info(iface, &case.ty);
                 }
             }
-            TypeDefKind::Type(ty) => {
+            TypeDefKind::Alias(ty) => {
                 info = self.type_info(iface, ty);
             }
             TypeDefKind::Flags(_) | TypeDefKind::Enum(_) => {}
@@ -187,7 +187,7 @@ impl Types {
                     self.set_param_result_ty(iface, &case.ty, new_info);
                 }
             }
-            TypeDefKind::Type(ty) => self.set_param_result_ty(iface, ty, new_info),
+            TypeDefKind::Alias(ty) => self.set_param_result_ty(iface, ty, new_info),
         }
     }
 
