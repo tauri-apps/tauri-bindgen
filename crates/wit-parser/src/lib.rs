@@ -42,7 +42,7 @@ fn parse(input: &str) -> miette::Result<Interface> {
 
     let iface = ast::Interface::parse(&mut tokens)?;
 
-    let iface = ast::resolve::Resolver::new(input).resolve(iface)?;
+    let iface = ast::resolve::resolve_interface(iface, input)?;
 
     Ok(iface)
 }

@@ -12,6 +12,7 @@ id-arena = "2.2.1"
 codespan-reporting = "0.11.1"
 miette.workspace = true
 distance = "0.4.0"
+log.workspace = true
 
 [dev-dependencies]
 pretty_assertions = "1.3.0"

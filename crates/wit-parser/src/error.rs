@@ -82,6 +82,12 @@ pub struct MultiError {
     related: Vec<ErrReport>,
 }
 
+impl From<Vec<ErrReport>> for MultiError {
+    fn from(related: Vec<ErrReport>) -> Self {
+        Self { related }
+    }
+}
+
 impl Error {
     pub fn unterminated_comment(start: impl Into<SourceSpan>, end: impl Into<SourceSpan>) -> Self {
         Self::UnterminatedComment {
