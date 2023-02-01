@@ -2,7 +2,7 @@ mod logger;
 
 use clap::{ArgAction, Parser};
 use miette::{bail, IntoDiagnostic, Result, WrapErr};
-use std::path::PathBuf;
+use std::{collections::HashSet, path::PathBuf};
 use tauri_bindgen_core::{Files, WorldGenerator};
 
 /// Helper for passing VERSION to opt.
@@ -77,6 +77,9 @@ struct WorldOpt {
     // #[clap(value_name = "DOCUMENT", value_parser = parse_interface)]
     /// Generate bindings for the WIT document.
     wit: PathBuf,
+    /// Names of functions to skip generating bindings for.
+    #[clap(long)]
+    skip: Vec<String>,
 }
 
 #[derive(Debug, Parser, Clone)]
@@ -145,7 +148,10 @@ fn gen_world(
         bail!("wit file `{}` does not exist", opts.wit.display());
     }
 
-    let world = wit_parser::parse_file(&opts.wit)?;
+    let skipset: HashSet<String, std::collections::hash_map::RandomState> =
+        opts.skip.into_iter().collect();
+
+    let world = wit_parser::parse_file(&opts.wit, |t| skipset.contains(t))?;
     let world_hash = tauri_bindgen_core::hash::hash_file(opts.wit)?;
 
     generator.generate(&world.name, &world, files, &world_hash);

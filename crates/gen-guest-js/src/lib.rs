@@ -1,7 +1,6 @@
 #![allow(clippy::must_use_candidate)]
 
 use heck::{ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
-use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::mem;
 use tauri_bindgen_core::{postprocess, uwriteln, Files, Source, WorldGenerator};
@@ -20,15 +19,11 @@ pub struct Opts {
     /// Run `rome format` to format the generated code. This formatter is much faster that `prettier`. Requires a global installation of `prettier`.
     #[cfg_attr(feature = "clap", clap(long))]
     pub romefmt: bool,
-    /// Names of functions to skip generating bindings for.
-    #[cfg_attr(feature = "clap", clap(long))]
-    pub skip: Vec<String>,
 }
 
 impl Opts {
     pub fn build(self) -> Box<dyn WorldGenerator> {
         Box::new(JavaScript {
-            skip: self.skip.iter().cloned().collect(),
             opts: self,
             ..Default::default()
         })
@@ -39,7 +34,6 @@ impl Opts {
 struct JavaScript {
     src: Source,
     opts: Opts,
-    skip: HashSet<String>,
 }
 
 impl WorldGenerator for JavaScript {
@@ -50,7 +44,7 @@ impl WorldGenerator for JavaScript {
         _files: &mut Files,
         world_hash: &str,
     ) {
-        let mut gen = InterfaceGenerator::new(self, iface, world_hash);
+        let mut gen = InterfaceGenerator::new(iface, world_hash);
 
         gen.print_intro();
 
@@ -82,16 +76,14 @@ impl WorldGenerator for JavaScript {
 
 struct InterfaceGenerator<'a> {
     src: Source,
-    gen: &'a mut JavaScript,
     iface: &'a Interface,
     world_hash: &'a str,
 }
 
 impl<'a> InterfaceGenerator<'a> {
-    pub fn new(gen: &'a mut JavaScript, iface: &'a Interface, world_hash: &'a str) -> Self {
+    pub fn new(iface: &'a Interface, world_hash: &'a str) -> Self {
         Self {
             src: Source::default(),
-            gen,
             iface,
             world_hash,
         }
@@ -147,10 +139,6 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn generate_guest_import(&mut self, func: &Function) {
-        if self.gen.skip.contains(&func.name) {
-            return;
-        }
-
         self.print_jsdoc(func);
 
         self.push_str("export async function ");

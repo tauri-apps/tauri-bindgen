@@ -9,7 +9,7 @@ fn gen_world(
     name: impl AsRef<str>,
     input: impl AsRef<str>,
 ) -> (String, String) {
-    let world = wit_parser::parse_str(&input).unwrap();
+    let world = wit_parser::parse_str(&input, |_| false).unwrap();
     let world_hash = tauri_bindgen_core::hash::hash_str(&input).unwrap();
 
     let mut files = Files::default();

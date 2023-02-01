@@ -1,14 +1,13 @@
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
+use std::collections::HashSet;
 use std::marker;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use syn::parse::{Error, Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
 use syn::{token, Token};
 use tauri_bindgen_core::{Files, WorldGenerator};
-use wit_parser::Interface;
-// use wit_parser::World;
 
 /// # Panics
 ///
@@ -21,28 +20,28 @@ where
 {
     let input = syn::parse_macro_input!(input as Opts<F, O>);
     let mut gen = mkgen(input.opts);
+
+    let iface = wit_parser::parse_file(&input.file, |t| input.skip.contains(t)).unwrap();
+
     let mut files = Files::default();
-    let name = input.interface.name.clone();
-    gen.generate(&name, &input.interface, &mut files, &input.file_hash);
+    let name = iface.name.clone();
+    gen.generate(&name, &iface, &mut files, &input.file_hash);
 
     let (_, contents) = files.iter().next().unwrap();
 
     let contents = std::str::from_utf8(contents).unwrap();
     let mut contents = contents.parse::<TokenStream>().unwrap();
 
-    // Include a dummy `include_str!` for any files we read so rustc knows that
+    // Include a dummy `include_str!` for the input file we read so rustc knows that
     // we depend on the contents of those files.
-    let cwd = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-    for file in &input.files {
-        contents.extend(
-            format!(
-                "const _: &str = include_str!(r#\"{}\"#);\n",
-                Path::new(&cwd).join(file).display()
-            )
-            .parse::<TokenStream>()
-            .unwrap(),
-        );
-    }
+    contents.extend(
+        format!(
+            "const _: &str = include_str!(r#\"{}\"#);\n",
+            &input.file.display()
+        )
+        .parse::<TokenStream>()
+        .unwrap(),
+    );
 
     contents
 }
@@ -53,14 +52,15 @@ pub trait Configure<O> {
 
 struct Opts<F, O> {
     opts: O,
-    interface: Interface,
-    files: Vec<String>,
+    skip: HashSet<String>,
+    file: PathBuf,
     file_hash: String,
     _marker: marker::PhantomData<F>,
 }
 
 mod kw {
     syn::custom_keyword!(path);
+    syn::custom_keyword!(skip);
 }
 
 impl<F, O> Parse for Opts<F, O>
@@ -71,16 +71,18 @@ where
     fn parse(input: ParseStream<'_>) -> Result<Self> {
         let call_site = proc_macro2::Span::call_site();
 
-        let mut iface: Option<Interface> = None;
+        let mut file: Option<PathBuf> = None;
         let mut ret = Opts {
             opts: O::default(),
-            interface: Interface::default(),
-            files: Vec::new(),
+            file: PathBuf::new(),
             file_hash: String::new(),
+            skip: HashSet::new(),
             _marker: marker::PhantomData,
         };
 
-        if input.peek(token::Brace) {
+        let l = input.lookahead1();
+
+        if l.peek(token::Brace) {
             let content;
             syn::braced!(content in input);
             let fields = Punctuated::<ConfigField<F>, Token![,]>::parse_terminated(&content)?;
@@ -88,31 +90,33 @@ where
                 match field.into_value() {
                     ConfigField::Path(path) => {
                         let span = path.span();
-                        if iface.is_some() {
-                            return Err(Error::new(span, "cannot specify second world"));
-                        }
 
-                        let path = ret.parse_path(&path);
+                        let path = parse_path(&path);
 
-                        iface =
-                            Some(wit_parser::parse_file(&path).map_err(|e| Error::new(span, e))?);
-                        ret.file_hash = tauri_bindgen_core::hash::hash_file(path)
+                        ret.file_hash = tauri_bindgen_core::hash::hash_file(&path)
                             .map_err(|e| Error::new(span, e))?;
+
+                        if file.replace(path).is_some() {
+                            return Err(Error::new(span, "cannot specify second file"));
+                        }
+                    }
+                    ConfigField::Skip(skip) => {
+                        ret.skip = skip.iter().map(syn::LitStr::value).collect();
                     }
                     ConfigField::Other(other) => other.configure(&mut ret.opts),
                 }
             }
         } else {
             let s = input.parse::<syn::LitStr>()?;
+            let path = parse_path(&s);
 
-            let path = ret.parse_path(&s);
-
-            iface = Some(wit_parser::parse_file(&path).map_err(|e| Error::new(s.span(), e))?);
             ret.file_hash =
-                tauri_bindgen_core::hash::hash_file(path).map_err(|e| Error::new(s.span(), e))?;
+                tauri_bindgen_core::hash::hash_file(&path).map_err(|e| Error::new(s.span(), e))?;
+
+            file.replace(path);
         }
 
-        ret.interface = iface.ok_or_else(|| {
+        ret.file = file.ok_or_else(|| {
             Error::new(
                 call_site,
                 "must specify a `*.wit` file to generate bindings for",
@@ -123,19 +127,15 @@ where
     }
 }
 
-impl<F, O> Opts<F, O> {
-    fn parse_path(&mut self, path: &syn::LitStr) -> PathBuf {
-        let path = path.value();
-        let manifest_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-        let path = manifest_dir.join(path);
-        self.files.push(path.to_str().unwrap().to_string());
-
-        path
-    }
+fn parse_path(path: &syn::LitStr) -> PathBuf {
+    let path = path.value();
+    let manifest_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+    manifest_dir.join(path)
 }
 
 enum ConfigField<F> {
     Path(syn::LitStr),
+    Skip(Vec<syn::LitStr>),
     Other(F),
 }
 
@@ -146,6 +146,13 @@ impl<F: Parse> Parse for ConfigField<F> {
             input.parse::<kw::path>()?;
             input.parse::<Token![:]>()?;
             Ok(ConfigField::Path(input.parse()?))
+        } else if l.peek(kw::skip) {
+            input.parse::<kw::skip>()?;
+            input.parse::<Token![:]>()?;
+            let contents;
+            syn::bracketed!(contents in input);
+            let list = Punctuated::<_, Token![,]>::parse_terminated(&contents)?;
+            Ok(ConfigField::Skip(list.iter().cloned().collect()))
         } else {
             Ok(ConfigField::Other(input.parse()?))
         }

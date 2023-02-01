@@ -2,7 +2,7 @@
 
 use heck::{ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use std::fmt::Write as _;
-use std::{collections::HashSet, mem};
+use std::mem;
 use tauri_bindgen_core::{
     postprocess, uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types,
     WorldGenerator,
@@ -25,16 +25,11 @@ pub struct Opts {
     /// If true, code generation should avoid any features that depend on `std`.
     #[cfg_attr(feature = "clap", clap(long))]
     pub no_std: bool,
-
-    /// Names of functions to skip generating bindings for.
-    #[cfg_attr(feature = "clap", clap(long))]
-    pub skip: Vec<String>,
 }
 
 impl Opts {
     pub fn build(self) -> Box<dyn WorldGenerator> {
         Box::new(RustWasm {
-            skip: self.skip.iter().cloned().collect(),
             opts: self,
             ..Default::default()
         })
@@ -45,7 +40,6 @@ impl Opts {
 struct RustWasm {
     src: Source,
     opts: Opts,
-    skip: HashSet<String>,
 }
 
 impl WorldGenerator for RustWasm {
@@ -120,10 +114,6 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn generate_guest_import(&mut self, func: &Function) {
-        if self.gen.skip.contains(&func.name) {
-            return;
-        }
-
         let sig = FnSig {
             async_: true,
             ..Default::default()

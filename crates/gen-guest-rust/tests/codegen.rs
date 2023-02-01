@@ -6,7 +6,7 @@ fn gen_world(
     name: impl AsRef<str>,
     input: impl AsRef<str>,
 ) -> (String, String) {
-    let world = wit_parser::parse_str(&input).unwrap();
+    let world = wit_parser::parse_str(&input, |_| false).unwrap();
     let world_hash = tauri_bindgen_core::hash::hash_str(&input).unwrap();
 
     let mut files = Files::default();
@@ -27,7 +27,6 @@ fn chars() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -47,7 +46,6 @@ fn conventions() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -67,7 +65,6 @@ fn empty() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -87,7 +84,6 @@ fn flags() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -107,7 +103,6 @@ fn floats() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -127,7 +122,6 @@ fn integers() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -147,7 +141,6 @@ fn lists() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -167,7 +160,6 @@ fn many_arguments() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -187,7 +179,6 @@ fn multi_return() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -207,7 +198,6 @@ fn records() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -227,7 +217,6 @@ fn simple_functions() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -247,7 +236,6 @@ fn simple_lists() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -267,7 +255,6 @@ fn small_anonymous() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -287,7 +274,6 @@ fn strings() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -307,7 +293,6 @@ fn unions() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -327,7 +312,6 @@ fn variants() {
         rustfmt: false,
         no_std: false,
         unchecked: false,
-        skip: vec![],
     };
     let gen = opts.build();
 

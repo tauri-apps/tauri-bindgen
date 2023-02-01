@@ -14,8 +14,8 @@ use std::path::Path;
 ///
 /// Returns a `miette::Report` if the file could not be parsed.
 /// The Report contains information on the exact location of the errors
-pub fn parse_str(input: impl AsRef<str>) -> miette::Result<Interface> {
-    let iface = parse(input.as_ref()).map_err(|error: ErrReport| {
+pub fn parse_str(input: impl AsRef<str>, skip: impl Fn(&str) -> bool) -> miette::Result<Interface> {
+    let iface = parse(input.as_ref(), skip).map_err(|error: ErrReport| {
         error.with_source_code(NamedSource::new("virtual file", input.as_ref().to_string()))
     })?;
 
@@ -26,23 +26,26 @@ pub fn parse_str(input: impl AsRef<str>) -> miette::Result<Interface> {
 ///
 /// Returns a `miette::Report` if the file could not be parsed.
 /// The Report contains information on the exact location of the errors
-pub fn parse_file(path: impl AsRef<Path>) -> miette::Result<Interface> {
+pub fn parse_file(
+    path: impl AsRef<Path>,
+    skip: impl Fn(&str) -> bool,
+) -> miette::Result<Interface> {
     let path = path.as_ref();
     let input = std::fs::read_to_string(path).into_diagnostic()?;
 
-    let iface = parse(&input).map_err(|error: ErrReport| {
+    let iface = parse(&input, skip).map_err(|error: ErrReport| {
         error.with_source_code(NamedSource::new(path.to_string_lossy(), input))
     })?;
 
     Ok(iface)
 }
 
-fn parse(input: &str) -> miette::Result<Interface> {
+fn parse(input: &str, skip: impl Fn(&str) -> bool) -> miette::Result<Interface> {
     let mut tokens = ast::lex::Tokens::from_str(input);
 
     let iface = ast::Interface::parse(&mut tokens)?;
 
-    let iface = ast::resolve::resolve_interface(iface, input)?;
+    let iface = ast::resolve::resolve_interface(iface, input, skip)?;
 
     Ok(iface)
 }

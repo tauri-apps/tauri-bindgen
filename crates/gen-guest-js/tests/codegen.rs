@@ -6,7 +6,7 @@ fn gen_world(
     name: impl AsRef<str>,
     input: impl AsRef<str>,
 ) -> (String, String) {
-    let world = wit_parser::parse_str(&input).unwrap();
+    let world = wit_parser::parse_str(&input, |_| false).unwrap();
     let world_hash = tauri_bindgen_core::hash::hash_str(&input).unwrap();
 
     let mut files = Files::default();
@@ -26,7 +26,6 @@ fn chars() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -45,7 +44,6 @@ fn convention() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -64,7 +62,6 @@ fn empty() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -83,7 +80,6 @@ fn flags() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -102,7 +98,6 @@ fn floats() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -121,7 +116,6 @@ fn integers() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -140,7 +134,6 @@ fn many_arguments() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -159,7 +152,6 @@ fn multi_return() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -178,7 +170,6 @@ fn records() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -197,7 +188,6 @@ fn simple_functions() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -216,7 +206,6 @@ fn simple_lists() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -235,7 +224,6 @@ fn small_anonymous() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -254,7 +242,6 @@ fn strings() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -273,7 +260,6 @@ fn unions() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 
@@ -292,7 +278,6 @@ fn variants() {
     let opts = Opts {
         prettier: false,
         romefmt: false,
-        skip: vec![],
     };
     let gen = opts.build();
 

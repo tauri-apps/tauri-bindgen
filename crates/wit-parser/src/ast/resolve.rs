@@ -7,16 +7,26 @@ use std::{
     mem,
 };
 
-pub fn resolve_interface(mut iface: ast::Interface<'_>, src: &str) -> Result<crate::Interface> {
+pub fn resolve_interface(
+    mut iface: ast::Interface<'_>,
+    src: &str,
+    skip: impl Fn(&str) -> bool,
+) -> Result<crate::Interface> {
     let mut ctx = Resolver::new(src);
 
     let mut funcs: HashMap<&str, SourceSpan> = HashMap::new();
     let mut names: HashMap<&str, SourceSpan> = HashMap::new();
 
+    log::debug!("Resolving names...");
+
     for item in &mut iface.items {
         let name = ctx.read_span(item.name);
 
         if let ast::InterfaceItemKind::Func(_) = item.kind {
+            if skip(name) {
+                log::debug!("Skipping name resolution for function {}", name);
+                continue;
+            }
             if let Some(prev) = funcs.insert(name, item.name) {
                 bail!(Error::already_defined(item.name, prev));
             }
@@ -34,8 +44,16 @@ pub fn resolve_interface(mut iface: ast::Interface<'_>, src: &str) -> Result<cra
         }
     }
 
+    log::debug!("Resolving types...");
+
     for item in &iface.items {
+        let name = ctx.read_span(item.name);
         if let ast::InterfaceItemKind::Func(func) = &item.kind {
+            if skip(name) {
+                log::debug!("Skipping type resolution for function {}", name);
+                continue;
+            }
+
             ctx.functions.push(crate::Function {
                 docs: item.docs.resolve(&ctx)?,
                 name: ctx.read_span(item.name).to_string(),
@@ -44,7 +62,6 @@ pub fn resolve_interface(mut iface: ast::Interface<'_>, src: &str) -> Result<cra
             });
         } else {
             let kind = item.kind.resolve(&ctx)?;
-            let name = ctx.read_span(item.name);
             let id = ctx.name2id.get(name).unwrap();
             ctx.types.get_mut(*id).unwrap().kind = kind;
         }
@@ -430,7 +447,7 @@ mod test {
         let iface = Interface::parse(&mut tokens)
             .map_err(|error| error.with_source_code(NamedSource::new("test.wit", input)))?;
 
-        let iface = super::resolve_interface(iface, input)
+        let iface = super::resolve_interface(iface, input, |_| false)
             .map_err(|error| error.with_source_code(NamedSource::new("test.wit", input)))?;
 
         println!("{iface:?}");

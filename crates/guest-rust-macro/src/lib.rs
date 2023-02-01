@@ -1,7 +1,6 @@
 use proc_macro::TokenStream;
 use syn::parse::{Parse, ParseStream, Result};
-use syn::punctuated::Punctuated;
-use syn::{LitStr, Token};
+use syn::Token;
 use tauri_bindgen_gen_guest_rust::Opts;
 
 #[proc_macro]
@@ -18,7 +17,6 @@ mod kw {
 enum Opt {
     Unchecked(bool),
     NoStd(bool),
-    Skip(Vec<LitStr>),
 }
 
 impl Parse for Opt {
@@ -33,13 +31,6 @@ impl Parse for Opt {
             input.parse::<kw::no_std>()?;
             input.parse::<Token![:]>()?;
             Ok(Opt::NoStd(input.parse::<syn::LitBool>()?.value))
-        } else if l.peek(kw::skip) {
-            input.parse::<kw::skip>()?;
-            input.parse::<Token![:]>()?;
-            let contents;
-            syn::bracketed!(contents in input);
-            let list = Punctuated::<_, Token![,]>::parse_terminated(&contents)?;
-            Ok(Opt::Skip(list.iter().cloned().collect()))
         } else {
             Err(l.error())
         }
@@ -51,7 +42,6 @@ impl rust_macro_shared::Configure<Opts> for Opt {
         match self {
             Opt::Unchecked(val) => opts.unchecked = val,
             Opt::NoStd(val) => opts.no_std = val,
-            Opt::Skip(val) => opts.skip.extend(val.iter().map(syn::LitStr::value)),
         }
     }
 }

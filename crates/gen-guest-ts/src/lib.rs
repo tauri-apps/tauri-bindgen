@@ -1,7 +1,6 @@
 #![allow(clippy::must_use_candidate)]
 
 use heck::{ToLowerCamelCase, ToUpperCamelCase};
-use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::mem;
 use tauri_bindgen_core::{
@@ -22,15 +21,11 @@ pub struct Opts {
     /// Run `rome format` to format the generated code. This formatter is much faster that `prettier`. Requires a global installation of `prettier`.
     #[cfg_attr(feature = "clap", clap(long))]
     pub romefmt: bool,
-    /// Names of functions to skip generating bindings for.
-    #[cfg_attr(feature = "clap", clap(long))]
-    pub skip: Vec<String>,
 }
 
 impl Opts {
     pub fn build(self) -> Box<dyn WorldGenerator> {
         Box::new(TypeScript {
-            skip: self.skip.iter().cloned().collect(),
             opts: self,
             ..Default::default()
         })
@@ -41,7 +36,6 @@ impl Opts {
 struct TypeScript {
     src: Source,
     opts: Opts,
-    skip: HashSet<String>,
 }
 
 impl WorldGenerator for TypeScript {
@@ -52,7 +46,7 @@ impl WorldGenerator for TypeScript {
         _files: &mut Files,
         world_hash: &str,
     ) {
-        let mut gen = InterfaceGenerator::new(self, iface, world_hash);
+        let mut gen = InterfaceGenerator::new(iface, world_hash);
 
         gen.print_intro();
         gen.types();
@@ -100,7 +94,6 @@ impl WorldGenerator for TypeScript {
 
 struct InterfaceGenerator<'a> {
     src: Source,
-    gen: &'a mut TypeScript,
     iface: &'a Interface,
     needs_ty_option: bool,
     needs_ty_result: bool,
@@ -108,10 +101,9 @@ struct InterfaceGenerator<'a> {
 }
 
 impl<'a> InterfaceGenerator<'a> {
-    pub fn new(gen: &'a mut TypeScript, iface: &'a Interface, world_hash: &'a str) -> Self {
+    pub fn new(iface: &'a Interface, world_hash: &'a str) -> Self {
         Self {
             src: Source::default(),
-            gen,
             iface,
             needs_ty_option: false,
             needs_ty_result: false,
@@ -157,10 +149,6 @@ impl<'a> InterfaceGenerator<'a> {
     }
 
     fn generate_guest_import(&mut self, func: &Function) {
-        if self.gen.skip.contains(&func.name) {
-            return;
-        }
-
         self.print_typedoc(&func.docs);
 
         self.push_str("export async function ");
