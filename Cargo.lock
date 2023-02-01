@@ -986,18 +986,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gen-host-2"
-version = "0.1.0"
-dependencies = [
- "clap",
- "heck 0.4.0",
- "proc-macro2 1.0.50",
- "quote 1.0.23",
- "tauri-bindgen-gen-rust",
- "wit-parser",
-]
-
-[[package]]
 name = "generator"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
