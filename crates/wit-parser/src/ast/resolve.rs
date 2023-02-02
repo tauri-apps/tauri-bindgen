@@ -143,7 +143,7 @@ impl<'a> Resolve<'a, crate::Type> for ast::Type {
                     .partition_result()
                     .map_err(MultiError::from)?;
 
-                Ok(crate::Type::Tuple(crate::Tuple { types }))
+                Ok(crate::Type::Tuple(types))
             }
             ast::Type::List(ty) => {
                 let ty = ty.resolve(ctx)?;
@@ -402,8 +402,8 @@ fn verify_not_recursive(
             }
         }
         crate::TypeDefKind::Alias(ty) => match ty {
-            crate::Type::Tuple(tuple) => {
-                for ty in &tuple.types {
+            crate::Type::Tuple(types) => {
+                for ty in types {
                     if let crate::Type::Id(id) = ty {
                         verify_not_recursive(ctx, name, *id, visiting, valid)?;
                     }

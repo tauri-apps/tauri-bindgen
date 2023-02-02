@@ -145,16 +145,11 @@ pub enum Type {
     Char,
     String,
     Bool,
-    Tuple(Tuple),
+    Tuple(Vec<Type>),
     List(Box<Type>),
     Option(Box<Type>),
     Result(Box<Result_>),
     Id(Id<TypeDef>),
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Tuple {
-    pub types: Vec<Type>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -198,6 +193,22 @@ pub struct Variant {
     pub cases: Vec<VariantCase>,
 }
 
+impl Variant {
+    /// # Panics
+    ///
+    /// Panics when the variant has more than `u64::MAX` cases
+    #[must_use]
+    pub fn tag(&self) -> Int {
+        match self.cases.len() {
+            n if u8::try_from(n).is_ok() => Int::U8,
+            n if u16::try_from(n).is_ok() => Int::U16,
+            n if u32::try_from(n).is_ok() => Int::U32,
+            n if u64::try_from(n).is_ok() => Int::U64,
+            _ => panic!("too many cases to fit in a repr"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VariantCase {
     pub docs: Docs,
@@ -234,6 +245,22 @@ pub struct Flag {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Union {
     pub cases: Vec<UnionCase>,
+}
+
+impl Union {
+    /// # Panics
+    ///
+    /// Panics when the union has more than `u64::MAX` cases
+    #[must_use]
+    pub fn tag(&self) -> Int {
+        match self.cases.len() {
+            n if u8::try_from(n).is_ok() => Int::U8,
+            n if u16::try_from(n).is_ok() => Int::U16,
+            n if u32::try_from(n).is_ok() => Int::U32,
+            n if u64::try_from(n).is_ok() => Int::U64,
+            _ => panic!("too many cases to fit in a repr"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

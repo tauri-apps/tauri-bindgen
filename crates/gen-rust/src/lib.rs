@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::fmt::{self, Write};
 use tauri_bindgen_core::TypeInfo;
 use wit_parser::{
-    Docs, Enum, Flags, Function, Int, Interface, Record, Result_, Results, Tuple, Type,
+    Docs, Enum, Flags, Function, Int, Interface, Record, Result_, Results, Type,
     TypeDefKind, TypeId, Union, Variant,
 };
 
@@ -43,9 +43,9 @@ pub trait RustGenerator<'a> {
             Type::Float32 => self.push_str("f32"),
             Type::Float64 => self.push_str("f64"),
             Type::Char => self.push_str("char"),
-            Type::Tuple(ty) => {
+            Type::Tuple(types) => {
                 self.push_str("(");
-                for ty in &ty.types {
+                for ty in types {
                     self.print_ty(ty, mode);
                     self.push_str(",");
                 }
@@ -119,7 +119,7 @@ pub trait RustGenerator<'a> {
 
     fn type_needs_generics(&self, ty: &Type) -> bool {
         match ty {
-            Type::Tuple(ty) => ty.types.iter().any(|ty| self.type_needs_generics(ty)),
+            Type::Tuple(types) => types.iter().any(|ty| self.type_needs_generics(ty)),
             Type::List(_) | Type::String => true,
             Type::Option(ty) => self.type_needs_generics(ty),
             Type::Result(res) => {
@@ -233,7 +233,7 @@ pub trait RustGenerator<'a> {
         }
     }
 
-    fn print_typedef_tuple(&mut self, id: TypeId, tuple: &Tuple, docs: &Docs) {
+    fn print_typedef_tuple(&mut self, id: TypeId, types: &Vec<Type>, docs: &Docs) {
         let info = self.info(id);
 
         for TypeVariant { name, borrow_mode } in self.variants_of(id) {
@@ -244,7 +244,7 @@ pub trait RustGenerator<'a> {
             self.print_generics(lt);
             self.push_str(" = (");
 
-            for ty in &tuple.types {
+            for ty in types {
                 self.print_ty(ty, borrow_mode);
                 self.push_str(",");
             }
@@ -688,7 +688,7 @@ pub trait RustGenerator<'a> {
 
                 self.lifetime_for(&info, mode).is_some()
             }
-            Type::Tuple(ty) => ty.types.iter().any(|ty| self.needs_borrow(ty, mode)),
+            Type::Tuple(types) => types.iter().any(|ty| self.needs_borrow(ty, mode)),
             Type::List(ty) | Type::Option(ty) => self.needs_borrow(ty, mode),
             _ => false,
         }
@@ -696,7 +696,7 @@ pub trait RustGenerator<'a> {
 
     fn needs_lifetime(&self, ty: &Type) -> bool {
         match ty {
-            Type::Tuple(ty) => ty.types.iter().any(|ty| self.needs_lifetime(ty)),
+            Type::Tuple(types) => types.iter().any(|ty| self.needs_lifetime(ty)),
             Type::List(_) | Type::String => true,
             Type::Option(ty) => self.needs_lifetime(ty),
             Type::Result(res) => {

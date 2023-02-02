@@ -140,8 +140,8 @@ impl Types {
         let mut info = TypeInfo::empty();
         match ty {
             Type::String => info |= TypeInfo::HAS_LIST,
-            Type::Tuple(ty) => {
-                for ty in &ty.types {
+            Type::Tuple(types) => {
+                for ty in types {
                     info |= self.type_info(iface, ty);
                 }
             }
@@ -196,8 +196,8 @@ impl Types {
     /// Panics when the `ty` points to a non-existent type definition
     pub fn set_param_result_ty(&mut self, iface: &Interface, ty: &Type, new_info: TypeInfo) {
         match ty {
-            Type::Tuple(ty) => {
-                for ty in &ty.types {
+            Type::Tuple(types) => {
+                for ty in types {
                     self.set_param_result_ty(iface, ty, new_info);
                 }
             }

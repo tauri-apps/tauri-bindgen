@@ -6,7 +6,7 @@ use std::mem;
 use tauri_bindgen_core::{
     postprocess, uwriteln, Files, InterfaceGenerator as _, Source, WorldGenerator,
 };
-use wit_parser::{Docs, Flags, Function, Int, Interface, Tuple, Type, TypeDefKind, TypeId};
+use wit_parser::{Docs, Flags, Function, Int, Interface, Type, TypeDefKind, TypeId};
 
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -248,7 +248,7 @@ impl<'a> InterfaceGenerator<'a> {
             | Type::Float64 => self.push_str("number"),
             Type::U64 | Type::S64 => self.push_str("bigint"),
             Type::Char | Type::String => self.push_str("string"),
-            Type::Tuple(ty) => self.print_tuple(ty),
+            Type::Tuple(tys) => self.print_tuple(tys),
             Type::List(ty) => self.print_list(ty),
             Type::Option(ty) => {
                 if self.is_nullable(ty) {
@@ -284,9 +284,9 @@ impl<'a> InterfaceGenerator<'a> {
         }
     }
 
-    fn print_tuple(&mut self, tuple: &Tuple) {
+    fn print_tuple(&mut self, types: &Vec<Type>) {
         self.push_str("[");
-        for (i, ty) in tuple.types.iter().enumerate() {
+        for (i, ty) in types.iter().enumerate() {
             if i > 0 {
                 self.push_str(", ");
             }

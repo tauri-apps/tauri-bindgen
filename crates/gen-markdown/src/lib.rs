@@ -176,9 +176,9 @@ impl InterfaceGenerator<'_> {
                       // TypeDefKind::Result(r) =>
                 }
             }
-            Type::Tuple(ty) => {
+            Type::Tuple(types) => {
                 self.push_str("(");
-                for (i, ty) in ty.types.iter().enumerate() {
+                for (i, ty) in types.iter().enumerate() {
                     if i > 0 {
                         self.push_str(", ");
                     }
