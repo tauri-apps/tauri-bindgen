@@ -13,10 +13,10 @@ heck.workspace = true
 clap = { workspace = true, optional = true }
 
 [dev-dependencies]
-wasm-bindgen = { version = "0.2.83", features = ["serde-serialize"] }
-wasm-bindgen-futures = "0.4.33"
+wasm-bindgen = { version = "0.2.84", features = ["serde-serialize"] }
+wasm-bindgen-futures = "0.4.34"
 serde-wasm-bindgen = "0.4.5"
-js-sys = "0.3.60" 
+js-sys = "0.3.61" 
 tauri-bindgen-guest-rust = { path = "../guest-rust" }
 serde = { version = "1.0.152", features = ["derive"] }
 # tauri-bindgen-abi = { path = "../abi" }
