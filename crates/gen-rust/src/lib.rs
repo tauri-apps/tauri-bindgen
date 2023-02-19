@@ -5,8 +5,8 @@ use std::collections::HashMap;
 use std::fmt::{self, Write};
 use tauri_bindgen_core::TypeInfo;
 use wit_parser::{
-    Docs, Enum, Flags, Function, Int, Interface, Record, Result_, Results, Type,
-    TypeDefKind, TypeId, Union, Variant,
+    Docs, Enum, Flags, Function, Int, Interface, Record, Result_, Results, Type, TypeDefKind,
+    TypeId, Union, Variant,
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]

@@ -284,7 +284,7 @@ impl<'a> InterfaceGenerator<'a> {
         }
     }
 
-    fn print_tuple(&mut self, types: &Vec<Type>) {
+    fn print_tuple(&mut self, types: &[Type]) {
         self.push_str("[");
         for (i, ty) in types.iter().enumerate() {
             if i > 0 {
