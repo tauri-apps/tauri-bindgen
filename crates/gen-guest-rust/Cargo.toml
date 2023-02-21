@@ -11,6 +11,10 @@ tauri-bindgen-core.workspace = true
 wit-parser.workspace = true
 heck.workspace = true
 clap = { workspace = true, optional = true }
+quote = "1.0.23"
+proc-macro2 = "1.0.51"
+syn = "1.0.107"
+prettyplease = "0.1.23"
 
 [dev-dependencies]
 wasm-bindgen = { version = "0.2.84", features = ["serde-serialize"] }

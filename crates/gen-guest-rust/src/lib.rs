@@ -1,5 +1,7 @@
 #![allow(clippy::must_use_candidate)]
 
+mod r#macro;
+
 use heck::{ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use std::fmt::Write as _;
 use std::mem;
