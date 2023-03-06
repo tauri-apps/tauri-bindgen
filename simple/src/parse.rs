@@ -36,9 +36,9 @@ where
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Interface {
-    ident: Span,
-    docs: Vec<Span>,
-    items: Vec<InterfaceItem>,
+    pub ident: Span,
+    pub docs: Vec<Span>,
+    pub items: Vec<InterfaceItem>,
 }
 
 impl<'a> FromTokens<'a> for Interface {
@@ -47,9 +47,16 @@ impl<'a> FromTokens<'a> for Interface {
 
         tokens.expect_token(Token::Interface)?;
 
-        let (_, ident) = tokens.expect_token(Token::Id)?;
+        let (_, ident) = tokens.expect_token(Token::Ident)?;
 
-        let items = parse_list(tokens, Token::LeftBrace, Token::RightBrace)?;
+        tokens.expect_token(Token::LeftBrace)?;
+
+        let mut items = Vec::new();
+        while !matches!(tokens.peek(), Some((Token::RightBrace, _))) {
+            let item = InterfaceItem::parse(tokens)?;
+
+            items.push(item);
+        }
 
         Ok(Interface { ident, docs, items })
     }
@@ -57,9 +64,9 @@ impl<'a> FromTokens<'a> for Interface {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InterfaceItem {
-    docs: Vec<Span>,
-    ident: Span,
-    inner: InterfaceItemInner,
+    pub docs: Vec<Span>,
+    pub ident: Span,
+    pub inner: InterfaceItemInner,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -79,7 +86,7 @@ impl<'a> FromTokens<'a> for InterfaceItem {
 
         let (kind, kind_span) = tokens.next().ok_or(Error::UnexpectedEof)?;
 
-        let (_, ident) = tokens.expect_token(Token::Id)?;
+        let (_, ident) = tokens.expect_token(Token::Ident)?;
 
         let inner = match kind {
             Token::Record => {
@@ -112,7 +119,11 @@ impl<'a> FromTokens<'a> for InterfaceItem {
 
                 InterfaceItemInner::Alias(Type::parse(tokens)?)
             }
-            Token::Func => todo!(),
+            Token::Func => {
+                let inner = Func::parse(tokens)?;
+
+                InterfaceItemInner::Func(inner)
+            }
             Token::Resource => todo!(),
             Token::Use => todo!(),
             found => {
@@ -149,8 +160,8 @@ impl<'a> FromTokens<'a> for InterfaceItem {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Func {
-    params: NamedTypeList,
-    results: FuncResult,
+    pub params: NamedTypeList,
+    pub results: FuncResult,
 }
 
 impl<'a> FromTokens<'a> for Func {
@@ -175,6 +186,18 @@ impl<'a> FromTokens<'a> for NamedTypeList {
     }
 }
 
+impl<'a> FromTokens<'a> for (Span, Type) {
+    fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
+        let (_, ident) = tokens.expect_token(Token::Ident)?;
+
+        tokens.expect_token(Token::Colon)?;
+
+        let ty = Type::parse(tokens)?;
+
+        Ok((ident, ty))
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FuncResult {
     Anon(Type),
@@ -183,22 +206,26 @@ pub enum FuncResult {
 
 impl<'a> FromTokens<'a> for FuncResult {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
-        todo!()
+        if let Some((Token::LeftParen, _)) = tokens.peek() {
+            Ok(FuncResult::Named(NamedTypeList::parse(tokens)?))
+        } else {
+            Ok(FuncResult::Anon(Type::parse(tokens)?))
+        }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RecordField {
-    ident: Span,
-    docs: Vec<Span>,
-    ty: Type,
+    pub ident: Span,
+    pub docs: Vec<Span>,
+    pub ty: Type,
 }
 
 impl<'a> FromTokens<'a> for RecordField {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = parse_docs(tokens);
 
-        let (_, ident) = tokens.expect_token(Token::Id)?;
+        let (_, ident) = tokens.expect_token(Token::Ident)?;
 
         tokens.expect_token(Token::Colon)?;
 
@@ -210,15 +237,15 @@ impl<'a> FromTokens<'a> for RecordField {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FlagsField {
-    ident: Span,
-    docs: Vec<Span>,
+    pub ident: Span,
+    pub docs: Vec<Span>,
 }
 
 impl<'a> FromTokens<'a> for FlagsField {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = parse_docs(tokens);
 
-        let (_, ident) = tokens.expect_token(Token::Id)?;
+        let (_, ident) = tokens.expect_token(Token::Ident)?;
 
         Ok(FlagsField { docs, ident })
     }
@@ -226,16 +253,16 @@ impl<'a> FromTokens<'a> for FlagsField {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VariantCase {
-    ident: Span,
-    docs: Vec<Span>,
-    ty: Option<Type>,
+    pub ident: Span,
+    pub docs: Vec<Span>,
+    pub ty: Option<Type>,
 }
 
 impl<'a> FromTokens<'a> for VariantCase {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = parse_docs(tokens);
 
-        let (_, ident) = tokens.expect_token(Token::Id)?;
+        let (_, ident) = tokens.expect_token(Token::Ident)?;
 
         let ty = if tokens.next_if_token(Token::LeftParen).is_some() {
             let ty = Type::parse(tokens)?;
@@ -252,15 +279,15 @@ impl<'a> FromTokens<'a> for VariantCase {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EnumCase {
-    ident: Span,
-    docs: Vec<Span>,
+    pub ident: Span,
+    pub docs: Vec<Span>,
 }
 
 impl<'a> FromTokens<'a> for EnumCase {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = parse_docs(tokens);
 
-        let (_, ident) = tokens.expect_token(Token::Id)?;
+        let (_, ident) = tokens.expect_token(Token::Ident)?;
 
         Ok(EnumCase { docs, ident })
     }
@@ -268,8 +295,8 @@ impl<'a> FromTokens<'a> for EnumCase {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UnionCase {
-    docs: Vec<Span>,
-    ty: Type,
+    pub docs: Vec<Span>,
+    pub ty: Type,
 }
 
 impl<'a> FromTokens<'a> for UnionCase {
@@ -333,7 +360,7 @@ impl<'a> FromTokens<'a> for Type {
                 Ok(Self::List(Box::new(ty)))
             }
             Token::Tuple => {
-                let types = parse_list(tokens, Token::LeftParen, Token::RightParen)?;
+                let types = parse_list(tokens, Token::LessThan, Token::GreaterThan)?;
 
                 Ok(Self::Tuple(types))
             }
@@ -364,7 +391,7 @@ impl<'a> FromTokens<'a> for Type {
 
                 Ok(Self::Result { ok, err })
             }
-            Token::Id => Ok(Self::Id(span)),
+            Token::Ident => Ok(Self::Id(span)),
             found => {
                 let expected = [
                     Token::U8,
@@ -384,7 +411,7 @@ impl<'a> FromTokens<'a> for Type {
                     Token::Result,
                     Token::List,
                     Token::Tuple,
-                    Token::Id,
+                    Token::Ident,
                 ];
 
                 Err(Error::unexpected_token(span, expected, found))
@@ -621,9 +648,9 @@ mod test {
         let mut tokens = Lexer::new(
             "interface chars {
             /// A function that accepts a character
-            func take-char(x: char)
+            func take_char(x: char)
             /// A function that returns a character
-            func return-char() -> char
+            func return_char() -> char
           }",
         )
         .spanned()
