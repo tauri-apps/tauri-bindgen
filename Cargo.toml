@@ -6,7 +6,7 @@ edition.workspace = true
 rust-version.workspace = true
 
 [workspace]
-members = ["crates/*", "simple"]
+members = ["crates/*"]
 resolver = "2"
 
 [workspace.package]
@@ -20,7 +20,6 @@ thiserror = "1.0.39"
 bitflags = "1.3.2"
 heck =  { version = "0.4", features = ["unicode"] }
 clap = { version = "4.1.8", features = ["derive"] }
-tauri-bindgen-core = { path = "crates/bindgen-core" }
 tauri-bindgen-gen-host = { path = "crates/gen-host", features = ['cli'] }
 tauri-bindgen-gen-markdown = { path = "crates/gen-markdown", features = ['cli'] }
 tauri-bindgen-gen-guest-rust = { path = "crates/gen-guest-rust", features = ['cli'] }
@@ -32,7 +31,6 @@ log = { version = "0.4.17", features = [ "kv_unstable", "kv_unstable_std" ] }
 
 [dependencies]
 clap.workspace = true
-tauri-bindgen-core.workspace = true
 tauri-bindgen-gen-host.workspace = true
 tauri-bindgen-gen-markdown.workspace = true
 tauri-bindgen-gen-guest-rust.workspace = true

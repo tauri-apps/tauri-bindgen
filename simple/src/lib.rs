@@ -3,6 +3,8 @@ mod parse;
 mod typecheck;
 mod codegen;
 
+mod check;
+
 mod error;
 mod util;
 

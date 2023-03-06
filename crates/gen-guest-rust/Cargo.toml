@@ -7,7 +7,6 @@ rust-version.workspace = true
 
 [dependencies]
 tauri-bindgen-gen-rust = { path = "../gen-rust" }
-tauri-bindgen-core.workspace = true
 wit-parser.workspace = true
 heck.workspace = true
 clap = { workspace = true, optional = true }
@@ -24,9 +23,6 @@ js-sys = "0.3.61"
 tauri-bindgen-guest-rust = { path = "../guest-rust" }
 serde = { version = "1.0.152", features = ["derive"] }
 # tauri-bindgen-abi = { path = "../abi" }
-
-[target."cfg(miri)".dev-dependencies]
-tauri-bindgen-core = { workspace = true, features = ["miri_test"] }
 
 [features]
 cli = ["clap"]

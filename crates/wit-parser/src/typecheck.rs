@@ -271,14 +271,12 @@ impl<'a> Resolver<'a> {
                 (TypeDefKind::Record(fields), info)
             }
             parse::InterfaceItemInner::Flags(fields) => {
-                let fields = fields
-                    .iter()
-                    .map(|field| {
-                        let docs = self.resolve_docs(&field.docs);
-                        let ident = self.read_span(&field.ident).to_string();
+                let fields = fields.iter().map(|field| {
+                    let docs = self.resolve_docs(&field.docs);
+                    let ident = self.read_span(&field.ident).to_string();
 
-                        FlagsField { docs, ident }
-                    });
+                    FlagsField { docs, ident }
+                });
 
                 (TypeDefKind::Flags(fields.collect()), TypeInfo::empty())
             }
@@ -374,10 +372,7 @@ impl<'a> Resolver<'a> {
                 Ok((Type::Tuple(types), info))
             }
             parse::Type::Result { ok, err } => {
-                let (ok, ok_info) = ok
-                    .as_ref()
-                    .map(|ty| self.resolve_type(ty).unwrap())
-                    .unzip();
+                let (ok, ok_info) = ok.as_ref().map(|ty| self.resolve_type(ty).unwrap()).unzip();
 
                 let (err, err_info) = err
                     .as_ref()
@@ -599,9 +594,9 @@ impl<'a> Resolver<'a> {
         let typedefs: Vec<_> = functions
             .iter()
             .flat_map(|func| {
-                let param_typedefs = func.params.iter().filter_map(|(_, ty)| extract_typedef(ty));
+                let param_typedefs = func.params.iter().flat_map(|(_, ty)| extract_typedefs(ty));
 
-                let result_typedefs = func.result.types().filter_map(|ty| extract_typedef(ty));
+                let result_typedefs = func.result.types().flat_map(|ty| extract_typedefs(ty));
 
                 param_typedefs.chain(result_typedefs)
             })
@@ -623,11 +618,42 @@ impl<'a> Resolver<'a> {
     }
 }
 
-fn extract_typedef(ty: &Type) -> Option<&TypeDefRef> {
-    if let Type::Id(typedef) = ty {
-        Some(typedef)
-    } else {
-        None
+fn extract_typedefs<'a>(ty: &'a Type) -> ExtractedTypes<'a> {
+    match ty {
+        Type::Id(typedef) => ExtractedTypes::One(std::iter::once(typedef)),
+        Type::List(ty) | Type::Option(ty) => extract_typedefs(ty),
+        Type::Tuple(types) => {
+            let iter: Vec<_> = types.iter().flat_map(|ty| extract_typedefs(ty)).collect();
+
+            ExtractedTypes::Many(iter.into_iter())
+        }
+        Type::Result { ok, err } => {
+            let ok = ok.as_deref().into_iter();
+            let err = err.as_deref().into_iter();
+
+            let iter: Vec<_> = ok.chain(err).flat_map(|ty| extract_typedefs(ty)).collect();
+
+            ExtractedTypes::Many(iter.into_iter())
+        },
+        _ => ExtractedTypes::None,
+    }
+}
+
+enum ExtractedTypes<'a> {
+    None,
+    One(std::iter::Once<&'a TypeDefRef>),
+    Many(std::vec::IntoIter<&'a TypeDefRef>),
+}
+
+impl<'a> Iterator for ExtractedTypes<'a> {
+    type Item = &'a TypeDefRef;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+            ExtractedTypes::None => None,
+            ExtractedTypes::One(iter) => iter.next(),
+            ExtractedTypes::Many(iter) => iter.next(),
+        }
     }
 }
 
