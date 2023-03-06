@@ -107,7 +107,7 @@ pub trait Readable: Sized {
     fn read_from(read: &mut impl io::Read) -> Result<Self, Error>;
 }
 
-#[macro_export(crate)]
+#[macro_export]
 macro_rules! ensure {
     ($cond:expr, $err:expr $(,)?) => {
         if !$cond {
