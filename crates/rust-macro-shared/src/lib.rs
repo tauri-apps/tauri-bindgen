@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use syn::parse::{Error, Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
 use syn::{token, Token};
-use tauri_bindgen_core::{Files, WorldGenerator};
+// use tauri_bindgen_core::{Files, WorldGenerator};
 
 /// # Panics
 ///
@@ -21,7 +21,8 @@ where
     let input = syn::parse_macro_input!(input as Opts<F, O>);
     let mut gen = mkgen(input.opts);
 
-    let iface = wit_parser::parse_file(&input.file, |t| input.skip.contains(t)).unwrap();
+    todo!();
+    // let iface = wit_parser::parse_file(&input.file, |t| input.skip.contains(t)).unwrap();
 
     let mut files = Files::default();
     let name = iface.name.clone();
@@ -93,8 +94,9 @@ where
 
                         let path = parse_path(&path);
 
-                        ret.file_hash = tauri_bindgen_core::hash::hash_file(&path)
-                            .map_err(|e| Error::new(span, e))?;
+                        todo!()
+                        // ret.file_hash = tauri_bindgen_core::hash::hash_file(&path)
+                        //     .map_err(|e| Error::new(span, e))?;
 
                         if file.replace(path).is_some() {
                             return Err(Error::new(span, "cannot specify second file"));
@@ -110,8 +112,9 @@ where
             let s = input.parse::<syn::LitStr>()?;
             let path = parse_path(&s);
 
-            ret.file_hash =
-                tauri_bindgen_core::hash::hash_file(&path).map_err(|e| Error::new(s.span(), e))?;
+            todo!()
+            // ret.file_hash =
+            //     tauri_bindgen_core::hash::hash_file(&path).map_err(|e| Error::new(s.span(), e))?;
 
             file.replace(path);
         }

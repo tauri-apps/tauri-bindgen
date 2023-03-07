@@ -1306,6 +1306,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ipc-router-wip"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "log",
+ "tauri-bindgen-abi",
+]
+
+[[package]]
 name = "is-terminal"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2919,11 +2928,7 @@ dependencies = [
  "env_logger",
  "log",
  "miette",
- "tauri-bindgen-gen-guest-js",
- "tauri-bindgen-gen-guest-rust",
- "tauri-bindgen-gen-guest-ts",
  "tauri-bindgen-gen-host",
- "tauri-bindgen-gen-markdown",
  "wit-parser",
 ]
 
@@ -3034,11 +3039,10 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "base64 0.21.0",
  "bitflags",
+ "ipc-router-wip",
  "tauri",
  "tauri-bindgen-abi",
- "tauri-bindgen-host-macro",
  "tracing",
 ]
 

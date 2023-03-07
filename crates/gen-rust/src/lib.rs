@@ -5,44 +5,77 @@ use std::{collections::HashMap, ops::Deref};
 use syn::Lifetime;
 
 use wit_parser::{
-    EnumCase, FlagsField, Function, FunctionResult, Int, RecordField, Type, TypeDef,
-    TypeDefKind, TypeInfo, UnionCase, VariantCase,
+    EnumCase, FlagsField, Function, FunctionResult, Int, RecordField, Type, TypeDef, TypeDefKind,
+    TypeInfo, UnionCase, VariantCase,
 };
 
-#[derive(Debug, Clone, Copy, Default)]
-pub struct RustGenerator;
+pub struct RustGenerator {
+    additional_attrs: Box<dyn Fn(&str, TypeInfo) -> Option<TokenStream>>,
+}
 
 impl RustGenerator {
-    pub fn new() -> Self {
-        Self
+    pub fn new(additional_attrs: impl Fn(&str, TypeInfo) -> Option<TokenStream> + 'static) -> Self {
+        Self {
+            additional_attrs: Box::new(additional_attrs),
+        }
     }
 
-    pub fn print_typedefs(
-        &self,
-        typedefs: impl Iterator<Item = impl Deref<Target = TypeDef>>,
+    pub fn print_typedefs<'a>(
+        &'a self,
+        typedefs: impl Iterator<Item = impl Deref<Target = TypeDef>> + 'a,
         mode: &BorrowMode,
     ) -> TokenStream {
-        let typedefs = typedefs.map(|typedef| {
-            let docs = &typedef.docs;
-            let ident = format_ident!("{}", &typedef.ident.to_upper_camel_case());
+        let mut typedefs_out = Vec::new();
 
-            match &typedef.kind {
-                TypeDefKind::Alias(ty) => self.print_alias(docs, &ident, &ty, typedef.info, mode),
-                TypeDefKind::Record(fields) => {
-                    self.print_record(docs, &ident, &fields, typedef.info, mode)
-                }
-                TypeDefKind::Flags(fields) => self.print_flags(docs, &ident, &fields),
-                TypeDefKind::Variant(cases) => {
-                    self.print_variant(docs, &ident, &cases, typedef.info, mode)
-                }
-                TypeDefKind::Enum(cases) => self.print_enum(docs, &ident, &cases),
-                TypeDefKind::Union(cases) => {
-                    self.print_union(docs, &ident, &cases, typedef.info, mode)
-                }
+        for typedef in typedefs {
+            let variants = variants_of(
+                &typedef.ident.to_upper_camel_case(),
+                typedef.info,
+                mode,
+            );
+
+            for TypeVariant { ident, borrow_mode } in variants {
+                let docs = &typedef.docs;
+
+                let typedef = match &typedef.kind {
+                    TypeDefKind::Alias(ty) => {
+                        self.print_alias(docs, &ident, &ty, typedef.info, &borrow_mode)
+                    }
+                    TypeDefKind::Record(fields) => self.print_record(
+                        docs,
+                        &ident,
+                        &fields,
+                        typedef.info,
+                        &borrow_mode,
+                        &self.additional_attrs,
+                    ),
+                    TypeDefKind::Flags(fields) => self.print_flags(docs, &ident, &fields),
+                    TypeDefKind::Variant(cases) => self.print_variant(
+                        docs,
+                        &ident,
+                        &cases,
+                        typedef.info,
+                        &borrow_mode,
+                        &self.additional_attrs,
+                    ),
+                    TypeDefKind::Enum(cases) => {
+                        self.print_enum(docs, &ident, &cases, typedef.info, &self.additional_attrs)
+                    }
+                    TypeDefKind::Union(cases) => self.print_union(
+                        docs,
+                        &ident,
+                        &cases,
+                        typedef.info,
+                        &borrow_mode,
+                        &self.additional_attrs,
+                    ),
+                };
+
+                typedefs_out.push(typedef);
             }
-        });
+        }
 
-        quote! { #(#typedefs)* }
+        quote! { #(#typedefs_out)* }
     }
 
     pub fn print_ty(&self, ty: &Type, mode: &BorrowMode) -> TokenStream {
@@ -148,15 +181,18 @@ impl RustGenerator {
         fields: &[RecordField],
         info: TypeInfo,
         mode: &BorrowMode,
+        additional_attrs: impl Fn(&str, TypeInfo) -> Option<TokenStream>,
     ) -> TokenStream {
         let docs = self.print_docs(docs);
+        let additional_attrs = additional_attrs(&ident.to_string(), info);
+        let generics = print_generics(info, mode);
         let fields = fields
             .iter()
             .map(|field| self.print_record_field(field, mode));
-        let generics = print_generics(info, mode);
 
         quote! {
             #docs
+            #additional_attrs
             pub struct #ident #generics {
                 #(#fields),*
             }
@@ -209,10 +245,12 @@ impl RustGenerator {
         cases: &[VariantCase],
         info: TypeInfo,
         mode: &BorrowMode,
+        additional_attrs: impl Fn(&str, TypeInfo) -> Option<TokenStream>,
     ) -> TokenStream {
         let docs = self.print_docs(docs);
-        let cases = cases.iter().map(|case| self.print_variant_case(case, mode));
+        let additional_attrs = additional_attrs(&ident.to_string(), info);
         let generics = print_generics(info, mode);
+        let cases = cases.iter().map(|case| self.print_variant_case(case, mode));
 
         quote! {
             #docs
@@ -238,12 +276,21 @@ impl RustGenerator {
         }
     }
 
-    pub fn print_enum(&self, docs: &str, ident: &Ident, cases: &[EnumCase]) -> TokenStream {
+    pub fn print_enum(
+        &self,
+        docs: &str,
+        ident: &Ident,
+        cases: &[EnumCase],
+        info: TypeInfo,
+        additional_attrs: impl Fn(&str, TypeInfo) -> Option<TokenStream>,
+    ) -> TokenStream {
         let docs = self.print_docs(docs);
+        let additional_attrs = additional_attrs(&ident.to_string(), info);
         let cases = cases.iter().map(|case| self.print_enum_case(case));
 
         quote! {
             #docs
+            #additional_attrs
             pub enum #ident {
                 #(#cases),*
             }
@@ -267,8 +314,10 @@ impl RustGenerator {
         cases: &[UnionCase],
         info: TypeInfo,
         mode: &BorrowMode,
+        additional_attrs: impl Fn(&str, TypeInfo) -> Option<TokenStream>,
     ) -> TokenStream {
         let docs = self.print_docs(docs);
+        let additional_attrs = additional_attrs(&ident.to_string(), info);
         let generics = print_generics(info, mode);
 
         let cases = union_case_names(cases)
@@ -287,28 +336,29 @@ impl RustGenerator {
 
         quote! {
             #docs
+            #additional_attrs
             pub enum #ident #generics {
                 #(#cases),*
             }
         }
     }
 
-    pub fn print_function_signature(&self, sig: &FnSig, param_mode: &BorrowMode, results_mode: &BorrowMode) -> TokenStream {
+    pub fn print_function_signature(
+        &self,
+        sig: &FnSig,
+        param_mode: &BorrowMode,
+        results_mode: &BorrowMode,
+    ) -> TokenStream {
         let docs = self.print_docs(&sig.func.docs);
         let ident = format_ident!("{}", sig.func.ident.to_snake_case());
 
-        let pub_ = (!sig.private).then_some(quote!{ pub });
-        let unsafe_ = (!sig.unsafe_).then_some(quote!{ unsafe });
-        let async_ = (!sig.async_).then_some(quote!{ async });
+        let pub_ = (!sig.private).then_some(quote! { pub });
+        let unsafe_ = sig.unsafe_.then_some(quote! { unsafe });
+        let async_ = sig.async_.then_some(quote! { async });
 
         let self_arg = sig.self_arg.as_ref().map(|arg| quote! { #arg, });
 
-        let params = sig.func.params.iter().map(|(ident, ty)| {
-            let ident = format_ident!("{}", ident.to_snake_case());
-            let ty = self.print_ty(ty, param_mode);
-
-            quote! { #ident: #ty }
-        });
+        let params = self.print_function_params(sig.func.params.iter(), param_mode);
 
         let result = self.print_function_result(&sig.func.result, results_mode);
 
@@ -316,6 +366,19 @@ impl RustGenerator {
             #docs
             #pub_ #unsafe_ #async_ fn #ident (#self_arg #(#params),*) #result
         }
+    }
+
+    pub fn print_function_params<'a>(
+        &'a self,
+        params: impl Iterator<Item = &'a (String, Type)> + 'a,
+        mode: &'a BorrowMode,
+    ) -> impl Iterator<Item = TokenStream> + 'a {
+        params.map(|(ident, ty)| {
+            let ident = format_ident!("{}", ident.to_snake_case());
+            let ty = self.print_ty(ty, mode);
+
+            quote! { #ident: #ty }
+        })
     }
 
     pub fn print_function_result(&self, result: &FunctionResult, mode: &BorrowMode) -> TokenStream {
@@ -362,7 +425,7 @@ pub struct FnSig<'a> {
     pub async_: bool,
     pub unsafe_: bool,
     pub private: bool,
-    pub self_arg: Option<Ident>,
+    pub self_arg: Option<TokenStream>,
     pub func: &'a Function,
 }
 

@@ -1,9 +1,8 @@
 mod logger;
 
 use clap::{ArgAction, Parser};
-use miette::{bail, IntoDiagnostic, Result, WrapErr};
-use std::{collections::HashSet, path::PathBuf};
-use tauri_bindgen_core::{Files, WorldGenerator};
+use miette::{IntoDiagnostic, Result, WrapErr};
+use std::path::PathBuf;
 
 /// Helper for passing VERSION to opt.
 /// If `CARGO_VERSION_INFO` is set, use it, otherwise use `CARGO_PKG_VERSION`.
@@ -27,16 +26,16 @@ struct Opt {
 enum Category {
     /// Generator for creating bindings that are exposed to the WebView.
     Host(HostGenerator),
-    /// Generators for webview libraries.
-    #[clap(subcommand)]
-    Guest(GuestGenerator),
-    /// This generator outputs a Markdown file describing an interface.
-    Markdown {
-        #[clap(flatten)]
-        opts: tauri_bindgen_gen_markdown::Opts,
-        #[clap(flatten)]
-        world: WorldOpt,
-    },
+    // /// Generators for webview libraries.
+    // #[clap(subcommand)]
+    // Guest(GuestGenerator),
+    // /// This generator outputs a Markdown file describing an interface.
+    // Markdown {
+    //     #[clap(flatten)]
+    //     opts: tauri_bindgen_gen_markdown::Opts,
+    //     #[clap(flatten)]
+    //     world: WorldOpt,
+    // },
 }
 
 #[derive(Debug, Parser)]
@@ -49,27 +48,27 @@ struct HostGenerator {
 
 #[derive(Debug, Parser)]
 enum GuestGenerator {
-    /// Generates bindings for Rust guest modules using wasm-bindgen.
-    Rust {
-        #[clap(flatten)]
-        opts: tauri_bindgen_gen_guest_rust::Opts,
-        #[clap(flatten)]
-        world: WorldOpt,
-    },
-    /// Generates bindings for JavaScript guest modules.
-    Javascript {
-        #[clap(flatten)]
-        opts: tauri_bindgen_gen_guest_js::Opts,
-        #[clap(flatten)]
-        world: WorldOpt,
-    },
-    /// Generates bindings for TypeScript guest modules.
-    Typescript {
-        #[clap(flatten)]
-        opts: tauri_bindgen_gen_guest_ts::Opts,
-        #[clap(flatten)]
-        world: WorldOpt,
-    },
+    // /// Generates bindings for Rust guest modules using wasm-bindgen.
+    // Rust {
+    //     #[clap(flatten)]
+    //     opts: tauri_bindgen_gen_guest_rust::Opts,
+    //     #[clap(flatten)]
+    //     world: WorldOpt,
+    // },
+    // /// Generates bindings for JavaScript guest modules.
+    // Javascript {
+    //     #[clap(flatten)]
+    //     opts: tauri_bindgen_gen_guest_js::Opts,
+    //     #[clap(flatten)]
+    //     world: WorldOpt,
+    // },
+    // /// Generates bindings for TypeScript guest modules.
+    // Typescript {
+    //     #[clap(flatten)]
+    //     opts: tauri_bindgen_gen_guest_ts::Opts,
+    //     #[clap(flatten)]
+    //     world: WorldOpt,
+    // },
 }
 
 #[derive(Debug, Parser)]
@@ -101,59 +100,57 @@ fn run() -> Result<()> {
 
     logger::init(opt.verbose);
 
-    let mut files = Files::default();
-    match opt.category {
+    let (path, contents) = match opt.category {
         Category::Host(HostGenerator { opts, world, .. }) => {
-            gen_world(opts.build(), world, &mut files)?;
-        }
-        Category::Guest(GuestGenerator::Rust { opts, world, .. }) => {
-            gen_world(opts.build(), world, &mut files)?;
-        }
-        Category::Guest(GuestGenerator::Javascript { opts, world, .. }) => {
-            gen_world(opts.build(), world, &mut files)?;
-        }
-        Category::Guest(GuestGenerator::Typescript { opts, world, .. }) => {
-            gen_world(opts.build(), world, &mut files)?;
-        }
-        Category::Markdown { opts, world, .. } => {
-            gen_world(opts.build(), world, &mut files)?;
-        }
-    }
+            let source = std::fs::read_to_string(&world.wit).unwrap();
+            let iface = wit_parser::parse_str(source, |_| false).unwrap();
+            opts.build().generate(&iface)
+        } // Category::Guest(GuestGenerator::Rust { opts, world, .. }) => {
+          //     todo!()
+          //     // gen_world(opts.build(), world, &mut files)?;
+          // }
+          // Category::Guest(GuestGenerator::Javascript { opts, world, .. }) => {
+          //     todo!()
+          //     // gen_world(opts.build(), world, &mut files)?;
+          // }
+          // Category::Guest(GuestGenerator::Typescript { opts, world, .. }) => {
+          //     // gen_world(opts.build(), world, &mut files)?;
+          // }
+          // Category::Markdown { opts, world, .. } => {
+          //     // gen_world(opts.build(), world, &mut files)?;
+          // }
+    };
 
-    for (name, contents) in files.iter() {
-        let dst = match &opt.common.out_dir {
-            Some(path) => path.join(name),
-            None => name.into(),
-        };
-        log::info!("Generating {dst:?}");
-        if let Some(parent) = dst.parent() {
-            std::fs::create_dir_all(parent)
-                .into_diagnostic()
-                .wrap_err(format!("failed to create {parent:?}"))?;
-        }
-        std::fs::write(&dst, contents)
+    let dst = opt.common.out_dir.unwrap_or_default().join(path);
+
+    log::info!("Generating {dst:?}");
+    if let Some(parent) = dst.parent() {
+        std::fs::create_dir_all(parent)
             .into_diagnostic()
-            .wrap_err(format!("failed to write {dst:?}"))?;
+            .wrap_err(format!("failed to create {parent:?}"))?;
     }
+    std::fs::write(&dst, contents)
+        .into_diagnostic()
+        .wrap_err(format!("failed to write {dst:?}"))?;
 
     Ok(())
 }
 
-fn gen_world(
-    mut generator: Box<dyn WorldGenerator>,
-    opts: WorldOpt,
-    files: &mut Files,
-) -> Result<()> {
-    if !opts.wit.is_file() {
-        bail!("wit file `{}` does not exist", opts.wit.display());
-    }
+// fn gen_world(
+//     mut generator: Box<dyn WorldGenerator>,
+//     opts: WorldOpt,
+//     files: &mut Files,
+// ) -> Result<()> {
+//     if !opts.wit.is_file() {
+//         bail!("wit file `{}` does not exist", opts.wit.display());
+//     }
 
-    let skipset: HashSet<String, std::collections::hash_map::RandomState> =
-        opts.skip.into_iter().collect();
+//     let skipset: HashSet<String, std::collections::hash_map::RandomState> =
+//         opts.skip.into_iter().collect();
 
-    let world = wit_parser::parse_file(&opts.wit, |t| skipset.contains(t))?;
-    let world_hash = tauri_bindgen_core::hash::hash_file(opts.wit)?;
+//     let world = wit_parser::parse_file(&opts.wit, |t| skipset.contains(t))?;
+//     let world_hash = tauri_bindgen_core::hash::hash_file(opts.wit)?;
 
-    generator.generate(&world.name, &world, files, &world_hash);
-    Ok(())
-}
+//     generator.generate(&world.name, &world, files, &world_hash);
+//     Ok(())
+// }
