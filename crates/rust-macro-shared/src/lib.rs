@@ -1,13 +1,14 @@
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
+use quote::quote;
 use std::collections::HashSet;
 use std::marker;
 use std::path::PathBuf;
 use syn::parse::{Error, Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
 use syn::{token, Token};
-// use tauri_bindgen_core::{Files, WorldGenerator};
+use tauri_bindgen_core::Generate;
 
 /// # Panics
 ///
@@ -16,35 +17,19 @@ pub fn generate<F, O, G>(input: TokenStream, mkgen: G) -> TokenStream
 where
     F: Parse + Configure<O>,
     O: Default,
-    G: FnOnce(O) -> Box<dyn WorldGenerator>,
+    G: FnOnce(O) -> Box<dyn Generate>,
 {
     let input = syn::parse_macro_input!(input as Opts<F, O>);
-    let mut gen = mkgen(input.opts);
+    let gen = mkgen(input.opts);
 
-    todo!();
-    // let iface = wit_parser::parse_file(&input.file, |t| input.skip.contains(t)).unwrap();
+    let iface = wit_parser::parse_file(&input.file, |t| input.skip.contains(t)).unwrap();
 
-    let mut files = Files::default();
-    let name = iface.name.clone();
-    gen.generate(&name, &iface, &mut files, &input.file_hash);
+    let mut tokens = gen.to_tokens(&iface);
 
-    let (_, contents) = files.iter().next().unwrap();
+    let filepath = input.file.to_string_lossy();
+    tokens.extend(quote! {const _: &str = include_str!(#filepath);});
 
-    let contents = std::str::from_utf8(contents).unwrap();
-    let mut contents = contents.parse::<TokenStream>().unwrap();
-
-    // Include a dummy `include_str!` for the input file we read so rustc knows that
-    // we depend on the contents of those files.
-    contents.extend(
-        format!(
-            "const _: &str = include_str!(r#\"{}\"#);\n",
-            &input.file.display()
-        )
-        .parse::<TokenStream>()
-        .unwrap(),
-    );
-
-    contents
+    tokens.into()
 }
 
 pub trait Configure<O> {
@@ -55,7 +40,6 @@ struct Opts<F, O> {
     opts: O,
     skip: HashSet<String>,
     file: PathBuf,
-    file_hash: String,
     _marker: marker::PhantomData<F>,
 }
 
@@ -76,7 +60,6 @@ where
         let mut ret = Opts {
             opts: O::default(),
             file: PathBuf::new(),
-            file_hash: String::new(),
             skip: HashSet::new(),
             _marker: marker::PhantomData,
         };
@@ -91,12 +74,7 @@ where
                 match field.into_value() {
                     ConfigField::Path(path) => {
                         let span = path.span();
-
                         let path = parse_path(&path);
-
-                        todo!()
-                        // ret.file_hash = tauri_bindgen_core::hash::hash_file(&path)
-                        //     .map_err(|e| Error::new(span, e))?;
 
                         if file.replace(path).is_some() {
                             return Err(Error::new(span, "cannot specify second file"));
@@ -111,10 +89,6 @@ where
         } else {
             let s = input.parse::<syn::LitStr>()?;
             let path = parse_path(&s);
-
-            todo!()
-            // ret.file_hash =
-            //     tauri_bindgen_core::hash::hash_file(&path).map_err(|e| Error::new(s.span(), e))?;
 
             file.replace(path);
         }

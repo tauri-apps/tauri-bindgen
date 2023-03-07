@@ -29,11 +29,5 @@ interface integers {
   func r7() -> u64
   func r8() -> s64
 
-  func pair-ret() -> tuple<s64, u8>
-}
-
-world integers {
-  import imports: integers
-  export exports: integers
-  default export integers
+  func pair_ret() -> tuple<s64, u8>
 }

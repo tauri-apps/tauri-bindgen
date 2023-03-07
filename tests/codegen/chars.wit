@@ -1,6 +1,6 @@
 interface chars {
   /// A function that accepts a character
-  func take-char(x: char)
+  func take_char(x: char)
   /// A function that returns a character
-  func return-char() -> char
+  func return_char() -> char
 }

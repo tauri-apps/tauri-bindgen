@@ -28,11 +28,7 @@ impl RustGenerator {
         let mut typedefs_out = Vec::new();
 
         for typedef in typedefs {
-            let variants = variants_of(
-                &typedef.ident.to_upper_camel_case(),
-                typedef.info,
-                mode,
-            );
+            let variants = variants_of(&typedef.ident.to_upper_camel_case(), typedef.info, mode);
 
             for TypeVariant { ident, borrow_mode } in variants {
                 let docs = &typedef.docs;
@@ -49,7 +45,13 @@ impl RustGenerator {
                         &borrow_mode,
                         &self.additional_attrs,
                     ),
-                    TypeDefKind::Flags(fields) => self.print_flags(docs, &ident, &fields),
+                    TypeDefKind::Flags(fields) => self.print_flags(
+                        docs,
+                        &ident,
+                        &fields,
+                        typedef.info,
+                        &self.additional_attrs,
+                    ),
                     TypeDefKind::Variant(cases) => self.print_variant(
                         docs,
                         &ident,
@@ -131,11 +133,6 @@ impl RustGenerator {
             Type::Id(typedef) => {
                 let typedef = typedef.borrow();
 
-                // eprintln!(
-                //     "printing name for {} with info {:?} in mode {:?}",
-                //     typedef.ident, typedef.info, mode
-                // );
-
                 let ident = if uses_two_names(typedef.info) {
                     match mode {
                         BorrowMode::Owned => {
@@ -210,8 +207,16 @@ impl RustGenerator {
         }
     }
 
-    pub fn print_flags(&self, docs: &str, ident: &Ident, fields: &[FlagsField]) -> TokenStream {
+    pub fn print_flags(
+        &self,
+        docs: &str,
+        ident: &Ident,
+        fields: &[FlagsField],
+        info: TypeInfo,
+        additional_attrs: impl Fn(&str, TypeInfo) -> Option<TokenStream>,
+    ) -> TokenStream {
         let docs = self.print_docs(docs);
+        let additional_attrs = additional_attrs(&ident.to_string(), info);
         let repr = self.print_int(&flags_repr(fields));
 
         let fields = fields
@@ -231,6 +236,7 @@ impl RustGenerator {
         quote! {
             bitflags::bitflags! {
                 #docs
+                #additional_attrs
                 pub struct #ident: #repr {
                     #(#fields)*
                 }
@@ -254,6 +260,7 @@ impl RustGenerator {
 
         quote! {
             #docs
+            #additional_attrs
             pub enum #ident #generics {
                 #(#cases),*
             }
@@ -556,6 +563,7 @@ impl std::fmt::Debug for BorrowMode {
     }
 }
 
+#[derive(Debug)]
 pub struct TypeVariant {
     pub ident: Ident,
     pub borrow_mode: BorrowMode,
@@ -577,7 +585,11 @@ pub fn variants_of(ident: &str, info: TypeInfo, default_mode: &BorrowMode) -> Ve
     if info.contains(TypeInfo::RESULT) && (!info.contains(TypeInfo::PARAM) || uses_two_names(info))
     {
         result.push(TypeVariant {
-            ident: format_ident!("{ident}Result"),
+            ident: if uses_two_names(info) {
+                format_ident!("{ident}Result")
+            } else {
+                format_ident!("{ident}")
+            },
             borrow_mode: BorrowMode::Owned,
         });
     }

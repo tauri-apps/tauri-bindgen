@@ -215,15 +215,15 @@ mod test {
     #[test]
     fn ident() {
         let mut lex = Token::lexer("foo");
-        assert_eq!(lex.next(), Some(Token::Ident)); 
+        assert_eq!(lex.next(), Some(Token::Ident));
 
         let mut lex = Token::lexer("foo_bar");
-        assert_eq!(lex.next(), Some(Token::Ident)); 
+        assert_eq!(lex.next(), Some(Token::Ident));
 
         let mut lex = Token::lexer("%foo");
-        assert_eq!(lex.next(), Some(Token::Ident)); 
+        assert_eq!(lex.next(), Some(Token::Ident));
 
         let mut lex = Token::lexer("%foo_bar");
-        assert_eq!(lex.next(), Some(Token::Ident)); 
+        assert_eq!(lex.next(), Some(Token::Ident));
     }
 }

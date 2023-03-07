@@ -1,11 +1,11 @@
 interface records {
-  func tuple-arg(x: tuple<char, u32>)
-  func tuple-result() -> tuple<char, u32>
+  func tuple_arg(x: tuple<char, u32>)
+  func tuple_result() -> tuple<char, u32>
 
   record empty {}
 
-  func empty-arg(x: empty)
-  func empty-result() -> empty
+  func empty_arg(x: empty)
+  func empty_result() -> empty
 
   /// A record containing two scalar fields
   /// that both have the same type
@@ -16,12 +16,12 @@ interface records {
       b: u32,
   }
 
-  func scalar-arg(x: scalars)
-  func scalar-result() -> scalars
+  func scalar_arg(x: scalars)
+  func scalar_result() -> scalars
 
   /// A record that is really just flags
   /// All of the fields are bool
-  record really-flags {
+  record really_flags {
       a: bool,
       b: bool,
       c: bool,
@@ -33,22 +33,22 @@ interface records {
       i: bool,
   }
 
-  func flags-arg(x: really-flags)
-  func flags-result() -> really-flags
+  func flags_arg(x: really_flags)
+  func flags_result() -> really_flags
 
   record aggregates {
       a: scalars,
       b: u32,
       c: empty,
       d: string,
-      e: really-flags,
+      e: really_flags,
   }
 
-  func aggregate-arg(x: aggregates)
-  func aggregate-result() -> aggregates
+  func aggregate_arg(x: aggregates)
+  func aggregate_result() -> aggregates
 
-  type tuple-typedef = tuple<s32>
-  type int-typedef = s32
-  type tuple-typedef2 = tuple<int-typedef>
-  func typedef-inout(e: tuple-typedef2) -> s32
+  type tuple_typedef = tuple<s32>
+  type int_typedef = s32
+  type tuple_typedef2 = tuple<int_typedef>
+  func typedef_inout(e: tuple_typedef2) -> s32
 }

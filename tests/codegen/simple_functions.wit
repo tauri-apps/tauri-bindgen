@@ -1,4 +1,4 @@
-interface simple-functions {
+interface simple_functions {
   func f1()
   func f2(a: u32)
   func f3(a: u32, b: u32)

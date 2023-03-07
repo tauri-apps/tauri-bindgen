@@ -6,6 +6,7 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+tauri-bindgen-core.workspace = true
 wit-parser.workspace = true
 heck.workspace = true
 clap = { workspace = true, optional = true }

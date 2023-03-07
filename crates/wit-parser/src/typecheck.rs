@@ -166,6 +166,12 @@ pub enum FunctionResult {
 }
 
 impl FunctionResult {
+    pub fn len(&self) -> usize {
+        match self {
+            FunctionResult::Named(ps) => ps.len(),
+            FunctionResult::Anon(_) => 1,
+        }
+    }
     pub fn types(&self) -> ResultsTypeIter {
         match self {
             FunctionResult::Named(ps) => ResultsTypeIter::Named(ps.iter()),
@@ -223,6 +229,10 @@ impl<'a> Resolver<'a> {
         &self.source[span.clone()]
     }
 
+    fn resolve_ident(&self, span: &Span) -> &'a str {
+        self.read_span(span).trim_start_matches('%')
+    }
+
     fn resolve_docs(&self, docs: &[Span]) -> String {
         docs.iter()
             .map(|span| {
@@ -233,14 +243,15 @@ impl<'a> Resolver<'a> {
 
                 str
             })
-            .collect()
+            .collect::<Vec<_>>()
+            .join("\n")
     }
 
     fn resolve_typedef(
         &mut self,
         typedef: &parse::InterfaceItem,
     ) -> Result<(TypeDefRef, TypeInfo)> {
-        let ident_ref = self.read_span(&typedef.ident);
+        let ident_ref = self.resolve_ident(&typedef.ident);
 
         if let Some(typedef) = self.id2typedefref.get(ident_ref) {
             return Ok((typedef.clone(), typedef.borrow().info));
@@ -261,7 +272,7 @@ impl<'a> Resolver<'a> {
                     .iter()
                     .map(|field| {
                         let docs = self.resolve_docs(&field.docs);
-                        let ident = self.read_span(&field.ident).to_string();
+                        let ident = self.resolve_ident(&field.ident).to_string();
                         let (ty, info) = self.resolve_type(&field.ty).unwrap();
 
                         (RecordField { docs, ident, ty }, info)
@@ -273,7 +284,7 @@ impl<'a> Resolver<'a> {
             parse::InterfaceItemInner::Flags(fields) => {
                 let fields = fields.iter().map(|field| {
                     let docs = self.resolve_docs(&field.docs);
-                    let ident = self.read_span(&field.ident).to_string();
+                    let ident = self.resolve_ident(&field.ident).to_string();
 
                     FlagsField { docs, ident }
                 });
@@ -285,7 +296,7 @@ impl<'a> Resolver<'a> {
                     .iter()
                     .map(|case| {
                         let docs = self.resolve_docs(&case.docs);
-                        let ident = self.read_span(&case.ident).to_string();
+                        let ident = self.resolve_ident(&case.ident).to_string();
                         let (ty, info) = case
                             .ty
                             .as_ref()
@@ -303,7 +314,7 @@ impl<'a> Resolver<'a> {
             parse::InterfaceItemInner::Enum(cases) => {
                 let cases = cases.iter().map(|case| {
                     let docs = self.resolve_docs(&case.docs);
-                    let ident = self.read_span(&case.ident).to_string();
+                    let ident = self.resolve_ident(&case.ident).to_string();
 
                     EnumCase { docs, ident }
                 });
@@ -388,7 +399,7 @@ impl<'a> Resolver<'a> {
                 ))
             }
             parse::Type::Id(span) => {
-                let ident = self.read_span(span);
+                let ident = self.resolve_ident(span);
                 let typedef = self.id2interface_item.get(ident).expect("undefined type");
 
                 let (tyref, info) = self.resolve_typedef(&typedef.clone())?;
@@ -405,7 +416,7 @@ impl<'a> Resolver<'a> {
         Ok(named_types
             .iter()
             .map(|(ident, ty)| {
-                let ident = self.read_span(&ident).to_string();
+                let ident = self.resolve_ident(&ident).to_string();
                 let (ty, info) = self.resolve_type(&ty).unwrap();
 
                 ((ident, ty), info)
@@ -420,7 +431,7 @@ impl<'a> Resolver<'a> {
         func: &parse::Func,
     ) -> Result<Function> {
         let docs = self.resolve_docs(docs);
-        let ident = self.read_span(ident).to_string();
+        let ident = self.resolve_ident(ident).to_string();
 
         let (params, _) = self.resolve_named_types(&func.params)?;
 
@@ -576,7 +587,7 @@ impl<'a> Resolver<'a> {
 
     pub fn resolve(mut self) -> Result<Interface> {
         let docs = self.resolve_docs(&self.interface.docs);
-        let ident = self.read_span(&self.interface.ident).to_string();
+        let ident = self.resolve_ident(&self.interface.ident).to_string();
 
         let functions: Vec<_> = self
             .interface
@@ -634,7 +645,7 @@ fn extract_typedefs<'a>(ty: &'a Type) -> ExtractedTypes<'a> {
             let iter: Vec<_> = ok.chain(err).flat_map(|ty| extract_typedefs(ty)).collect();
 
             ExtractedTypes::Many(iter.into_iter())
-        },
+        }
         _ => ExtractedTypes::None,
     }
 }

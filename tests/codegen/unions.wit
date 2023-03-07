@@ -1,34 +1,34 @@
 interface unions {
   /// A union of all of the integral types
-  union all-integers {
+  union all_integers {
       /// Bool is equivalent to a 1 bit integer
       /// and is treated that way in some languages
       bool,
       u8, u16, u32, u64,
       s8, s16, s32, s64
   }
-  union all-floats {
+  union all_floats {
       float32, float64
   }
-  union all-text {
+  union all_text {
       char, string
   }
 
   // Returns the same case as the input but with 1 added
-  func add-one-integer(num: all-integers) -> all-integers
+  func add_one_integer(num: all_integers) -> all_integers
   // Returns the same case as the input but with 1 added
-  func add-one-float(num: all-floats) -> all-floats
+  func add_one_float(num: all_floats) -> all_floats
   // Returns the same case as the input but with the first character replaced
-  func replace-first-char(text: all-text, letter: char) -> all-text
+  func replace_first_char(text: all_text, letter: char) -> all_text
 
   // Returns the index of the case provided
-  func identify-integer(num: all-integers) -> u8
+  func identify_integer(num: all_integers) -> u8
   // Returns the index of the case provided
-  func identify-float(num: all-floats) -> u8
+  func identify_float(num: all_floats) -> u8
   // Returns the index of the case provided
-  func identify-text(text: all-text) -> u8
+  func identify_text(text: all_text) -> u8
 
-  union duplicated-s32 {
+  union duplicated_s32 {
       /// The first s32
       s32,
       /// The second s32
@@ -38,13 +38,13 @@ interface unions {
   }
 
   // Returns the same case as the input but with 1 added
-  func add-one-duplicated(num: duplicated-s32) -> duplicated-s32
+  func add_one_duplicated(num: duplicated_s32) -> duplicated_s32
 
   // Returns the index of the case provided
-  func identify-duplicated(num: duplicated-s32) -> u8
+  func identify_duplicated(num: duplicated_s32) -> u8
 
   /// A type containing numeric types that are distinct in most languages
-  union distinguishable-num {
+  union distinguishable_num {
       /// A Floating Point Number
       float64,
       /// A Signed Integer
@@ -52,8 +52,8 @@ interface unions {
   }
 
   // Returns the same case as the input but with 1 added
-  func add-one-distinguishable-num(num: distinguishable-num) -> distinguishable-num
+  func add_one_distinguishable_num(num: distinguishable_num) -> distinguishable_num
 
   // Returns the index of the case provided
-  func identify-distinguishable-num(num: distinguishable-num) -> u8
+  func identify_distinguishable_num(num: distinguishable_num) -> u8
 }

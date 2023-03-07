@@ -6,6 +6,7 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+tauri-bindgen-core.workspace = true
 tauri-bindgen-gen-rust = { path = "../gen-rust" }
 wit-parser.workspace = true
 heck.workspace = true
@@ -22,7 +23,7 @@ serde-wasm-bindgen = "0.4.5"
 js-sys = "0.3.61" 
 tauri-bindgen-guest-rust = { path = "../guest-rust" }
 serde = { version = "1.0.152", features = ["derive"] }
-# tauri-bindgen-abi = { path = "../abi" }
+pretty_assertions = "1.3.0"
 
 [features]
 cli = ["clap"]

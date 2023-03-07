@@ -1,34 +1,42 @@
 use logos::Span;
+use miette::Diagnostic;
 
 use crate::{lex::Token, util::print_list};
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error, Diagnostic)]
 pub enum Error {
     #[error(transparent)]
     IoError(#[from] std::io::Error),
     #[error("unexpected end of file")]
     UnexpectedEof,
     #[error("expected {}, but found {found}", print_list(expected))]
+    #[diagnostic(code(wit_parser::unexpected_token), url(docsrs))]
     UnexpectedToken {
+        #[label("unexpected token")]
         location: Span,
         expected: Vec<Token>,
         found: Token,
+        #[help]
         help: Option<String>,
     },
     #[error("type {ty} cannot be empty")]
+    #[diagnostic(code(wit_parser::empty_type), url(docsrs))]
     EmptyType {
+        #[label("this type cannot be empty")]
         location: Span,
         ty: Token,
     },
     /// A name wasn't defined.
     #[error("name is not defined.")]
-    NotDefined {
-        location: Span,
-    },
+    #[diagnostic(code(wit_parser::not_defined), url(docsrs))]
+    NotDefined { location: Span },
     /// Names can't be defined more than once.
     #[error("name already defined.")]
+    #[diagnostic(code(wit_parser::already_defined), url(docsrs))]
     AlreadyDefined {
+        #[label("name is already declared here")]
         previous: Span,
+        #[label("cannot be defined twice")]
         location: Span,
     },
     /// Types can't recursively refer to themselves as that would make then possibly infinitly-sized.
@@ -36,7 +44,9 @@ pub enum Error {
     ///
     /// This wouldn't be a problem with the current JSON format, but a custom binary one would have this limitation so for future proofing we deny recursive types.
     #[error("Type cannot refer to itself.")]
+    #[diagnostic(code(wit_parser::recursive_type), url(docsrs))]
     RecursiveType {
+        #[label("type cannot refer to itself")]
         location: Span,
     },
 }

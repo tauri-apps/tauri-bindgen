@@ -1,4 +1,4 @@
-interface multi-return {
+interface multi_return {
   func mra()
   func mrb() -> ()
   func mrc() -> u32

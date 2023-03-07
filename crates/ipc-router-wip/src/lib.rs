@@ -1,11 +1,10 @@
-
+pub use anyhow::Error;
 use anyhow::{bail, Result};
 use std::{
     collections::{hash_map::Entry, HashMap},
     marker::PhantomData,
     sync::{mpsc::Sender, Arc},
 };
-pub use anyhow::Error;
 
 pub struct Router<U> {
     string2idx: HashMap<Arc<str>, usize>,
@@ -17,6 +16,12 @@ pub type Definition<U> = Box<dyn Fn(Caller<U>, &[u8], Sender<Vec<u8>>)>;
 
 pub struct Caller<T> {
     _m: PhantomData<T>,
+}
+
+impl<T> Caller<T> {
+    pub fn data_mut(&self) -> &mut T {
+        todo!()
+    }
 }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]

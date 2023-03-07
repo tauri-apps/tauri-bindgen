@@ -1,8 +1,8 @@
 mod logger;
 
 use clap::{ArgAction, Parser};
-use miette::{IntoDiagnostic, Result, WrapErr};
-use std::path::PathBuf;
+use miette::{bail, IntoDiagnostic, Result, WrapErr};
+use std::{collections::HashSet, path::PathBuf};
 
 /// Helper for passing VERSION to opt.
 /// If `CARGO_VERSION_INFO` is set, use it, otherwise use `CARGO_PKG_VERSION`.
@@ -26,16 +26,16 @@ struct Opt {
 enum Category {
     /// Generator for creating bindings that are exposed to the WebView.
     Host(HostGenerator),
-    // /// Generators for webview libraries.
-    // #[clap(subcommand)]
-    // Guest(GuestGenerator),
-    // /// This generator outputs a Markdown file describing an interface.
-    // Markdown {
-    //     #[clap(flatten)]
-    //     opts: tauri_bindgen_gen_markdown::Opts,
-    //     #[clap(flatten)]
-    //     world: WorldOpt,
-    // },
+    /// Generators for webview libraries.
+    #[clap(subcommand)]
+    Guest(GuestGenerator),
+    /// This generator outputs a Markdown file describing an interface.
+    Markdown {
+        #[clap(flatten)]
+        opts: tauri_bindgen_gen_markdown::Opts,
+        #[clap(flatten)]
+        world: WorldOpt,
+    },
 }
 
 #[derive(Debug, Parser)]
@@ -48,20 +48,20 @@ struct HostGenerator {
 
 #[derive(Debug, Parser)]
 enum GuestGenerator {
-    // /// Generates bindings for Rust guest modules using wasm-bindgen.
-    // Rust {
-    //     #[clap(flatten)]
-    //     opts: tauri_bindgen_gen_guest_rust::Opts,
-    //     #[clap(flatten)]
-    //     world: WorldOpt,
-    // },
-    // /// Generates bindings for JavaScript guest modules.
-    // Javascript {
-    //     #[clap(flatten)]
-    //     opts: tauri_bindgen_gen_guest_js::Opts,
-    //     #[clap(flatten)]
-    //     world: WorldOpt,
-    // },
+    /// Generates bindings for Rust guest modules using wasm-bindgen.
+    Rust {
+        #[clap(flatten)]
+        opts: tauri_bindgen_gen_guest_rust::Opts,
+        #[clap(flatten)]
+        world: WorldOpt,
+    },
+    /// Generates bindings for JavaScript guest modules.
+    Javascript {
+        #[clap(flatten)]
+        opts: tauri_bindgen_gen_guest_js::Opts,
+        #[clap(flatten)]
+        world: WorldOpt,
+    },
     // /// Generates bindings for TypeScript guest modules.
     // Typescript {
     //     #[clap(flatten)]
@@ -101,24 +101,14 @@ fn run() -> Result<()> {
     logger::init(opt.verbose);
 
     let (path, contents) = match opt.category {
-        Category::Host(HostGenerator { opts, world, .. }) => {
-            let source = std::fs::read_to_string(&world.wit).unwrap();
-            let iface = wit_parser::parse_str(source, |_| false).unwrap();
-            opts.build().generate(&iface)
-        } // Category::Guest(GuestGenerator::Rust { opts, world, .. }) => {
-          //     todo!()
-          //     // gen_world(opts.build(), world, &mut files)?;
-          // }
-          // Category::Guest(GuestGenerator::Javascript { opts, world, .. }) => {
-          //     todo!()
-          //     // gen_world(opts.build(), world, &mut files)?;
-          // }
-          // Category::Guest(GuestGenerator::Typescript { opts, world, .. }) => {
-          //     // gen_world(opts.build(), world, &mut files)?;
-          // }
-          // Category::Markdown { opts, world, .. } => {
-          //     // gen_world(opts.build(), world, &mut files)?;
-          // }
+        Category::Host(HostGenerator { opts, world, .. }) => gen_interface(&opts.build(), world)?,
+        Category::Guest(GuestGenerator::Rust { opts, world, .. }) => {
+            gen_interface(&opts.build(), world)?
+        }
+        Category::Guest(GuestGenerator::Javascript { opts, world, .. }) => {
+            gen_interface(&opts.build(), world)?
+        }
+        Category::Markdown { opts, world } => gen_interface(&opts.build(), world)?,
     };
 
     let dst = opt.common.out_dir.unwrap_or_default().join(path);
@@ -136,21 +126,18 @@ fn run() -> Result<()> {
     Ok(())
 }
 
-// fn gen_world(
-//     mut generator: Box<dyn WorldGenerator>,
-//     opts: WorldOpt,
-//     files: &mut Files,
-// ) -> Result<()> {
-//     if !opts.wit.is_file() {
-//         bail!("wit file `{}` does not exist", opts.wit.display());
-//     }
+fn gen_interface(
+    generator: &dyn tauri_bindgen_core::Generate,
+    opts: WorldOpt,
+) -> Result<(PathBuf, String)> {
+    if !opts.wit.is_file() {
+        bail!("wit file `{}` does not exist", opts.wit.display());
+    }
 
-//     let skipset: HashSet<String, std::collections::hash_map::RandomState> =
-//         opts.skip.into_iter().collect();
+    let skipset: HashSet<String, std::collections::hash_map::RandomState> =
+        opts.skip.into_iter().collect();
 
-//     let world = wit_parser::parse_file(&opts.wit, |t| skipset.contains(t))?;
-//     let world_hash = tauri_bindgen_core::hash::hash_file(opts.wit)?;
+    let iface = wit_parser::parse_file(&opts.wit, |t| skipset.contains(t))?;
 
-//     generator.generate(&world.name, &world, files, &world_hash);
-//     Ok(())
-// }
+    Ok(generator.to_string(&iface))
+}

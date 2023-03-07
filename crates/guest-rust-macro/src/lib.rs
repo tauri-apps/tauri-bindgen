@@ -5,7 +5,7 @@ use tauri_bindgen_gen_guest_rust::Opts;
 
 #[proc_macro]
 pub fn generate(input: TokenStream) -> TokenStream {
-    rust_macro_shared::generate::<Opt, Opts, _>(input, |opts| opts.build())
+    rust_macro_shared::generate::<Opt, Opts, _>(input, |opts| Box::new(opts.build()))
 }
 
 mod kw {

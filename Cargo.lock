@@ -2345,7 +2345,9 @@ name = "rust-macro-shared"
 version = "0.1.0"
 dependencies = [
  "proc-macro2 1.0.51",
+ "quote 1.0.23",
  "syn 1.0.109",
+ "tauri-bindgen-core",
  "wit-parser",
 ]
 
@@ -2928,7 +2930,19 @@ dependencies = [
  "env_logger",
  "log",
  "miette",
+ "tauri-bindgen-core",
+ "tauri-bindgen-gen-guest-js",
+ "tauri-bindgen-gen-guest-rust",
  "tauri-bindgen-gen-host",
+ "tauri-bindgen-gen-markdown",
+ "wit-parser",
+]
+
+[[package]]
+name = "tauri-bindgen-core"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2 1.0.51",
  "wit-parser",
 ]
 
@@ -2938,6 +2952,12 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "heck 0.4.0",
+ "pretty_assertions",
+ "prettyplease",
+ "proc-macro2 1.0.51",
+ "quote 1.0.23",
+ "syn 1.0.109",
+ "tauri-bindgen-core",
  "wit-parser",
 ]
 
@@ -2948,12 +2968,14 @@ dependencies = [
  "clap",
  "heck 0.4.0",
  "js-sys",
+ "pretty_assertions",
  "prettyplease",
  "proc-macro2 1.0.51",
  "quote 1.0.23",
  "serde",
  "serde-wasm-bindgen",
  "syn 1.0.109",
+ "tauri-bindgen-core",
  "tauri-bindgen-gen-rust",
  "tauri-bindgen-guest-rust",
  "wasm-bindgen",
@@ -2967,6 +2989,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "heck 0.4.0",
+ "tauri-bindgen-core",
  "wit-parser",
 ]
 
@@ -2976,11 +2999,13 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "heck 0.4.0",
+ "pretty_assertions",
  "prettyplease",
  "proc-macro2 1.0.51",
  "quote 1.0.23",
  "serde",
  "syn 1.0.109",
+ "tauri-bindgen-core",
  "tauri-bindgen-gen-rust",
  "tauri-bindgen-host",
  "wit-parser",
@@ -2993,6 +3018,7 @@ dependencies = [
  "clap",
  "heck 0.4.0",
  "pulldown-cmark",
+ "tauri-bindgen-core",
  "wit-parser",
 ]
 
@@ -3043,6 +3069,7 @@ dependencies = [
  "ipc-router-wip",
  "tauri",
  "tauri-bindgen-abi",
+ "tauri-bindgen-host-macro",
  "tracing",
 ]
 
@@ -3918,6 +3945,7 @@ dependencies = [
  "distance",
  "log",
  "logos",
+ "miette",
  "pretty_assertions",
  "thiserror",
 ]

@@ -87,7 +87,7 @@ interface roundtrip {
     func flag32(x: flag32) -> flag32
     func flag64(x: flag64) -> flag64
 
-    func %float32(x: float32) -> float32
+    func %float32_(x: float32) -> float32
     func %float64(x: float64) -> float64
 
     func %u8(x: u8) -> u8

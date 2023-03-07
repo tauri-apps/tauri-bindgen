@@ -1,20 +1,23 @@
 #![allow(clippy::must_use_candidate)]
 
-use heck::{ToSnakeCase, ToUpperCamelCase};
+use std::path::PathBuf;
+
+use heck::ToKebabCase;
+use heck::ToSnakeCase;
 use proc_macro2::TokenStream;
 use quote::format_ident;
 use quote::quote;
 use syn::parse_quote;
 use tauri_bindgen_gen_rust::FnSig;
-use tauri_bindgen_gen_rust::{variants_of, BorrowMode, RustGenerator, TypeVariant};
-use wit_parser::{Function, Interface, TypeDefKind};
+use tauri_bindgen_gen_rust::{BorrowMode, RustGenerator};
+use wit_parser::{Function, Interface, TypeInfo};
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
 pub struct Opts {
     /// Whether or not `rustfmt` is executed to format generated code.
     #[cfg_attr(feature = "clap", clap(long))]
-    pub rustfmt: bool,
+    pub fmt: bool,
 
     /// Whether or not the bindings assume interface values are always
     /// well-formed or whether checks are performed.
@@ -30,7 +33,7 @@ impl Opts {
     pub fn build(self) -> RustWasm {
         RustWasm {
             opts: self,
-            inner: RustGenerator::new(),
+            inner: RustGenerator::new(get_serde_attrs),
         }
     }
 }
@@ -41,62 +44,6 @@ pub struct RustWasm {
 }
 
 impl RustWasm {
-    pub fn print_interface(&self, iface: &Interface) -> TokenStream {
-        let docs = self.inner.print_docs(&iface.docs);
-
-        let ident = format_ident!("{}", iface.ident.to_snake_case());
-
-        let typedefs = iface.typedefs.iter().flat_map(|typedef| {
-            let typedef = typedef.borrow();
-
-            eprintln!("printing typedef {:?}", typedef.ident);
-
-            let variants = variants_of(
-                &typedef.ident.to_upper_camel_case(),
-                typedef.info,
-                &BorrowMode::AllBorrowed(syn::parse_quote!('a)),
-            );
-
-            let variants = variants.iter().map(|TypeVariant { ident, borrow_mode }| {
-                let docs = &typedef.docs;
-
-                match &typedef.kind {
-                    TypeDefKind::Alias(ty) => {
-                        self.inner
-                            .print_alias(docs, &ident, &ty, typedef.info, borrow_mode)
-                    }
-                    TypeDefKind::Record(fields) => {
-                        self.inner
-                            .print_record(docs, &ident, &fields, typedef.info, borrow_mode)
-                    }
-                    TypeDefKind::Flags(fields) => self.inner.print_flags(docs, &ident, &fields),
-                    TypeDefKind::Variant(cases) => {
-                        self.inner
-                            .print_variant(docs, &ident, &cases, typedef.info, borrow_mode)
-                    }
-                    TypeDefKind::Enum(cases) => self.inner.print_enum(docs, &ident, &cases),
-                    TypeDefKind::Union(cases) => {
-                        self.inner
-                            .print_union(docs, &ident, &cases, typedef.info, borrow_mode)
-                    }
-                }
-            });
-
-            quote! { #(#variants)* }
-        });
-
-        let functions = iface.functions.iter().map(|func| self.print_function(func));
-
-        quote! {
-            #docs
-            pub mod #ident {
-                #(#typedefs)*
-
-                #(#functions)*
-            }
-        }
-    }
-
     pub fn print_function(&self, func: &Function) -> TokenStream {
         let sig = FnSig {
             async_: true,
@@ -105,7 +52,7 @@ impl RustWasm {
             self_arg: None,
             func,
         };
-        
+
         let sig = self.inner.print_function_signature(
             &sig,
             &BorrowMode::AllBorrowed(parse_quote!('_)),
@@ -118,4 +65,64 @@ impl RustWasm {
             }
         }
     }
+}
+
+impl tauri_bindgen_core::Generate for RustWasm {
+    fn to_tokens(&self, iface: &Interface) -> TokenStream {
+        let docs = self.inner.print_docs(&iface.docs);
+
+        let ident = format_ident!("{}", iface.ident.to_snake_case());
+
+        let typedefs = self.inner.print_typedefs(
+            iface.typedefs.iter().map(|typedef| typedef.borrow()),
+            &BorrowMode::AllBorrowed(parse_quote!('a)),
+        );
+
+        let functions = iface.functions.iter().map(|func| self.print_function(func));
+
+        quote! {
+            #docs
+            pub mod #ident {
+                use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+                use ::tauri_bindgen_guest_rust::bitflags;
+                #typedefs
+
+                #(#functions)*
+            }
+        }
+    }
+
+    fn to_string(&self, iface: &Interface) -> (PathBuf, String) {
+        let mut filename = PathBuf::from(iface.ident.to_kebab_case());
+        filename.set_extension("rs");
+
+        let tokens = self.to_tokens(iface);
+
+        if self.opts.fmt {
+            let syntax_tree = syn::parse2(tokens).unwrap();
+            (filename, prettyplease::unparse(&syntax_tree))
+        } else {
+            (filename, tokens.to_string())
+        }
+    }
+}
+
+fn get_serde_attrs(name: &str, info: TypeInfo) -> Option<TokenStream> {
+    let mut attrs = vec![];
+    if tauri_bindgen_gen_rust::uses_two_names(info) {
+        if name.ends_with("Param") {
+            attrs.push(quote! { tauri_bindgen_abi::Writable })
+        } else if name.ends_with("Result") {
+            attrs.push(quote! { tauri_bindgen_abi::Readable })
+        }
+    } else {
+        if info.contains(TypeInfo::PARAM) {
+            attrs.push(quote! { tauri_bindgen_abi::Writable })
+        }
+        if info.contains(TypeInfo::RESULT) {
+            attrs.push(quote! { tauri_bindgen_abi::Readable })
+        }
+    }
+
+    Some(quote! { #[derive(#(#attrs),*)] })
 }

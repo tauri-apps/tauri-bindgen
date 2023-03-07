@@ -10,10 +10,8 @@ rust-version.workspace = true
 logos = "0.12.1"
 thiserror.workspace = true
 bitflags.workspace = true
-# thiserror.workspace = true
-# id-arena = "2.2.1"
 # codespan-reporting = "0.11.1"
-# miette.workspace = true
+miette.workspace = true
 distance = "0.4.0"
 log.workspace = true
 

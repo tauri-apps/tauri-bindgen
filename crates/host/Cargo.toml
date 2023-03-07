@@ -9,7 +9,7 @@ rust-version.workspace = true
 
 [dependencies]
 bitflags.workspace = true
-# tauri-bindgen-host-macro = { path = "../host-macro" }
+tauri-bindgen-host-macro = { path = "../host-macro" }
 async-trait = "0.1.66"
 tauri = "1.2.4"
 tracing = { version = "0.1.37", features = ["log", "log-always"] }

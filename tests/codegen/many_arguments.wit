@@ -1,5 +1,5 @@
-interface many-arguments {
-  func many-args(
+interface many_arguments {
+  func many_args(
     a1: u64,
     a2: u64,
     a3: u64,
@@ -18,7 +18,7 @@ interface many-arguments {
     a16: u64,
   )
 
-  record big-struct {
+  record big_struct {
     a1: string,
     a2: string,
     a3: string,
@@ -41,5 +41,5 @@ interface many-arguments {
     a20: string,
   }
 
-  func big-argument(x: big-struct)
+  func big_argument(x: big_struct)
 }

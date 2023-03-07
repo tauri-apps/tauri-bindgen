@@ -19,14 +19,13 @@ pub struct Opts {
     #[cfg_attr(feature = "clap", clap(long))]
     pub fmt: bool,
 
-    /// Whether or not the bindings assume interface values are always
-    /// well-formed or whether checks are performed.
+    /// Whether or not to emit `tracing` macro calls on function entry/exit.
     #[cfg_attr(feature = "clap", clap(long))]
-    pub unchecked: bool,
+    pub tracing: bool,
 
-    /// If true, code generation should avoid any features that depend on `std`.
-    #[cfg_attr(feature = "clap", clap(long))]
-    pub no_std: bool,
+    /// Whether or not to use async rust functions and traits.
+    #[cfg_attr(feature = "clap", clap(long = "async"))]
+    pub async_: bool,
 }
 
 impl Opts {
@@ -44,48 +43,6 @@ pub struct Host {
 }
 
 impl Host {
-    pub fn generate(&self, iface: &Interface) -> (PathBuf, String) {
-        let mut filename = PathBuf::from(iface.ident.to_kebab_case());
-        filename.set_extension("rs");
-
-        let tokens = self.print_interface(iface);
-
-        if self.opts.fmt {
-            let syntax_tree = syn::parse2(tokens).unwrap();
-            (filename, prettyplease::unparse(&syntax_tree))
-        } else {
-            (filename, tokens.to_string())
-        }
-    }
-
-    pub fn print_interface(&self, iface: &Interface) -> TokenStream {
-        let docs = self.inner.print_docs(&iface.docs);
-
-        let ident = format_ident!("{}", iface.ident.to_snake_case());
-
-        let typedefs = self.inner.print_typedefs(
-            iface.typedefs.iter().map(|typedef| typedef.borrow()),
-            &BorrowMode::AllBorrowed(parse_quote!('a)),
-        );
-
-        let trait_ = self.print_trait(&iface.ident, iface.functions.iter());
-
-        let add_to_router = self.print_add_to_router(&iface.ident, iface.functions.iter());
-
-        quote! {
-            #docs
-            pub mod #ident {
-                use ::tauri_bindgen_host::tauri_bindgen_abi;
-
-                #typedefs
-
-                #trait_
-
-                #add_to_router
-            }
-        }
-    }
-
     fn print_trait<'a>(
         &self,
         ident: &str,
@@ -145,9 +102,8 @@ impl Host {
                 .print_function_result(&func.result, &BorrowMode::AllBorrowed(parse_quote!('_)));
 
             quote! {
-                router.func_wrap(#mod_name, #func_name, |cx, #(#params),*| #results {
-                    // let cx = get_cx(cx.state);
-                    let cx: U = todo!();
+                router.func_wrap(#mod_name, #func_name, move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, #(#params),*| #results {
+                    let cx = get_cx(cx.data_mut());
 
                     cx.#func_ident(#(#param_idents),*)
                 })?;
@@ -170,6 +126,51 @@ impl Host {
     }
 }
 
+impl tauri_bindgen_core::Generate for Host {
+    fn to_tokens(&self, iface: &Interface) -> TokenStream {
+        let docs = self.inner.print_docs(&iface.docs);
+
+        let ident = format_ident!("{}", iface.ident.to_snake_case());
+
+        let typedefs = self.inner.print_typedefs(
+            iface.typedefs.iter().map(|typedef| typedef.borrow()),
+            &BorrowMode::Owned,
+        );
+
+        let trait_ = self.print_trait(&iface.ident, iface.functions.iter());
+
+        let add_to_router = self.print_add_to_router(&iface.ident, iface.functions.iter());
+
+        quote! {
+            #docs
+            pub mod #ident {
+                use ::tauri_bindgen_host::tauri_bindgen_abi;
+                use ::tauri_bindgen_host::bitflags;
+
+                #typedefs
+
+                #trait_
+
+                #add_to_router
+            }
+        }
+    }
+
+    fn to_string(&self, iface: &Interface) -> (PathBuf, String) {
+        let mut filename = PathBuf::from(iface.ident.to_kebab_case());
+        filename.set_extension("rs");
+
+        let tokens = self.to_tokens(iface);
+
+        if self.opts.fmt {
+            let syntax_tree = syn::parse2(tokens).unwrap();
+            (filename, prettyplease::unparse(&syntax_tree))
+        } else {
+            (filename, tokens.to_string())
+        }
+    }
+}
+
 fn get_serde_attrs(name: &str, info: TypeInfo) -> Option<TokenStream> {
     let mut attrs = vec![];
     if tauri_bindgen_gen_rust::uses_two_names(info) {
@@ -188,56 +189,4 @@ fn get_serde_attrs(name: &str, info: TypeInfo) -> Option<TokenStream> {
     }
 
     Some(quote! { #[derive(#(#attrs),*)] })
-}
-
-#[cfg(test)]
-mod test {
-    use wit_parser::{FunctionResult, Type};
-
-    use super::*;
-
-    #[test]
-    fn trait_() {
-        let funcs = [
-            Function {
-                docs: "".to_string(),
-                ident: "foo".to_string(),
-                params: vec![("x".to_string(), Type::String)],
-                result: FunctionResult::Named(vec![]),
-            },
-            Function {
-                docs: "".to_string(),
-                ident: "bar".to_string(),
-                params: vec![("x".to_string(), Type::List(Box::new(Type::U8)))],
-                result: FunctionResult::Anon(Type::U64),
-            },
-            Function {
-                docs: "".to_string(),
-                ident: "fiz".to_string(),
-                params: vec![("x".to_string(), Type::List(Box::new(Type::U8)))],
-                result: FunctionResult::Anon(Type::List(Box::new(Type::String))),
-            },
-        ];
-
-        let gen = Opts::default().build();
-        let tokens = gen.print_trait("test", funcs.iter());
-        println!("{}", tokens.to_string());
-        let syntax_tree = syn::parse2(tokens).unwrap();
-        let formatted = prettyplease::unparse(&syntax_tree);
-        println!("{}", formatted);
-    }
-
-    #[test]
-    fn full() {
-        let source = include_str!("test.wit");
-
-        let iface = wit_parser::parse_str(source, |_| false).unwrap();
-
-        let gen = Opts::default().build();
-        let tokens = gen.print_interface(&iface);
-        println!("{}", tokens.to_string());
-        let syntax_tree = syn::parse2(tokens).unwrap();
-        let formatted = prettyplease::unparse(&syntax_tree);
-        println!("{}", formatted);
-    }
 }

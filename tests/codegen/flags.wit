@@ -38,11 +38,11 @@ interface flegs {
     b56, b57, b58, b59, b60, b61, b62, b63,
   }
 
-  func roundtrip-flag1(x: flag1) -> flag1
-  func roundtrip-flag2(x: flag2) -> flag2
-  func roundtrip-flag4(x: flag4) -> flag4
-  func roundtrip-flag8(x: flag8) -> flag8
-  func roundtrip-flag16(x: flag16) -> flag16
-  func roundtrip-flag32(x: flag32) -> flag32
-  func roundtrip-flag64(x: flag64) -> flag64
+  func roundtrip_flag1(x: flag1) -> flag1
+  func roundtrip_flag2(x: flag2) -> flag2
+  func roundtrip_flag4(x: flag4) -> flag4
+  func roundtrip_flag8(x: flag8) -> flag8
+  func roundtrip_flag16(x: flag16) -> flag16
+  func roundtrip_flag32(x: flag32) -> flag32
+  func roundtrip_flag64(x: flag64) -> flag64
 }
