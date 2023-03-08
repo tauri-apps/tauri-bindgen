@@ -1,7 +1,7 @@
 pub mod lists {
     use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
     use ::tauri_bindgen_guest_rust::bitflags;
-    #[derive(tauri_bindgen_abi::Writable)]
+    #[derive(tauri_bindgen_abi::Readable)]
     pub struct OtherRecord<'a> {
         a1: u32,
         a2: u64,
@@ -10,16 +10,7 @@ pub mod lists {
         b: &'a str,
         c: &'a [u8],
     }
-    #[derive(tauri_bindgen_abi::Writable)]
-    pub struct OtherRecord<'a> {
-        a1: u32,
-        a2: u64,
-        a3: i32,
-        a4: i64,
-        b: &'a str,
-        c: &'a [u8],
-    }
-    #[derive(tauri_bindgen_abi::Writable)]
+    #[derive(tauri_bindgen_abi::Readable)]
     pub struct SomeRecord<'a> {
         x: &'a str,
         y: OtherRecord<'a>,
@@ -30,52 +21,6 @@ pub mod lists {
         c4: i64,
     }
     #[derive(tauri_bindgen_abi::Readable)]
-    pub struct OtherRecord {
-        a1: u32,
-        a2: u64,
-        a3: i32,
-        a4: i64,
-        b: String,
-        c: Vec<u8>,
-    }
-    #[derive(tauri_bindgen_abi::Writable)]
-    pub struct OtherRecord<'a> {
-        a1: u32,
-        a2: u64,
-        a3: i32,
-        a4: i64,
-        b: &'a str,
-        c: &'a [u8],
-    }
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub struct OtherRecord {
-        a1: u32,
-        a2: u64,
-        a3: i32,
-        a4: i64,
-        b: String,
-        c: Vec<u8>,
-    }
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub struct OtherRecord {
-        a1: u32,
-        a2: u64,
-        a3: i32,
-        a4: i64,
-        b: String,
-        c: Vec<u8>,
-    }
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub struct SomeRecord {
-        x: String,
-        y: OtherRecord,
-        z: Vec<OtherRecord>,
-        c1: u32,
-        c2: u64,
-        c3: i32,
-        c4: i64,
-    }
-    #[derive(tauri_bindgen_abi::Writable)]
     pub enum OtherVariant<'a> {
         A,
         B(u32),
@@ -87,12 +32,6 @@ pub mod lists {
         B,
         C(u32),
         D(&'a [OtherVariant<'a>]),
-    }
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub enum OtherVariant {
-        A,
-        B(u32),
-        C(String),
     }
     pub type LoadStoreAllSizes<'a> = &'a [(
         &'a str,
@@ -108,9 +47,6 @@ pub mod lists {
         f64,
         char,
     )];
-    pub type LoadStoreAllSizes = Vec<
-        (String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char),
-    >;
     pub async fn list_u8_param(x: &'_ [u8]) -> () {
         todo!()
     }

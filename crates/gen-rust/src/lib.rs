@@ -540,24 +540,23 @@ pub struct TypeVariant {
 #[must_use] pub fn variants_of(ident: &str, info: TypeInfo, default_mode: &BorrowMode) -> Vec<TypeVariant> {
     let mut result = Vec::new();
 
+    if !uses_two_names(info) {
+        return vec![TypeVariant {
+            ident: format_ident!("{ident}"),
+            borrow_mode: default_mode.clone(),
+        }];
+    }
+
     if info.contains(TypeInfo::PARAM) {
         result.push(TypeVariant {
-            ident: if uses_two_names(info) {
-                format_ident!("{ident}Param")
-            } else {
-                format_ident!("{ident}")
-            },
+            ident: format_ident!("{ident}Param"),
             borrow_mode: default_mode.clone(),
         });
     }
     if info.contains(TypeInfo::RESULT) && (!info.contains(TypeInfo::PARAM) || uses_two_names(info))
     {
         result.push(TypeVariant {
-            ident: if uses_two_names(info) {
-                format_ident!("{ident}Result")
-            } else {
-                format_ident!("{ident}")
-            },
+            ident: format_ident!("{ident}Result"),
             borrow_mode: BorrowMode::Owned,
         });
     }
@@ -582,6 +581,7 @@ bitflags::bitflags! {
     }
 }
 
+#[derive(Debug)]
 pub struct TypeInfos {
     infos: HashMap<TypeDefId, TypeInfo>,
 }

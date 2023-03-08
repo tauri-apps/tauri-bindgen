@@ -1,61 +1,6 @@
 pub mod lists {
     use ::tauri_bindgen_host::tauri_bindgen_abi;
     use ::tauri_bindgen_host::bitflags;
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub struct OtherRecord {
-        a1: u32,
-        a2: u64,
-        a3: i32,
-        a4: i64,
-        b: String,
-        c: Vec<u8>,
-    }
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub struct OtherRecord {
-        a1: u32,
-        a2: u64,
-        a3: i32,
-        a4: i64,
-        b: String,
-        c: Vec<u8>,
-    }
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub struct SomeRecord {
-        x: String,
-        y: OtherRecord,
-        z: Vec<OtherRecord>,
-        c1: u32,
-        c2: u64,
-        c3: i32,
-        c4: i64,
-    }
-    #[derive(tauri_bindgen_abi::Writable)]
-    pub struct OtherRecord {
-        a1: u32,
-        a2: u64,
-        a3: i32,
-        a4: i64,
-        b: String,
-        c: Vec<u8>,
-    }
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub struct OtherRecord {
-        a1: u32,
-        a2: u64,
-        a3: i32,
-        a4: i64,
-        b: String,
-        c: Vec<u8>,
-    }
-    #[derive(tauri_bindgen_abi::Writable)]
-    pub struct OtherRecord {
-        a1: u32,
-        a2: u64,
-        a3: i32,
-        a4: i64,
-        b: String,
-        c: Vec<u8>,
-    }
     #[derive(tauri_bindgen_abi::Writable)]
     pub struct OtherRecord {
         a1: u32,
@@ -75,7 +20,7 @@ pub mod lists {
         c3: i32,
         c4: i64,
     }
-    #[derive(tauri_bindgen_abi::Readable)]
+    #[derive(tauri_bindgen_abi::Writable)]
     pub enum OtherVariant {
         A,
         B(u32),
@@ -88,15 +33,6 @@ pub mod lists {
         C(u32),
         D(Vec<OtherVariant>),
     }
-    #[derive(tauri_bindgen_abi::Writable)]
-    pub enum OtherVariant {
-        A,
-        B(u32),
-        C(String),
-    }
-    pub type LoadStoreAllSizes = Vec<
-        (String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char),
-    >;
     pub type LoadStoreAllSizes = Vec<
         (String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char),
     >;

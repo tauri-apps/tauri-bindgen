@@ -251,6 +251,10 @@ impl<'a> Resolver<'a> {
 
     fn resolve_typedef(&mut self, typedef: &parse::InterfaceItem) -> Result<Id<TypeDef>> {
         let ident = self.resolve_ident(&typedef.ident);
+        
+        if let Some(id) = self.ident2id.get(ident) {
+            return Ok(*id);
+        }
 
         let docs = self.resolve_docs(&typedef.docs);
 
@@ -333,7 +337,7 @@ impl<'a> Resolver<'a> {
             ident: ident.to_string(),
             kind,
         });
-        self.ident2id.remove(ident);
+        self.ident2id.insert(ident, id);
 
         Ok(id)
     }

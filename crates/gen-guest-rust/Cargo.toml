@@ -15,6 +15,7 @@ quote = "1.0.23"
 proc-macro2 = "1.0.51"
 syn = "1.0.107"
 prettyplease = "0.1.23"
+log.workspace = true
 
 [dev-dependencies]
 wasm-bindgen = { version = "0.2.84", features = ["serde-serialize"] }

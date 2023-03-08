@@ -40,6 +40,11 @@ impl GeneratorBuilder for Builder {
             infos.collect_result_info(&interface.typedefs, &func.result);
         }
 
+        for (id, typedef) in &interface.typedefs {
+            log::debug!("type info: {} {:#?}", typedef.ident, infos[id]);
+        }
+
+
         Box::new(RustWasm {
             opts: self,
             interface,

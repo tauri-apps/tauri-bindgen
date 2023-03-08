@@ -2970,6 +2970,7 @@ dependencies = [
  "clap",
  "heck 0.4.0",
  "js-sys",
+ "log",
  "pretty_assertions",
  "prettyplease",
  "proc-macro2 1.0.51",
