@@ -483,7 +483,8 @@ pub struct FnSig<'a> {
     pub func: &'a Function,
 }
 
-#[must_use] pub fn lifetime_for(info: TypeInfo, mode: &BorrowMode) -> Option<&Lifetime> {
+#[must_use]
+pub fn lifetime_for(info: TypeInfo, mode: &BorrowMode) -> Option<&Lifetime> {
     match mode {
         BorrowMode::AllBorrowed(s) | BorrowMode::LeafBorrowed(s)
             if info.contains(TypeInfo::HAS_LIST) =>
@@ -494,7 +495,8 @@ pub struct FnSig<'a> {
     }
 }
 
-#[must_use] pub fn print_generics(info: TypeInfo, mode: &BorrowMode) -> Option<TokenStream> {
+#[must_use]
+pub fn print_generics(info: TypeInfo, mode: &BorrowMode) -> Option<TokenStream> {
     let lt = lifetime_for(info, mode);
 
     lt.map(|lt| {
@@ -504,7 +506,8 @@ pub struct FnSig<'a> {
     })
 }
 
-#[must_use] pub fn flags_repr(fields: &[FlagsField]) -> Int {
+#[must_use]
+pub fn flags_repr(fields: &[FlagsField]) -> Int {
     match fields.len() {
         n if n <= 8 => Int::U8,
         n if n <= 16 => Int::U16,
@@ -537,7 +540,8 @@ pub struct TypeVariant {
     pub borrow_mode: BorrowMode,
 }
 
-#[must_use] pub fn variants_of(ident: &str, info: TypeInfo, default_mode: &BorrowMode) -> Vec<TypeVariant> {
+#[must_use]
+pub fn variants_of(ident: &str, info: TypeInfo, default_mode: &BorrowMode) -> Vec<TypeVariant> {
     let mut result = Vec::new();
 
     if !uses_two_names(info) {
@@ -563,7 +567,8 @@ pub struct TypeVariant {
     result
 }
 
-#[must_use] pub fn uses_two_names(info: TypeInfo) -> bool {
+#[must_use]
+pub fn uses_two_names(info: TypeInfo) -> bool {
     info.contains(TypeInfo::HAS_LIST) && info.contains(TypeInfo::PARAM | TypeInfo::RESULT)
 }
 
@@ -587,7 +592,8 @@ pub struct TypeInfos {
 }
 
 impl TypeInfos {
-    #[must_use] pub fn new() -> Self {
+    #[must_use]
+    pub fn new() -> Self {
         TypeInfos {
             infos: HashMap::new(),
         }

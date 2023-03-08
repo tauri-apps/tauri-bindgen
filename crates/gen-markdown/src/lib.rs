@@ -56,12 +56,8 @@ impl Markdown {
                 format!("option<{ty}>")
             }
             Type::Result { ok, err } => {
-                let ok = ok
-                    .as_ref()
-                    .map_or("_".to_string(), |ty| self.print_ty(ty));
-                let err = err
-                    .as_ref()
-                    .map_or("_".to_string(), |ty| self.print_ty(ty));
+                let ok = ok.as_ref().map_or("_".to_string(), |ty| self.print_ty(ty));
+                let err = err.as_ref().map_or("_".to_string(), |ty| self.print_ty(ty));
 
                 format!("result<{ok}, {err}>")
             }
@@ -75,10 +71,7 @@ impl Markdown {
     }
 
     fn print_docs(&self, docs: &str) -> String {
-        docs.lines()
-            .map(str::trim)
-            .collect::<Vec<_>>()
-            .join("\n")
+        docs.lines().map(str::trim).collect::<Vec<_>>().join("\n")
     }
 
     fn print_typedef(&self, id: TypeDefId) -> String {

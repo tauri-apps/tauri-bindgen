@@ -44,7 +44,6 @@ impl GeneratorBuilder for Builder {
             log::debug!("type info: {} {:#?}", typedef.ident, infos[id]);
         }
 
-
         Box::new(RustWasm {
             opts: self,
             interface,

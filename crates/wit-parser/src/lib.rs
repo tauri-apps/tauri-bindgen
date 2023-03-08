@@ -14,8 +14,8 @@ use id_arena::{Arena, Id};
 use logos::Logos;
 use miette::{ErrReport, IntoDiagnostic, NamedSource};
 use parse::FromTokens;
-use typecheck::Resolver;
 use std::path::Path;
+use typecheck::Resolver;
 
 pub fn parse_str(input: impl AsRef<str>, skip: impl Fn(&str) -> bool) -> miette::Result<Interface> {
     let iface = parse(input.as_ref(), skip).map_err(|error: ErrReport| {

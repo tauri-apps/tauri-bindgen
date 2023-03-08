@@ -1,6 +1,6 @@
 pub mod conventions {
-    use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
     use ::tauri_bindgen_guest_rust::bitflags;
+    use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
     #[derive(tauri_bindgen_abi::Writable)]
     pub struct LudicrousSpeed {
         how_fast_are_you_going: u32,

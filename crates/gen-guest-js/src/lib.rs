@@ -128,12 +128,8 @@ impl JavaScript {
                 format!("{ty} | null")
             }
             Type::Result { ok, err } => {
-                let ok = ok
-                    .as_ref()
-                    .map_or("_".to_string(), |ty| self.print_ty(ty));
-                let err = err
-                    .as_ref()
-                    .map_or("_".to_string(), |ty| self.print_ty(ty));
+                let ok = ok.as_ref().map_or("_".to_string(), |ty| self.print_ty(ty));
+                let err = err.as_ref().map_or("_".to_string(), |ty| self.print_ty(ty));
 
                 format!("Result<{ok}, {err}>")
             }

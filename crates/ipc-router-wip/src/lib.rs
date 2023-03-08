@@ -20,7 +20,8 @@ pub struct Caller<T> {
 }
 
 impl<T> Caller<T> {
-    #[must_use] pub fn data_mut(&self) -> &mut T {
+    #[must_use]
+    pub fn data_mut(&self) -> &mut T {
         todo!()
     }
 }
@@ -32,7 +33,8 @@ struct ImportKey {
 }
 
 impl<U> Router<U> {
-    #[must_use] pub fn new() -> Self {
+    #[must_use]
+    pub fn new() -> Self {
         Self {
             string2idx: HashMap::new(),
             strings: Vec::new(),
@@ -94,8 +96,7 @@ impl<U> Router<U> {
 
     fn import_key(&mut self, module: Option<impl AsRef<str>>, name: impl AsRef<str>) -> ImportKey {
         ImportKey {
-            module: module
-                .map_or(usize::max_value(), |name| self.intern_str(name.as_ref())),
+            module: module.map_or(usize::max_value(), |name| self.intern_str(name.as_ref())),
             name: self.intern_str(name.as_ref()),
         }
     }

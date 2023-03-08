@@ -1,10 +1,10 @@
 pub mod records {
-    use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
     use ::tauri_bindgen_guest_rust::bitflags;
+    use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
     #[derive(tauri_bindgen_abi::Readable)]
     pub struct Empty {}
     /**A record containing two scalar fields
-that both have the same type*/
+    that both have the same type*/
     #[derive(tauri_bindgen_abi::Readable)]
     pub struct Scalars {
         ///The first field, named a
@@ -13,7 +13,7 @@ that both have the same type*/
         b: u32,
     }
     /**A record that is really just flags
-All of the fields are bool*/
+    All of the fields are bool*/
     #[derive(tauri_bindgen_abi::Readable)]
     pub struct ReallyFlags<'a> {
         a: bool,

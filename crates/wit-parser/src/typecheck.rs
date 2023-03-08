@@ -367,7 +367,8 @@ impl<'a> Resolver<'a> {
         }
 
         if !self.iface_typedefs.is_empty() {
-            let res: Result<()> = self.iface_typedefs
+            let res: Result<()> = self
+                .iface_typedefs
                 .iter()
                 .map(|(_, item)| Err(Error::unused_type(item.ident.clone())))
                 .partition_result();
