@@ -1,5 +1,5 @@
 [package]
-name = "tauri-bindgen-cli"
+name = "tauri-bindgen"
 authors.workspace = true
 version.workspace = true
 edition.workspace = true
