@@ -1,11 +1,11 @@
 pub mod unions {
-    use ::tauri_bindgen_host::bitflags;
     use ::tauri_bindgen_host::tauri_bindgen_abi;
+    use ::tauri_bindgen_host::bitflags;
     ///A union of all of the integral types
     #[derive(tauri_bindgen_abi::Readable)]
     pub enum AllIntegers {
         /**Bool is equivalent to a 1 bit integer
-        and is treated that way in some languages*/
+and is treated that way in some languages*/
         Bool(bool),
         U8(u8),
         U16(u16),
@@ -52,7 +52,10 @@ pub mod unions {
         fn identify_text(&mut self, text: AllText) -> u8;
         fn add_one_duplicated(&mut self, num: DuplicatedS32) -> DuplicatedS32;
         fn identify_duplicated(&mut self, num: DuplicatedS32) -> u8;
-        fn add_one_distinguishable_num(&mut self, num: DistinguishableNum) -> DistinguishableNum;
+        fn add_one_distinguishable_num(
+            &mut self,
+            num: DistinguishableNum,
+        ) -> DistinguishableNum;
         fn identify_distinguishable_num(&mut self, num: DistinguishableNum) -> u8;
     }
     pub fn add_to_router<T, U>(
@@ -62,99 +65,127 @@ pub mod unions {
     where
         U: Unions,
     {
-        router.func_wrap(
-            "unions",
-            "add_one_integer",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                  num: AllIntegers|
-                  -> AllIntegers {
-                let cx = get_cx(cx.data_mut());
-                cx.add_one_integer(num)
-            },
-        )?;
-        router.func_wrap(
-            "unions",
-            "add_one_float",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                  num: AllFloats|
-                  -> AllFloats {
-                let cx = get_cx(cx.data_mut());
-                cx.add_one_float(num)
-            },
-        )?;
-        router.func_wrap(
-            "unions",
-            "replace_first_char",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                  text: AllText,
-                  letter: char|
-                  -> AllText<'_> {
-                let cx = get_cx(cx.data_mut());
-                cx.replace_first_char(text, letter)
-            },
-        )?;
-        router.func_wrap(
-            "unions",
-            "identify_integer",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, num: AllIntegers| -> u8 {
-                let cx = get_cx(cx.data_mut());
-                cx.identify_integer(num)
-            },
-        )?;
-        router.func_wrap(
-            "unions",
-            "identify_float",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, num: AllFloats| -> u8 {
-                let cx = get_cx(cx.data_mut());
-                cx.identify_float(num)
-            },
-        )?;
-        router.func_wrap(
-            "unions",
-            "identify_text",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, text: AllText| -> u8 {
-                let cx = get_cx(cx.data_mut());
-                cx.identify_text(text)
-            },
-        )?;
-        router.func_wrap(
-            "unions",
-            "add_one_duplicated",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                  num: DuplicatedS32|
-                  -> DuplicatedS32 {
-                let cx = get_cx(cx.data_mut());
-                cx.add_one_duplicated(num)
-            },
-        )?;
-        router.func_wrap(
-            "unions",
-            "identify_duplicated",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, num: DuplicatedS32| -> u8 {
-                let cx = get_cx(cx.data_mut());
-                cx.identify_duplicated(num)
-            },
-        )?;
-        router.func_wrap(
-            "unions",
-            "add_one_distinguishable_num",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                  num: DistinguishableNum|
-                  -> DistinguishableNum {
-                let cx = get_cx(cx.data_mut());
-                cx.add_one_distinguishable_num(num)
-            },
-        )?;
-        router.func_wrap(
-            "unions",
-            "identify_distinguishable_num",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                  num: DistinguishableNum|
-                  -> u8 {
-                let cx = get_cx(cx.data_mut());
-                cx.identify_distinguishable_num(num)
-            },
-        )?;
+        router
+            .func_wrap(
+                "unions",
+                "add_one_integer",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    num: AllIntegers,
+                | -> AllIntegers {
+                    let cx = get_cx(cx.data_mut());
+                    cx.add_one_integer(num)
+                },
+            )?;
+        router
+            .func_wrap(
+                "unions",
+                "add_one_float",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    num: AllFloats,
+                | -> AllFloats {
+                    let cx = get_cx(cx.data_mut());
+                    cx.add_one_float(num)
+                },
+            )?;
+        router
+            .func_wrap(
+                "unions",
+                "replace_first_char",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    text: AllText,
+                    letter: char,
+                | -> AllText<'_> {
+                    let cx = get_cx(cx.data_mut());
+                    cx.replace_first_char(text, letter)
+                },
+            )?;
+        router
+            .func_wrap(
+                "unions",
+                "identify_integer",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    num: AllIntegers,
+                | -> u8 {
+                    let cx = get_cx(cx.data_mut());
+                    cx.identify_integer(num)
+                },
+            )?;
+        router
+            .func_wrap(
+                "unions",
+                "identify_float",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    num: AllFloats,
+                | -> u8 {
+                    let cx = get_cx(cx.data_mut());
+                    cx.identify_float(num)
+                },
+            )?;
+        router
+            .func_wrap(
+                "unions",
+                "identify_text",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    text: AllText,
+                | -> u8 {
+                    let cx = get_cx(cx.data_mut());
+                    cx.identify_text(text)
+                },
+            )?;
+        router
+            .func_wrap(
+                "unions",
+                "add_one_duplicated",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    num: DuplicatedS32,
+                | -> DuplicatedS32 {
+                    let cx = get_cx(cx.data_mut());
+                    cx.add_one_duplicated(num)
+                },
+            )?;
+        router
+            .func_wrap(
+                "unions",
+                "identify_duplicated",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    num: DuplicatedS32,
+                | -> u8 {
+                    let cx = get_cx(cx.data_mut());
+                    cx.identify_duplicated(num)
+                },
+            )?;
+        router
+            .func_wrap(
+                "unions",
+                "add_one_distinguishable_num",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    num: DistinguishableNum,
+                | -> DistinguishableNum {
+                    let cx = get_cx(cx.data_mut());
+                    cx.add_one_distinguishable_num(num)
+                },
+            )?;
+        router
+            .func_wrap(
+                "unions",
+                "identify_distinguishable_num",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    num: DistinguishableNum,
+                | -> u8 {
+                    let cx = get_cx(cx.data_mut());
+                    cx.identify_distinguishable_num(num)
+                },
+            )?;
         Ok(())
     }
 }

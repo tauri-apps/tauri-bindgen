@@ -1,11 +1,11 @@
 pub mod unions {
-    use ::tauri_bindgen_guest_rust::bitflags;
     use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+    use ::tauri_bindgen_guest_rust::bitflags;
     ///A union of all of the integral types
     #[derive(tauri_bindgen_abi::Writable)]
     pub enum AllIntegers {
         /**Bool is equivalent to a 1 bit integer
-        and is treated that way in some languages*/
+and is treated that way in some languages*/
         Bool(bool),
         U8(u8),
         U16(u16),
@@ -67,7 +67,9 @@ pub mod unions {
     pub async fn identify_duplicated(num: DuplicatedS32) -> u8 {
         todo!()
     }
-    pub async fn add_one_distinguishable_num(num: DistinguishableNum) -> DistinguishableNum {
+    pub async fn add_one_distinguishable_num(
+        num: DistinguishableNum,
+    ) -> DistinguishableNum {
         todo!()
     }
     pub async fn identify_distinguishable_num(num: DistinguishableNum) -> u8 {

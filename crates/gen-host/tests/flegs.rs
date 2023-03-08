@@ -1,6 +1,6 @@
 pub mod flegs {
-    use ::tauri_bindgen_host::bitflags;
     use ::tauri_bindgen_host::tauri_bindgen_abi;
+    use ::tauri_bindgen_host::bitflags;
     bitflags::bitflags! {
         #[derive(tauri_bindgen_abi::Writable)] pub struct Flag1 : u8 { const B0 = 1 << 0;
         }
@@ -72,62 +72,90 @@ pub mod flegs {
     where
         U: Flegs,
     {
-        router.func_wrap(
-            "flegs",
-            "roundtrip_flag1",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, x: Flag1| -> Flag1 {
-                let cx = get_cx(cx.data_mut());
-                cx.roundtrip_flag1(x)
-            },
-        )?;
-        router.func_wrap(
-            "flegs",
-            "roundtrip_flag2",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, x: Flag2| -> Flag2 {
-                let cx = get_cx(cx.data_mut());
-                cx.roundtrip_flag2(x)
-            },
-        )?;
-        router.func_wrap(
-            "flegs",
-            "roundtrip_flag4",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, x: Flag4| -> Flag4 {
-                let cx = get_cx(cx.data_mut());
-                cx.roundtrip_flag4(x)
-            },
-        )?;
-        router.func_wrap(
-            "flegs",
-            "roundtrip_flag8",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, x: Flag8| -> Flag8 {
-                let cx = get_cx(cx.data_mut());
-                cx.roundtrip_flag8(x)
-            },
-        )?;
-        router.func_wrap(
-            "flegs",
-            "roundtrip_flag16",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, x: Flag16| -> Flag16 {
-                let cx = get_cx(cx.data_mut());
-                cx.roundtrip_flag16(x)
-            },
-        )?;
-        router.func_wrap(
-            "flegs",
-            "roundtrip_flag32",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, x: Flag32| -> Flag32 {
-                let cx = get_cx(cx.data_mut());
-                cx.roundtrip_flag32(x)
-            },
-        )?;
-        router.func_wrap(
-            "flegs",
-            "roundtrip_flag64",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, x: Flag64| -> Flag64 {
-                let cx = get_cx(cx.data_mut());
-                cx.roundtrip_flag64(x)
-            },
-        )?;
+        router
+            .func_wrap(
+                "flegs",
+                "roundtrip_flag1",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Flag1,
+                | -> Flag1 {
+                    let cx = get_cx(cx.data_mut());
+                    cx.roundtrip_flag1(x)
+                },
+            )?;
+        router
+            .func_wrap(
+                "flegs",
+                "roundtrip_flag2",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Flag2,
+                | -> Flag2 {
+                    let cx = get_cx(cx.data_mut());
+                    cx.roundtrip_flag2(x)
+                },
+            )?;
+        router
+            .func_wrap(
+                "flegs",
+                "roundtrip_flag4",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Flag4,
+                | -> Flag4 {
+                    let cx = get_cx(cx.data_mut());
+                    cx.roundtrip_flag4(x)
+                },
+            )?;
+        router
+            .func_wrap(
+                "flegs",
+                "roundtrip_flag8",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Flag8,
+                | -> Flag8 {
+                    let cx = get_cx(cx.data_mut());
+                    cx.roundtrip_flag8(x)
+                },
+            )?;
+        router
+            .func_wrap(
+                "flegs",
+                "roundtrip_flag16",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Flag16,
+                | -> Flag16 {
+                    let cx = get_cx(cx.data_mut());
+                    cx.roundtrip_flag16(x)
+                },
+            )?;
+        router
+            .func_wrap(
+                "flegs",
+                "roundtrip_flag32",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Flag32,
+                | -> Flag32 {
+                    let cx = get_cx(cx.data_mut());
+                    cx.roundtrip_flag32(x)
+                },
+            )?;
+        router
+            .func_wrap(
+                "flegs",
+                "roundtrip_flag64",
+                move |
+                    cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Flag64,
+                | -> Flag64 {
+                    let cx = get_cx(cx.data_mut());
+                    cx.roundtrip_flag64(x)
+                },
+            )?;
         Ok(())
     }
 }

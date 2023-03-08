@@ -1,6 +1,6 @@
 pub mod empty {
-    use ::tauri_bindgen_host::bitflags;
     use ::tauri_bindgen_host::tauri_bindgen_abi;
+    use ::tauri_bindgen_host::bitflags;
     pub trait Empty: Sized {}
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,

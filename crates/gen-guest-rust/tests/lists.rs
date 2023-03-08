@@ -1,6 +1,6 @@
 pub mod lists {
-    use ::tauri_bindgen_guest_rust::bitflags;
     use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+    use ::tauri_bindgen_guest_rust::bitflags;
     #[derive(tauri_bindgen_abi::Readable)]
     pub struct OtherRecord<'a> {
         a1: u32,

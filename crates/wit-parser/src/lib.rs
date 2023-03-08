@@ -193,6 +193,15 @@ pub struct Function {
     pub result: FunctionResult,
 }
 
+impl Function {
+    pub fn throws(&self) -> bool {
+        self.result.types().any(|ty| match ty {
+            Type::Result { .. } => true,
+            _ => false,
+        })
+    }
+}
+
 pub type NamedTypeList = Vec<(String, Type)>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]

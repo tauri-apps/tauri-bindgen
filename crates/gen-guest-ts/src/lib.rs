@@ -2,8 +2,8 @@
 
 use heck::{ToKebabCase, ToLowerCamelCase, ToUpperCamelCase};
 use std::path::PathBuf;
-use tauri_bindgen_core::{postprocess, Generate};
-use wit_parser::{Function, Interface, Type, TypeDefKind};
+use tauri_bindgen_core::{postprocess, Generate, GeneratorBuilder};
+use wit_parser::{Function, Interface, Type, TypeDefId, TypeDefKind};
 
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -11,7 +11,7 @@ use wit_parser::{Function, Interface, Type, TypeDefKind};
     clap::ArgGroup::new("fmt")
         .args(&["prettier", "romefmt"]),
 )))]
-pub struct Opts {
+pub struct Builder {
     /// Run `prettier` to format the generated code. This requires a global installation of `prettier`.
     #[cfg_attr(feature = "clap", clap(long))]
     pub prettier: bool,
@@ -20,24 +20,24 @@ pub struct Opts {
     pub romefmt: bool,
 }
 
-impl Opts {
-    pub fn build(self, interface: &Interface) -> JavaScript {
-        JavaScript {
+impl GeneratorBuilder for Builder {
+    fn build(self, interface: Interface) -> Box<dyn Generate> {
+        Box::new(TypeScript {
             opts: self,
             interface,
-        }
+        })
     }
 }
 
 #[derive(Debug)]
-pub struct JavaScript<'a> {
-    opts: Opts,
-    interface: &'a Interface,
+pub struct TypeScript {
+    opts: Builder,
+    interface: Interface,
 }
 
-impl<'a> JavaScript<'a> {
+impl TypeScript {
     pub fn print_function(&self, func: &Function) -> String {
-        let docs = self.print_docs(func);
+        let docs = self.print_docs(&func.docs);
 
         let ident = func.ident.to_lower_camel_case();
 
@@ -46,7 +46,7 @@ impl<'a> JavaScript<'a> {
             .iter()
             .map(|(ident, ty)| {
                 let ident = ident.to_lower_camel_case();
-                let ty = self.print_ty(ty);
+                let ty = self.print_type(ty);
 
                 format!("{ident}: {ty}")
             })
@@ -56,14 +56,14 @@ impl<'a> JavaScript<'a> {
         let result = match func.result.len() {
             0 => String::new(),
             1 => {
-                let ty = self.print_ty(func.result.types().next().unwrap());
+                let ty = self.print_type(func.result.types().next().unwrap());
                 format!(": Promise<{ty}>")
             }
             _ => {
                 let tys = func
                     .result
                     .types()
-                    .map(|ty| self.print_ty(ty))
+                    .map(|ty| self.print_type(ty))
                     .collect::<Vec<_>>()
                     .join(", ");
                 format!(": Promise<[{tys}]>")
@@ -79,9 +79,12 @@ impl<'a> JavaScript<'a> {
         )
     }
 
-    fn print_docs(&self, func: &Function) -> String {
-        let docs = func
-            .docs
+    fn print_docs(&self, docs: &str) -> String {
+        if docs.is_empty() {
+            return String::new();
+        }
+
+        let docs = docs
             .lines()
             .map(|line| format!(" * {line} \n"))
             .collect::<String>();
@@ -89,7 +92,7 @@ impl<'a> JavaScript<'a> {
         format!("/**\n{docs}*/")
     }
 
-    fn print_ty(&self, ty: &Type) -> String {
+    fn print_type(&self, ty: &Type) -> String {
         match ty {
             Type::Bool => "boolean".to_string(),
             Type::U8
@@ -105,28 +108,137 @@ impl<'a> JavaScript<'a> {
             Type::Tuple(types) => {
                 let types = types
                     .iter()
-                    .map(|ty| self.print_ty(ty))
+                    .map(|ty| self.print_type(ty))
                     .collect::<Vec<_>>()
                     .join(", ");
 
                 format!("[{types}]")
             }
             Type::List(ty) => {
-                let ty = self.array_ty(ty).unwrap_or(self.print_ty(ty));
+                let ty = self.array_ty(ty).unwrap_or(self.print_type(ty));
                 format!("{ty}[]")
             }
             Type::Option(ty) => {
-                let ty = self.print_ty(ty);
+                let ty = self.print_type(ty);
 
                 format!("{ty} | null")
             }
             Type::Result { ok, err } => {
-                let ok = ok.as_ref().map_or("_".to_string(), |ty| self.print_ty(ty));
-                let err = err.as_ref().map_or("_".to_string(), |ty| self.print_ty(ty));
+                let ok = ok
+                    .as_ref()
+                    .map_or("_".to_string(), |ty| self.print_type(ty));
+                let err = err
+                    .as_ref()
+                    .map_or("_".to_string(), |ty| self.print_type(ty));
 
                 format!("Result<{ok}, {err}>")
             }
             Type::Id(id) => self.interface.typedefs[*id].ident.to_upper_camel_case(),
+        }
+    }
+
+    fn print_typedef(&self, id: TypeDefId) -> String {
+        let typedef = &self.interface.typedefs[id];
+        let ident = &typedef.ident.to_upper_camel_case();
+        let docs = self.print_docs(&typedef.docs);
+
+        match &typedef.kind {
+            TypeDefKind::Alias(ty) => {
+                let ty = self.print_type(ty);
+
+                format!("{docs}\nexport type {ident} = {ty};\n")
+            }
+            TypeDefKind::Record(fields) => {
+                let fields: String = fields
+                    .iter()
+                    .map(|field| {
+                        let docs = self.print_docs(&field.docs);
+                        let ident = field.ident.to_lower_camel_case();
+                        let ty = self.print_type(&field.ty);
+
+                        format!("{docs}\n{ident}: {ty},\n")
+                    })
+                    .collect();
+
+                format!("{docs}\nexport interface {ident} {{ {fields} }}\n")
+            }
+            TypeDefKind::Flags(fields) => {
+                let fields: String = fields
+                    .iter()
+                    .enumerate()
+                    .map(|(i, field)| {
+                        let docs = self.print_docs(&field.docs);
+                        let ident = field.ident.to_upper_camel_case();
+                        let value: u64 = 2 << i;
+
+                        format!("{docs}\n{ident} = {value},\n")
+                    })
+                    .collect();
+
+                format!("{docs}\nexport enum {ident} {{ {fields} }}\n")
+            }
+            TypeDefKind::Variant(cases) => {
+                let interfaces: String = cases
+                    .iter()
+                    .enumerate()
+                    .map(|(i, case)| {
+                        let docs = self.print_docs(&case.docs);
+                        let case_ident = case.ident.to_upper_camel_case();
+                        let value = case
+                            .ty
+                            .as_ref()
+                            .map(|ty| {
+                                let ty = self.print_type(&ty);
+                                format!(", value: {ty}")
+                            })
+                            .unwrap_or_default();
+
+                        format!(
+                            "{docs}\nexport interface {ident}{case_ident} {{ tag: {i}{value} }}\n"
+                        )
+                    })
+                    .collect();
+
+                let cases: String = cases
+                    .iter()
+                    .map(|case| {
+                        let docs = self.print_docs(&case.docs);
+                        let case_ident = case.ident.to_upper_camel_case();
+
+                        format!("{docs}\n{ident}{case_ident}")
+                    })
+                    .collect::<Vec<_>>()
+                    .join(" | ");
+
+                format!("{interfaces}\n{docs}\nexport type {ident} = {cases}\n")
+            }
+            TypeDefKind::Enum(cases) => {
+                let cases: String = cases
+                    .iter()
+                    .map(|case| {
+                        let docs = self.print_docs(&case.docs);
+                        let ident = case.ident.to_upper_camel_case();
+
+                        format!("{docs}\n{ident},\n")
+                    })
+                    .collect();
+
+                format!("{docs}\nexport enum {ident} {{ {cases} }}\n")
+            }
+            TypeDefKind::Union(cases) => {
+                let cases: String = cases
+                    .iter()
+                    .map(|case| {
+                        let docs = self.print_docs(&case.docs);
+                        let ty = self.print_type(&case.ty);
+
+                        format!("{docs}\n{ty}\n")
+                    })
+                    .collect::<Vec<_>>()
+                    .join(" | ");
+
+                format!("{docs}\nexport type {ident} = {cases};\n")
+            }
         }
     }
 
@@ -157,15 +269,33 @@ impl<'a> JavaScript<'a> {
     }
 }
 
-impl<'a> Generate for JavaScript<'a> {
+impl Generate for TypeScript {
     fn to_file(&self) -> (std::path::PathBuf, String) {
-        let mut contents = self
+        let result_ty = self
+            .interface
+            .functions
+            .iter()
+            .any(|func| func.throws())
+            .then_some(
+                "export type Result<T, E> = { tag: 'ok', val: T } | { tag: 'err', val: E };\n",
+            )
+            .unwrap_or_default();
+
+        let typedefs: String = self
+            .interface
+            .typedefs
+            .iter()
+            .map(|(id, _)| self.print_typedef(id))
+            .collect();
+
+        let functions: String = self
             .interface
             .functions
             .iter()
             .map(|func| self.print_function(func))
-            .collect::<Vec<_>>()
-            .join("\n");
+            .collect();
+
+        let mut contents = format!("{result_ty}\n{typedefs}\n{functions}");
 
         if self.opts.prettier {
             postprocess(&mut contents, "prettier", ["--parser=typescript"])

@@ -75,13 +75,14 @@ enum GuestGenerator {
         #[clap(flatten)]
         world: WorldOpt,
     },
-    // /// Generates bindings for TypeScript guest modules.
-    // Typescript {
-    //     #[clap(flatten)]
-    //     opts: tauri_bindgen_gen_guest_ts::Opts,
-    //     #[clap(flatten)]
-    //     world: WorldOpt,
-    // },
+    /// Generates bindings for TypeScript guest modules.
+    #[cfg(feature = "unstable")]
+    Typescript {
+        #[clap(flatten)]
+        builder: tauri_bindgen_gen_guest_ts::Builder,
+        #[clap(flatten)]
+        world: WorldOpt,
+    },
 }
 
 #[derive(Debug, Parser)]
@@ -135,6 +136,12 @@ fn run() -> Result<()> {
         }
         #[cfg(feature = "unstable")]
         Command::Guest(GuestGenerator::Javascript { builder, world, .. }) => {
+            let (path, contents) = gen_interface(builder, world)?;
+
+            write_file(&out_dir, &path, &contents)?;
+        }
+        #[cfg(feature = "unstable")]
+        Command::Guest(GuestGenerator::Typescript { builder, world, .. }) => {
             let (path, contents) = gen_interface(builder, world)?;
 
             write_file(&out_dir, &path, &contents)?;
