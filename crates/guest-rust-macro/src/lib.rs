@@ -1,11 +1,11 @@
 use proc_macro::TokenStream;
 use syn::parse::{Parse, ParseStream, Result};
 use syn::Token;
-use tauri_bindgen_gen_guest_rust::Opts;
+use tauri_bindgen_gen_guest_rust::Builder;
 
 #[proc_macro]
 pub fn generate(input: TokenStream) -> TokenStream {
-    rust_macro_shared::generate::<Opt, Opts, _>(input, |opts| Box::new(opts.build()))
+    rust_macro_shared::generate::<Opt, Builder>(input)
 }
 
 mod kw {
@@ -37,11 +37,11 @@ impl Parse for Opt {
     }
 }
 
-impl rust_macro_shared::Configure<Opts> for Opt {
-    fn configure(self, opts: &mut Opts) {
+impl rust_macro_shared::Configure<Builder> for Opt {
+    fn configure(self, builder: &mut Builder) {
         match self {
-            Opt::Unchecked(val) => opts.unchecked = val,
-            Opt::NoStd(val) => opts.no_std = val,
+            Opt::Unchecked(val) => builder.unchecked = val,
+            Opt::NoStd(val) => builder.no_std = val,
         }
     }
 }

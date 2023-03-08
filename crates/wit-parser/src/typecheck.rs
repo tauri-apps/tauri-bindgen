@@ -558,7 +558,6 @@ mod test {
     use super::*;
     use logos::Lexer;
     use parse::FromTokens;
-    use pretty_assertions::assert_eq;
 
     #[test]
     fn interface_() -> Result<()> {

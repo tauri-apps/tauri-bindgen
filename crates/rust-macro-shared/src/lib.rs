@@ -8,22 +8,17 @@ use std::path::PathBuf;
 use syn::parse::{Error, Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
 use syn::{token, Token};
-use tauri_bindgen_core::Generate;
-use wit_parser::Interface;
+use tauri_bindgen_core::GeneratorBuilder;
 
-/// # Panics
-///
-/// TODO
-pub fn generate<F, O, G>(input: TokenStream, mkgen: G) -> TokenStream
+pub fn generate<F, B>(input: TokenStream) -> TokenStream
 where
-    F: Parse + Configure<O>,
-    O: Default,
-    G: FnOnce(O, Interface) -> Box<dyn Generate>,
+    F: Parse + Configure<B>,
+    B: GeneratorBuilder + Default,
 {
-    let input = syn::parse_macro_input!(input as Opts<F, O>);
+    let input = syn::parse_macro_input!(input as Opts<F, B>);
     let iface = wit_parser::parse_file(&input.file, |t| input.skip.contains(t)).unwrap();
 
-    let gen = mkgen(input.opts, iface);
+    let gen = input.builder.build(iface);
     let mut tokens = gen.to_tokens();
 
     let filepath = input.file.to_string_lossy();
@@ -37,7 +32,7 @@ pub trait Configure<O> {
 }
 
 struct Opts<F, O> {
-    opts: O,
+    builder: O,
     skip: HashSet<String>,
     file: PathBuf,
     _marker: marker::PhantomData<F>,
@@ -58,7 +53,7 @@ where
 
         let mut file: Option<PathBuf> = None;
         let mut ret = Opts {
-            opts: O::default(),
+            builder: O::default(),
             file: PathBuf::new(),
             skip: HashSet::new(),
             _marker: marker::PhantomData,
@@ -83,7 +78,7 @@ where
                     ConfigField::Skip(skip) => {
                         ret.skip = skip.iter().map(syn::LitStr::value).collect();
                     }
-                    ConfigField::Other(other) => other.configure(&mut ret.opts),
+                    ConfigField::Other(other) => other.configure(&mut ret.builder),
                 }
             }
         } else {
