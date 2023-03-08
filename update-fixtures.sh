@@ -1,4 +1,4 @@
-cargo build
+cargo build --features unstable
 for i in tests/codegen/*.wit; do target/debug/tauri-bindgen-cli host --tracing --out-dir crates/gen-host/tests --fmt $i; done
 
 for i in tests/codegen/*.wit; do target/debug/tauri-bindgen-cli markdown --out-dir crates/gen-markdown/tests $i; done

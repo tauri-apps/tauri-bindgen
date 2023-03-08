@@ -1,6 +1,6 @@
 pub mod flegs {
-    use ::tauri_bindgen_guest_rust::bitflags;
     use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+    use ::tauri_bindgen_guest_rust::bitflags;
     bitflags::bitflags! {
         #[derive(tauri_bindgen_abi::Writable)] pub struct Flag1 : u8 { const B0 = 1 << 0;
         }

@@ -1,6 +1,6 @@
 pub mod simple_lists {
-    use ::tauri_bindgen_guest_rust::bitflags;
     use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+    use ::tauri_bindgen_guest_rust::bitflags;
     pub async fn simple_list1(l: &'_ [u32]) -> () {
         todo!()
     }

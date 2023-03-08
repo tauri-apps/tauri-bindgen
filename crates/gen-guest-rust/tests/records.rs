@@ -1,12 +1,12 @@
 pub mod records {
-    use ::tauri_bindgen_guest_rust::bitflags;
     use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+    use ::tauri_bindgen_guest_rust::bitflags;
     #[derive(tauri_bindgen_abi::Writable)]
     pub struct Empty {}
     #[derive(tauri_bindgen_abi::Readable)]
     pub struct Empty {}
     /**A record containing two scalar fields
-    that both have the same type*/
+that both have the same type*/
     #[derive(tauri_bindgen_abi::Writable)]
     pub struct Scalars {
         ///The first field, named a
@@ -15,7 +15,7 @@ pub mod records {
         b: u32,
     }
     /**A record containing two scalar fields
-    that both have the same type*/
+that both have the same type*/
     #[derive(tauri_bindgen_abi::Readable)]
     pub struct Scalars {
         ///The first field, named a
@@ -24,7 +24,7 @@ pub mod records {
         b: u32,
     }
     /**A record that is really just flags
-    All of the fields are bool*/
+All of the fields are bool*/
     #[derive(tauri_bindgen_abi::Writable)]
     pub struct ReallyFlags {
         a: bool,
@@ -38,7 +38,7 @@ pub mod records {
         i: bool,
     }
     /**A record that is really just flags
-    All of the fields are bool*/
+All of the fields are bool*/
     #[derive(tauri_bindgen_abi::Readable)]
     pub struct ReallyFlags {
         a: bool,
@@ -52,7 +52,7 @@ pub mod records {
         i: bool,
     }
     /**A record containing two scalar fields
-    that both have the same type*/
+that both have the same type*/
     #[derive(tauri_bindgen_abi::Writable)]
     pub struct Scalars {
         ///The first field, named a
@@ -63,7 +63,7 @@ pub mod records {
     #[derive(tauri_bindgen_abi::Writable)]
     pub struct Empty {}
     /**A record that is really just flags
-    All of the fields are bool*/
+All of the fields are bool*/
     #[derive(tauri_bindgen_abi::Writable)]
     pub struct ReallyFlags<'a> {
         a: bool,
@@ -85,7 +85,7 @@ pub mod records {
         e: ReallyFlags<'a>,
     }
     /**A record containing two scalar fields
-    that both have the same type*/
+that both have the same type*/
     #[derive(tauri_bindgen_abi::Readable)]
     pub struct Scalars {
         ///The first field, named a
@@ -96,7 +96,7 @@ pub mod records {
     #[derive(tauri_bindgen_abi::Readable)]
     pub struct Empty {}
     /**A record that is really just flags
-    All of the fields are bool*/
+All of the fields are bool*/
     #[derive(tauri_bindgen_abi::Readable)]
     pub struct ReallyFlags {
         a: bool,

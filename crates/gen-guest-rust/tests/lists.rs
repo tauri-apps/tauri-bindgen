@@ -1,6 +1,6 @@
 pub mod lists {
-    use ::tauri_bindgen_guest_rust::bitflags;
     use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+    use ::tauri_bindgen_guest_rust::bitflags;
     #[derive(tauri_bindgen_abi::Writable)]
     pub struct OtherRecord<'a> {
         a1: u32,
@@ -108,8 +108,9 @@ pub mod lists {
         f64,
         char,
     )];
-    pub type LoadStoreAllSizes =
-        Vec<(String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char)>;
+    pub type LoadStoreAllSizes = Vec<
+        (String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char),
+    >;
     pub async fn list_u8_param(x: &'_ [u8]) -> () {
         todo!()
     }

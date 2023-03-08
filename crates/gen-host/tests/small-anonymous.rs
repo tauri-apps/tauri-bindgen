@@ -1,6 +1,6 @@
 pub mod small_anonymous {
-    use ::tauri_bindgen_host::bitflags;
     use ::tauri_bindgen_host::tauri_bindgen_abi;
+    use ::tauri_bindgen_host::bitflags;
     #[derive(tauri_bindgen_abi::Writable)]
     pub enum Error {
         Success,

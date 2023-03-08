@@ -1,6 +1,6 @@
 pub mod many_arguments {
-    use ::tauri_bindgen_guest_rust::bitflags;
     use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+    use ::tauri_bindgen_guest_rust::bitflags;
     #[derive(tauri_bindgen_abi::Writable)]
     pub struct BigStruct<'a> {
         a1: &'a str,
