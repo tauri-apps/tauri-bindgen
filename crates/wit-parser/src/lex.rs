@@ -138,10 +138,8 @@ impl std::fmt::Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Token::Whitespace => write!(f, "whitespace"),
-            Token::Comment => write!(f, "a comment"),
-            Token::BlockComment => write!(f, "a comment"),
-            Token::DocComment => write!(f, "a doc comment"),
-            Token::BlockDocComment => write!(f, "a doc comment"),
+            Token::Comment | Token::BlockComment => write!(f, "a comment"),
+            Token::DocComment | Token::BlockDocComment => write!(f, "a doc comment"),
             Token::Ident => write!(f, "an identifier"),
             Token::Equals => write!(f, "'='"),
             Token::Comma => write!(f, "','"),

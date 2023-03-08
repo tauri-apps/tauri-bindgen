@@ -159,6 +159,10 @@ pub enum FunctionResult {
 }
 
 impl FunctionResult {
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     pub fn len(&self) -> usize {
         match self {
             FunctionResult::Named(ps) => ps.len(),
@@ -398,8 +402,8 @@ impl<'a> Resolver<'a> {
         Ok(named_types
             .iter()
             .map(|(ident, ty)| {
-                let ident = self.resolve_ident(&ident).to_string();
-                let ty = self.resolve_type(&ty).unwrap();
+                let ident = self.resolve_ident(ident).to_string();
+                let ty = self.resolve_type(ty).unwrap();
 
                 (ident, ty)
             })
@@ -483,7 +487,7 @@ impl<'a> Resolver<'a> {
                 }
                 Type::List(ty) | Type::Option(ty) => {
                     if let Type::Id(id) = **ty {
-                        self.verify_not_recursive(ident.clone(), id, visiting, valid)?;
+                        self.verify_not_recursive(ident, id, visiting, valid)?;
                     }
                 }
                 Type::Result { ok, err } => {

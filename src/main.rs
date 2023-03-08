@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_variables)]
+
 mod logger;
 
 use clap::{ArgAction, Parser};
@@ -17,7 +19,7 @@ fn version() -> &'static str {
 
 #[derive(Debug, Parser)]
 #[clap(version = version())]
-struct CLI {
+struct Cli {
     #[clap(flatten)]
     common: Common,
     #[clap(subcommand)]
@@ -31,11 +33,13 @@ enum Command {
         world: WorldOpt,
     },
     /// Generator for creating bindings that are exposed to the WebView.
+    #[cfg(feature = "unstable")]
     Host(HostGenerator),
     /// Generators for webview libraries.
     #[clap(subcommand)]
     Guest(GuestGenerator),
     /// This generator outputs a Markdown file describing an interface.
+    #[cfg(feature = "unstable")]
     Markdown {
         #[clap(flatten)]
         builder: tauri_bindgen_gen_markdown::Builder,
@@ -44,6 +48,7 @@ enum Command {
     },
 }
 
+#[cfg(feature = "unstable")]
 #[derive(Debug, Parser)]
 struct HostGenerator {
     #[clap(flatten)]
@@ -55,6 +60,7 @@ struct HostGenerator {
 #[derive(Debug, Parser)]
 enum GuestGenerator {
     /// Generates bindings for Rust guest modules using wasm-bindgen.
+    #[cfg(feature = "unstable")]
     Rust {
         #[clap(flatten)]
         builder: tauri_bindgen_gen_guest_rust::Builder,
@@ -62,6 +68,7 @@ enum GuestGenerator {
         world: WorldOpt,
     },
     /// Generates bindings for JavaScript guest modules.
+    #[cfg(feature = "unstable")]
     Javascript {
         #[clap(flatten)]
         builder: tauri_bindgen_gen_guest_js::Builder,
@@ -105,7 +112,7 @@ fn main() {
 }
 
 fn run() -> Result<()> {
-    let opt = CLI::parse();
+    let opt = Cli::parse();
 
     logger::init(opt.common.verbose);
 
@@ -114,26 +121,31 @@ fn run() -> Result<()> {
     let out_dir = &opt.common.out_dir.unwrap_or_default();
     match opt.cmd {
         Command::Check { world } => check_interface(world)?,
+        #[cfg(feature = "unstable")]
         Command::Host(HostGenerator { builder, world, .. }) => {
             let (path, contents) = gen_interface(builder, world)?;
 
             write_file(&out_dir, &path, &contents)?;
         }
+        #[cfg(feature = "unstable")]
         Command::Guest(GuestGenerator::Rust { builder, world, .. }) => {
             let (path, contents) = gen_interface(builder, world)?;
 
             write_file(&out_dir, &path, &contents)?;
         }
+        #[cfg(feature = "unstable")]
         Command::Guest(GuestGenerator::Javascript { builder, world, .. }) => {
             let (path, contents) = gen_interface(builder, world)?;
 
             write_file(&out_dir, &path, &contents)?;
         }
+        #[cfg(feature = "unstable")]
         Command::Markdown { builder, world } => {
             let (path, contents) = gen_interface(builder, world)?;
 
             write_file(&out_dir, &path, &contents)?;
         }
+        Command::Guest(_) => bail!("no guest generators enabled"),
     };
 
     log::info!(action = "Finished"; "in {}s", Instant::now().duration_since(start).as_millis() as f64 / 1000.0);

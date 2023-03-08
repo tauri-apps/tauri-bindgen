@@ -143,14 +143,13 @@ impl<'a> FromTokens<'a> for InterfaceItem {
 
                 if suggestions.is_empty() {
                     return Err(Error::unexpected_token(kind_span, expected, found));
-                } else {
-                    return Err(Error::unexpected_token_with_help(
-                        kind_span,
-                        expected,
-                        found,
-                        format!("Did you mean \"{}\"?", print_list(suggestions)),
-                    ));
                 }
+                return Err(Error::unexpected_token_with_help(
+                    kind_span,
+                    expected,
+                    found,
+                    format!("Did you mean \"{}\"?", print_list(suggestions)),
+                ));
             }
         };
 
@@ -446,7 +445,7 @@ where
     Ok(items)
 }
 
-fn parse_docs<'a>(tokens: &mut Tokens<'a>) -> Vec<Span> {
+fn parse_docs(tokens: &mut Tokens) -> Vec<Span> {
     let mut spans = Vec::new();
 
     while let Some((Token::DocComment | Token::BlockDocComment, span)) = tokens.peek() {

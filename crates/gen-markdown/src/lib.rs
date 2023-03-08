@@ -191,12 +191,12 @@ impl Markdown {
     }
 
     fn print_result(&self, result: &FunctionResult) -> String {
-        if result.len() == 0 {
+        if result.is_empty() {
             return "".to_string();
         }
 
         if let Some(Type::Tuple(types)) = result.types().next() {
-            if types.len() == 0 {
+            if types.is_empty() {
                 return "".to_string();
             }
         }
