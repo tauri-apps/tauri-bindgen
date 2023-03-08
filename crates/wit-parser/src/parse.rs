@@ -230,7 +230,7 @@ impl<'a> FromTokens<'a> for RecordField {
 
         let ty = Type::parse(tokens)?;
 
-        Ok(RecordField { docs, ident, ty })
+        Ok(RecordField { ident, docs, ty })
     }
 }
 
@@ -246,7 +246,7 @@ impl<'a> FromTokens<'a> for FlagsField {
 
         let (_, ident) = tokens.expect_token(Token::Ident)?;
 
-        Ok(FlagsField { docs, ident })
+        Ok(FlagsField { ident, docs })
     }
 }
 
@@ -272,7 +272,7 @@ impl<'a> FromTokens<'a> for VariantCase {
             None
         };
 
-        Ok(VariantCase { docs, ident, ty })
+        Ok(VariantCase { ident, docs, ty })
     }
 }
 
@@ -288,7 +288,7 @@ impl<'a> FromTokens<'a> for EnumCase {
 
         let (_, ident) = tokens.expect_token(Token::Ident)?;
 
-        Ok(EnumCase { docs, ident })
+        Ok(EnumCase { ident, docs })
     }
 }
 

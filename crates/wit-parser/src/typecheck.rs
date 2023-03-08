@@ -159,17 +159,17 @@ pub enum FunctionResult {
 }
 
 impl FunctionResult {
-    pub fn is_empty(&self) -> bool {
+    #[must_use] pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
-    pub fn len(&self) -> usize {
+    #[must_use] pub fn len(&self) -> usize {
         match self {
             FunctionResult::Named(ps) => ps.len(),
             FunctionResult::Anon(_) => 1,
         }
     }
-    pub fn types(&self) -> ResultsTypeIter {
+    #[must_use] pub fn types(&self) -> ResultsTypeIter {
         match self {
             FunctionResult::Named(ps) => ResultsTypeIter::Named(ps.iter()),
             FunctionResult::Anon(ty) => ResultsTypeIter::Anon(std::iter::once(ty)),
@@ -201,7 +201,7 @@ pub struct Resolver<'a> {
 }
 
 impl<'a> Resolver<'a> {
-    pub fn new(source: &'a str, interface: &'a parse::Interface) -> Self {
+    #[must_use] pub fn new(source: &'a str, interface: &'a parse::Interface) -> Self {
         let typedefs: HashMap<_, _> = interface
             .items
             .iter()

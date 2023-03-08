@@ -19,7 +19,7 @@ pub struct Caller<T> {
 }
 
 impl<T> Caller<T> {
-    pub fn data_mut(&self) -> &mut T {
+    #[must_use] pub fn data_mut(&self) -> &mut T {
         todo!()
     }
 }
@@ -31,7 +31,7 @@ struct ImportKey {
 }
 
 impl<U> Router<U> {
-    pub fn new() -> Self {
+    #[must_use] pub fn new() -> Self {
         Self {
             string2idx: HashMap::new(),
             strings: Vec::new(),
@@ -79,7 +79,7 @@ impl<U> Router<U> {
             Entry::Occupied(_) => {
                 let module = &self.strings[key.module];
                 let desc = match self.strings.get(key.name) {
-                    Some(name) => format!("{}::{}", module, name),
+                    Some(name) => format!("{module}::{name}"),
                     None => module.to_string(),
                 };
                 bail!("import of `{}` defined twice", desc)
@@ -94,8 +94,7 @@ impl<U> Router<U> {
     fn import_key(&mut self, module: Option<impl AsRef<str>>, name: impl AsRef<str>) -> ImportKey {
         ImportKey {
             module: module
-                .map(|name| self.intern_str(name.as_ref()))
-                .unwrap_or(usize::max_value()),
+                .map_or(usize::max_value(), |name| self.intern_str(name.as_ref())),
             name: self.intern_str(name.as_ref()),
         }
     }

@@ -61,7 +61,7 @@ impl JavaScript {
         let docs = func
             .docs
             .lines()
-            .map(|line| format!(" * {} \n", line))
+            .map(|line| format!(" * {line} \n"))
             .collect::<String>();
 
         let param_docs = func
@@ -76,7 +76,7 @@ impl JavaScript {
             .collect::<String>();
 
         let result_docs = match func.result.len() {
-            0 => "".to_string(),
+            0 => String::new(),
             1 => {
                 let ty = self.print_ty(func.result.types().next().unwrap());
                 format!("* @returns {{Promise<{ty}>}} \n")
@@ -130,12 +130,10 @@ impl JavaScript {
             Type::Result { ok, err } => {
                 let ok = ok
                     .as_ref()
-                    .map(|ty| self.print_ty(ty))
-                    .unwrap_or("_".to_string());
+                    .map_or("_".to_string(), |ty| self.print_ty(ty));
                 let err = err
                     .as_ref()
-                    .map(|ty| self.print_ty(ty))
-                    .unwrap_or("_".to_string());
+                    .map_or("_".to_string(), |ty| self.print_ty(ty));
 
                 format!("Result<{ok}, {err}>")
             }

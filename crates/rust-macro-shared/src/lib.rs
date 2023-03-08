@@ -10,7 +10,7 @@ use syn::punctuated::Punctuated;
 use syn::{token, Token};
 use tauri_bindgen_core::GeneratorBuilder;
 
-pub fn generate<F, B>(input: TokenStream) -> TokenStream
+#[must_use] pub fn generate<F, B>(input: TokenStream) -> TokenStream
 where
     F: Parse + Configure<B>,
     B: GeneratorBuilder + Default,

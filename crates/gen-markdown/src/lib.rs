@@ -12,7 +12,7 @@ pub struct Builder {
 impl GeneratorBuilder for Builder {
     fn build(self, interface: Interface) -> Box<dyn Generate> {
         Box::new(Markdown {
-            _opts: self.clone(),
+            _opts: self,
             interface,
         })
     }
@@ -41,7 +41,7 @@ impl Markdown {
             Type::String => "string".to_string(),
             Type::List(ty) => {
                 let ty = self.print_ty(ty);
-                format!("list<{}>", ty)
+                format!("list<{ty}>")
             }
             Type::Tuple(types) => {
                 let types = types
@@ -49,36 +49,34 @@ impl Markdown {
                     .map(|ty| self.print_ty(ty))
                     .collect::<Vec<_>>()
                     .join(", ");
-                format!("tuple<{}>", types)
+                format!("tuple<{types}>")
             }
             Type::Option(ty) => {
                 let ty = self.print_ty(ty);
-                format!("option<{}>", ty)
+                format!("option<{ty}>")
             }
             Type::Result { ok, err } => {
                 let ok = ok
                     .as_ref()
-                    .map(|ty| self.print_ty(ty))
-                    .unwrap_or("_".to_string());
+                    .map_or("_".to_string(), |ty| self.print_ty(ty));
                 let err = err
                     .as_ref()
-                    .map(|ty| self.print_ty(ty))
-                    .unwrap_or("_".to_string());
+                    .map_or("_".to_string(), |ty| self.print_ty(ty));
 
-                format!("result<{}, {}>", ok, err)
+                format!("result<{ok}, {err}>")
             }
             Type::Id(id) => {
                 let ident = &self.interface.typedefs[*id].ident;
                 let lnk = ident.to_snake_case();
 
-                format!("[{}](#{})", ident, lnk)
+                format!("[{ident}](#{lnk})")
             }
         }
     }
 
     fn print_docs(&self, docs: &str) -> String {
         docs.lines()
-            .map(|line| line.trim())
+            .map(str::trim)
             .collect::<Vec<_>>()
             .join("\n")
     }
@@ -192,12 +190,12 @@ impl Markdown {
 
     fn print_result(&self, result: &FunctionResult) -> String {
         if result.is_empty() {
-            return "".to_string();
+            return String::new();
         }
 
         if let Some(Type::Tuple(types)) = result.types().next() {
             if types.is_empty() {
-                return "".to_string();
+                return String::new();
             }
         }
 

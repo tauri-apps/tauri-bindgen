@@ -270,7 +270,7 @@ impl<T: Readable> Readable for Vec<T> {
     fn read_from(read: &mut impl io::Read) -> Result<Self, Error> {
         let length = usize::read_from(read)?;
 
-        let value = lift_errors((0..length).into_iter().map(|_| T::read_from(read)))?.collect();
+        let value = lift_errors((0..length).map(|_| T::read_from(read)))?.collect();
 
         Ok(value)
     }

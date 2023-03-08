@@ -21,7 +21,7 @@ pub struct Opts {
 }
 
 impl Opts {
-    pub fn build<'a>(self, interface: &'a Interface) -> JavaScript {
+    pub fn build(self, interface: &Interface) -> JavaScript {
         JavaScript {
             opts: self,
             interface,
@@ -83,7 +83,7 @@ impl<'a> JavaScript<'a> {
         let docs = func
             .docs
             .lines()
-            .map(|line| format!(" * {} \n", line))
+            .map(|line| format!(" * {line} \n"))
             .collect::<String>();
 
         format!("/**\n{docs}*/")
@@ -123,12 +123,10 @@ impl<'a> JavaScript<'a> {
             Type::Result { ok, err } => {
                 let ok = ok
                     .as_ref()
-                    .map(|ty| self.print_ty(ty))
-                    .unwrap_or("_".to_string());
+                    .map_or("_".to_string(), |ty| self.print_ty(ty));
                 let err = err
                     .as_ref()
-                    .map(|ty| self.print_ty(ty))
-                    .unwrap_or("_".to_string());
+                    .map_or("_".to_string(), |ty| self.print_ty(ty));
 
                 format!("Result<{ok}, {err}>")
             }

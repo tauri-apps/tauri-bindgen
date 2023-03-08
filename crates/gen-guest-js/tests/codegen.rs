@@ -2,7 +2,7 @@
 use pretty_assertions::assert_eq;
 use std::path::{Path, PathBuf};
 use tauri_bindgen_core::{Generate, GeneratorBuilder};
-use tauri_bindgen_gen_guest_js::*;
+use tauri_bindgen_gen_guest_js::Builder;
 
 fn gen_interface(
     opts: Builder,

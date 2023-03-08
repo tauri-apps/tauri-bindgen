@@ -31,18 +31,18 @@ pub trait RustGenerator {
 
                 let typedef = match &typedef.kind {
                     TypeDefKind::Alias(ty) => {
-                        self.print_alias(docs, &ident, &ty, info, &borrow_mode)
+                        self.print_alias(docs, &ident, ty, info, &borrow_mode)
                     }
                     TypeDefKind::Record(fields) => {
-                        self.print_record(docs, &ident, &fields, info, &borrow_mode)
+                        self.print_record(docs, &ident, fields, info, &borrow_mode)
                     }
-                    TypeDefKind::Flags(fields) => self.print_flags(docs, &ident, &fields, info),
+                    TypeDefKind::Flags(fields) => self.print_flags(docs, &ident, fields, info),
                     TypeDefKind::Variant(cases) => {
-                        self.print_variant(docs, &ident, &cases, info, &borrow_mode)
+                        self.print_variant(docs, &ident, cases, info, &borrow_mode)
                     }
-                    TypeDefKind::Enum(cases) => self.print_enum(docs, &ident, &cases, info),
+                    TypeDefKind::Enum(cases) => self.print_enum(docs, &ident, cases, info),
                     TypeDefKind::Union(cases) => {
-                        self.print_union(docs, &ident, &cases, info, &borrow_mode)
+                        self.print_union(docs, &ident, cases, info, &borrow_mode)
                     }
                 };
 
@@ -483,7 +483,7 @@ pub struct FnSig<'a> {
     pub func: &'a Function,
 }
 
-pub fn lifetime_for(info: TypeInfo, mode: &BorrowMode) -> Option<&Lifetime> {
+#[must_use] pub fn lifetime_for(info: TypeInfo, mode: &BorrowMode) -> Option<&Lifetime> {
     match mode {
         BorrowMode::AllBorrowed(s) | BorrowMode::LeafBorrowed(s)
             if info.contains(TypeInfo::HAS_LIST) =>
@@ -494,7 +494,7 @@ pub fn lifetime_for(info: TypeInfo, mode: &BorrowMode) -> Option<&Lifetime> {
     }
 }
 
-pub fn print_generics(info: TypeInfo, mode: &BorrowMode) -> Option<TokenStream> {
+#[must_use] pub fn print_generics(info: TypeInfo, mode: &BorrowMode) -> Option<TokenStream> {
     let lt = lifetime_for(info, mode);
 
     lt.map(|lt| {
@@ -504,7 +504,7 @@ pub fn print_generics(info: TypeInfo, mode: &BorrowMode) -> Option<TokenStream> 
     })
 }
 
-pub fn flags_repr(fields: &[FlagsField]) -> Int {
+#[must_use] pub fn flags_repr(fields: &[FlagsField]) -> Int {
     match fields.len() {
         n if n <= 8 => Int::U8,
         n if n <= 16 => Int::U16,
@@ -537,7 +537,7 @@ pub struct TypeVariant {
     pub borrow_mode: BorrowMode,
 }
 
-pub fn variants_of(ident: &str, info: TypeInfo, default_mode: &BorrowMode) -> Vec<TypeVariant> {
+#[must_use] pub fn variants_of(ident: &str, info: TypeInfo, default_mode: &BorrowMode) -> Vec<TypeVariant> {
     let mut result = Vec::new();
 
     if info.contains(TypeInfo::PARAM) {
@@ -564,7 +564,7 @@ pub fn variants_of(ident: &str, info: TypeInfo, default_mode: &BorrowMode) -> Ve
     result
 }
 
-pub fn uses_two_names(info: TypeInfo) -> bool {
+#[must_use] pub fn uses_two_names(info: TypeInfo) -> bool {
     info.contains(TypeInfo::HAS_LIST) && info.contains(TypeInfo::PARAM | TypeInfo::RESULT)
 }
 
@@ -587,7 +587,7 @@ pub struct TypeInfos {
 }
 
 impl TypeInfos {
-    pub fn new() -> Self {
+    #[must_use] pub fn new() -> Self {
         TypeInfos {
             infos: HashMap::new(),
         }
