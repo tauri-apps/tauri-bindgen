@@ -148,7 +148,7 @@ fn run() -> Result<()> {
         Command::Guest(_) => bail!("no guest generators enabled"),
     };
 
-    log::info!(action = "Finished"; "in {}s", Instant::now().duration_since(start).as_millis() as f64 / 1000.0);
+    log::info!(action = "Finished"; "in {}s", Instant::now().duration_since(start).as_secs_f32());
 
     Ok(())
 }

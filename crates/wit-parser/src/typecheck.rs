@@ -159,17 +159,20 @@ pub enum FunctionResult {
 }
 
 impl FunctionResult {
-    #[must_use] pub fn is_empty(&self) -> bool {
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
-    #[must_use] pub fn len(&self) -> usize {
+    #[must_use]
+    pub fn len(&self) -> usize {
         match self {
             FunctionResult::Named(ps) => ps.len(),
             FunctionResult::Anon(_) => 1,
         }
     }
-    #[must_use] pub fn types(&self) -> ResultsTypeIter {
+    #[must_use]
+    pub fn types(&self) -> ResultsTypeIter {
         match self {
             FunctionResult::Named(ps) => ResultsTypeIter::Named(ps.iter()),
             FunctionResult::Anon(ty) => ResultsTypeIter::Anon(std::iter::once(ty)),
@@ -201,7 +204,8 @@ pub struct Resolver<'a> {
 }
 
 impl<'a> Resolver<'a> {
-    #[must_use] pub fn new(source: &'a str, interface: &'a parse::Interface) -> Self {
+    #[must_use]
+    pub fn new(source: &'a str, interface: &'a parse::Interface) -> Self {
         let typedefs: HashMap<_, _> = interface
             .items
             .iter()
@@ -399,15 +403,15 @@ impl<'a> Resolver<'a> {
         &mut self,
         named_types: &[(Span, parse::Type)],
     ) -> Result<Vec<(String, Type)>> {
-        Ok(named_types
+        named_types
             .iter()
             .map(|(ident, ty)| {
                 let ident = self.resolve_ident(ident).to_string();
-                let ty = self.resolve_type(ty).unwrap();
+                let ty = self.resolve_type(ty)?;
 
-                (ident, ty)
+                Ok((ident, ty))
             })
-            .collect())
+            .partition_result()
     }
 
     fn resolve_func(

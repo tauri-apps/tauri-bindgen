@@ -6,6 +6,7 @@ use std::{
     sync::{mpsc::Sender, Arc},
 };
 
+#[derive(Default)]
 pub struct Router<U> {
     string2idx: HashMap<Arc<str>, usize>,
     strings: Vec<Arc<str>>,
