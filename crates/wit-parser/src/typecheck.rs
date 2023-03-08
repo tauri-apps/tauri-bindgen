@@ -376,7 +376,7 @@ impl<'a> Resolver<'a> {
                         .items
                         .iter()
                         .find(|item| {
-                            item.ident == *span
+                            self.resolve_ident(&item.ident) == ident
                                 && !matches!(item.inner, parse::InterfaceItemInner::Func(_))
                         })
                         .unwrap();
