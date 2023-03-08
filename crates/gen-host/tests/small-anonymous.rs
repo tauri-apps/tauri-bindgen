@@ -7,7 +7,7 @@ pub mod small_anonymous {
         Failure,
     }
     pub trait SmallAnonymous: Sized {
-        fn option_test(&mut self) -> Result<Option<&'_ str>, Error>;
+        fn option_test(&mut self) -> Result<Option<&'_ str>, Error<'_>>;
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
@@ -22,7 +22,7 @@ pub mod small_anonymous {
                 "option_test",
                 move |
                     cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                | -> Result<Option<&'_ str>, Error> {
+                | -> Result<Option<&'_ str>, Error<'_>> {
                     let cx = get_cx(cx.data_mut());
                     cx.option_test()
                 },

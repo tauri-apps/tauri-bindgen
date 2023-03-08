@@ -1,21 +1,8 @@
 pub mod lists {
     use ::tauri_bindgen_host::bitflags;
     use ::tauri_bindgen_host::tauri_bindgen_abi;
-    pub type LoadStoreAllSizesParam =
-        Vec<(String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char)>;
-    pub type LoadStoreAllSizesResult =
-        Vec<(String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char)>;
     #[derive(tauri_bindgen_abi::Readable)]
-    pub struct OtherRecordParam {
-        a1: u32,
-        a2: u64,
-        a3: i32,
-        a4: i64,
-        b: String,
-        c: Vec<u8>,
-    }
-    #[derive(tauri_bindgen_abi::Writable)]
-    pub struct OtherRecordResult {
+    pub struct OtherRecord {
         a1: u32,
         a2: u64,
         a3: i32,
@@ -24,44 +11,93 @@ pub mod lists {
         c: Vec<u8>,
     }
     #[derive(tauri_bindgen_abi::Readable)]
-    pub enum OtherVariantParam {
-        A,
-        B(u32),
-        C(String),
-    }
-    #[derive(tauri_bindgen_abi::Writable)]
-    pub enum OtherVariantResult {
-        A,
-        B(u32),
-        C(String),
+    pub struct OtherRecord {
+        a1: u32,
+        a2: u64,
+        a3: i32,
+        a4: i64,
+        b: String,
+        c: Vec<u8>,
     }
     #[derive(tauri_bindgen_abi::Readable)]
-    pub struct SomeRecordParam {
+    pub struct SomeRecord {
         x: String,
-        y: OtherRecordResult,
-        z: Vec<OtherRecordResult>,
+        y: OtherRecord,
+        z: Vec<OtherRecord>,
         c1: u32,
         c2: u64,
         c3: i32,
         c4: i64,
     }
     #[derive(tauri_bindgen_abi::Writable)]
-    pub struct SomeRecordResult {
+    pub struct OtherRecord {
+        a1: u32,
+        a2: u64,
+        a3: i32,
+        a4: i64,
+        b: String,
+        c: Vec<u8>,
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub struct OtherRecord {
+        a1: u32,
+        a2: u64,
+        a3: i32,
+        a4: i64,
+        b: String,
+        c: Vec<u8>,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub struct OtherRecord {
+        a1: u32,
+        a2: u64,
+        a3: i32,
+        a4: i64,
+        b: String,
+        c: Vec<u8>,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub struct OtherRecord {
+        a1: u32,
+        a2: u64,
+        a3: i32,
+        a4: i64,
+        b: String,
+        c: Vec<u8>,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub struct SomeRecord {
         x: String,
-        y: OtherRecordResult,
-        z: Vec<OtherRecordResult>,
+        y: OtherRecord,
+        z: Vec<OtherRecord>,
         c1: u32,
         c2: u64,
         c3: i32,
         c4: i64,
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum OtherVariant {
+        A,
+        B(u32),
+        C(String),
     }
     #[derive(tauri_bindgen_abi::Readable)]
     pub enum SomeVariant {
         A(String),
         B,
         C(u32),
-        D(Vec<OtherVariantResult>),
+        D(Vec<OtherVariant>),
     }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum OtherVariant {
+        A,
+        B(u32),
+        C(String),
+    }
+    pub type LoadStoreAllSizes =
+        Vec<(String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char)>;
+    pub type LoadStoreAllSizes =
+        Vec<(String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char)>;
     pub trait Lists: Sized {
         fn list_u8_param(&mut self, x: Vec<u8>) -> ();
         fn list_u16_param(&mut self, x: Vec<u16>) -> ();
@@ -88,13 +124,10 @@ pub mod lists {
         fn string_list_ret(&mut self) -> &'_ [&'_ str];
         fn tuple_string_list(&mut self, x: Vec<(u8, String)>) -> &'_ [(&'_ str, u8)];
         fn string_list(&mut self, x: Vec<String>) -> &'_ [&'_ str];
-        fn record_list(&mut self, x: Vec<SomeRecordResult>) -> &'_ [OtherRecordParam<'_>];
-        fn record_list_reverse(&mut self, x: Vec<OtherRecordResult>) -> &'_ [SomeRecordParam<'_>];
-        fn variant_list(&mut self, x: Vec<SomeVariant>) -> &'_ [OtherVariantParam<'_>];
-        fn load_store_everything(
-            &mut self,
-            a: LoadStoreAllSizesResult,
-        ) -> LoadStoreAllSizesParam<'_>;
+        fn record_list(&mut self, x: Vec<SomeRecord>) -> &'_ [OtherRecord<'_>];
+        fn record_list_reverse(&mut self, x: Vec<OtherRecord>) -> &'_ [SomeRecord<'_>];
+        fn variant_list(&mut self, x: Vec<SomeVariant>) -> &'_ [OtherVariant<'_>];
+        fn load_store_everything(&mut self, a: LoadStoreAllSizes) -> LoadStoreAllSizes<'_>;
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
@@ -313,8 +346,8 @@ pub mod lists {
             "lists",
             "record_list",
             move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                  x: Vec<SomeRecordResult>|
-                  -> &'_ [OtherRecordParam<'_>] {
+                  x: Vec<SomeRecord>|
+                  -> &'_ [OtherRecord<'_>] {
                 let cx = get_cx(cx.data_mut());
                 cx.record_list(x)
             },
@@ -323,8 +356,8 @@ pub mod lists {
             "lists",
             "record_list_reverse",
             move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                  x: Vec<OtherRecordResult>|
-                  -> &'_ [SomeRecordParam<'_>] {
+                  x: Vec<OtherRecord>|
+                  -> &'_ [SomeRecord<'_>] {
                 let cx = get_cx(cx.data_mut());
                 cx.record_list_reverse(x)
             },
@@ -334,7 +367,7 @@ pub mod lists {
             "variant_list",
             move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                   x: Vec<SomeVariant>|
-                  -> &'_ [OtherVariantParam<'_>] {
+                  -> &'_ [OtherVariant<'_>] {
                 let cx = get_cx(cx.data_mut());
                 cx.variant_list(x)
             },
@@ -343,8 +376,8 @@ pub mod lists {
             "lists",
             "load_store_everything",
             move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                  a: LoadStoreAllSizesResult|
-                  -> LoadStoreAllSizesParam<'_> {
+                  a: LoadStoreAllSizes|
+                  -> LoadStoreAllSizes<'_> {
                 let cx = get_cx(cx.data_mut());
                 cx.load_store_everything(a)
             },

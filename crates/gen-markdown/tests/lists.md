@@ -4,11 +4,6 @@
 
 ## Type definitions
 
-## Alias load_store_all_sizes
-
-`list<tuple<string, u8, s8, u16, s16, u32, s32, u64, s64, float32, float64, char>>`
-
-
 ## Struct other_record
 
 
@@ -28,17 +23,23 @@
 #### c: `list<u8>`
 
 
-## Variant other_variant
+## Struct other_record
 
 
 
-### Cases
+### Fields
 
-#### a
+#### a1: `u32`
 
-#### b: `u32`
+#### a2: `u64`
 
-#### c: `string`
+#### a3: `s32`
+
+#### a4: `s64`
+
+#### b: `string`
+
+#### c: `list<u8>`
 
 
 ## Struct some_record
@@ -62,6 +63,116 @@
 #### c4: `s64`
 
 
+## Struct other_record
+
+
+
+### Fields
+
+#### a1: `u32`
+
+#### a2: `u64`
+
+#### a3: `s32`
+
+#### a4: `s64`
+
+#### b: `string`
+
+#### c: `list<u8>`
+
+
+## Struct other_record
+
+
+
+### Fields
+
+#### a1: `u32`
+
+#### a2: `u64`
+
+#### a3: `s32`
+
+#### a4: `s64`
+
+#### b: `string`
+
+#### c: `list<u8>`
+
+
+## Struct other_record
+
+
+
+### Fields
+
+#### a1: `u32`
+
+#### a2: `u64`
+
+#### a3: `s32`
+
+#### a4: `s64`
+
+#### b: `string`
+
+#### c: `list<u8>`
+
+
+## Struct other_record
+
+
+
+### Fields
+
+#### a1: `u32`
+
+#### a2: `u64`
+
+#### a3: `s32`
+
+#### a4: `s64`
+
+#### b: `string`
+
+#### c: `list<u8>`
+
+
+## Struct some_record
+
+
+
+### Fields
+
+#### x: `string`
+
+#### y: `[other_record](#other_record)`
+
+#### z: `list<[other_record](#other_record)>`
+
+#### c1: `u32`
+
+#### c2: `u64`
+
+#### c3: `s32`
+
+#### c4: `s64`
+
+
+## Variant other_variant
+
+
+
+### Cases
+
+#### a
+
+#### b: `u32`
+
+#### c: `string`
+
+
 ## Variant some_variant
 
 
@@ -75,6 +186,29 @@
 #### c: `u32`
 
 #### d: `list<[other_variant](#other_variant)>`
+
+
+## Variant other_variant
+
+
+
+### Cases
+
+#### a
+
+#### b: `u32`
+
+#### c: `string`
+
+
+## Alias load_store_all_sizes
+
+`list<tuple<string, u8, s8, u16, s16, u32, s32, u64, s64, float32, float64, char>>`
+
+
+## Alias load_store_all_sizes
+
+`list<tuple<string, u8, s8, u16, s16, u32, s32, u64, s64, float32, float64, char>>`
 
 
 

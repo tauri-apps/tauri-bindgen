@@ -1,62 +1,270 @@
 pub mod variants {
     use ::tauri_bindgen_host::bitflags;
     use ::tauri_bindgen_host::tauri_bindgen_abi;
-    #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum E1 {
+        A,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum E1 {
+        A,
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum U1 {
+        U32(u32),
+        F32(f32),
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum U1 {
+        U32(u32),
+        F32(f32),
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum U1 {
+        U32(u32),
+        F32(f32),
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum E1 {
+        A,
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub struct Empty {}
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum V1 {
+        A,
+        B(U1),
+        C(E1),
+        D(String),
+        E(Empty),
+        F,
+        G(u32),
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum U1 {
+        U32(u32),
+        F32(f32),
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum E1 {
+        A,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub struct Empty {}
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum V1 {
+        A,
+        B(U1),
+        C(E1),
+        D(String),
+        E(Empty),
+        F,
+        G(u32),
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum E1 {
+        A,
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum U1 {
+        U32(u32),
+        F32(f32),
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum E1 {
+        A,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum U1 {
+        U32(u32),
+        F32(f32),
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
     pub enum Casts1 {
         A(i32),
         B(f32),
     }
-    #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
+    #[derive(tauri_bindgen_abi::Readable)]
     pub enum Casts2 {
         A(f64),
         B(f32),
     }
-    #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
+    #[derive(tauri_bindgen_abi::Readable)]
     pub enum Casts3 {
         A(f64),
         B(u64),
     }
-    #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
+    #[derive(tauri_bindgen_abi::Readable)]
     pub enum Casts4 {
         A(u32),
         B(i64),
     }
-    #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
+    #[derive(tauri_bindgen_abi::Readable)]
     pub enum Casts5 {
         A(f32),
         B(i64),
     }
-    #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
+    #[derive(tauri_bindgen_abi::Readable)]
     pub enum Casts6 {
         A((f32, u32)),
         B((u32, u32)),
     }
-    #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum Casts1 {
+        A(i32),
+        B(f32),
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum Casts2 {
+        A(f64),
+        B(f32),
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum Casts3 {
+        A(f64),
+        B(u64),
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum Casts4 {
+        A(u32),
+        B(i64),
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum Casts5 {
+        A(f32),
+        B(i64),
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum Casts6 {
+        A((f32, u32)),
+        B((u32, u32)),
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
     pub enum E1 {
         A,
     }
-    #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum E1 {
+        A,
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum U1 {
+        U32(u32),
+        F32(f32),
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum E1 {
+        A,
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
     pub struct Empty {}
     #[derive(tauri_bindgen_abi::Readable)]
-    pub struct IsCloneParam {
-        v1: V1Result,
+    pub enum V1 {
+        A,
+        B(U1),
+        C(E1),
+        D(String),
+        E(Empty),
+        F,
+        G(u32),
     }
     #[derive(tauri_bindgen_abi::Writable)]
-    pub struct IsCloneResult {
-        v1: V1Result,
+    pub enum E1 {
+        A,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum E1 {
+        A,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum U1 {
+        U32(u32),
+        F32(f32),
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum E1 {
+        A,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub struct Empty {}
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum V1 {
+        A,
+        B(U1),
+        C(E1),
+        D(String),
+        E(Empty),
+        F,
+        G(u32),
     }
     #[derive(tauri_bindgen_abi::Writable)]
     pub enum MyErrno {
         Bad1,
         Bad2,
     }
-    #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum MyErrno {
+        Bad1,
+        Bad2,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum MyErrno {
+        Bad1,
+        Bad2,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum MyErrno {
+        Bad1,
+        Bad2,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum MyErrno {
+        Bad1,
+        Bad2,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum MyErrno {
+        Bad1,
+        Bad2,
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
     pub enum U1 {
         U32(u32),
         F32(f32),
     }
     #[derive(tauri_bindgen_abi::Readable)]
-    pub enum V1Param {
+    pub enum E1 {
+        A,
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub struct Empty {}
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum V1 {
+        A,
+        B(U1),
+        C(E1),
+        D(String),
+        E(Empty),
+        F,
+        G(u32),
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub struct IsClone {
+        v1: V1,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum U1 {
+        U32(u32),
+        F32(f32),
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum E1 {
+        A,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub struct Empty {}
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum V1 {
         A,
         B(U1),
         C(E1),
@@ -66,22 +274,21 @@ pub mod variants {
         G(u32),
     }
     #[derive(tauri_bindgen_abi::Writable)]
-    pub enum V1Result {
-        A,
-        B(U1),
-        C(E1),
-        D(String),
-        E(Empty),
-        F,
-        G(u32),
+    pub struct IsClone {
+        v1: V1,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum MyErrno {
+        Bad1,
+        Bad2,
     }
     pub trait Variants: Sized {
         fn e1_arg(&mut self, x: E1) -> ();
         fn e1_result(&mut self) -> E1;
         fn u1_arg(&mut self, x: U1) -> ();
         fn u1_result(&mut self) -> U1;
-        fn v1_arg(&mut self, x: V1Result) -> ();
-        fn v1_result(&mut self) -> V1Param<'_>;
+        fn v1_arg(&mut self, x: V1) -> ();
+        fn v1_result(&mut self) -> V1<'_>;
         fn bool_arg(&mut self, x: bool) -> ();
         fn bool_result(&mut self) -> bool;
         fn option_arg(
@@ -120,7 +327,7 @@ pub mod variants {
             b: Result<(), E1>,
             c: Result<E1, ()>,
             d: Result<(), ()>,
-            e: Result<u32, V1Result>,
+            e: Result<u32, V1>,
             f: Result<String, Vec<u8>>,
         ) -> ();
         fn result_result(
@@ -130,7 +337,7 @@ pub mod variants {
             Result<(), E1>,
             Result<E1, ()>,
             Result<(), ()>,
-            Result<u32, V1Param<'_>>,
+            Result<u32, V1<'_>>,
             Result<&'_ str, &'_ [u8]>,
         );
         fn return_result_sugar(&mut self) -> Result<i32, MyErrno>;
@@ -140,8 +347,8 @@ pub mod variants {
         fn return_option_sugar(&mut self) -> Option<i32>;
         fn return_option_sugar2(&mut self) -> Option<MyErrno>;
         fn result_simple(&mut self) -> Result<u32, i32>;
-        fn is_clone_arg(&mut self, a: IsCloneResult) -> ();
-        fn is_clone_return(&mut self) -> IsCloneParam<'_>;
+        fn is_clone_arg(&mut self, a: IsClone) -> ();
+        fn is_clone_return(&mut self) -> IsClone<'_>;
         fn return_named_option(&mut self) -> Option<u8>;
         fn return_named_result(&mut self) -> Result<u8, MyErrno>;
     }
@@ -187,7 +394,7 @@ pub mod variants {
         router.func_wrap(
             "variants",
             "v1_arg",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, x: V1Result| -> () {
+            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, x: V1| -> () {
                 let cx = get_cx(cx.data_mut());
                 cx.v1_arg(x)
             },
@@ -195,7 +402,7 @@ pub mod variants {
         router.func_wrap(
             "variants",
             "v1_result",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>| -> V1Param<'_> {
+            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>| -> V1<'_> {
                 let cx = get_cx(cx.data_mut());
                 cx.v1_result()
             },
@@ -271,7 +478,7 @@ pub mod variants {
                   b: Result<(), E1>,
                   c: Result<E1, ()>,
                   d: Result<(), ()>,
-                  e: Result<u32, V1Result>,
+                  e: Result<u32, V1>,
                   f: Result<String, Vec<u8>>|
                   -> () {
                 let cx = get_cx(cx.data_mut());
@@ -286,7 +493,7 @@ pub mod variants {
                 Result<(), E1>,
                 Result<E1, ()>,
                 Result<(), ()>,
-                Result<u32, V1Param<'_>>,
+                Result<u32, V1<'_>>,
                 Result<&'_ str, &'_ [u8]>,
             ) {
                 let cx = get_cx(cx.data_mut());
@@ -355,7 +562,7 @@ pub mod variants {
         router.func_wrap(
             "variants",
             "is_clone_arg",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, a: IsCloneResult| -> () {
+            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, a: IsClone| -> () {
                 let cx = get_cx(cx.data_mut());
                 cx.is_clone_arg(a)
             },
@@ -363,7 +570,7 @@ pub mod variants {
         router.func_wrap(
             "variants",
             "is_clone_return",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>| -> IsCloneParam<'_> {
+            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>| -> IsClone<'_> {
                 let cx = get_cx(cx.data_mut());
                 cx.is_clone_return()
             },

@@ -1,13 +1,23 @@
 pub mod unions {
     use ::tauri_bindgen_host::bitflags;
     use ::tauri_bindgen_host::tauri_bindgen_abi;
-    #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
-    pub enum AllFloats {
-        F32(f32),
-        F64(f64),
+    ///A union of all of the integral types
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum AllIntegers {
+        /**Bool is equivalent to a 1 bit integer
+        and is treated that way in some languages*/
+        Bool(bool),
+        U8(u8),
+        U16(u16),
+        U32(u32),
+        U64(u64),
+        I8(i8),
+        I16(i16),
+        S32(i32),
+        S64(i64),
     }
     ///A union of all of the integral types
-    #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
+    #[derive(tauri_bindgen_abi::Writable)]
     pub enum AllIntegers {
         /**Bool is equivalent to a 1 bit integer
         and is treated that way in some languages*/
@@ -22,24 +32,51 @@ pub mod unions {
         S64(i64),
     }
     #[derive(tauri_bindgen_abi::Readable)]
-    pub enum AllTextParam {
+    pub enum AllFloats {
+        F32(f32),
+        F64(f64),
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum AllFloats {
+        F32(f32),
+        F64(f64),
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum AllText {
         Char(char),
         String(String),
     }
     #[derive(tauri_bindgen_abi::Writable)]
-    pub enum AllTextResult {
+    pub enum AllText {
         Char(char),
         String(String),
     }
-    ///A type containing numeric types that are distinct in most languages
-    #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
-    pub enum DistinguishableNum {
-        ///A Floating Point Number
-        F64(f64),
-        ///A Signed Integer
+    ///A union of all of the integral types
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum AllIntegers {
+        /**Bool is equivalent to a 1 bit integer
+        and is treated that way in some languages*/
+        Bool(bool),
+        U8(u8),
+        U16(u16),
+        U32(u32),
+        U64(u64),
+        I8(i8),
+        I16(i16),
+        S32(i32),
         S64(i64),
     }
-    #[derive(tauri_bindgen_abi::Readable, tauri_bindgen_abi::Writable)]
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum AllFloats {
+        F32(f32),
+        F64(f64),
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum AllText {
+        Char(char),
+        String(String),
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
     pub enum DuplicatedS32 {
         ///The first s32
         S320(i32),
@@ -48,13 +85,55 @@ pub mod unions {
         ///The third s32
         S322(i32),
     }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum DuplicatedS32 {
+        ///The first s32
+        S320(i32),
+        ///The second s32
+        S321(i32),
+        ///The third s32
+        S322(i32),
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum DuplicatedS32 {
+        ///The first s32
+        S320(i32),
+        ///The second s32
+        S321(i32),
+        ///The third s32
+        S322(i32),
+    }
+    ///A type containing numeric types that are distinct in most languages
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum DistinguishableNum {
+        ///A Floating Point Number
+        F64(f64),
+        ///A Signed Integer
+        S64(i64),
+    }
+    ///A type containing numeric types that are distinct in most languages
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum DistinguishableNum {
+        ///A Floating Point Number
+        F64(f64),
+        ///A Signed Integer
+        S64(i64),
+    }
+    ///A type containing numeric types that are distinct in most languages
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum DistinguishableNum {
+        ///A Floating Point Number
+        F64(f64),
+        ///A Signed Integer
+        S64(i64),
+    }
     pub trait Unions: Sized {
         fn add_one_integer(&mut self, num: AllIntegers) -> AllIntegers;
         fn add_one_float(&mut self, num: AllFloats) -> AllFloats;
-        fn replace_first_char(&mut self, text: AllTextResult, letter: char) -> AllTextParam<'_>;
+        fn replace_first_char(&mut self, text: AllText, letter: char) -> AllText<'_>;
         fn identify_integer(&mut self, num: AllIntegers) -> u8;
         fn identify_float(&mut self, num: AllFloats) -> u8;
-        fn identify_text(&mut self, text: AllTextResult) -> u8;
+        fn identify_text(&mut self, text: AllText) -> u8;
         fn add_one_duplicated(&mut self, num: DuplicatedS32) -> DuplicatedS32;
         fn identify_duplicated(&mut self, num: DuplicatedS32) -> u8;
         fn add_one_distinguishable_num(&mut self, num: DistinguishableNum) -> DistinguishableNum;
@@ -91,9 +170,9 @@ pub mod unions {
             "unions",
             "replace_first_char",
             move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                  text: AllTextResult,
+                  text: AllText,
                   letter: char|
-                  -> AllTextParam<'_> {
+                  -> AllText<'_> {
                 let cx = get_cx(cx.data_mut());
                 cx.replace_first_char(text, letter)
             },
@@ -117,7 +196,7 @@ pub mod unions {
         router.func_wrap(
             "unions",
             "identify_text",
-            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, text: AllTextResult| -> u8 {
+            move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, text: AllText| -> u8 {
                 let cx = get_cx(cx.data_mut());
                 cx.identify_text(text)
             },

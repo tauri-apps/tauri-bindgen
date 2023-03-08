@@ -4,15 +4,30 @@
 
 ## Type definitions
 
-## Union all_floats
+## Union all_integers
 
-
+A union of all of the integral types
 
 ### Cases
 
-#### `float32`
+#### `bool`
+Bool is equivalent to a 1 bit integer
+and is treated that way in some languages
+#### `u8`
 
-#### `float64`
+#### `u16`
+
+#### `u32`
+
+#### `u64`
+
+#### `s8`
+
+#### `s16`
+
+#### `s32`
+
+#### `s64`
 
 
 ## Union all_integers
@@ -41,6 +56,28 @@ and is treated that way in some languages
 #### `s64`
 
 
+## Union all_floats
+
+
+
+### Cases
+
+#### `float32`
+
+#### `float64`
+
+
+## Union all_floats
+
+
+
+### Cases
+
+#### `float32`
+
+#### `float64`
+
+
 ## Union all_text
 
 
@@ -52,16 +89,64 @@ and is treated that way in some languages
 #### `string`
 
 
-## Union distinguishable_num
+## Union all_text
 
-A type containing numeric types that are distinct in most languages
+
 
 ### Cases
 
-#### `float64`
-A Floating Point Number
+#### `char`
+
+#### `string`
+
+
+## Union all_integers
+
+A union of all of the integral types
+
+### Cases
+
+#### `bool`
+Bool is equivalent to a 1 bit integer
+and is treated that way in some languages
+#### `u8`
+
+#### `u16`
+
+#### `u32`
+
+#### `u64`
+
+#### `s8`
+
+#### `s16`
+
+#### `s32`
+
 #### `s64`
-A Signed Integer
+
+
+## Union all_floats
+
+
+
+### Cases
+
+#### `float32`
+
+#### `float64`
+
+
+## Union all_text
+
+
+
+### Cases
+
+#### `char`
+
+#### `string`
+
 
 ## Union duplicated_s32
 
@@ -75,6 +160,65 @@ The first s32
 The second s32
 #### `s32`
 The third s32
+
+## Union duplicated_s32
+
+
+
+### Cases
+
+#### `s32`
+The first s32
+#### `s32`
+The second s32
+#### `s32`
+The third s32
+
+## Union duplicated_s32
+
+
+
+### Cases
+
+#### `s32`
+The first s32
+#### `s32`
+The second s32
+#### `s32`
+The third s32
+
+## Union distinguishable_num
+
+A type containing numeric types that are distinct in most languages
+
+### Cases
+
+#### `float64`
+A Floating Point Number
+#### `s64`
+A Signed Integer
+
+## Union distinguishable_num
+
+A type containing numeric types that are distinct in most languages
+
+### Cases
+
+#### `float64`
+A Floating Point Number
+#### `s64`
+A Signed Integer
+
+## Union distinguishable_num
+
+A type containing numeric types that are distinct in most languages
+
+### Cases
+
+#### `float64`
+A Floating Point Number
+#### `s64`
+A Signed Integer
 
 
 ## Functions

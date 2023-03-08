@@ -1,7 +1,100 @@
 pub mod lists {
     use ::tauri_bindgen_guest_rust::bitflags;
     use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
-    pub type LoadStoreAllSizesParam<'a> = &'a [(
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub struct OtherRecord<'a> {
+        a1: u32,
+        a2: u64,
+        a3: i32,
+        a4: i64,
+        b: &'a str,
+        c: &'a [u8],
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub struct OtherRecord<'a> {
+        a1: u32,
+        a2: u64,
+        a3: i32,
+        a4: i64,
+        b: &'a str,
+        c: &'a [u8],
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub struct SomeRecord<'a> {
+        x: &'a str,
+        y: OtherRecord<'a>,
+        z: &'a [OtherRecord<'a>],
+        c1: u32,
+        c2: u64,
+        c3: i32,
+        c4: i64,
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub struct OtherRecord {
+        a1: u32,
+        a2: u64,
+        a3: i32,
+        a4: i64,
+        b: String,
+        c: Vec<u8>,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub struct OtherRecord<'a> {
+        a1: u32,
+        a2: u64,
+        a3: i32,
+        a4: i64,
+        b: &'a str,
+        c: &'a [u8],
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub struct OtherRecord {
+        a1: u32,
+        a2: u64,
+        a3: i32,
+        a4: i64,
+        b: String,
+        c: Vec<u8>,
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub struct OtherRecord {
+        a1: u32,
+        a2: u64,
+        a3: i32,
+        a4: i64,
+        b: String,
+        c: Vec<u8>,
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub struct SomeRecord {
+        x: String,
+        y: OtherRecord,
+        z: Vec<OtherRecord>,
+        c1: u32,
+        c2: u64,
+        c3: i32,
+        c4: i64,
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum OtherVariant<'a> {
+        A,
+        B(u32),
+        C(&'a str),
+    }
+    #[derive(tauri_bindgen_abi::Writable)]
+    pub enum SomeVariant<'a> {
+        A(&'a str),
+        B,
+        C(u32),
+        D(&'a [OtherVariant<'a>]),
+    }
+    #[derive(tauri_bindgen_abi::Readable)]
+    pub enum OtherVariant {
+        A,
+        B(u32),
+        C(String),
+    }
+    pub type LoadStoreAllSizes<'a> = &'a [(
         &'a str,
         u8,
         i8,
@@ -15,65 +108,8 @@ pub mod lists {
         f64,
         char,
     )];
-    pub type LoadStoreAllSizesResult =
+    pub type LoadStoreAllSizes =
         Vec<(String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char)>;
-    #[derive(tauri_bindgen_abi::Writable)]
-    pub struct OtherRecordParam<'a> {
-        a1: u32,
-        a2: u64,
-        a3: i32,
-        a4: i64,
-        b: &'a str,
-        c: &'a [u8],
-    }
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub struct OtherRecordResult {
-        a1: u32,
-        a2: u64,
-        a3: i32,
-        a4: i64,
-        b: String,
-        c: Vec<u8>,
-    }
-    #[derive(tauri_bindgen_abi::Writable)]
-    pub enum OtherVariantParam<'a> {
-        A,
-        B(u32),
-        C(&'a str),
-    }
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub enum OtherVariantResult {
-        A,
-        B(u32),
-        C(String),
-    }
-    #[derive(tauri_bindgen_abi::Writable)]
-    pub struct SomeRecordParam<'a> {
-        x: &'a str,
-        y: OtherRecordParam<'a>,
-        z: &'a [OtherRecordParam<'a>],
-        c1: u32,
-        c2: u64,
-        c3: i32,
-        c4: i64,
-    }
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub struct SomeRecordResult {
-        x: String,
-        y: OtherRecordResult,
-        z: Vec<OtherRecordResult>,
-        c1: u32,
-        c2: u64,
-        c3: i32,
-        c4: i64,
-    }
-    #[derive(tauri_bindgen_abi::Writable)]
-    pub enum SomeVariant<'a> {
-        A(&'a str),
-        B,
-        C(u32),
-        D(&'a [OtherVariantParam<'a>]),
-    }
     pub async fn list_u8_param(x: &'_ [u8]) -> () {
         todo!()
     }
@@ -149,16 +185,16 @@ pub mod lists {
     pub async fn string_list(x: &'_ [&'_ str]) -> Vec<String> {
         todo!()
     }
-    pub async fn record_list(x: &'_ [SomeRecordParam<'_>]) -> Vec<OtherRecordResult> {
+    pub async fn record_list(x: &'_ [SomeRecord<'_>]) -> Vec<OtherRecord> {
         todo!()
     }
-    pub async fn record_list_reverse(x: &'_ [OtherRecordParam<'_>]) -> Vec<SomeRecordResult> {
+    pub async fn record_list_reverse(x: &'_ [OtherRecord<'_>]) -> Vec<SomeRecord> {
         todo!()
     }
-    pub async fn variant_list(x: &'_ [SomeVariant<'_>]) -> Vec<OtherVariantResult> {
+    pub async fn variant_list(x: &'_ [SomeVariant<'_>]) -> Vec<OtherVariant> {
         todo!()
     }
-    pub async fn load_store_everything(a: LoadStoreAllSizesParam<'_>) -> LoadStoreAllSizesResult {
+    pub async fn load_store_everything(a: LoadStoreAllSizes<'_>) -> LoadStoreAllSizes {
         todo!()
     }
 }

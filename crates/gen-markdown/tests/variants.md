@@ -4,6 +4,248 @@
 
 ## Type definitions
 
+## Enum e1
+
+
+
+### Cases
+
+#### a
+
+
+## Enum e1
+
+
+
+### Cases
+
+#### a
+
+
+## Union u1
+
+
+
+### Cases
+
+#### `u32`
+
+#### `float32`
+
+
+## Union u1
+
+
+
+### Cases
+
+#### `u32`
+
+#### `float32`
+
+
+## Union u1
+
+
+
+### Cases
+
+#### `u32`
+
+#### `float32`
+
+
+## Enum e1
+
+
+
+### Cases
+
+#### a
+
+
+## Struct empty
+
+
+
+### Fields
+
+
+## Variant v1
+
+
+
+### Cases
+
+#### a
+
+#### b: `[u1](#u1)`
+
+#### c: `[e1](#e1)`
+
+#### d: `string`
+
+#### e: `[empty](#empty)`
+
+#### f
+
+#### g: `u32`
+
+
+## Union u1
+
+
+
+### Cases
+
+#### `u32`
+
+#### `float32`
+
+
+## Enum e1
+
+
+
+### Cases
+
+#### a
+
+
+## Struct empty
+
+
+
+### Fields
+
+
+## Variant v1
+
+
+
+### Cases
+
+#### a
+
+#### b: `[u1](#u1)`
+
+#### c: `[e1](#e1)`
+
+#### d: `string`
+
+#### e: `[empty](#empty)`
+
+#### f
+
+#### g: `u32`
+
+
+## Enum e1
+
+
+
+### Cases
+
+#### a
+
+
+## Union u1
+
+
+
+### Cases
+
+#### `u32`
+
+#### `float32`
+
+
+## Enum e1
+
+
+
+### Cases
+
+#### a
+
+
+## Union u1
+
+
+
+### Cases
+
+#### `u32`
+
+#### `float32`
+
+
+## Variant casts1
+
+
+
+### Cases
+
+#### a: `s32`
+
+#### b: `float32`
+
+
+## Variant casts2
+
+
+
+### Cases
+
+#### a: `float64`
+
+#### b: `float32`
+
+
+## Variant casts3
+
+
+
+### Cases
+
+#### a: `float64`
+
+#### b: `u64`
+
+
+## Variant casts4
+
+
+
+### Cases
+
+#### a: `u32`
+
+#### b: `s64`
+
+
+## Variant casts5
+
+
+
+### Cases
+
+#### a: `float32`
+
+#### b: `s64`
+
+
+## Variant casts6
+
+
+
+### Cases
+
+#### a: `tuple<float32, u32>`
+
+#### b: `tuple<u32, u32>`
+
+
 ## Variant casts1
 
 
@@ -79,6 +321,35 @@
 #### a
 
 
+## Enum e1
+
+
+
+### Cases
+
+#### a
+
+
+## Union u1
+
+
+
+### Cases
+
+#### `u32`
+
+#### `float32`
+
+
+## Enum e1
+
+
+
+### Cases
+
+#### a
+
+
 ## Struct empty
 
 
@@ -86,13 +357,146 @@
 ### Fields
 
 
-## Struct is_clone
+## Variant v1
+
+
+
+### Cases
+
+#### a
+
+#### b: `[u1](#u1)`
+
+#### c: `[e1](#e1)`
+
+#### d: `string`
+
+#### e: `[empty](#empty)`
+
+#### f
+
+#### g: `u32`
+
+
+## Enum e1
+
+
+
+### Cases
+
+#### a
+
+
+## Enum e1
+
+
+
+### Cases
+
+#### a
+
+
+## Union u1
+
+
+
+### Cases
+
+#### `u32`
+
+#### `float32`
+
+
+## Enum e1
+
+
+
+### Cases
+
+#### a
+
+
+## Struct empty
 
 
 
 ### Fields
 
-#### v1: `[v1](#v1)`
+
+## Variant v1
+
+
+
+### Cases
+
+#### a
+
+#### b: `[u1](#u1)`
+
+#### c: `[e1](#e1)`
+
+#### d: `string`
+
+#### e: `[empty](#empty)`
+
+#### f
+
+#### g: `u32`
+
+
+## Enum my_errno
+
+
+
+### Cases
+
+#### bad1
+
+#### bad2
+
+
+## Enum my_errno
+
+
+
+### Cases
+
+#### bad1
+
+#### bad2
+
+
+## Enum my_errno
+
+
+
+### Cases
+
+#### bad1
+
+#### bad2
+
+
+## Enum my_errno
+
+
+
+### Cases
+
+#### bad1
+
+#### bad2
+
+
+## Enum my_errno
+
+
+
+### Cases
+
+#### bad1
+
+#### bad2
 
 
 ## Enum my_errno
@@ -117,6 +521,22 @@
 #### `float32`
 
 
+## Enum e1
+
+
+
+### Cases
+
+#### a
+
+
+## Struct empty
+
+
+
+### Fields
+
+
 ## Variant v1
 
 
@@ -136,6 +556,83 @@
 #### f
 
 #### g: `u32`
+
+
+## Struct is_clone
+
+
+
+### Fields
+
+#### v1: `[v1](#v1)`
+
+
+## Union u1
+
+
+
+### Cases
+
+#### `u32`
+
+#### `float32`
+
+
+## Enum e1
+
+
+
+### Cases
+
+#### a
+
+
+## Struct empty
+
+
+
+### Fields
+
+
+## Variant v1
+
+
+
+### Cases
+
+#### a
+
+#### b: `[u1](#u1)`
+
+#### c: `[e1](#e1)`
+
+#### d: `string`
+
+#### e: `[empty](#empty)`
+
+#### f
+
+#### g: `u32`
+
+
+## Struct is_clone
+
+
+
+### Fields
+
+#### v1: `[v1](#v1)`
+
+
+## Enum my_errno
+
+
+
+### Cases
+
+#### bad1
+
+#### bad2
 
 
 

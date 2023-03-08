@@ -4,21 +4,11 @@
 
 ## Type definitions
 
-## Struct aggregates
+## Struct empty
 
 
 
 ### Fields
-
-#### a: `[scalars](#scalars)`
-
-#### b: `u32`
-
-#### c: `[empty](#empty)`
-
-#### d: `string`
-
-#### e: `[really_flags](#really_flags)`
 
 
 ## Struct empty
@@ -28,9 +18,54 @@
 ### Fields
 
 
-## Alias int_typedef
+## Struct scalars
 
-`s32`
+A record containing two scalar fields
+that both have the same type
+
+### Fields
+
+#### a: `u32`
+The first field, named a
+#### b: `u32`
+The second field, named b
+
+## Struct scalars
+
+A record containing two scalar fields
+that both have the same type
+
+### Fields
+
+#### a: `u32`
+The first field, named a
+#### b: `u32`
+The second field, named b
+
+## Struct really_flags
+
+A record that is really just flags
+All of the fields are bool
+
+### Fields
+
+#### a: `bool`
+
+#### b: `bool`
+
+#### c: `bool`
+
+#### d: `bool`
+
+#### e: `bool`
+
+#### f: `bool`
+
+#### g: `bool`
+
+#### h: `bool`
+
+#### i: `bool`
 
 
 ## Struct really_flags
@@ -70,6 +105,123 @@ that both have the same type
 The first field, named a
 #### b: `u32`
 The second field, named b
+
+## Struct empty
+
+
+
+### Fields
+
+
+## Struct really_flags
+
+A record that is really just flags
+All of the fields are bool
+
+### Fields
+
+#### a: `bool`
+
+#### b: `bool`
+
+#### c: `bool`
+
+#### d: `bool`
+
+#### e: `bool`
+
+#### f: `bool`
+
+#### g: `bool`
+
+#### h: `bool`
+
+#### i: `bool`
+
+
+## Struct aggregates
+
+
+
+### Fields
+
+#### a: `[scalars](#scalars)`
+
+#### b: `u32`
+
+#### c: `[empty](#empty)`
+
+#### d: `string`
+
+#### e: `[really_flags](#really_flags)`
+
+
+## Struct scalars
+
+A record containing two scalar fields
+that both have the same type
+
+### Fields
+
+#### a: `u32`
+The first field, named a
+#### b: `u32`
+The second field, named b
+
+## Struct empty
+
+
+
+### Fields
+
+
+## Struct really_flags
+
+A record that is really just flags
+All of the fields are bool
+
+### Fields
+
+#### a: `bool`
+
+#### b: `bool`
+
+#### c: `bool`
+
+#### d: `bool`
+
+#### e: `bool`
+
+#### f: `bool`
+
+#### g: `bool`
+
+#### h: `bool`
+
+#### i: `bool`
+
+
+## Struct aggregates
+
+
+
+### Fields
+
+#### a: `[scalars](#scalars)`
+
+#### b: `u32`
+
+#### c: `[empty](#empty)`
+
+#### d: `string`
+
+#### e: `[really_flags](#really_flags)`
+
+
+## Alias int_typedef
+
+`s32`
+
 
 ## Alias tuple_typedef2
 
