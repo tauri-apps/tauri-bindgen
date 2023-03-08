@@ -9,8 +9,7 @@ rust-version.workspace = true
 [dependencies]
 logos = "0.12.1"
 thiserror.workspace = true
-bitflags.workspace = true
-# codespan-reporting = "0.11.1"
+id-arena = "2.2.1"
 miette.workspace = true
 distance = "0.4.0"
 log.workspace = true

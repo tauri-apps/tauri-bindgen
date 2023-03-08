@@ -4,16 +4,19 @@ mod parse;
 pub mod typecheck;
 mod util;
 
-use std::path::Path;
-
 pub use error::Error;
 pub(crate) type Result<T> = std::result::Result<T, error::Error>;
 
 pub use typecheck::*;
 
+pub type TypeDefId = Id<TypeDef>;
+pub type TypeDefArena = Arena<TypeDef>;
+
+use id_arena::{Arena, Id};
 use logos::Logos;
 use miette::{ErrReport, IntoDiagnostic, NamedSource};
 use parse::FromTokens;
+use std::path::Path;
 
 pub fn parse_str(input: impl AsRef<str>, skip: impl Fn(&str) -> bool) -> miette::Result<Interface> {
     let iface = parse(input.as_ref(), skip).map_err(|error: ErrReport| {

@@ -1,32 +1,32 @@
 #![allow(clippy::all, unused)]
 use pretty_assertions::assert_eq;
 use std::path::{Path, PathBuf};
-use tauri_bindgen_core::Generate;
+use tauri_bindgen_core::{Generate, GeneratorBuilder};
 use tauri_bindgen_gen_host::*;
 
 fn gen_interface(
-    mut gen: &dyn Generate,
+    opts: Builder,
     _name: impl AsRef<str>,
     input: impl AsRef<str>,
 ) -> (String, String) {
     let iface = wit_parser::parse_str(&input, |_| false).unwrap();
 
-    let (filename, contents) = gen.to_string(&iface);
+    let gen = opts.build(iface);
+    let (filename, contents) = gen.to_file();
 
     (filename.to_str().unwrap().to_string(), contents)
 }
 
 #[test]
 fn chars() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "chars",
         include_str!("../../../tests/codegen/chars.wit"),
     );
@@ -37,15 +37,14 @@ fn chars() {
 
 #[test]
 fn convention() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "conventions",
         include_str!("../../../tests/codegen/conventions.wit"),
     );
@@ -56,15 +55,14 @@ fn convention() {
 
 #[test]
 fn empty() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "empty",
         include_str!("../../../tests/codegen/empty.wit"),
     );
@@ -75,15 +73,14 @@ fn empty() {
 
 #[test]
 fn flags() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "flegs",
         include_str!("../../../tests/codegen/flags.wit"),
     );
@@ -94,15 +91,14 @@ fn flags() {
 
 #[test]
 fn floats() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "floats",
         include_str!("../../../tests/codegen/floats.wit"),
     );
@@ -113,15 +109,14 @@ fn floats() {
 
 #[test]
 fn integers() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "integers",
         include_str!("../../../tests/codegen/integers.wit"),
     );
@@ -132,15 +127,14 @@ fn integers() {
 
 #[test]
 fn lists() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "lists",
         include_str!("../../../tests/codegen/lists.wit"),
     );
@@ -151,15 +145,14 @@ fn lists() {
 
 #[test]
 fn many_arguments() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "many-arguments",
         include_str!("../../../tests/codegen/many_arguments.wit"),
     );
@@ -170,15 +163,14 @@ fn many_arguments() {
 
 #[test]
 fn multi_return() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "multi-return",
         include_str!("../../../tests/codegen/multi_return.wit"),
     );
@@ -189,15 +181,14 @@ fn multi_return() {
 
 #[test]
 fn records() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "records",
         include_str!("../../../tests/codegen/records.wit"),
     );
@@ -208,15 +199,14 @@ fn records() {
 
 #[test]
 fn simple_functions() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "simple-functions",
         include_str!("../../../tests/codegen/simple_functions.wit"),
     );
@@ -227,15 +217,14 @@ fn simple_functions() {
 
 #[test]
 fn simple_lists() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "simple-lists",
         include_str!("../../../tests/codegen/simple_lists.wit"),
     );
@@ -246,15 +235,14 @@ fn simple_lists() {
 
 #[test]
 fn small_anonymous() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "small-anonymous",
         include_str!("../../../tests/codegen/small_anonymous.wit"),
     );
@@ -265,15 +253,14 @@ fn small_anonymous() {
 
 #[test]
 fn strings() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "strings",
         include_str!("../../../tests/codegen/strings.wit"),
     );
@@ -284,15 +271,14 @@ fn strings() {
 
 #[test]
 fn unions() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "unions",
         include_str!("../../../tests/codegen/unions.wit"),
     );
@@ -303,15 +289,14 @@ fn unions() {
 
 #[test]
 fn variants() {
-    let opts = Opts {
+    let opts = Builder {
         fmt: true,
         tracing: true,
         async_: false,
     };
-    let gen = opts.build();
 
     let (filename, contents) = gen_interface(
-        &gen,
+        opts,
         "variants",
         include_str!("../../../tests/codegen/variants.wit"),
     );

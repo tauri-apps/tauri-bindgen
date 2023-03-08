@@ -1,15 +1,9 @@
-use crate::{Error, Result};
+use crate::{util::IteratorExt, Error, Result};
+use id_arena::{Arena, Id};
 use logos::Span;
-use std::{
-    cell::RefCell,
-    collections::{BTreeMap, HashMap, HashSet},
-    ops::Deref,
-    rc::Rc,
-};
+use std::collections::{HashMap, HashSet};
 
 use crate::parse;
-
-type TypeDefRef = Rc<RefCell<TypeDef>>;
 
 pub enum Int {
     U8,
@@ -22,7 +16,7 @@ pub enum Int {
 pub struct Interface {
     pub docs: String,
     pub ident: String,
-    pub typedefs: Vec<TypeDefRef>,
+    pub typedefs: Arena<TypeDef>,
     pub functions: Vec<Function>,
 }
 
@@ -48,12 +42,11 @@ pub enum Type {
         ok: Option<Box<Type>>,
         err: Option<Box<Type>>,
     },
-    Id(TypeDefRef),
+    Id(Id<TypeDef>),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TypeDef {
-    pub info: TypeInfo,
     pub docs: String,
     pub ident: String,
     pub kind: TypeDefKind,
@@ -199,8 +192,8 @@ impl<'a> Iterator for ResultsTypeIter<'a> {
 pub struct Resolver<'a> {
     source: &'a str,
     interface: &'a parse::Interface,
-    id2interface_item: HashMap<&'a str, &'a parse::InterfaceItem>,
-    id2typedefref: HashMap<&'a str, TypeDefRef>,
+    ident2id: HashMap<&'a str, Id<TypeDef>>,
+    typedefs: Arena<TypeDef>,
 }
 
 impl<'a> Resolver<'a> {
@@ -220,8 +213,9 @@ impl<'a> Resolver<'a> {
         Self {
             source,
             interface,
-            id2typedefref: HashMap::with_capacity(typedefs.len()),
-            id2interface_item: typedefs,
+            // ident2interface_item: typedefs,
+            ident2id: HashMap::with_capacity(typedefs.len()),
+            typedefs: Arena::new(),
         }
     }
 
@@ -247,39 +241,30 @@ impl<'a> Resolver<'a> {
             .join("\n")
     }
 
-    fn resolve_typedef(
-        &mut self,
-        typedef: &parse::InterfaceItem,
-    ) -> Result<(TypeDefRef, TypeInfo)> {
-        let ident_ref = self.resolve_ident(&typedef.ident);
-
-        if let Some(typedef) = self.id2typedefref.get(ident_ref) {
-            return Ok((typedef.clone(), typedef.borrow().info));
-        }
-
-        let ident = ident_ref.to_string();
+    fn resolve_typedef(&mut self, typedef: &parse::InterfaceItem) -> Result<Id<TypeDef>> {
+        let ident = self.resolve_ident(&typedef.ident);
 
         let docs = self.resolve_docs(&typedef.docs);
 
-        let (kind, info) = match &typedef.inner {
+        let kind = match &typedef.inner {
             parse::InterfaceItemInner::Alias(ty) => {
-                let (ty, info) = self.resolve_type(ty)?;
+                let ty = self.resolve_type(ty)?;
 
-                (TypeDefKind::Alias(ty), info)
+                TypeDefKind::Alias(ty)
             }
             parse::InterfaceItemInner::Record(fields) => {
-                let (fields, info) = fields
+                let res: Result<Vec<_>> = fields
                     .iter()
                     .map(|field| {
                         let docs = self.resolve_docs(&field.docs);
                         let ident = self.resolve_ident(&field.ident).to_string();
-                        let (ty, info) = self.resolve_type(&field.ty).unwrap();
+                        let ty = self.resolve_type(&field.ty)?;
 
-                        (RecordField { docs, ident, ty }, info)
+                        Ok(RecordField { docs, ident, ty })
                     })
-                    .unzip();
+                    .partition_result();
 
-                (TypeDefKind::Record(fields), info)
+                TypeDefKind::Record(res?)
             }
             parse::InterfaceItemInner::Flags(fields) => {
                 let fields = fields.iter().map(|field| {
@@ -289,27 +274,25 @@ impl<'a> Resolver<'a> {
                     FlagsField { docs, ident }
                 });
 
-                (TypeDefKind::Flags(fields.collect()), TypeInfo::empty())
+                TypeDefKind::Flags(fields.collect())
             }
             parse::InterfaceItemInner::Variant(cases) => {
-                let (cases, info) = cases
+                let res: Result<Vec<_>> = cases
                     .iter()
                     .map(|case| {
                         let docs = self.resolve_docs(&case.docs);
                         let ident = self.resolve_ident(&case.ident).to_string();
-                        let (ty, info) = case
+                        let ty = case
                             .ty
                             .as_ref()
-                            .map(|ty| self.resolve_type(ty).unwrap())
-                            .unzip();
+                            .map(|ty| self.resolve_type(ty))
+                            .transpose()?;
 
-                        let info = info.unwrap_or_default();
-
-                        (VariantCase { docs, ident, ty }, info)
+                        Ok(VariantCase { docs, ident, ty })
                     })
-                    .unzip();
+                    .partition_result();
 
-                (TypeDefKind::Variant(cases), info)
+                TypeDefKind::Variant(res?)
             }
             parse::InterfaceItemInner::Enum(cases) => {
                 let cases = cases.iter().map(|case| {
@@ -319,109 +302,108 @@ impl<'a> Resolver<'a> {
                     EnumCase { docs, ident }
                 });
 
-                (TypeDefKind::Enum(cases.collect()), TypeInfo::empty())
+                TypeDefKind::Enum(cases.collect())
             }
             parse::InterfaceItemInner::Union(cases) => {
-                let (cases, info) = cases
+                let res: Result<Vec<_>> = cases
                     .iter()
                     .map(|case| {
                         let docs = self.resolve_docs(&case.docs);
-                        let (ty, info) = self.resolve_type(&case.ty).unwrap();
+                        let ty = self.resolve_type(&case.ty)?;
 
-                        (UnionCase { docs, ty }, info)
+                        Ok(UnionCase { docs, ty })
                     })
-                    .unzip();
+                    .partition_result();
 
-                (TypeDefKind::Union(cases), info)
+                TypeDefKind::Union(res?)
             }
             parse::InterfaceItemInner::Func(_) => unreachable!(),
         };
 
-        let typedefref = Rc::new(RefCell::new(TypeDef {
-            info,
+        let id = self.typedefs.alloc(TypeDef {
             docs,
-            ident,
+            ident: ident.to_string(),
             kind,
-        }));
+        });
+        self.ident2id.remove(ident);
 
-        self.id2typedefref.insert(ident_ref, typedefref.clone());
-
-        Ok((typedefref, info))
+        Ok(id)
     }
 
-    fn resolve_type(&mut self, ty: &parse::Type) -> Result<(Type, TypeInfo)> {
-        match ty {
-            parse::Type::Bool => Ok((Type::Bool, TypeInfo::empty())),
-            parse::Type::U8 => Ok((Type::U8, TypeInfo::empty())),
-            parse::Type::U16 => Ok((Type::U16, TypeInfo::empty())),
-            parse::Type::U32 => Ok((Type::U32, TypeInfo::empty())),
-            parse::Type::U64 => Ok((Type::U64, TypeInfo::empty())),
-            parse::Type::S8 => Ok((Type::S8, TypeInfo::empty())),
-            parse::Type::S16 => Ok((Type::S16, TypeInfo::empty())),
-            parse::Type::S32 => Ok((Type::S32, TypeInfo::empty())),
-            parse::Type::S64 => Ok((Type::S64, TypeInfo::empty())),
-            parse::Type::Float32 => Ok((Type::Float32, TypeInfo::empty())),
-            parse::Type::Float64 => Ok((Type::Float64, TypeInfo::empty())),
-            parse::Type::Char => Ok((Type::Char, TypeInfo::empty())),
-            parse::Type::String => Ok((Type::String, TypeInfo::HAS_LIST)),
-            parse::Type::List(ty) => {
-                let (ty, info) = self.resolve_type(ty)?;
-
-                Ok((Type::List(Box::new(ty)), info | TypeInfo::HAS_LIST))
-            }
-            parse::Type::Option(ty) => {
-                let (ty, info) = self.resolve_type(ty)?;
-
-                Ok((Type::Option(Box::new(ty)), info))
-            }
+    fn resolve_type(&mut self, ty: &parse::Type) -> Result<Type> {
+        let ty = match ty {
+            parse::Type::Bool => Type::Bool,
+            parse::Type::U8 => Type::U8,
+            parse::Type::U16 => Type::U16,
+            parse::Type::U32 => Type::U32,
+            parse::Type::U64 => Type::U64,
+            parse::Type::S8 => Type::S8,
+            parse::Type::S16 => Type::S16,
+            parse::Type::S32 => Type::S32,
+            parse::Type::S64 => Type::S64,
+            parse::Type::Float32 => Type::Float32,
+            parse::Type::Float64 => Type::Float64,
+            parse::Type::Char => Type::Char,
+            parse::Type::String => Type::String,
+            parse::Type::List(ty) => Type::List(Box::new(self.resolve_type(ty)?)),
+            parse::Type::Option(ty) => Type::Option(Box::new(self.resolve_type(ty)?)),
             parse::Type::Tuple(types) => {
-                let (types, info) = types
+                let res: Result<Vec<Type>> = types
                     .iter()
-                    .map(|ty| self.resolve_type(ty).unwrap())
-                    .unzip();
+                    .map(|ty| self.resolve_type(ty))
+                    .partition_result();
 
-                Ok((Type::Tuple(types), info))
+                Type::Tuple(res?)
             }
             parse::Type::Result { ok, err } => {
-                let (ok, ok_info) = ok.as_ref().map(|ty| self.resolve_type(ty).unwrap()).unzip();
+                let ok = ok.as_ref().map(|ty| self.resolve_type(ty)).transpose()?;
 
-                let (err, err_info) = err
-                    .as_ref()
-                    .map(|ty| self.resolve_type(ty).unwrap())
-                    .unzip();
+                let err = err.as_ref().map(|ty| self.resolve_type(ty)).transpose()?;
 
-                Ok((
-                    Type::Result {
-                        ok: ok.map(Box::new),
-                        err: err.map(Box::new),
-                    },
-                    ok_info.unwrap_or_default() | err_info.unwrap_or_default(),
-                ))
+                Type::Result {
+                    ok: ok.map(Box::new),
+                    err: err.map(Box::new),
+                }
             }
             parse::Type::Id(span) => {
                 let ident = self.resolve_ident(span);
-                let typedef = self.id2interface_item.get(ident).expect("undefined type");
 
-                let (tyref, info) = self.resolve_typedef(&typedef.clone())?;
+                if let Some(id) = self.ident2id.get(ident) {
+                    Type::Id(*id)
+                } else {
+                    let typedef = self
+                        .interface
+                        .items
+                        .iter()
+                        .find(|item| {
+                            item.ident == *span
+                                && !matches!(item.inner, parse::InterfaceItemInner::Func(_))
+                        })
+                        .unwrap();
 
-                Ok((Type::Id(tyref), info))
+                    let id = self.resolve_typedef(&typedef.clone())?;
+
+                    Type::Id(id)
+                }
             }
-        }
+        };
+
+        Ok(ty)
     }
 
     fn resolve_named_types(
         &mut self,
         named_types: &[(Span, parse::Type)],
-    ) -> Result<(Vec<(String, Type)>, TypeInfo)> {
+    ) -> Result<Vec<(String, Type)>> {
         Ok(named_types
             .iter()
             .map(|(ident, ty)| {
                 let ident = self.resolve_ident(&ident).to_string();
-                let (ty, info) = self.resolve_type(&ty).unwrap();
+                let ty = self.resolve_type(&ty).unwrap();
 
-                ((ident, ty), info)
+                (ident, ty)
             })
-            .unzip())
+            .collect())
     }
 
     fn resolve_func(
@@ -433,26 +415,18 @@ impl<'a> Resolver<'a> {
         let docs = self.resolve_docs(docs);
         let ident = self.resolve_ident(ident).to_string();
 
-        let (params, _) = self.resolve_named_types(&func.params)?;
+        let params = self.resolve_named_types(&func.params)?;
 
         let results = match &func.results {
             parse::FuncResult::Anon(ty) => {
-                let (ty, _) = self.resolve_type(ty)?;
+                let ty = self.resolve_type(ty)?;
                 FunctionResult::Anon(ty)
             }
             parse::FuncResult::Named(types) => {
-                let (types, _) = self.resolve_named_types(types)?;
+                let types = self.resolve_named_types(types)?;
                 FunctionResult::Named(types)
             }
         };
-
-        for (_, ty) in &params {
-            self.mark_ty(ty, TypeInfo::PARAM);
-        }
-
-        for ty in results.types() {
-            self.mark_ty(ty, TypeInfo::RESULT);
-        }
 
         Ok(Function {
             docs,
@@ -462,116 +436,63 @@ impl<'a> Resolver<'a> {
         })
     }
 
-    fn mark_typedef(&self, typedef: &TypeDefRef, info: TypeInfo) {
-        typedef.borrow_mut().info |= info;
-
-        match &typedef.borrow().kind {
-            TypeDefKind::Alias(ty) => self.mark_ty(ty, info),
-            TypeDefKind::Record(fields) => {
-                for field in fields {
-                    self.mark_ty(&field.ty, info);
-                }
-            }
-            TypeDefKind::Variant(cases) => {
-                for case in cases {
-                    if let Some(ty) = &case.ty {
-                        self.mark_ty(ty, info);
-                    }
-                }
-            }
-            TypeDefKind::Union(cases) => {
-                for case in cases {
-                    self.mark_ty(&case.ty, info);
-                }
-            }
-            _ => {}
-        }
-    }
-
-    fn mark_ty(&self, ty: &Type, info: TypeInfo) {
-        match ty {
-            Type::List(ty) | Type::Option(ty) => self.mark_ty(ty, info),
-            Type::Tuple(types) => {
-                for ty in types {
-                    self.mark_ty(ty, info);
-                }
-            }
-            Type::Result { ok, err } => {
-                if let Some(ty) = &ok {
-                    self.mark_ty(ty, info);
-                }
-                if let Some(ty) = &err {
-                    self.mark_ty(ty, info);
-                }
-            }
-            Type::Id(typedef) => self.mark_typedef(typedef, info),
-            _ => {}
-        }
-    }
-
     fn verify_not_recursive(
         &self,
-        typedef: &TypeDefRef,
-        visiting: &mut HashSet<*const RefCell<TypeDef>>,
-        valid: &mut BTreeMap<String, TypeDefRef>,
+        ident: Span,
+        id: Id<TypeDef>,
+        visiting: &mut HashSet<Id<TypeDef>>,
+        valid: &mut HashSet<Id<TypeDef>>,
     ) -> Result<()> {
-        if valid.contains_key(&typedef.borrow().ident) {
+        if valid.contains(&id) {
             return Ok(());
         }
 
-        if !visiting.insert(Rc::as_ptr(&typedef)) {
-            return Err(Error::recursive_type(
-                self.id2interface_item[typedef.borrow().ident.deref()]
-                    .ident
-                    .clone(),
-            ));
+        if !visiting.insert(id) {
+            return Err(Error::recursive_type(ident));
         }
 
-        match &self.id2typedefref[typedef.borrow().ident.deref()]
-            .borrow()
-            .kind
-        {
+        match &self.typedefs[id].kind {
             TypeDefKind::Record(fields) => {
                 for field in fields {
-                    if let Type::Id(typedef) = &field.ty {
-                        self.verify_not_recursive(typedef, visiting, valid)?;
+                    if let Type::Id(id) = field.ty {
+                        self.verify_not_recursive(ident.clone(), id, visiting, valid)?;
                     }
                 }
             }
             TypeDefKind::Union(cases) => {
                 for case in cases {
-                    if let Type::Id(typedef) = &case.ty {
-                        self.verify_not_recursive(typedef, visiting, valid)?;
+                    if let Type::Id(id) = case.ty {
+                        self.verify_not_recursive(ident.clone(), id, visiting, valid)?;
                     }
                 }
             }
             TypeDefKind::Variant(cases) => {
                 for case in cases {
-                    if let Some(Type::Id(typedef)) = &case.ty {
-                        self.verify_not_recursive(typedef, visiting, valid)?;
+                    if let Some(Type::Id(id)) = case.ty {
+                        self.verify_not_recursive(ident.clone(), id, visiting, valid)?;
                     }
                 }
             }
             TypeDefKind::Alias(ty) => match ty {
                 Type::Tuple(types) => {
                     for ty in types {
-                        if let Type::Id(typedef) = ty {
-                            self.verify_not_recursive(&typedef, visiting, valid)?;
+                        if let Type::Id(id) = ty {
+                            self.verify_not_recursive(ident.clone(), *id, visiting, valid)?;
                         }
                     }
                 }
                 Type::List(ty) | Type::Option(ty) => {
-                    if let Type::Id(typedef) = &**ty {
-                        self.verify_not_recursive(typedef, visiting, valid)?;
+                    if let Type::Id(id) = **ty {
+                        self.verify_not_recursive(ident.clone(), id, visiting, valid)?;
                     }
                 }
                 Type::Result { ok, err } => {
-                    if let Some(Type::Id(typedef)) = ok.as_deref() {
-                        self.verify_not_recursive(typedef, visiting, valid)?;
+                    if let Some(Type::Id(id)) = ok.as_deref() {
+                        self.verify_not_recursive(ident.clone(), *id, visiting, valid)?;
                     }
 
-                    if let Some(Type::Id(typedef)) = err.as_deref() {
-                        self.verify_not_recursive(typedef, visiting, valid)?;
+                    if let Some(Type::Id(id)) = err.as_deref() {
+                        self.verify_not_recursive(ident, *id, visiting, valid)?;
                     }
                 }
                 _ => {}
@@ -579,8 +500,8 @@ impl<'a> Resolver<'a> {
             _ => {}
         }
 
-        valid.insert(typedef.borrow().ident.to_string(), typedef.clone());
-        visiting.remove(&Rc::as_ptr(typedef));
+        valid.insert(id);
+        visiting.remove(&id);
 
         Ok(())
     }
@@ -602,83 +523,33 @@ impl<'a> Resolver<'a> {
             })
             .collect();
 
-        let typedefs: Vec<_> = functions
-            .iter()
-            .flat_map(|func| {
-                let param_typedefs = func.params.iter().flat_map(|(_, ty)| extract_typedefs(ty));
-
-                let result_typedefs = func.result.types().flat_map(|ty| extract_typedefs(ty));
-
-                param_typedefs.chain(result_typedefs)
-            })
-            .cloned()
-            .collect();
-
         let mut visiting = HashSet::new();
-        let mut valid_types = BTreeMap::new();
-        for typedef in &typedefs {
-            self.verify_not_recursive(typedef, &mut visiting, &mut valid_types)?;
+        let mut valid_types = HashSet::new();
+        for (id, typedef) in &self.typedefs {
+            let ident_span = self
+                .interface
+                .items
+                .iter()
+                .find_map(|item| {
+                    if self.resolve_ident(&item.ident) == typedef.ident
+                        && !matches!(item.inner, parse::InterfaceItemInner::Func(_))
+                    {
+                        Some(item.ident.clone())
+                    } else {
+                        None
+                    }
+                })
+                .unwrap();
+
+            self.verify_not_recursive(ident_span, id, &mut visiting, &mut valid_types)?;
         }
 
         Ok(Interface {
             docs,
             ident,
             functions,
-            typedefs: valid_types.into_values().collect(),
+            typedefs: self.typedefs,
         })
-    }
-}
-
-fn extract_typedefs<'a>(ty: &'a Type) -> ExtractedTypes<'a> {
-    match ty {
-        Type::Id(typedef) => ExtractedTypes::One(std::iter::once(typedef)),
-        Type::List(ty) | Type::Option(ty) => extract_typedefs(ty),
-        Type::Tuple(types) => {
-            let iter: Vec<_> = types.iter().flat_map(|ty| extract_typedefs(ty)).collect();
-
-            ExtractedTypes::Many(iter.into_iter())
-        }
-        Type::Result { ok, err } => {
-            let ok = ok.as_deref().into_iter();
-            let err = err.as_deref().into_iter();
-
-            let iter: Vec<_> = ok.chain(err).flat_map(|ty| extract_typedefs(ty)).collect();
-
-            ExtractedTypes::Many(iter.into_iter())
-        }
-        _ => ExtractedTypes::None,
-    }
-}
-
-enum ExtractedTypes<'a> {
-    None,
-    One(std::iter::Once<&'a TypeDefRef>),
-    Many(std::vec::IntoIter<&'a TypeDefRef>),
-}
-
-impl<'a> Iterator for ExtractedTypes<'a> {
-    type Item = &'a TypeDefRef;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        match self {
-            ExtractedTypes::None => None,
-            ExtractedTypes::One(iter) => iter.next(),
-            ExtractedTypes::Many(iter) => iter.next(),
-        }
-    }
-}
-
-bitflags::bitflags! {
-    #[derive(Default)]
-    pub struct TypeInfo: u32 {
-        /// Whether or not this type is ever used (transitively) within the
-        /// parameter of a function.
-        const PARAM = 0b0000_0001;
-        /// Whether or not this type is ever used (transitively) within the
-        /// result of a function.
-        const RESULT = 0b0000_0010;
-        /// Whether or not this type (transitively) has a list.
-        const HAS_LIST = 0b0000_1000;
     }
 }
 

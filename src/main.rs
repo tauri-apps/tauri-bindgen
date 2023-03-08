@@ -2,7 +2,11 @@ mod logger;
 
 use clap::{ArgAction, Parser};
 use miette::{bail, IntoDiagnostic, Result, WrapErr};
-use std::{collections::HashSet, path::PathBuf};
+use std::{
+    collections::HashSet,
+    path::{Path, PathBuf},
+};
+use tauri_bindgen_core::GeneratorBuilder;
 
 /// Helper for passing VERSION to opt.
 /// If `CARGO_VERSION_INFO` is set, use it, otherwise use `CARGO_PKG_VERSION`.
@@ -12,18 +16,19 @@ fn version() -> &'static str {
 
 #[derive(Debug, Parser)]
 #[clap(version = version())]
-struct Opt {
+struct CLI {
     #[clap(flatten)]
     common: Common,
     #[clap(subcommand)]
-    category: Category,
-    /// Enables verbose logging
-    #[clap(short, long, global = true, action = ArgAction::Count)]
-    verbose: u8,
+    cmd: Command,
 }
 
 #[derive(Debug, Parser)]
-enum Category {
+enum Command {
+    Check {
+        #[clap(flatten)]
+        world: WorldOpt,
+    },
     /// Generator for creating bindings that are exposed to the WebView.
     Host(HostGenerator),
     /// Generators for webview libraries.
@@ -32,7 +37,7 @@ enum Category {
     /// This generator outputs a Markdown file describing an interface.
     Markdown {
         #[clap(flatten)]
-        opts: tauri_bindgen_gen_markdown::Opts,
+        builder: tauri_bindgen_gen_markdown::Builder,
         #[clap(flatten)]
         world: WorldOpt,
     },
@@ -41,7 +46,7 @@ enum Category {
 #[derive(Debug, Parser)]
 struct HostGenerator {
     #[clap(flatten)]
-    opts: tauri_bindgen_gen_host::Opts,
+    builder: tauri_bindgen_gen_host::Builder,
     #[clap(flatten)]
     world: WorldOpt,
 }
@@ -51,14 +56,14 @@ enum GuestGenerator {
     /// Generates bindings for Rust guest modules using wasm-bindgen.
     Rust {
         #[clap(flatten)]
-        opts: tauri_bindgen_gen_guest_rust::Opts,
+        builder: tauri_bindgen_gen_guest_rust::Builder,
         #[clap(flatten)]
         world: WorldOpt,
     },
     /// Generates bindings for JavaScript guest modules.
     Javascript {
         #[clap(flatten)]
-        opts: tauri_bindgen_gen_guest_js::Opts,
+        builder: tauri_bindgen_gen_guest_js::Builder,
         #[clap(flatten)]
         world: WorldOpt,
     },
@@ -86,6 +91,9 @@ struct Common {
     /// Where to place output files
     #[clap(global = true, long = "out-dir")]
     out_dir: Option<PathBuf>,
+    /// Enables verbose logging
+    #[clap(short, long, global = true, action = ArgAction::Count)]
+    verbose: u8,
 }
 
 // A thin wrapper around `run` so we can pretty-print the error
@@ -96,22 +104,40 @@ fn main() {
 }
 
 fn run() -> Result<()> {
-    let opt: Opt = Opt::parse();
+    let opt = CLI::parse();
 
-    logger::init(opt.verbose);
+    logger::init(opt.common.verbose);
 
-    let (path, contents) = match opt.category {
-        Category::Host(HostGenerator { opts, world, .. }) => gen_interface(&opts.build(), world)?,
-        Category::Guest(GuestGenerator::Rust { opts, world, .. }) => {
-            gen_interface(&opts.build(), world)?
+    let out_dir = &opt.common.out_dir.unwrap_or_default();
+    match opt.cmd {
+        Command::Check { world } => check_interface(world)?,
+        Command::Host(HostGenerator { builder, world, .. }) => {
+            let (path, contents) = gen_interface(builder, world)?;
+
+            write_file(&out_dir, &path, &contents)?;
         }
-        Category::Guest(GuestGenerator::Javascript { opts, world, .. }) => {
-            gen_interface(&opts.build(), world)?
+        Command::Guest(GuestGenerator::Rust { builder, world, .. }) => {
+            let (path, contents) = gen_interface(builder, world)?;
+
+            write_file(&out_dir, &path, &contents)?;
         }
-        Category::Markdown { opts, world } => gen_interface(&opts.build(), world)?,
+        Command::Guest(GuestGenerator::Javascript { builder, world, .. }) => {
+            let (path, contents) = gen_interface(builder, world)?;
+
+            write_file(&out_dir, &path, &contents)?;
+        }
+        Command::Markdown { builder, world } => {
+            let (path, contents) = gen_interface(builder, world)?;
+
+            write_file(&out_dir, &path, &contents)?;
+        }
     };
 
-    let dst = opt.common.out_dir.unwrap_or_default().join(path);
+    Ok(())
+}
+
+fn write_file(out_dir: &Path, path: &Path, contents: &str) -> Result<()> {
+    let dst = out_dir.join(path);
 
     log::info!("Generating {dst:?}");
     if let Some(parent) = dst.parent() {
@@ -126,10 +152,10 @@ fn run() -> Result<()> {
     Ok(())
 }
 
-fn gen_interface(
-    generator: &dyn tauri_bindgen_core::Generate,
-    opts: WorldOpt,
-) -> Result<(PathBuf, String)> {
+fn gen_interface<B>(builder: B, opts: WorldOpt) -> Result<(PathBuf, String)>
+where
+    B: GeneratorBuilder,
+{
     if !opts.wit.is_file() {
         bail!("wit file `{}` does not exist", opts.wit.display());
     }
@@ -139,5 +165,16 @@ fn gen_interface(
 
     let iface = wit_parser::parse_file(&opts.wit, |t| skipset.contains(t))?;
 
-    Ok(generator.to_string(&iface))
+    let gen = builder.build(iface);
+
+    Ok(gen.to_file())
+}
+
+fn check_interface(opts: WorldOpt) -> Result<()> {
+    let skipset: HashSet<String, std::collections::hash_map::RandomState> =
+        opts.skip.into_iter().collect();
+
+    wit_parser::parse_file(&opts.wit, |t| skipset.contains(t))?;
+
+    Ok(())
 }

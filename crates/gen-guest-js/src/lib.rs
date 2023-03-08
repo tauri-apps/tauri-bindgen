@@ -2,8 +2,8 @@
 
 use heck::{ToKebabCase, ToLowerCamelCase, ToUpperCamelCase};
 use std::path::PathBuf;
-use tauri_bindgen_core::{postprocess, Generate};
-use wit_parser::{Function, Type, TypeDefKind};
+use tauri_bindgen_core::{postprocess, Generate, GeneratorBuilder};
+use wit_parser::{Function, Interface, Type, TypeDefKind};
 
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -11,7 +11,7 @@ use wit_parser::{Function, Type, TypeDefKind};
     clap::ArgGroup::new("fmt")
         .args(&["prettier", "romefmt"]),
 )))]
-pub struct Opts {
+pub struct Builder {
     /// Run `prettier` to format the generated code. This requires a global installation of `prettier`.
     #[cfg_attr(feature = "clap", clap(long))]
     pub prettier: bool,
@@ -20,18 +20,19 @@ pub struct Opts {
     pub romefmt: bool,
 }
 
-impl Opts {
-    pub fn build(self) -> JavaScript {
-        JavaScript {
+impl GeneratorBuilder for Builder {
+    fn build(self, interface: Interface) -> Box<dyn Generate> {
+        Box::new(JavaScript {
             opts: self,
-            ..Default::default()
-        }
+            interface,
+        })
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct JavaScript {
-    opts: Opts,
+    opts: Builder,
+    interface: Interface,
 }
 
 impl JavaScript {
@@ -118,7 +119,7 @@ impl JavaScript {
                 format!("[{types}]")
             }
             Type::List(ty) => {
-                let ty = array_ty(ty).unwrap_or(self.print_ty(ty));
+                let ty = self.array_ty(ty).unwrap_or(self.print_ty(ty));
                 format!("{ty}[]")
             }
             Type::Option(ty) => {
@@ -138,14 +139,41 @@ impl JavaScript {
 
                 format!("Result<{ok}, {err}>")
             }
-            Type::Id(typedef) => typedef.borrow().ident.to_upper_camel_case(),
+            Type::Id(id) => self.interface.typedefs[*id].ident.to_upper_camel_case(),
+        }
+    }
+
+    fn array_ty(&self, ty: &Type) -> Option<String> {
+        match ty {
+            Type::U8 => Some("Uint8Array".to_string()),
+            Type::S8 => Some("Int8Array".to_string()),
+            Type::U16 => Some("Uint16Array".to_string()),
+            Type::S16 => Some("Int16Array".to_string()),
+            Type::U32 => Some("Uint32Array".to_string()),
+            Type::S32 => Some("Int32Array".to_string()),
+            Type::U64 => Some("BigUint64Array".to_string()),
+            Type::S64 => Some("BigInt64Array".to_string()),
+            Type::Float32 => Some("Float32Array".to_string()),
+            Type::Float64 => Some("Float64Array".to_string()),
+            Type::Id(id) => match &self.interface.typedefs[*id].kind {
+                TypeDefKind::Alias(t) => self.array_ty(t),
+                _ => None,
+            },
+            Type::Bool
+            | Type::Tuple(_)
+            | Type::List(_)
+            | Type::Option(_)
+            | Type::Result { .. }
+            | Type::Char
+            | Type::String => None,
         }
     }
 }
 
 impl Generate for JavaScript {
-    fn to_string(&self, iface: &wit_parser::Interface) -> (std::path::PathBuf, String) {
-        let mut contents = iface
+    fn to_file(&self) -> (std::path::PathBuf, String) {
+        let mut contents = self
+            .interface
             .functions
             .iter()
             .map(|func| self.print_function(func))
@@ -164,35 +192,9 @@ impl Generate for JavaScript {
             .expect("failed to run `rome format`");
         }
 
-        let mut filename = PathBuf::from(iface.ident.to_kebab_case());
+        let mut filename = PathBuf::from(self.interface.ident.to_kebab_case());
         filename.set_extension("js");
 
         (filename, contents)
-    }
-}
-
-fn array_ty(ty: &Type) -> Option<String> {
-    match ty {
-        Type::U8 => Some("Uint8Array".to_string()),
-        Type::S8 => Some("Int8Array".to_string()),
-        Type::U16 => Some("Uint16Array".to_string()),
-        Type::S16 => Some("Int16Array".to_string()),
-        Type::U32 => Some("Uint32Array".to_string()),
-        Type::S32 => Some("Int32Array".to_string()),
-        Type::U64 => Some("BigUint64Array".to_string()),
-        Type::S64 => Some("BigInt64Array".to_string()),
-        Type::Float32 => Some("Float32Array".to_string()),
-        Type::Float64 => Some("Float64Array".to_string()),
-        Type::Id(typedef) => match &typedef.borrow().kind {
-            TypeDefKind::Alias(t) => array_ty(t),
-            _ => None,
-        },
-        Type::Bool
-        | Type::Tuple(_)
-        | Type::List(_)
-        | Type::Option(_)
-        | Type::Result { .. }
-        | Type::Char
-        | Type::String => None,
     }
 }

@@ -8,13 +8,13 @@ use proc_macro2::TokenStream;
 use quote::format_ident;
 use quote::quote;
 use syn::parse_quote;
-use tauri_bindgen_gen_rust::{BorrowMode, FnSig, RustGenerator};
-use wit_parser::TypeInfo;
+use tauri_bindgen_core::{Generate, GeneratorBuilder};
+use tauri_bindgen_gen_rust::{BorrowMode, FnSig, RustGenerator, TypeInfo, TypeInfos};
 use wit_parser::{Function, Interface};
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
-pub struct Opts {
+pub struct Builder {
     /// Whether or not `rustfmt` is executed to format generated code.
     #[cfg_attr(feature = "clap", clap(long))]
     pub fmt: bool,
@@ -28,18 +28,103 @@ pub struct Opts {
     pub async_: bool,
 }
 
-impl Opts {
-    pub fn build(self) -> Host {
-        Host {
-            opts: self,
-            inner: RustGenerator::new(get_serde_attrs),
+impl GeneratorBuilder for Builder {
+    fn build(self, interface: Interface) -> Box<dyn Generate> {
+        let mut infos = TypeInfos::new();
+
+        for func in &interface.functions {
+            infos.collect_param_info(&interface.typedefs, &func.params);
+            infos.collect_result_info(&interface.typedefs, &func.result);
         }
+
+        Box::new(Host {
+            opts: self,
+            interface,
+            infos,
+        })
     }
 }
 
 pub struct Host {
-    opts: Opts,
-    inner: RustGenerator,
+    opts: Builder,
+    interface: Interface,
+    infos: TypeInfos,
+}
+
+impl RustGenerator for Host {
+    fn interface(&self) -> &Interface {
+        &self.interface
+    }
+
+    fn infos(&self) -> &TypeInfos {
+        &self.infos
+    }
+
+    fn additional_attrs(&self, ident: &str, info: TypeInfo) -> Option<TokenStream> {
+        let mut attrs = vec![];
+        if tauri_bindgen_gen_rust::uses_two_names(info) {
+            if ident.ends_with("Param") {
+                attrs.push(quote! { tauri_bindgen_abi::Readable })
+            } else if ident.ends_with("Result") {
+                attrs.push(quote! { tauri_bindgen_abi::Writable })
+            }
+        } else {
+            if info.contains(TypeInfo::PARAM) {
+                attrs.push(quote! { tauri_bindgen_abi::Readable })
+            }
+            if info.contains(TypeInfo::RESULT) {
+                attrs.push(quote! { tauri_bindgen_abi::Writable })
+            }
+        }
+
+        Some(quote! { #[derive(#(#attrs),*)] })
+    }
+}
+
+impl Generate for Host {
+    fn to_tokens(&self) -> TokenStream {
+        let docs = self.print_docs(&self.interface.docs);
+
+        let ident = format_ident!("{}", self.interface.ident.to_snake_case());
+
+        let typedefs = self.print_typedefs(
+            self.interface.typedefs.iter().map(|(id, _)| id),
+            &BorrowMode::Owned,
+        );
+
+        let trait_ = self.print_trait(&self.interface.ident, self.interface.functions.iter());
+
+        let add_to_router =
+            self.print_add_to_router(&self.interface.ident, self.interface.functions.iter());
+
+        quote! {
+            #docs
+            pub mod #ident {
+                use ::tauri_bindgen_host::tauri_bindgen_abi;
+                use ::tauri_bindgen_host::bitflags;
+
+                #typedefs
+
+                #trait_
+
+                #add_to_router
+            }
+        }
+    }
+
+    fn to_file(&self) -> (PathBuf, String) {
+        let mut filename = PathBuf::from(self.interface.ident.to_kebab_case());
+        filename.set_extension("rs");
+
+        let tokens = self.to_tokens();
+
+        if self.opts.fmt {
+            let syntax_tree = syn::parse2(tokens).unwrap();
+            (filename, prettyplease::unparse(&syntax_tree))
+        } else {
+            (filename, tokens.to_string())
+        }
+    }
 }
 
 impl Host {
@@ -59,7 +144,7 @@ impl Host {
                 func,
             };
 
-            let sig = self.inner.print_function_signature(
+            let sig = self.print_function_signature(
                 &sig,
                 &BorrowMode::Owned,
                 &BorrowMode::AllBorrowed(parse_quote!('_)),
@@ -89,8 +174,7 @@ impl Host {
             let func_ident = format_ident!("{}", func_name);
 
             let params = self
-                .inner
-                .print_function_params(func.params.iter(), &BorrowMode::Owned);
+                .print_function_params(&func.params, &BorrowMode::Owned);
 
             let param_idents = func
                 .params
@@ -98,11 +182,10 @@ impl Host {
                 .map(|(ident, _)| format_ident!("{}", ident));
 
             let results = self
-                .inner
                 .print_function_result(&func.result, &BorrowMode::AllBorrowed(parse_quote!('_)));
 
             quote! {
-                router.func_wrap(#mod_name, #func_name, move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, #(#params),*| #results {
+                router.func_wrap(#mod_name, #func_name, move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, #params| #results {
                     let cx = get_cx(cx.data_mut());
 
                     cx.#func_ident(#(#param_idents),*)
@@ -124,69 +207,4 @@ impl Host {
             }
         }
     }
-}
-
-impl tauri_bindgen_core::Generate for Host {
-    fn to_tokens(&self, iface: &Interface) -> TokenStream {
-        let docs = self.inner.print_docs(&iface.docs);
-
-        let ident = format_ident!("{}", iface.ident.to_snake_case());
-
-        let typedefs = self.inner.print_typedefs(
-            iface.typedefs.iter().map(|typedef| typedef.borrow()),
-            &BorrowMode::Owned,
-        );
-
-        let trait_ = self.print_trait(&iface.ident, iface.functions.iter());
-
-        let add_to_router = self.print_add_to_router(&iface.ident, iface.functions.iter());
-
-        quote! {
-            #docs
-            pub mod #ident {
-                use ::tauri_bindgen_host::tauri_bindgen_abi;
-                use ::tauri_bindgen_host::bitflags;
-
-                #typedefs
-
-                #trait_
-
-                #add_to_router
-            }
-        }
-    }
-
-    fn to_string(&self, iface: &Interface) -> (PathBuf, String) {
-        let mut filename = PathBuf::from(iface.ident.to_kebab_case());
-        filename.set_extension("rs");
-
-        let tokens = self.to_tokens(iface);
-
-        if self.opts.fmt {
-            let syntax_tree = syn::parse2(tokens).unwrap();
-            (filename, prettyplease::unparse(&syntax_tree))
-        } else {
-            (filename, tokens.to_string())
-        }
-    }
-}
-
-fn get_serde_attrs(name: &str, info: TypeInfo) -> Option<TokenStream> {
-    let mut attrs = vec![];
-    if tauri_bindgen_gen_rust::uses_two_names(info) {
-        if name.ends_with("Param") {
-            attrs.push(quote! { tauri_bindgen_abi::Readable })
-        } else if name.ends_with("Result") {
-            attrs.push(quote! { tauri_bindgen_abi::Writable })
-        }
-    } else {
-        if info.contains(TypeInfo::PARAM) {
-            attrs.push(quote! { tauri_bindgen_abi::Readable })
-        }
-        if info.contains(TypeInfo::RESULT) {
-            attrs.push(quote! { tauri_bindgen_abi::Writable })
-        }
-    }
-
-    Some(quote! { #[derive(#(#attrs),*)] })
 }

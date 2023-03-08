@@ -1,6 +1,37 @@
 use std::fmt::Display;
 use std::fmt::Write;
 
+pub trait IteratorExt<T, E, FromT, FromE> {
+    fn partition_result(self) -> Result<FromT, FromE>;
+}
+
+impl<T, E, FromT, FromE, I> IteratorExt<T, E, FromT, FromE> for I
+where
+    I: Iterator<Item = Result<T, E>>,
+    FromT: FromIterator<T>,
+    FromE: FromIterator<E>,
+{
+    fn partition_result(self) -> Result<FromT, FromE> {
+        let (types, errors): (Vec<_>, Vec<_>) = self.partition(Result::is_ok);
+
+        if errors.is_empty() {
+            let results: FromT = types
+                .into_iter()
+                .map(|v| unsafe { v.unwrap_unchecked() })
+                .collect();
+
+            Ok(results)
+        } else {
+            let errors: FromE = errors
+                .into_iter()
+                .map(|v| unsafe { v.unwrap_err_unchecked() })
+                .collect();
+
+            Err(errors)
+        }
+    }
+}
+
 pub fn print_list<T: Display>(iter: impl IntoIterator<Item = T>) -> String {
     let mut iter = iter.into_iter().peekable();
     let mut out = String::new();

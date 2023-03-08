@@ -1,76 +1,49 @@
 use heck::{ToShoutySnekCase, ToSnakeCase, ToUpperCamelCase};
 use proc_macro2::{Ident, Literal, TokenStream};
 use quote::{format_ident, quote};
-use std::{collections::HashMap, ops::Deref};
+use std::{collections::HashMap, ops::Index};
 use syn::Lifetime;
 
 use wit_parser::{
-    EnumCase, FlagsField, Function, FunctionResult, Int, RecordField, Type, TypeDef, TypeDefKind,
-    TypeInfo, UnionCase, VariantCase,
+    EnumCase, FlagsField, Function, FunctionResult, Int, Interface, RecordField, Type,
+    TypeDefArena, TypeDefId, TypeDefKind, UnionCase, VariantCase,
 };
 
-pub struct RustGenerator {
-    additional_attrs: Box<dyn Fn(&str, TypeInfo) -> Option<TokenStream>>,
-}
+pub trait RustGenerator {
+    fn interface(&self) -> &Interface;
+    fn infos(&self) -> &TypeInfos;
+    fn additional_attrs(&self, ident: &str, info: TypeInfo) -> Option<TokenStream>;
 
-impl RustGenerator {
-    pub fn new(additional_attrs: impl Fn(&str, TypeInfo) -> Option<TokenStream> + 'static) -> Self {
-        Self {
-            additional_attrs: Box::new(additional_attrs),
-        }
-    }
-
-    pub fn print_typedefs<'a>(
-        &'a self,
-        typedefs: impl Iterator<Item = impl Deref<Target = TypeDef>> + 'a,
+    fn print_typedefs(
+        &self,
+        ids: impl Iterator<Item = TypeDefId>,
         mode: &BorrowMode,
     ) -> TokenStream {
         let mut typedefs_out = Vec::new();
 
-        for typedef in typedefs {
-            let variants = variants_of(&typedef.ident.to_upper_camel_case(), typedef.info, mode);
+        for id in ids {
+            let typedef = &self.interface().typedefs[id];
+            let info = self.infos()[id];
+            let variants = variants_of(&typedef.ident.to_upper_camel_case(), info, mode);
 
             for TypeVariant { ident, borrow_mode } in variants {
                 let docs = &typedef.docs;
 
                 let typedef = match &typedef.kind {
                     TypeDefKind::Alias(ty) => {
-                        self.print_alias(docs, &ident, &ty, typedef.info, &borrow_mode)
+                        self.print_alias(docs, &ident, &ty, info, &borrow_mode)
                     }
-                    TypeDefKind::Record(fields) => self.print_record(
-                        docs,
-                        &ident,
-                        &fields,
-                        typedef.info,
-                        &borrow_mode,
-                        &self.additional_attrs,
-                    ),
-                    TypeDefKind::Flags(fields) => self.print_flags(
-                        docs,
-                        &ident,
-                        &fields,
-                        typedef.info,
-                        &self.additional_attrs,
-                    ),
-                    TypeDefKind::Variant(cases) => self.print_variant(
-                        docs,
-                        &ident,
-                        &cases,
-                        typedef.info,
-                        &borrow_mode,
-                        &self.additional_attrs,
-                    ),
-                    TypeDefKind::Enum(cases) => {
-                        self.print_enum(docs, &ident, &cases, typedef.info, &self.additional_attrs)
+                    TypeDefKind::Record(fields) => {
+                        self.print_record(docs, &ident, &fields, info, &borrow_mode)
                     }
-                    TypeDefKind::Union(cases) => self.print_union(
-                        docs,
-                        &ident,
-                        &cases,
-                        typedef.info,
-                        &borrow_mode,
-                        &self.additional_attrs,
-                    ),
+                    TypeDefKind::Flags(fields) => self.print_flags(docs, &ident, &fields, info),
+                    TypeDefKind::Variant(cases) => {
+                        self.print_variant(docs, &ident, &cases, info, &borrow_mode)
+                    }
+                    TypeDefKind::Enum(cases) => self.print_enum(docs, &ident, &cases, info),
+                    TypeDefKind::Union(cases) => {
+                        self.print_union(docs, &ident, &cases, info, &borrow_mode)
+                    }
                 };
 
                 typedefs_out.push(typedef);
@@ -80,7 +53,7 @@ impl RustGenerator {
         quote! { #(#typedefs_out)* }
     }
 
-    pub fn print_ty(&self, ty: &Type, mode: &BorrowMode) -> TokenStream {
+    fn print_ty(&self, ty: &Type, mode: &BorrowMode) -> TokenStream {
         match ty {
             Type::Bool => quote! { bool },
             Type::U8 => quote! { u8 },
@@ -130,10 +103,11 @@ impl RustGenerator {
 
                 quote! { Result<#ok, #err> }
             }
-            Type::Id(typedef) => {
-                let typedef = typedef.borrow();
+            Type::Id(id) => {
+                let typedef = &self.interface().typedefs[*id];
+                let info = self.infos()[*id];
 
-                let ident = if uses_two_names(typedef.info) {
+                let ident = if uses_two_names(info) {
                     match mode {
                         BorrowMode::Owned => {
                             format_ident!("{}Result", typedef.ident.to_upper_camel_case())
@@ -146,14 +120,14 @@ impl RustGenerator {
                     format_ident!("{}", typedef.ident.to_upper_camel_case())
                 };
 
-                let generics = print_generics(typedef.info, mode);
+                let generics = print_generics(info, mode);
 
                 quote! { #ident #generics }
             }
         }
     }
 
-    pub fn print_alias(
+    fn print_alias(
         &self,
         docs: &str,
         ident: &Ident,
@@ -171,17 +145,16 @@ impl RustGenerator {
         }
     }
 
-    pub fn print_record(
+    fn print_record(
         &self,
         docs: &str,
         ident: &Ident,
         fields: &[RecordField],
         info: TypeInfo,
         mode: &BorrowMode,
-        additional_attrs: impl Fn(&str, TypeInfo) -> Option<TokenStream>,
     ) -> TokenStream {
         let docs = self.print_docs(docs);
-        let additional_attrs = additional_attrs(&ident.to_string(), info);
+        let additional_attrs = self.additional_attrs(&ident.to_string(), info);
         let generics = print_generics(info, mode);
         let fields = fields
             .iter()
@@ -196,7 +169,7 @@ impl RustGenerator {
         }
     }
 
-    pub fn print_record_field(&self, field: &RecordField, mode: &BorrowMode) -> TokenStream {
+    fn print_record_field(&self, field: &RecordField, mode: &BorrowMode) -> TokenStream {
         let docs = self.print_docs(&field.docs);
         let ident = format_ident!("{}", field.ident.to_snake_case());
         let ty = self.print_ty(&field.ty, mode);
@@ -207,16 +180,15 @@ impl RustGenerator {
         }
     }
 
-    pub fn print_flags(
+    fn print_flags(
         &self,
         docs: &str,
         ident: &Ident,
         fields: &[FlagsField],
         info: TypeInfo,
-        additional_attrs: impl Fn(&str, TypeInfo) -> Option<TokenStream>,
     ) -> TokenStream {
         let docs = self.print_docs(docs);
-        let additional_attrs = additional_attrs(&ident.to_string(), info);
+        let additional_attrs = self.additional_attrs(&ident.to_string(), info);
         let repr = self.print_int(&flags_repr(fields));
 
         let fields = fields
@@ -244,17 +216,16 @@ impl RustGenerator {
         }
     }
 
-    pub fn print_variant(
+    fn print_variant(
         &self,
         docs: &str,
         ident: &Ident,
         cases: &[VariantCase],
         info: TypeInfo,
         mode: &BorrowMode,
-        additional_attrs: impl Fn(&str, TypeInfo) -> Option<TokenStream>,
     ) -> TokenStream {
         let docs = self.print_docs(docs);
-        let additional_attrs = additional_attrs(&ident.to_string(), info);
+        let additional_attrs = self.additional_attrs(&ident.to_string(), info);
         let generics = print_generics(info, mode);
         let cases = cases.iter().map(|case| self.print_variant_case(case, mode));
 
@@ -267,7 +238,7 @@ impl RustGenerator {
         }
     }
 
-    pub fn print_variant_case(&self, case: &VariantCase, mode: &BorrowMode) -> TokenStream {
+    fn print_variant_case(&self, case: &VariantCase, mode: &BorrowMode) -> TokenStream {
         let docs = self.print_docs(&case.docs);
         let ident = format_ident!("{}", case.ident.to_upper_camel_case());
 
@@ -283,16 +254,15 @@ impl RustGenerator {
         }
     }
 
-    pub fn print_enum(
+    fn print_enum(
         &self,
         docs: &str,
         ident: &Ident,
         cases: &[EnumCase],
         info: TypeInfo,
-        additional_attrs: impl Fn(&str, TypeInfo) -> Option<TokenStream>,
     ) -> TokenStream {
         let docs = self.print_docs(docs);
-        let additional_attrs = additional_attrs(&ident.to_string(), info);
+        let additional_attrs = self.additional_attrs(&ident.to_string(), info);
         let cases = cases.iter().map(|case| self.print_enum_case(case));
 
         quote! {
@@ -304,7 +274,7 @@ impl RustGenerator {
         }
     }
 
-    pub fn print_enum_case(&self, case: &EnumCase) -> TokenStream {
+    fn print_enum_case(&self, case: &EnumCase) -> TokenStream {
         let docs = self.print_docs(&case.docs);
         let ident = format_ident!("{}", case.ident.to_upper_camel_case());
 
@@ -314,20 +284,20 @@ impl RustGenerator {
         }
     }
 
-    pub fn print_union(
+    fn print_union(
         &self,
         docs: &str,
         ident: &Ident,
         cases: &[UnionCase],
         info: TypeInfo,
         mode: &BorrowMode,
-        additional_attrs: impl Fn(&str, TypeInfo) -> Option<TokenStream>,
     ) -> TokenStream {
         let docs = self.print_docs(docs);
-        let additional_attrs = additional_attrs(&ident.to_string(), info);
+        let additional_attrs = self.additional_attrs(&ident.to_string(), info);
         let generics = print_generics(info, mode);
 
-        let cases = union_case_names(cases)
+        let cases = self
+            .union_case_names(cases)
             .into_iter()
             .zip(cases)
             .map(|(name, case)| {
@@ -350,7 +320,7 @@ impl RustGenerator {
         }
     }
 
-    pub fn print_function_signature(
+    fn print_function_signature(
         &self,
         sig: &FnSig,
         param_mode: &BorrowMode,
@@ -365,30 +335,28 @@ impl RustGenerator {
 
         let self_arg = sig.self_arg.as_ref().map(|arg| quote! { #arg, });
 
-        let params = self.print_function_params(sig.func.params.iter(), param_mode);
+        let params = self.print_function_params(&sig.func.params, param_mode);
 
         let result = self.print_function_result(&sig.func.result, results_mode);
 
         quote! {
             #docs
-            #pub_ #unsafe_ #async_ fn #ident (#self_arg #(#params),*) #result
+            #pub_ #unsafe_ #async_ fn #ident (#self_arg #params) #result
         }
     }
 
-    pub fn print_function_params<'a>(
-        &'a self,
-        params: impl Iterator<Item = &'a (String, Type)> + 'a,
-        mode: &'a BorrowMode,
-    ) -> impl Iterator<Item = TokenStream> + 'a {
-        params.map(|(ident, ty)| {
+    fn print_function_params(&self, params: &[(String, Type)], mode: &BorrowMode) -> TokenStream {
+        let params = params.iter().map(|(ident, ty)| {
             let ident = format_ident!("{}", ident.to_snake_case());
             let ty = self.print_ty(ty, mode);
 
             quote! { #ident: #ty }
-        })
+        });
+
+        quote! { #(#params),* }
     }
 
-    pub fn print_function_result(&self, result: &FunctionResult, mode: &BorrowMode) -> TokenStream {
+    fn print_function_result(&self, result: &FunctionResult, mode: &BorrowMode) -> TokenStream {
         match result {
             FunctionResult::Anon(ty) => {
                 let ty = self.print_ty(ty, mode);
@@ -410,7 +378,7 @@ impl RustGenerator {
         }
     }
 
-    pub fn print_docs(&self, docs: &str) -> TokenStream {
+    fn print_docs(&self, docs: &str) -> TokenStream {
         (!docs.is_empty())
             .then_some(quote! {
                 #[doc = #docs]
@@ -418,13 +386,92 @@ impl RustGenerator {
             .unwrap_or_default()
     }
 
-    pub fn print_int(&self, int: &Int) -> TokenStream {
+    fn print_int(&self, int: &Int) -> TokenStream {
         match int {
             Int::U8 => quote! { u8 },
             Int::U16 => quote! { u16 },
             Int::U32 => quote! { u32 },
             Int::U64 => quote! { u64 },
         }
+    }
+
+    fn type_ident(&self, ty: &Type) -> String {
+        match ty {
+            Type::Bool => "Bool".to_string(),
+            Type::U8 => "U8".to_string(),
+            Type::U16 => "U16".to_string(),
+            Type::U32 => "U32".to_string(),
+            Type::U64 => "U64".to_string(),
+            Type::S8 => "I8".to_string(),
+            Type::S16 => "I16".to_string(),
+            Type::S32 => "S32".to_string(),
+            Type::S64 => "S64".to_string(),
+            Type::Float32 => "F32".to_string(),
+            Type::Float64 => "F64".to_string(),
+            Type::Char => "Char".to_string(),
+            Type::String => "String".to_string(),
+            Type::List(ty) => format!("{}List", self.type_ident(ty)),
+            Type::Tuple(_) => "Tuple".to_string(),
+            Type::Option(ty) => format!("Optional{}", self.type_ident(ty)),
+            Type::Result { .. } => "Result".to_string(),
+            Type::Id(id) => match &self.interface().typedefs[*id].kind {
+                TypeDefKind::Alias(ty) => self.type_ident(ty),
+                TypeDefKind::Record(_) => "Record".to_string(),
+                TypeDefKind::Flags(_) => "Flags".to_string(),
+                TypeDefKind::Variant(_) => "Variant".to_string(),
+                TypeDefKind::Enum(_) => "Enum".to_string(),
+                TypeDefKind::Union(_) => "Union".to_string(),
+            },
+        }
+    }
+
+    fn union_case_names(&self, cases: &[UnionCase]) -> Vec<String> {
+        enum UsedState<'a> {
+            /// This name has been used once before.
+            ///
+            /// Contains a reference to the name given to the first usage so that a suffix can be added to it.
+            Once(&'a mut String),
+            /// This name has already been used multiple times.
+            ///
+            /// Contains the number of times this has already been used.
+            Multiple(usize),
+        }
+
+        // A `Vec` of the names we're assigning each of the union's cases in order.
+        let mut case_names = vec![String::new(); cases.len()];
+        // A map from case names to their `UsedState`.
+        let mut used = HashMap::new();
+        for (case, name) in cases.iter().zip(case_names.iter_mut()) {
+            name.push_str(&self.type_ident(&case.ty));
+
+            match used.get_mut(name.as_str()) {
+                None => {
+                    // Initialise this name's `UsedState`, with a mutable reference to this name
+                    // in case we have to add a suffix to it later.
+                    used.insert(name.clone(), UsedState::Once(name));
+                    // Since this is the first (and potentially only) usage of this name,
+                    // we don't need to add a suffix here.
+                }
+                Some(state) => match state {
+                    UsedState::Multiple(n) => {
+                        // Add a suffix of the index of this usage.
+                        name.push_str(&n.to_string());
+                        // Add one to the number of times this type has been used.
+                        *n += 1;
+                    }
+                    UsedState::Once(first) => {
+                        // Add a suffix of 0 to the first usage.
+                        first.push('0');
+                        // We now get a suffix of 1.
+                        name.push('1');
+                        // Then update the state.
+                        *state = UsedState::Multiple(2);
+                    }
+                },
+            }
+        }
+
+        case_names
     }
 }
 
@@ -464,85 +511,6 @@ pub fn flags_repr(fields: &[FlagsField]) -> Int {
         n if n <= 32 => Int::U32,
         n if n <= 64 => Int::U64,
         _ => panic!("too many flags to fit in a repr"),
-    }
-}
-
-pub fn union_case_names(cases: &[UnionCase]) -> Vec<String> {
-    enum UsedState<'a> {
-        /// This name has been used once before.
-        ///
-        /// Contains a reference to the name given to the first usage so that a suffix can be added to it.
-        Once(&'a mut String),
-        /// This name has already been used multiple times.
-        ///
-        /// Contains the number of times this has already been used.
-        Multiple(usize),
-    }
-
-    // A `Vec` of the names we're assigning each of the union's cases in order.
-    let mut case_names = vec![String::new(); cases.len()];
-    // A map from case names to their `UsedState`.
-    let mut used = HashMap::new();
-    for (case, name) in cases.iter().zip(case_names.iter_mut()) {
-        name.push_str(&type_ident(&case.ty));
-
-        match used.get_mut(name.as_str()) {
-            None => {
-                // Initialise this name's `UsedState`, with a mutable reference to this name
-                // in case we have to add a suffix to it later.
-                used.insert(name.clone(), UsedState::Once(name));
-                // Since this is the first (and potentially only) usage of this name,
-                // we don't need to add a suffix here.
-            }
-            Some(state) => match state {
-                UsedState::Multiple(n) => {
-                    // Add a suffix of the index of this usage.
-                    name.push_str(&n.to_string());
-                    // Add one to the number of times this type has been used.
-                    *n += 1;
-                }
-                UsedState::Once(first) => {
-                    // Add a suffix of 0 to the first usage.
-                    first.push('0');
-                    // We now get a suffix of 1.
-                    name.push('1');
-                    // Then update the state.
-                    *state = UsedState::Multiple(2);
-                }
-            },
-        }
-    }
-
-    case_names
-}
-
-pub fn type_ident(ty: &Type) -> String {
-    match ty {
-        Type::Bool => "Bool".to_string(),
-        Type::U8 => "U8".to_string(),
-        Type::U16 => "U16".to_string(),
-        Type::U32 => "U32".to_string(),
-        Type::U64 => "U64".to_string(),
-        Type::S8 => "I8".to_string(),
-        Type::S16 => "I16".to_string(),
-        Type::S32 => "S32".to_string(),
-        Type::S64 => "S64".to_string(),
-        Type::Float32 => "F32".to_string(),
-        Type::Float64 => "F64".to_string(),
-        Type::Char => "Char".to_string(),
-        Type::String => "String".to_string(),
-        Type::List(ty) => format!("{}List", type_ident(ty)),
-        Type::Tuple(_) => "Tuple".to_string(),
-        Type::Option(ty) => format!("Optional{}", type_ident(ty)),
-        Type::Result { .. } => "Result".to_string(),
-        Type::Id(typedef) => match &typedef.borrow().kind {
-            TypeDefKind::Alias(ty) => type_ident(ty),
-            TypeDefKind::Record(_) => "Record".to_string(),
-            TypeDefKind::Flags(_) => "Flags".to_string(),
-            TypeDefKind::Variant(_) => "Variant".to_string(),
-            TypeDefKind::Enum(_) => "Enum".to_string(),
-            TypeDefKind::Union(_) => "Union".to_string(),
-        },
     }
 }
 
@@ -598,8 +566,124 @@ pub fn variants_of(ident: &str, info: TypeInfo, default_mode: &BorrowMode) -> Ve
 
 pub fn uses_two_names(info: TypeInfo) -> bool {
     info.contains(TypeInfo::HAS_LIST) && info.contains(TypeInfo::PARAM | TypeInfo::RESULT)
-    // && match default_mode {
-    //     BorrowMode::AllBorrowed(_) | BorrowMode::LeafBorrowed(_) => true,
-    //     BorrowMode::Owned => false,
-    // }
+}
+
+bitflags::bitflags! {
+    #[derive(Default)]
+    pub struct TypeInfo: u32 {
+        /// Whether or not this type is ever used (transitively) within the
+        /// parameter of a function.
+        const PARAM = 0b0000_0001;
+        /// Whether or not this type is ever used (transitively) within the
+        /// result of a function.
+        const RESULT = 0b0000_0010;
+        /// Whether or not this type (transitively) has a list.
+        const HAS_LIST = 0b0000_1000;
+    }
+}
+
+pub struct TypeInfos {
+    infos: HashMap<TypeDefId, TypeInfo>,
+}
+
+impl TypeInfos {
+    pub fn new() -> Self {
+        TypeInfos {
+            infos: HashMap::new(),
+        }
+    }
+
+    pub fn collect_param_info(&mut self, typedefs: &TypeDefArena, params: &[(String, Type)]) {
+        for (_, ty) in params {
+            self.collect_type_info(typedefs, ty, TypeInfo::PARAM);
+        }
+    }
+
+    pub fn collect_result_info(&mut self, typedefs: &TypeDefArena, result: &FunctionResult) {
+        match result {
+            FunctionResult::Anon(ty) => {
+                self.collect_type_info(typedefs, ty, TypeInfo::RESULT);
+            }
+            FunctionResult::Named(results) => {
+                for (_, ty) in results {
+                    self.collect_type_info(typedefs, ty, TypeInfo::RESULT);
+                }
+            }
+        }
+    }
+
+    fn collect_typedef_info(
+        &mut self,
+        typedefs: &TypeDefArena,
+        id: TypeDefId,
+        mut info: TypeInfo,
+    ) -> TypeInfo {
+        match &typedefs[id].kind {
+            TypeDefKind::Alias(ty) => {
+                info |= self.collect_type_info(typedefs, ty, info);
+            }
+            TypeDefKind::Record(fields) => {
+                for field in fields {
+                    info |= self.collect_type_info(typedefs, &field.ty, info);
+                }
+            }
+            TypeDefKind::Variant(cases) => {
+                for case in cases {
+                    if let Some(ty) = &case.ty {
+                        info |= self.collect_type_info(typedefs, ty, info);
+                    }
+                }
+            }
+            TypeDefKind::Union(cases) => {
+                for case in cases {
+                    info |= self.collect_type_info(typedefs, &case.ty, info);
+                }
+            }
+            _ => {}
+        }
+
+        self.infos.insert(id, info);
+
+        info
+    }
+
+    fn collect_type_info(
+        &mut self,
+        typedefs: &TypeDefArena,
+        ty: &Type,
+        base_info: TypeInfo,
+    ) -> TypeInfo {
+        match ty {
+            Type::String => base_info | TypeInfo::HAS_LIST,
+            Type::List(ty) => self.collect_type_info(typedefs, ty, base_info) | TypeInfo::HAS_LIST,
+            Type::Option(ty) => self.collect_type_info(typedefs, ty, base_info),
+            Type::Tuple(types) => {
+                let mut info = base_info;
+                for ty in types {
+                    info |= self.collect_type_info(typedefs, ty, info);
+                }
+                info
+            }
+            Type::Result { ok, err } => {
+                let mut info = base_info;
+                if let Some(ty) = &ok {
+                    info |= self.collect_type_info(typedefs, ty, info);
+                }
+                if let Some(ty) = &err {
+                    info |= self.collect_type_info(typedefs, ty, info);
+                }
+                info
+            }
+            Type::Id(id) => base_info | self.collect_typedef_info(typedefs, *id, base_info),
+            _ => base_info,
+        }
+    }
+}
+
+impl Index<TypeDefId> for TypeInfos {
+    type Output = TypeInfo;
+
+    fn index(&self, id: TypeDefId) -> &Self::Output {
+        &self.infos[&id]
+    }
 }

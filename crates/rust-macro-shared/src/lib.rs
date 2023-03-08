@@ -9,6 +9,7 @@ use syn::parse::{Error, Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
 use syn::{token, Token};
 use tauri_bindgen_core::Generate;
+use wit_parser::Interface;
 
 /// # Panics
 ///
@@ -17,14 +18,13 @@ pub fn generate<F, O, G>(input: TokenStream, mkgen: G) -> TokenStream
 where
     F: Parse + Configure<O>,
     O: Default,
-    G: FnOnce(O) -> Box<dyn Generate>,
+    G: FnOnce(O, Interface) -> Box<dyn Generate>,
 {
     let input = syn::parse_macro_input!(input as Opts<F, O>);
-    let gen = mkgen(input.opts);
-
     let iface = wit_parser::parse_file(&input.file, |t| input.skip.contains(t)).unwrap();
 
-    let mut tokens = gen.to_tokens(&iface);
+    let gen = mkgen(input.opts, iface);
+    let mut tokens = gen.to_tokens();
 
     let filepath = input.file.to_string_lossy();
     tokens.extend(quote! {const _: &str = include_str!(#filepath);});

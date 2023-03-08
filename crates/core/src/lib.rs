@@ -2,9 +2,13 @@ use proc_macro2::TokenStream;
 use std::path::PathBuf;
 use wit_parser::Interface;
 
+pub trait GeneratorBuilder {
+    fn build(self, interface: Interface) -> Box<dyn Generate>;
+}
+
 pub trait Generate {
-    fn to_string(&self, iface: &Interface) -> (PathBuf, String);
-    fn to_tokens(&self, _iface: &Interface) -> TokenStream {
+    fn to_file(&self) -> (PathBuf, String);
+    fn to_tokens(&self) -> TokenStream {
         unimplemented!("to_tokens is not implemented for this generator")
     }
 }

@@ -49,6 +49,20 @@ pub enum Error {
         #[label("type cannot refer to itself")]
         location: Span,
     },
+    #[error("multiple errors occured {}", errors.iter().map(ToString::to_string).collect::<String>())]
+    #[diagnostic(code(wit_parser::recursive_type), url(docsrs))]
+    Multi {
+        #[related]
+        errors: Vec<Error>,
+    },
+}
+
+impl FromIterator<Error> for Error {
+    fn from_iter<T: IntoIterator<Item = Error>>(iter: T) -> Self {
+        Self::Multi {
+            errors: iter.into_iter().collect(),
+        }
+    }
 }
 
 impl Error {

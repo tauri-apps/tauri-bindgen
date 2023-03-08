@@ -1221,6 +1221,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "id-arena"
+version = "2.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25a2bc672d1148e28034f176e01fffebb08b35768468cc954630da77a1449005"
+
+[[package]]
 name = "ident_case"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2953,10 +2959,6 @@ dependencies = [
  "clap",
  "heck 0.4.0",
  "pretty_assertions",
- "prettyplease",
- "proc-macro2 1.0.51",
- "quote 1.0.23",
- "syn 1.0.109",
  "tauri-bindgen-core",
  "wit-parser",
 ]
@@ -3026,6 +3028,7 @@ dependencies = [
 name = "tauri-bindgen-gen-rust"
 version = "0.1.0"
 dependencies = [
+ "bitflags",
  "heck 0.4.0",
  "proc-macro2 1.0.51",
  "quote 1.0.23",
@@ -3941,8 +3944,8 @@ checksum = "447660ad36a13288b1db4d4248e857b510e8c3a225c822ba4fb748c0aafecffd"
 name = "wit-parser"
 version = "0.1.0"
 dependencies = [
- "bitflags",
  "distance",
+ "id-arena",
  "log",
  "logos",
  "miette",
