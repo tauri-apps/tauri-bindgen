@@ -5,6 +5,7 @@ use miette::{bail, IntoDiagnostic, Result, WrapErr};
 use std::{
     collections::HashSet,
     path::{Path, PathBuf},
+    time::Instant,
 };
 use tauri_bindgen_core::GeneratorBuilder;
 
@@ -108,6 +109,8 @@ fn run() -> Result<()> {
 
     logger::init(opt.common.verbose);
 
+    let start = Instant::now();
+
     let out_dir = &opt.common.out_dir.unwrap_or_default();
     match opt.cmd {
         Command::Check { world } => check_interface(world)?,
@@ -132,6 +135,8 @@ fn run() -> Result<()> {
             write_file(&out_dir, &path, &contents)?;
         }
     };
+
+    log::info!(action = "Finished"; "in {}s", Instant::now().duration_since(start).as_millis() as f64 / 1000.0);
 
     Ok(())
 }
@@ -171,6 +176,12 @@ where
 }
 
 fn check_interface(opts: WorldOpt) -> Result<()> {
+    log::info!(action = "Checking"; "{}", opts.wit.to_string_lossy());
+
+    if !opts.wit.is_file() {
+        bail!("wit file `{}` does not exist", opts.wit.display());
+    }
+
     let skipset: HashSet<String, std::collections::hash_map::RandomState> =
         opts.skip.into_iter().collect();
 
