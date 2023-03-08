@@ -1,230 +1,55 @@
-use crate::{util::IteratorExt, Error, Result};
+use crate::{
+    util::IteratorExt, EnumCase, Error, FlagsField, Function, FunctionResult, Interface,
+    RecordField, Result, Type, TypeDef, TypeDefKind, UnionCase, VariantCase,
+};
 use id_arena::{Arena, Id};
 use logos::Span;
 use std::collections::{HashMap, HashSet};
 
 use crate::parse;
 
-pub enum Int {
-    U8,
-    U16,
-    U32,
-    U64,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Interface {
-    pub docs: String,
-    pub ident: String,
-    pub typedefs: Arena<TypeDef>,
-    pub functions: Vec<Function>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Type {
-    Bool,
-    U8,
-    U16,
-    U32,
-    U64,
-    S8,
-    S16,
-    S32,
-    S64,
-    Float32,
-    Float64,
-    Char,
-    String,
-    List(Box<Type>),
-    Tuple(Vec<Type>),
-    Option(Box<Type>),
-    Result {
-        ok: Option<Box<Type>>,
-        err: Option<Box<Type>>,
-    },
-    Id(Id<TypeDef>),
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct TypeDef {
-    pub docs: String,
-    pub ident: String,
-    pub kind: TypeDefKind,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum TypeDefKind {
-    Alias(Type),
-    Record(Vec<RecordField>),
-    Flags(Vec<FlagsField>),
-    Variant(Vec<VariantCase>),
-    Enum(Vec<EnumCase>),
-    Union(Vec<UnionCase>),
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RecordField {
-    pub docs: String,
-    pub ident: String,
-    pub ty: Type,
-}
-
-// impl Flags {
-//     pub fn repr(&self) -> Int {
-//         match self.fields.len() {
-//             n if n <= 8 => Int::U8,
-//             n if n <= 16 => Int::U16,
-//             n if n <= 32 => Int::U32,
-//             n if n <= 64 => Int::U64,
-//             _ => panic!("too many flags to fit in a repr"),
-//         }
-//     }
-// }
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct FlagsField {
-    pub docs: String,
-    pub ident: String,
-}
-
-// impl Variant {
-//     pub fn tag(&self) -> Int {
-//         match self.cases.len() {
-//             n if u8::try_from(n).is_ok() => Int::U8,
-//             n if u16::try_from(n).is_ok() => Int::U16,
-//             n if u32::try_from(n).is_ok() => Int::U32,
-//             n if u64::try_from(n).is_ok() => Int::U64,
-//             _ => panic!("too many cases to fit in a repr"),
-//         }
-//     }
-// }
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct VariantCase {
-    pub docs: String,
-    pub ident: String,
-    pub ty: Option<Type>,
-}
-
-// impl Enum {
-//     pub fn tag(&self) -> Int {
-//         match self.cases.len() {
-//             n if u8::try_from(n).is_ok() => Int::U8,
-//             n if u16::try_from(n).is_ok() => Int::U16,
-//             n if u32::try_from(n).is_ok() => Int::U32,
-//             n if u64::try_from(n).is_ok() => Int::U64,
-//             _ => panic!("too many cases to fit in a repr"),
-//         }
-//     }
-// }
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct EnumCase {
-    pub docs: String,
-    pub ident: String,
-}
-
-// impl Union {
-//     pub fn tag(&self) -> Int {
-//         match self.cases.len() {
-//             n if u8::try_from(n).is_ok() => Int::U8,
-//             n if u16::try_from(n).is_ok() => Int::U16,
-//             n if u32::try_from(n).is_ok() => Int::U32,
-//             n if u64::try_from(n).is_ok() => Int::U64,
-//             _ => panic!("too many cases to fit in a repr"),
-//         }
-//     }
-// }
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct UnionCase {
-    pub docs: String,
-    pub ty: Type,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Function {
-    pub docs: String,
-    pub ident: String,
-    pub params: NamedTypeList,
-    pub result: FunctionResult,
-}
-
-pub type NamedTypeList = Vec<(String, Type)>;
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum FunctionResult {
-    Anon(Type),
-    Named(NamedTypeList),
-}
-
-impl FunctionResult {
-    #[must_use]
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-
-    #[must_use]
-    pub fn len(&self) -> usize {
-        match self {
-            FunctionResult::Named(ps) => ps.len(),
-            FunctionResult::Anon(_) => 1,
-        }
-    }
-    #[must_use]
-    pub fn types(&self) -> ResultsTypeIter {
-        match self {
-            FunctionResult::Named(ps) => ResultsTypeIter::Named(ps.iter()),
-            FunctionResult::Anon(ty) => ResultsTypeIter::Anon(std::iter::once(ty)),
-        }
-    }
-}
-
-pub enum ResultsTypeIter<'a> {
-    Anon(std::iter::Once<&'a Type>),
-    Named(std::slice::Iter<'a, (String, Type)>),
-}
-
-impl<'a> Iterator for ResultsTypeIter<'a> {
-    type Item = &'a Type;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        match self {
-            ResultsTypeIter::Anon(iter) => iter.next(),
-            ResultsTypeIter::Named(iter) => iter.next().map(|pair| &pair.1),
-        }
-    }
+pub struct RestInterface {
+    ident: Span,
+    docs: Vec<Span>,
+    functions: Vec<parse::InterfaceItem>,
 }
 
 pub struct Resolver<'a> {
     source: &'a str,
-    interface: &'a parse::Interface,
+    iface_typedefs: HashMap<&'a str, parse::InterfaceItem>,
+
     ident2id: HashMap<&'a str, Id<TypeDef>>,
     typedefs: Arena<TypeDef>,
 }
 
 impl<'a> Resolver<'a> {
     #[must_use]
-    pub fn new(source: &'a str, interface: &'a parse::Interface) -> Self {
-        let typedefs: HashMap<_, _> = interface
+    pub fn new(source: &'a str, interface: parse::Interface) -> (Self, RestInterface) {
+        let (iface_funcs, iface_typedefs): (Vec<_>, Vec<_>) = interface
             .items
-            .iter()
-            .filter_map(|item| {
-                if let parse::InterfaceItemInner::Func(_) = &item.inner {
-                    None
-                } else {
-                    Some((&source[item.ident.clone()], item))
-                }
-            })
+            .into_iter()
+            .partition(|item| matches!(item.inner, parse::InterfaceItemInner::Func(_)));
+
+        let iface_typedefs: HashMap<_, _> = iface_typedefs
+            .into_iter()
+            .map(|item| (&source[item.ident.clone()], item.clone()))
             .collect();
 
-        Self {
+        let this = Self {
+            ident2id: HashMap::with_capacity(iface_typedefs.len()),
+            typedefs: Arena::with_capacity(iface_typedefs.len()),
+
             source,
-            interface,
-            // ident2interface_item: typedefs,
-            ident2id: HashMap::with_capacity(typedefs.len()),
-            typedefs: Arena::new(),
-        }
+            iface_typedefs,
+        };
+
+        let rest = RestInterface {
+            ident: interface.ident,
+            docs: interface.docs,
+            functions: iface_funcs,
+        };
+
+        (this, rest)
     }
 
     fn read_span(&self, span: &Span) -> &'a str {
@@ -251,7 +76,7 @@ impl<'a> Resolver<'a> {
 
     fn resolve_typedef(&mut self, typedef: &parse::InterfaceItem) -> Result<Id<TypeDef>> {
         let ident = self.resolve_ident(&typedef.ident);
-        
+
         if let Some(id) = self.ident2id.get(ident) {
             return Ok(*id);
         }
@@ -339,6 +164,8 @@ impl<'a> Resolver<'a> {
         });
         self.ident2id.insert(ident, id);
 
+        self.iface_typedefs.remove(ident);
+
         Ok(id)
     }
 
@@ -384,16 +211,11 @@ impl<'a> Resolver<'a> {
                     Type::Id(*id)
                 } else {
                     let typedef = self
-                        .interface
-                        .items
-                        .iter()
-                        .find(|item| {
-                            self.resolve_ident(&item.ident) == ident
-                                && !matches!(item.inner, parse::InterfaceItemInner::Func(_))
-                        })
-                        .unwrap();
+                        .iface_typedefs
+                        .get(ident)
+                        .ok_or(Error::not_defined(span.to_owned()))?;
 
-                    let id = self.resolve_typedef(&typedef.clone())?;
+                    let id = self.resolve_typedef(&typedef.clone())?; // TODO: avoid clone
 
                     Type::Id(id)
                 }
@@ -518,42 +340,38 @@ impl<'a> Resolver<'a> {
         Ok(())
     }
 
-    pub fn resolve(mut self) -> Result<Interface> {
-        let docs = self.resolve_docs(&self.interface.docs);
-        let ident = self.resolve_ident(&self.interface.ident).to_string();
+    pub fn resolve(mut self, rest_data: RestInterface) -> Result<Interface> {
+        let docs = self.resolve_docs(&rest_data.docs);
+        let ident = self.resolve_ident(&rest_data.ident).to_string();
 
-        let functions: Vec<_> = self
-            .interface
-            .items
+        let ident2span = self
+            .iface_typedefs
             .iter()
-            .filter_map(|item| {
-                if let parse::InterfaceItemInner::Func(func) = &item.inner {
-                    Some(self.resolve_func(&item.docs, &item.ident, func).unwrap())
-                } else {
-                    None
-                }
-            })
-            .collect();
+            .map(|(ident, item)| (ident.to_string(), item.ident.clone()))
+            .collect::<HashMap<_, _>>();
+
+        let mut functions = Vec::new();
+        for item in rest_data.functions {
+            if let parse::InterfaceItemInner::Func(func) = &item.inner {
+                let func = self.resolve_func(&item.docs, &item.ident, &func)?;
+                functions.push(func);
+            }
+        }
 
         let mut visiting = HashSet::new();
         let mut valid_types = HashSet::new();
         for (id, typedef) in &self.typedefs {
-            let ident_span = self
-                .interface
-                .items
-                .iter()
-                .find_map(|item| {
-                    if self.resolve_ident(&item.ident) == typedef.ident
-                        && !matches!(item.inner, parse::InterfaceItemInner::Func(_))
-                    {
-                        Some(item.ident.clone())
-                    } else {
-                        None
-                    }
-                })
-                .unwrap();
+            let ident_span = ident2span[typedef.ident.as_str()].clone();
 
             self.verify_not_recursive(ident_span, id, &mut visiting, &mut valid_types)?;
+        }
+
+        if !self.iface_typedefs.is_empty() {
+            let res: Result<()> = self.iface_typedefs
+                .iter()
+                .map(|(_, item)| Err(Error::unused_type(item.ident.clone())))
+                .partition_result();
+            res?;
         }
 
         Ok(Interface {
@@ -582,7 +400,8 @@ mod test {
         let mut tokens = Lexer::new(source).spanned().peekable();
 
         let iface = parse::Interface::parse(&mut tokens)?;
-        let iface = Resolver::new(source, &iface).resolve()?;
+        let (resolver, rest_data) = Resolver::new(source, iface);
+        let iface = resolver.resolve(rest_data)?;
 
         println!("{iface:#?}");
 
@@ -603,7 +422,8 @@ mod test {
         let mut tokens = Lexer::new(source).spanned().peekable();
 
         let iface = parse::Interface::parse(&mut tokens)?;
-        let iface = Resolver::new(source, &iface).resolve()?;
+        let (resolver, rest_data) = Resolver::new(source, iface);
+        let iface = resolver.resolve(rest_data)?;
 
         println!("{iface:#?}");
 
@@ -617,7 +437,8 @@ mod test {
         let mut tokens = Lexer::new(source).spanned().peekable();
 
         let iface = parse::Interface::parse(&mut tokens)?;
-        let _iface = Resolver::new(source, &iface).resolve()?;
+        let (resolver, rest_data) = Resolver::new(source, iface);
+        resolver.resolve(rest_data)?;
 
         Ok(())
     }

@@ -10,7 +10,7 @@ pub enum Error {
     #[error("unexpected end of file")]
     UnexpectedEof,
     #[error("expected {}, but found {found}", print_list(expected))]
-    #[diagnostic(code(wit_parser::unexpected_token), url(docsrs))]
+    #[diagnostic(code(wit_parser::unexpected_token))]
     UnexpectedToken {
         #[label("unexpected token")]
         location: Span,
@@ -20,7 +20,7 @@ pub enum Error {
         help: Option<String>,
     },
     #[error("type {ty} cannot be empty")]
-    #[diagnostic(code(wit_parser::empty_type), url(docsrs))]
+    #[diagnostic(code(wit_parser::empty_type))]
     EmptyType {
         #[label("this type cannot be empty")]
         location: Span,
@@ -28,11 +28,11 @@ pub enum Error {
     },
     /// A name wasn't defined.
     #[error("name is not defined.")]
-    #[diagnostic(code(wit_parser::not_defined), url(docsrs))]
+    #[diagnostic(code(wit_parser::not_defined))]
     NotDefined { location: Span },
     /// Names can't be defined more than once.
     #[error("name already defined.")]
-    #[diagnostic(code(wit_parser::already_defined), url(docsrs))]
+    #[diagnostic(code(wit_parser::already_defined))]
     AlreadyDefined {
         #[label("name is already declared here")]
         previous: Span,
@@ -44,13 +44,18 @@ pub enum Error {
     ///
     /// This wouldn't be a problem with the current JSON format, but a custom binary one would have this limitation so for future proofing we deny recursive types.
     #[error("Type cannot refer to itself.")]
-    #[diagnostic(code(wit_parser::recursive_type), url(docsrs))]
+    #[diagnostic(code(wit_parser::recursive_type))]
     RecursiveType {
         #[label("type cannot refer to itself")]
         location: Span,
     },
-    #[error("multiple errors occured {}", errors.iter().map(ToString::to_string).collect::<String>())]
-    #[diagnostic(code(wit_parser::recursive_type), url(docsrs))]
+    #[error("Unused variable")]
+    #[diagnostic(code(wit_parser::unused_type))]
+    UnusedType {
+        #[label("remove this type")]
+        location: Span,
+    },
+    #[error("Failed with multiple errors:")]
     Multi {
         #[related]
         errors: Vec<Error>,
@@ -115,6 +120,12 @@ impl Error {
 
     pub fn recursive_type(loc: impl Into<Span>) -> Self {
         Self::RecursiveType {
+            location: loc.into(),
+        }
+    }
+
+    pub fn unused_type(loc: impl Into<Span>) -> Self {
+        Self::UnusedType {
             location: loc.into(),
         }
     }

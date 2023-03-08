@@ -47,7 +47,6 @@ interface records {
   func aggregate_arg(x: aggregates)
   func aggregate_result() -> aggregates
 
-  type tuple_typedef = tuple<s32>
   type int_typedef = s32
   type tuple_typedef2 = tuple<int_typedef>
   func typedef_inout(e: tuple_typedef2) -> s32
