@@ -18,7 +18,7 @@ fi
 export CARGO_PROFILE_RELEASE_LTO=true
 cargo build --locked --bin tauri-bindgen --release --target $TARGET
 cd target/$TARGET/release
-case $1 in
+case $OS in
   ubuntu*)
     asset="tauri-bindgen-$TAG-$TARGET.tar.gz"
     tar czf ../../$asset tauri-bindgen
@@ -47,5 +47,5 @@ if [[ -z "$GITHUB_TOKEN" ]]
 then
   echo "$GITHUB_TOKEN not set, skipping deploy."
 else
-  hub release edit -m "" --attach $asset $TAG
+  gh release upload $TAG $asset
 fi
