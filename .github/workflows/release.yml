@@ -32,8 +32,8 @@ jobs:
         run: ./install-hub.sh ${{ matrix.os }}
         shell: bash
       - uses: dtolnay/rust-toolchain@master
-          with:
-            targets: ${{matrix.target}}
+        with:
+          targets: ${{matrix.target}}
       - uses: Swatinem/rust-cache@v2
       - name: Build and deploy artifacts
         env:
