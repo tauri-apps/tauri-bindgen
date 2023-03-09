@@ -25,11 +25,7 @@ fn chars() {
         unchecked: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "chars",
-        include_str!("../../../wit/chars.wit"),
-    );
+    let (filename, contents) = gen_interface(opts, "chars", include_str!("../../../wit/chars.wit"));
 
     assert_eq!(filename, "chars.rs");
     assert_eq!(contents, include_str!("./chars.rs"));
@@ -61,11 +57,7 @@ fn empty() {
         unchecked: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "empty",
-        include_str!("../../../wit/empty.wit"),
-    );
+    let (filename, contents) = gen_interface(opts, "empty", include_str!("../../../wit/empty.wit"));
 
     assert_eq!(filename, "empty.rs");
     assert_eq!(contents, include_str!("./empty.rs"));
@@ -79,11 +71,7 @@ fn flags() {
         unchecked: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "flegs",
-        include_str!("../../../wit/flags.wit"),
-    );
+    let (filename, contents) = gen_interface(opts, "flegs", include_str!("../../../wit/flags.wit"));
 
     assert_eq!(filename, "flegs.rs");
     assert_eq!(contents, include_str!("./flegs.rs"));
@@ -97,11 +85,8 @@ fn floats() {
         unchecked: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "floats",
-        include_str!("../../../wit/floats.wit"),
-    );
+    let (filename, contents) =
+        gen_interface(opts, "floats", include_str!("../../../wit/floats.wit"));
 
     assert_eq!(filename, "floats.rs");
     assert_eq!(contents, include_str!("./floats.rs"));
@@ -115,11 +100,8 @@ fn integers() {
         unchecked: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "integers",
-        include_str!("../../../wit/integers.wit"),
-    );
+    let (filename, contents) =
+        gen_interface(opts, "integers", include_str!("../../../wit/integers.wit"));
 
     assert_eq!(filename, "integers.rs");
     assert_eq!(contents, include_str!("./integers.rs"));
@@ -133,11 +115,7 @@ fn lists() {
         unchecked: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "lists",
-        include_str!("../../../wit/lists.wit"),
-    );
+    let (filename, contents) = gen_interface(opts, "lists", include_str!("../../../wit/lists.wit"));
 
     assert_eq!(filename, "lists.rs");
     assert_eq!(contents, include_str!("./lists.rs"));
@@ -187,11 +165,8 @@ fn records() {
         unchecked: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "records",
-        include_str!("../../../wit/records.wit"),
-    );
+    let (filename, contents) =
+        gen_interface(opts, "records", include_str!("../../../wit/records.wit"));
 
     assert_eq!(filename, "records.rs");
     assert_eq!(contents, include_str!("./records.rs"));
@@ -259,11 +234,8 @@ fn strings() {
         unchecked: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "strings",
-        include_str!("../../../wit/strings.wit"),
-    );
+    let (filename, contents) =
+        gen_interface(opts, "strings", include_str!("../../../wit/strings.wit"));
 
     assert_eq!(filename, "strings.rs");
     assert_eq!(contents, include_str!("./strings.rs"));
@@ -277,11 +249,8 @@ fn unions() {
         unchecked: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "unions",
-        include_str!("../../../wit/unions.wit"),
-    );
+    let (filename, contents) =
+        gen_interface(opts, "unions", include_str!("../../../wit/unions.wit"));
 
     assert_eq!(filename, "unions.rs");
     assert_eq!(contents, include_str!("./unions.rs"));
@@ -295,11 +264,8 @@ fn variants() {
         unchecked: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "variants",
-        include_str!("../../../wit/variants.wit"),
-    );
+    let (filename, contents) =
+        gen_interface(opts, "variants", include_str!("../../../wit/variants.wit"));
 
     assert_eq!(filename, "variants.rs");
     assert_eq!(contents, include_str!("./variants.rs"));

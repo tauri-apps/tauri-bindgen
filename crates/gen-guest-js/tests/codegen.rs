@@ -24,11 +24,7 @@ fn chars() {
         romefmt: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "chars",
-        include_str!("../../../wit/chars.wit"),
-    );
+    let (filename, contents) = gen_interface(opts, "chars", include_str!("../../../wit/chars.wit"));
 
     assert_eq!(filename, "chars.js");
     assert_eq!(contents, include_str!("./chars.js"));
@@ -58,11 +54,7 @@ fn empty() {
         romefmt: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "empty",
-        include_str!("../../../wit/empty.wit"),
-    );
+    let (filename, contents) = gen_interface(opts, "empty", include_str!("../../../wit/empty.wit"));
 
     assert_eq!(filename, "empty.js");
     assert_eq!(contents, include_str!("./empty.js"));
@@ -75,11 +67,7 @@ fn flags() {
         romefmt: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "flegs",
-        include_str!("../../../wit/flags.wit"),
-    );
+    let (filename, contents) = gen_interface(opts, "flegs", include_str!("../../../wit/flags.wit"));
 
     assert_eq!(filename, "flegs.js");
     assert_eq!(contents, include_str!("./flegs.js"));
@@ -92,11 +80,8 @@ fn floats() {
         romefmt: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "floats",
-        include_str!("../../../wit/floats.wit"),
-    );
+    let (filename, contents) =
+        gen_interface(opts, "floats", include_str!("../../../wit/floats.wit"));
 
     assert_eq!(filename, "floats.js");
     assert_eq!(contents, include_str!("./floats.js"));
@@ -109,11 +94,8 @@ fn integers() {
         romefmt: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "integers",
-        include_str!("../../../wit/integers.wit"),
-    );
+    let (filename, contents) =
+        gen_interface(opts, "integers", include_str!("../../../wit/integers.wit"));
 
     assert_eq!(filename, "integers.js");
     assert_eq!(contents, include_str!("./integers.js"));
@@ -126,11 +108,7 @@ fn lists() {
         romefmt: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "lists",
-        include_str!("../../../wit/lists.wit"),
-    );
+    let (filename, contents) = gen_interface(opts, "lists", include_str!("../../../wit/lists.wit"));
 
     assert_eq!(filename, "lists.js");
     assert_eq!(contents, include_str!("./lists.js"));
@@ -177,11 +155,8 @@ fn records() {
         romefmt: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "records",
-        include_str!("../../../wit/records.wit"),
-    );
+    let (filename, contents) =
+        gen_interface(opts, "records", include_str!("../../../wit/records.wit"));
 
     assert_eq!(filename, "records.js");
     assert_eq!(contents, include_str!("./records.js"));
@@ -245,11 +220,8 @@ fn strings() {
         romefmt: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "strings",
-        include_str!("../../../wit/strings.wit"),
-    );
+    let (filename, contents) =
+        gen_interface(opts, "strings", include_str!("../../../wit/strings.wit"));
 
     assert_eq!(filename, "strings.js");
     assert_eq!(contents, include_str!("./strings.js"));
@@ -262,11 +234,8 @@ fn unions() {
         romefmt: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "unions",
-        include_str!("../../../wit/unions.wit"),
-    );
+    let (filename, contents) =
+        gen_interface(opts, "unions", include_str!("../../../wit/unions.wit"));
 
     assert_eq!(filename, "unions.js");
     assert_eq!(contents, include_str!("./unions.js"));
@@ -279,11 +248,8 @@ fn variants() {
         romefmt: false,
     };
 
-    let (filename, contents) = gen_interface(
-        opts,
-        "variants",
-        include_str!("../../../wit/variants.wit"),
-    );
+    let (filename, contents) =
+        gen_interface(opts, "variants", include_str!("../../../wit/variants.wit"));
 
     assert_eq!(filename, "variants.js");
     assert_eq!(contents, include_str!("./variants.js"));
