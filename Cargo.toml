@@ -46,3 +46,10 @@ log.workspace = true
 
 [features]
 unstable = ["dep:tauri-bindgen-gen-host", "dep:tauri-bindgen-gen-markdown", "dep:tauri-bindgen-gen-guest-rust", "dep:tauri-bindgen-gen-guest-js"]
+
+[profile.release]
+panic = "abort" 
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
