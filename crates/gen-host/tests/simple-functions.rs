@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod simple_functions {
-    use ::tauri_bindgen_host::bitflags;
     use ::tauri_bindgen_host::serde;
+    use ::tauri_bindgen_host::bitflags;
     pub trait SimpleFunctions: Sized {
         fn f1(&mut self) -> ();
         fn f2(&mut self, a: u32) -> ();

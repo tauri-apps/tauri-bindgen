@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod many_arguments {
-    use ::tauri_bindgen_guest_rust::bitflags;
     use ::tauri_bindgen_guest_rust::serde;
+    use ::tauri_bindgen_guest_rust::bitflags;
     #[derive(serde::Serialize)]
     pub struct BigStruct<'a> {
         a1: &'a str,

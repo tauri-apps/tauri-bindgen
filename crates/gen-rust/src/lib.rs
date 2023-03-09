@@ -109,9 +109,15 @@ pub trait RustGenerator {
                 }
             }
             Type::Tuple(types) => {
-                let types = types.iter().map(|ty| self.print_ty(ty, mode));
+                if types.len() == 1 {
+                    let ty = self.print_ty(&types[0], mode);
 
-                quote! { (#(#types),*) }
+                    quote! { (#ty,) }
+                 } else {
+                    let types = types.iter().map(|ty| self.print_ty(ty, mode));
+
+                    quote! { (#(#types),*) }
+                }
             }
             Type::Option(ty) => {
                 let ty = self.print_ty(ty, mode);

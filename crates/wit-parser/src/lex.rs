@@ -3,15 +3,10 @@ use logos::{FilterResult, Lexer, Logos, Source};
 fn block_comment(lex: &mut Lexer<Token>) -> FilterResult<()> {
     let mut depth = 1;
     while depth > 0 {
-        let Some(next_two) = lex
-            .remainder()
-            .slice(0..2) else {
-                return FilterResult::Error;
-            };
-
-        match next_two {
-            "/*" => depth += 1,
-            "*/" => depth -= 1,
+        match lex.remainder().slice(0..2) {
+            Some("/*") => depth += 1,
+            Some("*/") => depth -= 1,
+            None => return FilterResult::Error,
             _ => {}
         }
         lex.bump(1);

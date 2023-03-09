@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod floats {
-    use ::tauri_bindgen_host::bitflags;
     use ::tauri_bindgen_host::serde;
+    use ::tauri_bindgen_host::bitflags;
     pub trait Floats: Sized {
         fn float32_param(&mut self, x: f32) -> ();
         fn float64_param(&mut self, x: f64) -> ();

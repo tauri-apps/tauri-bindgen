@@ -1,11 +1,11 @@
 #[allow(unused_imports, unused_variables)]
 pub mod records {
-    use ::tauri_bindgen_host::bitflags;
     use ::tauri_bindgen_host::serde;
+    use ::tauri_bindgen_host::bitflags;
     #[derive(serde::Deserialize, serde::Serialize)]
     pub struct Empty {}
     /**A record containing two scalar fields
-    that both have the same type*/
+that both have the same type*/
     #[derive(serde::Deserialize, serde::Serialize)]
     pub struct Scalars {
         ///The first field, named a
@@ -14,7 +14,7 @@ pub mod records {
         b: u32,
     }
     /**A record that is really just flags
-    All of the fields are bool*/
+All of the fields are bool*/
     #[derive(serde::Deserialize, serde::Serialize)]
     pub struct ReallyFlags {
         a: bool,
@@ -36,7 +36,7 @@ pub mod records {
         e: ReallyFlags,
     }
     pub type IntTypedef = i32;
-    pub type TupleTypedef2 = (IntTypedef);
+    pub type TupleTypedef2 = (IntTypedef,);
     pub trait Records: Sized {
         fn tuple_arg(&mut self, x: (char, u32)) -> ();
         fn tuple_result(&mut self) -> (char, u32);

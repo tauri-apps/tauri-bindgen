@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod integers {
-    use ::tauri_bindgen_host::bitflags;
     use ::tauri_bindgen_host::serde;
+    use ::tauri_bindgen_host::bitflags;
     pub trait Integers: Sized {
         fn a1(&mut self, x: u8) -> ();
         fn a2(&mut self, x: i8) -> ();

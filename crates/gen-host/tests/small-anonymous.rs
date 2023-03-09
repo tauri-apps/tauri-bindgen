@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod small_anonymous {
-    use ::tauri_bindgen_host::bitflags;
     use ::tauri_bindgen_host::serde;
+    use ::tauri_bindgen_host::bitflags;
     #[derive(serde::Serialize)]
     pub enum Error {
         Success,

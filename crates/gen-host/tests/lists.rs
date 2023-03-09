@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod lists {
-    use ::tauri_bindgen_host::bitflags;
     use ::tauri_bindgen_host::serde;
+    use ::tauri_bindgen_host::bitflags;
     #[derive(serde::Deserialize, serde::Serialize)]
     pub struct OtherRecord<'a> {
         a1: u32,
@@ -36,20 +36,9 @@ pub mod lists {
         C(u32),
         D(Vec<OtherVariant<'a>>),
     }
-    pub type LoadStoreAllSizes<'a> = Vec<(
-        &'a str,
-        u8,
-        i8,
-        u16,
-        i16,
-        u32,
-        i32,
-        u64,
-        i64,
-        f32,
-        f64,
-        char,
-    )>;
+    pub type LoadStoreAllSizes<'a> = Vec<
+        (&'a str, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char),
+    >;
     pub trait Lists: Sized {
         fn list_u8_param(&mut self, x: Vec<u8>) -> ();
         fn list_u16_param(&mut self, x: Vec<u16>) -> ();
@@ -79,7 +68,10 @@ pub mod lists {
         fn record_list(&mut self, x: Vec<SomeRecord>) -> &'_ [OtherRecord<'_>];
         fn record_list_reverse(&mut self, x: Vec<OtherRecord>) -> &'_ [SomeRecord<'_>];
         fn variant_list(&mut self, x: Vec<SomeVariant>) -> &'_ [OtherVariant<'_>];
-        fn load_store_everything(&mut self, a: LoadStoreAllSizes) -> LoadStoreAllSizes<'_>;
+        fn load_store_everything(
+            &mut self,
+            a: LoadStoreAllSizes,
+        ) -> LoadStoreAllSizes<'_>;
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
