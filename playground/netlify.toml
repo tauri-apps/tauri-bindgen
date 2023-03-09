@@ -1,12 +1,12 @@
 [build.environment]
   NPM_FLAGS = "--version" # prevent Netlify npm install
 [build]
-  publish = 'playground/dist'
+  publish = 'dist'
   command = """
-    wget -qO- https://github.com/thedodd/trunk/releases/download/${VERSION}/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
+    cd editor
     npx pnpm install --store=node_modules/.pnpm-store
-    cd playground/editor
     pnpx tsup --target esnext --platform browser --format esm --minify index.ts
-    cd ../..
+    cd ..
+    wget -qO- https://github.com/thedodd/trunk/releases/download/${VERSION}/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
     trunk build --release
   """
