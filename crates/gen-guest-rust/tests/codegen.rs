@@ -28,7 +28,7 @@ fn chars() {
     let (filename, contents) = gen_interface(
         opts,
         "chars",
-        include_str!("../../../tests/codegen/chars.wit"),
+        include_str!("../../../wit/chars.wit"),
     );
 
     assert_eq!(filename, "chars.rs");
@@ -46,7 +46,7 @@ fn convention() {
     let (filename, contents) = gen_interface(
         opts,
         "conventions",
-        include_str!("../../../tests/codegen/conventions.wit"),
+        include_str!("../../../wit/conventions.wit"),
     );
 
     assert_eq!(filename, "conventions.rs");
@@ -64,7 +64,7 @@ fn empty() {
     let (filename, contents) = gen_interface(
         opts,
         "empty",
-        include_str!("../../../tests/codegen/empty.wit"),
+        include_str!("../../../wit/empty.wit"),
     );
 
     assert_eq!(filename, "empty.rs");
@@ -82,7 +82,7 @@ fn flags() {
     let (filename, contents) = gen_interface(
         opts,
         "flegs",
-        include_str!("../../../tests/codegen/flags.wit"),
+        include_str!("../../../wit/flags.wit"),
     );
 
     assert_eq!(filename, "flegs.rs");
@@ -100,7 +100,7 @@ fn floats() {
     let (filename, contents) = gen_interface(
         opts,
         "floats",
-        include_str!("../../../tests/codegen/floats.wit"),
+        include_str!("../../../wit/floats.wit"),
     );
 
     assert_eq!(filename, "floats.rs");
@@ -118,7 +118,7 @@ fn integers() {
     let (filename, contents) = gen_interface(
         opts,
         "integers",
-        include_str!("../../../tests/codegen/integers.wit"),
+        include_str!("../../../wit/integers.wit"),
     );
 
     assert_eq!(filename, "integers.rs");
@@ -136,7 +136,7 @@ fn lists() {
     let (filename, contents) = gen_interface(
         opts,
         "lists",
-        include_str!("../../../tests/codegen/lists.wit"),
+        include_str!("../../../wit/lists.wit"),
     );
 
     assert_eq!(filename, "lists.rs");
@@ -154,7 +154,7 @@ fn many_arguments() {
     let (filename, contents) = gen_interface(
         opts,
         "many-arguments",
-        include_str!("../../../tests/codegen/many_arguments.wit"),
+        include_str!("../../../wit/many_arguments.wit"),
     );
 
     assert_eq!(filename, "many-arguments.rs");
@@ -172,7 +172,7 @@ fn multi_return() {
     let (filename, contents) = gen_interface(
         opts,
         "multi-return",
-        include_str!("../../../tests/codegen/multi_return.wit"),
+        include_str!("../../../wit/multi_return.wit"),
     );
 
     assert_eq!(filename, "multi-return.rs");
@@ -190,7 +190,7 @@ fn records() {
     let (filename, contents) = gen_interface(
         opts,
         "records",
-        include_str!("../../../tests/codegen/records.wit"),
+        include_str!("../../../wit/records.wit"),
     );
 
     assert_eq!(filename, "records.rs");
@@ -208,7 +208,7 @@ fn simple_functions() {
     let (filename, contents) = gen_interface(
         opts,
         "simple-functions",
-        include_str!("../../../tests/codegen/simple_functions.wit"),
+        include_str!("../../../wit/simple_functions.wit"),
     );
 
     assert_eq!(filename, "simple-functions.rs");
@@ -226,7 +226,7 @@ fn simple_lists() {
     let (filename, contents) = gen_interface(
         opts,
         "simple-lists",
-        include_str!("../../../tests/codegen/simple_lists.wit"),
+        include_str!("../../../wit/simple_lists.wit"),
     );
 
     assert_eq!(filename, "simple-lists.rs");
@@ -244,7 +244,7 @@ fn small_anonymous() {
     let (filename, contents) = gen_interface(
         opts,
         "small-anonymous",
-        include_str!("../../../tests/codegen/small_anonymous.wit"),
+        include_str!("../../../wit/small_anonymous.wit"),
     );
 
     assert_eq!(filename, "small-anonymous.rs");
@@ -262,7 +262,7 @@ fn strings() {
     let (filename, contents) = gen_interface(
         opts,
         "strings",
-        include_str!("../../../tests/codegen/strings.wit"),
+        include_str!("../../../wit/strings.wit"),
     );
 
     assert_eq!(filename, "strings.rs");
@@ -280,7 +280,7 @@ fn unions() {
     let (filename, contents) = gen_interface(
         opts,
         "unions",
-        include_str!("../../../tests/codegen/unions.wit"),
+        include_str!("../../../wit/unions.wit"),
     );
 
     assert_eq!(filename, "unions.rs");
@@ -298,7 +298,7 @@ fn variants() {
     let (filename, contents) = gen_interface(
         opts,
         "variants",
-        include_str!("../../../tests/codegen/variants.wit"),
+        include_str!("../../../wit/variants.wit"),
     );
 
     assert_eq!(filename, "variants.rs");
