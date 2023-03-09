@@ -38,5 +38,7 @@ jobs:
       - name: Build and deploy artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: .github/workflows/make-release.sh ${{ matrix.os }} ${{ matrix.target }}
+          OS: ${{ matrix.os }}
+          TARGET: ${{ matrix.target }}
+        run: .github/workflows/make-release.sh
         shell: bash

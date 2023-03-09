@@ -11,21 +11,20 @@ fi
 TAG=${GITHUB_REF#*/tags/}
 
 host=$(rustc -Vv | grep ^host: | sed -e "s/host: //g")
-target=$2
-if [ "$host" != "$target" ]
+if [ "$host" != "$TARGET" ]
 then
-  export "CARGO_TARGET_$(echo $target | tr a-z- A-Z_)_LINKER"=rust-lld
+  export "CARGO_TARGET_$(echo $TARGET | tr a-z- A-Z_)_LINKER"=rust-lld
 fi
 export CARGO_PROFILE_RELEASE_LTO=true
-cargo build --locked --bin tauri-bindgen --release --target $target
-cd target/$target/release
+cargo build --locked --bin tauri-bindgen --release --target $TARGET
+cd target/$TARGET/release
 case $1 in
   ubuntu*)
-    asset="tauri-bindgen-$TAG-$target.tar.gz"
+    asset="tauri-bindgen-$TAG-$TARGET.tar.gz"
     tar czf ../../$asset tauri-bindgen
     ;;
   macos*)
-    asset="tauri-bindgen-$TAG-$target.tar.gz"
+    asset="tauri-bindgen-$TAG-$TARGET.tar.gz"
     # There is a bug with BSD tar on macOS where the first 8MB of the file are
     # sometimes all NUL bytes. See https://github.com/actions/cache/issues/403
     # and https://github.com/rust-lang/cargo/issues/8603 for some more
@@ -35,7 +34,7 @@ case $1 in
     tar czf ../../$asset tauri-bindgen
     ;;
   windows*)
-    asset="tauri-bindgen-$TAG-$target.zip"
+    asset="tauri-bindgen-$TAG-$TARGET.zip"
     7z a ../../$asset tauri-bindgen.exe
     ;;
   *)
