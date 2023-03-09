@@ -1,3 +1,5 @@
+#![allow(clippy::missing_panics_doc, clippy::missing_errors_doc)]
+
 use crate::{
     lex::Token,
     util::{find_similar, print_list},

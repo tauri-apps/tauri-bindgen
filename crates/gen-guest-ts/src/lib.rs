@@ -1,4 +1,8 @@
-#![allow(clippy::must_use_candidate)]
+#![allow(
+    clippy::must_use_candidate,
+    clippy::missing_panics_doc,
+    clippy::missing_errors_doc
+)]
 
 use heck::{ToKebabCase, ToLowerCamelCase, ToUpperCamelCase};
 use std::path::PathBuf;
@@ -37,7 +41,7 @@ pub struct TypeScript {
 
 impl TypeScript {
     pub fn print_function(&self, func: &Function) -> String {
-        let docs = self.print_docs(&func.docs);
+        let docs = print_docs(&func.docs);
 
         let ident = func.ident.to_lower_camel_case();
 
@@ -77,19 +81,6 @@ impl TypeScript {
             }}
         "#
         )
-    }
-
-    fn print_docs(&self, docs: &str) -> String {
-        if docs.is_empty() {
-            return String::new();
-        }
-
-        let docs = docs
-            .lines()
-            .map(|line| format!(" * {line} \n"))
-            .collect::<String>();
-
-        format!("/**\n{docs}*/")
     }
 
     fn print_type(&self, ty: &Type) -> String {
@@ -140,7 +131,7 @@ impl TypeScript {
     fn print_typedef(&self, id: TypeDefId) -> String {
         let typedef = &self.interface.typedefs[id];
         let ident = &typedef.ident.to_upper_camel_case();
-        let docs = self.print_docs(&typedef.docs);
+        let docs = print_docs(&typedef.docs);
 
         match &typedef.kind {
             TypeDefKind::Alias(ty) => {
@@ -152,7 +143,7 @@ impl TypeScript {
                 let fields: String = fields
                     .iter()
                     .map(|field| {
-                        let docs = self.print_docs(&field.docs);
+                        let docs = print_docs(&field.docs);
                         let ident = field.ident.to_lower_camel_case();
                         let ty = self.print_type(&field.ty);
 
@@ -167,7 +158,7 @@ impl TypeScript {
                     .iter()
                     .enumerate()
                     .map(|(i, field)| {
-                        let docs = self.print_docs(&field.docs);
+                        let docs = print_docs(&field.docs);
                         let ident = field.ident.to_upper_camel_case();
                         let value: u64 = 2 << i;
 
@@ -182,13 +173,13 @@ impl TypeScript {
                     .iter()
                     .enumerate()
                     .map(|(i, case)| {
-                        let docs = self.print_docs(&case.docs);
+                        let docs = print_docs(&case.docs);
                         let case_ident = case.ident.to_upper_camel_case();
                         let value = case
                             .ty
                             .as_ref()
                             .map(|ty| {
-                                let ty = self.print_type(&ty);
+                                let ty = self.print_type(ty);
                                 format!(", value: {ty}")
                             })
                             .unwrap_or_default();
@@ -202,7 +193,7 @@ impl TypeScript {
                 let cases: String = cases
                     .iter()
                     .map(|case| {
-                        let docs = self.print_docs(&case.docs);
+                        let docs = print_docs(&case.docs);
                         let case_ident = case.ident.to_upper_camel_case();
 
                         format!("{docs}\n{ident}{case_ident}")
@@ -216,7 +207,7 @@ impl TypeScript {
                 let cases: String = cases
                     .iter()
                     .map(|case| {
-                        let docs = self.print_docs(&case.docs);
+                        let docs = print_docs(&case.docs);
                         let ident = case.ident.to_upper_camel_case();
 
                         format!("{docs}\n{ident},\n")
@@ -229,7 +220,7 @@ impl TypeScript {
                 let cases: String = cases
                     .iter()
                     .map(|case| {
-                        let docs = self.print_docs(&case.docs);
+                        let docs = print_docs(&case.docs);
                         let ty = self.print_type(&case.ty);
 
                         format!("{docs}\n{ty}\n")
@@ -269,13 +260,26 @@ impl TypeScript {
     }
 }
 
+fn print_docs(docs: &str) -> String {
+    if docs.is_empty() {
+        return String::new();
+    }
+
+    let docs = docs
+        .lines()
+        .map(|line| format!(" * {line} \n"))
+        .collect::<String>();
+
+    format!("/**\n{docs}*/")
+}
+
 impl Generate for TypeScript {
     fn to_file(&self) -> (std::path::PathBuf, String) {
         let result_ty = self
             .interface
             .functions
             .iter()
-            .any(|func| func.throws())
+            .any(Function::throws)
             .then_some(
                 "export type Result<T, E> = { tag: 'ok', val: T } | { tag: 'err', val: E };\n",
             )

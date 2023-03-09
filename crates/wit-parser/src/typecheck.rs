@@ -1,3 +1,5 @@
+#![allow(clippy::missing_panics_doc, clippy::missing_errors_doc)]
+
 use crate::{
     util::IteratorExt, EnumCase, Error, FlagsField, Function, FunctionResult, Interface,
     RecordField, Result, Type, TypeDef, TypeDefKind, UnionCase, VariantCase,
@@ -32,7 +34,7 @@ impl<'a> Resolver<'a> {
 
         let iface_typedefs: HashMap<_, _> = iface_typedefs
             .into_iter()
-            .map(|item| (&source[item.ident.clone()], item.clone()))
+            .map(|item| (&source[item.ident.clone()], item))
             .collect();
 
         let this = Self {
@@ -213,7 +215,7 @@ impl<'a> Resolver<'a> {
                     let typedef = self
                         .iface_typedefs
                         .get(ident)
-                        .ok_or(Error::not_defined(span.to_owned()))?;
+                        .ok_or(Error::not_defined(span.clone()))?;
 
                     let id = self.resolve_typedef(&typedef.clone())?; // TODO: avoid clone
 
@@ -347,13 +349,13 @@ impl<'a> Resolver<'a> {
         let ident2span = self
             .iface_typedefs
             .iter()
-            .map(|(ident, item)| (ident.to_string(), item.ident.clone()))
+            .map(|(ident, item)| (*ident, item.ident.clone()))
             .collect::<HashMap<_, _>>();
 
         let mut functions = Vec::new();
         for item in rest_data.functions {
             if let parse::InterfaceItemInner::Func(func) = &item.inner {
-                let func = self.resolve_func(&item.docs, &item.ident, &func)?;
+                let func = self.resolve_func(&item.docs, &item.ident, func)?;
                 functions.push(func);
             }
         }
@@ -361,16 +363,16 @@ impl<'a> Resolver<'a> {
         let mut visiting = HashSet::new();
         let mut valid_types = HashSet::new();
         for (id, typedef) in &self.typedefs {
-            let ident_span = ident2span[typedef.ident.as_str()].clone();
+            let ident = ident2span[typedef.ident.as_str()].clone();
 
-            self.verify_not_recursive(ident_span, id, &mut visiting, &mut valid_types)?;
+            self.verify_not_recursive(ident, id, &mut visiting, &mut valid_types)?;
         }
 
         if !self.iface_typedefs.is_empty() {
             let res: Result<()> = self
                 .iface_typedefs
-                .iter()
-                .map(|(_, item)| Err(Error::unused_type(item.ident.clone())))
+                .values()
+                .map(|item| Err(Error::unused_type(item.ident.clone())))
                 .partition_result();
             res?;
         }

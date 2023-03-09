@@ -1,3 +1,5 @@
+#![allow(clippy::missing_panics_doc, clippy::missing_errors_doc)]
+
 pub use anyhow::Error;
 use anyhow::{bail, Result};
 use std::{

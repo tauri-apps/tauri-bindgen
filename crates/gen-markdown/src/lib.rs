@@ -70,14 +70,10 @@ impl Markdown {
         }
     }
 
-    fn print_docs(&self, docs: &str) -> String {
-        docs.lines().map(str::trim).collect::<Vec<_>>().join("\n")
-    }
-
     fn print_typedef(&self, id: TypeDefId) -> String {
         let typedef = &self.interface.typedefs[id];
         let ident = &typedef.ident;
-        let docs = self.print_docs(&typedef.docs);
+        let docs = print_docs(&typedef.docs);
 
         match &typedef.kind {
             wit_parser::TypeDefKind::Alias(ty) => {
@@ -201,10 +197,14 @@ impl Markdown {
     }
 }
 
+fn print_docs(docs: &str) -> String {
+    docs.lines().map(str::trim).collect::<Vec<_>>().join("\n")
+}
+
 impl Generate for Markdown {
     fn to_file(&self) -> (std::path::PathBuf, String) {
         let ident = &self.interface.ident;
-        let docs = self.print_docs(&self.interface.docs);
+        let docs = print_docs(&self.interface.docs);
         let typedefs = self
             .interface
             .typedefs

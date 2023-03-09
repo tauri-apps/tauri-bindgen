@@ -1,3 +1,5 @@
+#![allow(clippy::missing_errors_doc, clippy::missing_panics_doc)]
+
 extern crate proc_macro;
 
 use proc_macro::TokenStream;

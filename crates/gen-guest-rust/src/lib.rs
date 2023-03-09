@@ -95,16 +95,16 @@ impl RustGenerator for RustWasm {
         let mut attrs = vec![];
         if self.uses_two_names(info) {
             if ident.ends_with("Param") {
-                attrs.push(quote! { serde::Serialize })
+                attrs.push(quote! { serde::Serialize });
             } else if ident.ends_with("Result") {
-                attrs.push(quote! { serde::Deserialize })
+                attrs.push(quote! { serde::Deserialize });
             }
         } else {
             if info.contains(TypeInfo::PARAM) {
-                attrs.push(quote! { serde::Serialize })
+                attrs.push(quote! { serde::Serialize });
             }
             if info.contains(TypeInfo::RESULT) {
-                attrs.push(quote! { serde::Deserialize })
+                attrs.push(quote! { serde::Deserialize });
             }
         }
 

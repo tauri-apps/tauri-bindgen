@@ -1,3 +1,5 @@
+#![allow(clippy::missing_panics_doc, clippy::missing_errors_doc)]
+
 use heck::{ToShoutySnekCase, ToSnakeCase, ToUpperCamelCase};
 use proc_macro2::{Ident, Literal, TokenStream};
 use quote::{format_ident, quote};
@@ -80,19 +82,19 @@ pub trait RustGenerator {
                 BorrowMode::AllBorrowed(lt) | BorrowMode::LeafBorrowed(lt) => quote! { &#lt str },
             },
             Type::List(ty) => {
-                let is_primitive = match **ty {
+                let is_primitive = matches!(
+                    **ty,
                     Type::U8
-                    | Type::S8
-                    | Type::U16
-                    | Type::S16
-                    | Type::U32
-                    | Type::S32
-                    | Type::U64
-                    | Type::S64
-                    | Type::Float32
-                    | Type::Float64 => true,
-                    _ => false,
-                };
+                        | Type::S8
+                        | Type::U16
+                        | Type::S16
+                        | Type::U32
+                        | Type::S32
+                        | Type::U64
+                        | Type::S64
+                        | Type::Float32
+                        | Type::Float64
+                );
 
                 let ty = self.print_ty(ty, mode);
 
@@ -655,7 +657,7 @@ bitflags::bitflags! {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct TypeInfos {
     infos: HashMap<TypeDefId, TypeInfo>,
 }
@@ -663,9 +665,7 @@ pub struct TypeInfos {
 impl TypeInfos {
     #[must_use]
     pub fn new() -> Self {
-        TypeInfos {
-            infos: HashMap::new(),
-        }
+        TypeInfos::default()
     }
 
     pub fn collect_param_info(&mut self, typedefs: &TypeDefArena, params: &[(String, Type)]) {

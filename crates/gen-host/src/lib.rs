@@ -1,4 +1,9 @@
-#![allow(clippy::must_use_candidate)]
+#![allow(
+    clippy::must_use_candidate,
+    clippy::missing_panics_doc,
+    clippy::missing_errors_doc,
+    clippy::unused_self
+)]
 
 use std::path::PathBuf;
 
@@ -64,16 +69,16 @@ impl RustGenerator for Host {
         let mut attrs = vec![];
         if self.uses_two_names(info) {
             if ident.ends_with("Param") {
-                attrs.push(quote! { serde::Deserialize })
+                attrs.push(quote! { serde::Deserialize });
             } else if ident.ends_with("Result") {
-                attrs.push(quote! { serde::Serialize })
+                attrs.push(quote! { serde::Serialize });
             }
         } else {
             if info.contains(TypeInfo::PARAM) {
-                attrs.push(quote! { serde::Deserialize })
+                attrs.push(quote! { serde::Deserialize });
             }
             if info.contains(TypeInfo::RESULT) {
-                attrs.push(quote! { serde::Serialize })
+                attrs.push(quote! { serde::Serialize });
             }
         }
 
@@ -98,8 +103,9 @@ impl Generate for Host {
 
         let trait_ = self.print_trait(&self.interface.ident, self.interface.functions.iter());
 
-        let add_to_router =
-            self.print_add_to_router(&self.interface.ident, self.interface.functions.iter());
+        let add_to_router = self.print_add_to_router(
+            &self.interface.ident, /*, self.interface.functions.iter()*/
+        );
 
         quote! {
             #docs
@@ -166,10 +172,10 @@ impl Host {
         }
     }
 
-    fn print_add_to_router<'a>(
+    fn print_add_to_router(
         &self,
         mod_ident: &str,
-        _functions: impl Iterator<Item = &'a Function>,
+        // _functions: impl Iterator<Item = &'a Function>,
     ) -> TokenStream {
         let trait_ident = format_ident!("{}", mod_ident.to_upper_camel_case());
 

@@ -1,3 +1,5 @@
+#![allow(clippy::missing_panics_doc, clippy::missing_errors_doc)]
+
 mod error;
 mod lex;
 mod parse;
@@ -194,11 +196,11 @@ pub struct Function {
 }
 
 impl Function {
+    #[must_use]
     pub fn throws(&self) -> bool {
-        self.result.types().any(|ty| match ty {
-            Type::Result { .. } => true,
-            _ => false,
-        })
+        self.result
+            .types()
+            .any(|ty| matches!(ty, Type::Result { .. }))
     }
 }
 
