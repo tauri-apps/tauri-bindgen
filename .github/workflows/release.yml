@@ -31,7 +31,7 @@ jobs:
       - name: Install hub
         run: .github/workflows/install-hub.sh ${{ matrix.os }}
         shell: bash
-      - uses: dtolnay/rust-toolchain@master
+      - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{matrix.target}}
       - uses: Swatinem/rust-cache@v2
