@@ -5,6 +5,7 @@
   <p>
     <strong>Typesafe language bindings generator for the Tauri IPC bridge</strong>
   </p>
+  <p><a href="https://tauri-bindgen.netlify.app">Online playground</a></p>
 </div>
 
 [![MIT or Apache 2.0 licensed][mit-or-apache-badge]][mit-or-apache-url]
