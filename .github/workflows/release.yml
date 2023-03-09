@@ -17,14 +17,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        - os: ubuntu-latest
-          target: x86_64-unknown-linux-gnu
-        - os: macos-latest
-          target: x86_64-apple-darwin
-        - os: macos-latest
-          target: aarch64-apple-darwin
-        - os: windows-latest
-          target: x86_64-pc-windows-msvc
+        config:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
     steps:
       - uses: actions/checkout@v3
       - name: Install hub
@@ -32,12 +33,12 @@ jobs:
         shell: bash
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{matrix.target}}
+          targets: ${{matrix.config.target}}
       - uses: Swatinem/rust-cache@v2
       - name: Build and deploy artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OS: ${{ matrix.os }}
-          TARGET: ${{ matrix.target }}
+          OS: ${{ matrix.config.os }}
+          TARGET: ${{ matrix.config.target }}
         run: .github/workflows/make-release.sh
         shell: bash
