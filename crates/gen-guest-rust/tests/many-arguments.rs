@@ -1,4 +1,5 @@
 #[allow(unused_imports, unused_variables)]
+#[rustfmt::skip]
 pub mod many_arguments {
     use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;

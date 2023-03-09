@@ -104,6 +104,7 @@ impl Generate for Host {
         quote! {
             #docs
             #[allow(unused_imports, unused_variables)]
+            #[rustfmt::skip]
             pub mod #ident {
                 use ::tauri_bindgen_host::serde;
                 use ::tauri_bindgen_host::bitflags;

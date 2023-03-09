@@ -1,4 +1,5 @@
 #[allow(unused_imports, unused_variables)]
+#[rustfmt::skip]
 pub mod multi_return {
     use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;

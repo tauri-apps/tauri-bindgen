@@ -113,7 +113,7 @@ pub trait RustGenerator {
                     let ty = self.print_ty(&types[0], mode);
 
                     quote! { (#ty,) }
-                 } else {
+                } else {
                     let types = types.iter().map(|ty| self.print_ty(ty, mode));
 
                     quote! { (#(#types),*) }
