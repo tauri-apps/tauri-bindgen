@@ -1,21 +1,21 @@
-#[allow(clippy::all, unused)]
+#[allow(unused_imports, unused_variables, dead_code)]
 #[rustfmt::skip]
-pub mod multi_return{
-  use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
-  pub async fn mra() -> () {
-    ::tauri_bindgen_guest_rust::invoke("plugin:def17a258c1e4f4d|mra", ()).await.unwrap()
-  }
-  pub async fn mrb() -> () {
-    ::tauri_bindgen_guest_rust::invoke("plugin:def17a258c1e4f4d|mrb", ()).await.unwrap()
-  }
-  pub async fn mrc() -> u32 {
-    ::tauri_bindgen_guest_rust::invoke("plugin:def17a258c1e4f4d|mrc", ()).await.unwrap()
-  }
-  pub async fn mrd() -> u32 {
-    ::tauri_bindgen_guest_rust::invoke("plugin:def17a258c1e4f4d|mrd", ()).await.unwrap()
-  }
-  pub async fn mre() -> (u32, f32, ) {
-    ::tauri_bindgen_guest_rust::invoke("plugin:def17a258c1e4f4d|mre", ()).await.unwrap()
-  }
-  
+pub mod multi_return {
+    use ::tauri_bindgen_guest_rust::serde;
+    use ::tauri_bindgen_guest_rust::bitflags;
+    pub async fn mra() -> () {
+        todo!()
+    }
+    pub async fn mrb() {
+        todo!()
+    }
+    pub async fn mrc() -> u32 {
+        todo!()
+    }
+    pub async fn mrd() -> u32 {
+        todo!()
+    }
+    pub async fn mre() -> (u32, f32) {
+        todo!()
+    }
 }

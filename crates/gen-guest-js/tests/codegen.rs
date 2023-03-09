@@ -1,36 +1,31 @@
-use tauri_bindgen_core::{Files, WorldGenerator};
-use tauri_bindgen_gen_guest_js::Opts;
+#![allow(clippy::all, unused)]
+use pretty_assertions::assert_eq;
+use std::path::{Path, PathBuf};
+use tauri_bindgen_core::{Generate, GeneratorBuilder};
+use tauri_bindgen_gen_guest_js::Builder;
 
-fn gen_world(
-    mut gen: Box<dyn WorldGenerator>,
-    name: impl AsRef<str>,
+fn gen_interface(
+    opts: Builder,
+    _name: impl AsRef<str>,
     input: impl AsRef<str>,
 ) -> (String, String) {
-    let world = wit_parser::parse_str(&input, |_| false).unwrap();
-    let world_hash = tauri_bindgen_core::hash::hash_str(&input).unwrap();
+    let iface = wit_parser::parse_str(&input, |_| false).unwrap();
 
-    let mut files = Files::default();
+    let gen = opts.build(iface);
+    let (filename, contents) = gen.to_file();
 
-    gen.generate(name.as_ref(), &world, &mut files, &world_hash);
-
-    let (filename, contents) = files.iter().next().unwrap();
-
-    (
-        filename.to_string(),
-        std::str::from_utf8(contents).unwrap().to_string(),
-    )
+    (filename.to_str().unwrap().to_string(), contents)
 }
 
 #[test]
 fn chars() {
-    let opts = Opts {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
+    let (filename, contents) = gen_interface(
+        opts,
         "chars",
         include_str!("../../../tests/codegen/chars.wit"),
     );
@@ -41,14 +36,13 @@ fn chars() {
 
 #[test]
 fn convention() {
-    let opts = Opts {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
+    let (filename, contents) = gen_interface(
+        opts,
         "conventions",
         include_str!("../../../tests/codegen/conventions.wit"),
     );
@@ -59,14 +53,13 @@ fn convention() {
 
 #[test]
 fn empty() {
-    let opts = Opts {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
+    let (filename, contents) = gen_interface(
+        opts,
         "empty",
         include_str!("../../../tests/codegen/empty.wit"),
     );
@@ -77,32 +70,30 @@ fn empty() {
 
 #[test]
 fn flags() {
-    let opts = Opts {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
-        "flags",
+    let (filename, contents) = gen_interface(
+        opts,
+        "flegs",
         include_str!("../../../tests/codegen/flags.wit"),
     );
 
-    assert_eq!(filename, "flags.js");
+    assert_eq!(filename, "flegs.js");
     assert_eq!(contents, include_str!("./flegs.js"));
 }
 
 #[test]
 fn floats() {
-    let opts = Opts {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
+    let (filename, contents) = gen_interface(
+        opts,
         "floats",
         include_str!("../../../tests/codegen/floats.wit"),
     );
@@ -113,14 +104,13 @@ fn floats() {
 
 #[test]
 fn integers() {
-    let opts = Opts {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
+    let (filename, contents) = gen_interface(
+        opts,
         "integers",
         include_str!("../../../tests/codegen/integers.wit"),
     );
@@ -130,17 +120,33 @@ fn integers() {
 }
 
 #[test]
-fn many_arguments() {
-    let opts = Opts {
+fn lists() {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
+    let (filename, contents) = gen_interface(
+        opts,
+        "lists",
+        include_str!("../../../tests/codegen/lists.wit"),
+    );
+
+    assert_eq!(filename, "lists.js");
+    assert_eq!(contents, include_str!("./lists.js"));
+}
+
+#[test]
+fn many_arguments() {
+    let opts = Builder {
+        prettier: false,
+        romefmt: false,
+    };
+
+    let (filename, contents) = gen_interface(
+        opts,
         "many-arguments",
-        include_str!("../../../tests/codegen/many-arguments.wit"),
+        include_str!("../../../tests/codegen/many_arguments.wit"),
     );
 
     assert_eq!(filename, "many-arguments.js");
@@ -149,16 +155,15 @@ fn many_arguments() {
 
 #[test]
 fn multi_return() {
-    let opts = Opts {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
+    let (filename, contents) = gen_interface(
+        opts,
         "multi-return",
-        include_str!("../../../tests/codegen/multi-return.wit"),
+        include_str!("../../../tests/codegen/multi_return.wit"),
     );
 
     assert_eq!(filename, "multi-return.js");
@@ -167,14 +172,13 @@ fn multi_return() {
 
 #[test]
 fn records() {
-    let opts = Opts {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
+    let (filename, contents) = gen_interface(
+        opts,
         "records",
         include_str!("../../../tests/codegen/records.wit"),
     );
@@ -185,16 +189,15 @@ fn records() {
 
 #[test]
 fn simple_functions() {
-    let opts = Opts {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
+    let (filename, contents) = gen_interface(
+        opts,
         "simple-functions",
-        include_str!("../../../tests/codegen/simple-functions.wit"),
+        include_str!("../../../tests/codegen/simple_functions.wit"),
     );
 
     assert_eq!(filename, "simple-functions.js");
@@ -203,16 +206,15 @@ fn simple_functions() {
 
 #[test]
 fn simple_lists() {
-    let opts = Opts {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
+    let (filename, contents) = gen_interface(
+        opts,
         "simple-lists",
-        include_str!("../../../tests/codegen/simple-lists.wit"),
+        include_str!("../../../tests/codegen/simple_lists.wit"),
     );
 
     assert_eq!(filename, "simple-lists.js");
@@ -221,16 +223,15 @@ fn simple_lists() {
 
 #[test]
 fn small_anonymous() {
-    let opts = Opts {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
+    let (filename, contents) = gen_interface(
+        opts,
         "small-anonymous",
-        include_str!("../../../tests/codegen/small-anonymous.wit"),
+        include_str!("../../../tests/codegen/small_anonymous.wit"),
     );
 
     assert_eq!(filename, "small-anonymous.js");
@@ -239,14 +240,13 @@ fn small_anonymous() {
 
 #[test]
 fn strings() {
-    let opts = Opts {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
+    let (filename, contents) = gen_interface(
+        opts,
         "strings",
         include_str!("../../../tests/codegen/strings.wit"),
     );
@@ -257,14 +257,13 @@ fn strings() {
 
 #[test]
 fn unions() {
-    let opts = Opts {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
+    let (filename, contents) = gen_interface(
+        opts,
         "unions",
         include_str!("../../../tests/codegen/unions.wit"),
     );
@@ -275,14 +274,13 @@ fn unions() {
 
 #[test]
 fn variants() {
-    let opts = Opts {
+    let opts = Builder {
         prettier: false,
         romefmt: false,
     };
-    let gen = opts.build();
 
-    let (filename, contents) = gen_world(
-        gen,
+    let (filename, contents) = gen_interface(
+        opts,
         "variants",
         include_str!("../../../tests/codegen/variants.wit"),
     );

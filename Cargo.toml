@@ -1,5 +1,5 @@
 [package]
-name = "tauri-bindgen-cli"
+name = "tauri-bindgen"
 authors.workspace = true
 version.workspace = true
 edition.workspace = true
@@ -20,7 +20,7 @@ thiserror = "1.0.39"
 bitflags = "1.3.2"
 heck =  { version = "0.4", features = ["unicode"] }
 clap = { version = "4.1.8", features = ["derive"] }
-tauri-bindgen-core = { path = "crates/bindgen-core" }
+tauri-bindgen-core = { path = "crates/core" }
 tauri-bindgen-gen-host = { path = "crates/gen-host", features = ['cli'] }
 tauri-bindgen-gen-markdown = { path = "crates/gen-markdown", features = ['cli'] }
 tauri-bindgen-gen-guest-rust = { path = "crates/gen-guest-rust", features = ['cli'] }
@@ -29,16 +29,20 @@ tauri-bindgen-gen-guest-js = { path = "crates/gen-guest-js", features = ['cli'] 
 wit-parser = { path = "crates/wit-parser" }
 miette = { version = "5.5.0", features = ["fancy"] }
 log = { version = "0.4.17", features = [ "kv_unstable", "kv_unstable_std" ] }
+serde = "1.0.154"
 
 [dependencies]
 clap.workspace = true
 tauri-bindgen-core.workspace = true
-tauri-bindgen-gen-host.workspace = true
-tauri-bindgen-gen-markdown.workspace = true
-tauri-bindgen-gen-guest-rust.workspace = true
+tauri-bindgen-gen-host = { workspace = true, optional = true }
+tauri-bindgen-gen-markdown = { workspace = true, optional = true }
+tauri-bindgen-gen-guest-rust  = { workspace = true, optional = true }
 tauri-bindgen-gen-guest-ts.workspace = true
-tauri-bindgen-gen-guest-js.workspace = true
+tauri-bindgen-gen-guest-js = { workspace = true, optional = true }
 wit-parser.workspace = true
 miette.workspace = true
 env_logger = "0.10.0"
 log.workspace = true
+
+[features]
+unstable = ["dep:tauri-bindgen-gen-host", "dep:tauri-bindgen-gen-markdown", "dep:tauri-bindgen-gen-guest-rust", "dep:tauri-bindgen-gen-guest-js"]

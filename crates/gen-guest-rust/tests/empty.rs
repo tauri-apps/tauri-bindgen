@@ -1,6 +1,6 @@
-#[allow(clippy::all, unused)]
+#[allow(unused_imports, unused_variables, dead_code)]
 #[rustfmt::skip]
-pub mod empty{
-  use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
-  
+pub mod empty {
+    use ::tauri_bindgen_guest_rust::serde;
+    use ::tauri_bindgen_guest_rust::bitflags;
 }

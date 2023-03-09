@@ -1,0 +1,8 @@
+interface small_anonymous {
+  enum error {
+    success,
+    failure,
+  }
+
+  func option_test() -> result<option<string>, error>
+}

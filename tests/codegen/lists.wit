@@ -1,42 +1,42 @@
 interface lists {
-  func list-u8-param(x: list<u8>)
-  func list-u16-param(x: list<u16>)
-  func list-u32-param(x: list<u32>)
-  func list-u64-param(x: list<u64>)
-  func list-s8-param(x: list<s8>)
-  func list-s16-param(x: list<s16>)
-  func list-s32-param(x: list<s32>)
-  func list-s64-param(x: list<s64>)
-  func list-float32-param(x: list<float32>)
-  func list-float64-param(x: list<float64>)
+  func list_u8_param(x: list<u8>)
+  func list_u16_param(x: list<u16>)
+  func list_u32_param(x: list<u32>)
+  func list_u64_param(x: list<u64>)
+  func list_s8_param(x: list<s8>)
+  func list_s16_param(x: list<s16>)
+  func list_s32_param(x: list<s32>)
+  func list_s64_param(x: list<s64>)
+  func list_float32_param(x: list<float32>)
+  func list_float64_param(x: list<float64>)
 
-  func list-u8-ret() -> list<u8>
-  func list-u16-ret() -> list<u16>
-  func list-u32-ret() -> list<u32>
-  func list-u64-ret() -> list<u64>
-  func list-s8-ret() -> list<s8>
-  func list-s16-ret() -> list<s16>
-  func list-s32-ret() -> list<s32>
-  func list-s64-ret() -> list<s64>
-  func list-float32-ret() -> list<float32>
-  func list-float64-ret() -> list<float64>
+  func list_u8_ret() -> list<u8>
+  func list_u16_ret() -> list<u16>
+  func list_u32_ret() -> list<u32>
+  func list_u64_ret() -> list<u64>
+  func list_s8_ret() -> list<s8>
+  func list_s16_ret() -> list<s16>
+  func list_s32_ret() -> list<s32>
+  func list_s64_ret() -> list<s64>
+  func list_float32_ret() -> list<float32>
+  func list_float64_ret() -> list<float64>
 
-  func tuple-list(x: list<tuple<u8, s8>>) -> list<tuple<s64, u32>>
-  func string-list-arg(a: list<string>)
-  func string-list-ret() -> list<string>
-  func tuple-string-list(x: list<tuple<u8, string>>) -> list<tuple<string, u8>>
-  func string-list(x: list<string>) -> list<string>
+  func tuple_list(x: list<tuple<u8, s8>>) -> list<tuple<s64, u32>>
+  func string_list_arg(a: list<string>)
+  func string_list_ret() -> list<string>
+  func tuple_string_list(x: list<tuple<u8, string>>) -> list<tuple<string, u8>>
+  func string_list(x: list<string>) -> list<string>
 
-  record some-record {
+  record some_record {
     x: string,
-    y: other-record,
-    z: list<other-record>,
+    y: other_record,
+    z: list<other_record>,
     c1: u32,
     c2: u64,
     c3: s32,
     c4: s64,
   }
-  record other-record {
+  record other_record {
     a1: u32,
     a2: u64,
     a3: s32,
@@ -44,23 +44,23 @@ interface lists {
     b: string,
     c: list<u8>,
   }
-  func record-list(x: list<some-record>) -> list<other-record>
-  func record-list-reverse(x: list<other-record>) -> list<some-record>
+  func record_list(x: list<some_record>) -> list<other_record>
+  func record_list_reverse(x: list<other_record>) -> list<some_record>
 
-  variant some-variant {
+  variant some_variant {
     a(string),
     b,
     c(u32),
-    d(list<other-variant>),
+    d(list<other_variant>),
   }
-  variant other-variant {
+  variant other_variant {
     a,
     b(u32),
     c(string),
   }
-  func variant-list(x: list<some-variant>) -> list<other-variant>
+  func variant_list(x: list<some_variant>) -> list<other_variant>
 
-  type load-store-all-sizes = list<tuple<
+  type load_store_all_sizes = list<tuple<
     string,
     u8,
     s8,
@@ -74,5 +74,5 @@ interface lists {
     float64,
     char,
   >>
-  func load-store-everything(a: load-store-all-sizes) -> load-store-all-sizes
+  func load_store_everything(a: load_store_all_sizes) -> load_store_all_sizes
 }

@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  # push:
+  #   tags:
+  #     - desktop/*.*.*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-binaries:
+    runs-on: ${{ matrix.config.os }}
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install hub
+        run: ./install-hub.sh ${{ matrix.os }}
+        shell: bash
+      - uses: dtolnay/rust-toolchain@master
+          with:
+            targets: ${{matrix.target}}
+      - uses: Swatinem/rust-cache@v2
+      - name: Build and deploy artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./make-release.sh ${{ matrix.os }} ${{ matrix.target }}
+        shell: bash

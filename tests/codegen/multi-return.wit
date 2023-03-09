@@ -1,7 +1,0 @@
-interface multi-return {
-  func mra()
-  func mrb() -> ()
-  func mrc() -> u32
-  func mrd() -> (a: u32)
-  func mre() -> (a: u32, b: float32)
-}

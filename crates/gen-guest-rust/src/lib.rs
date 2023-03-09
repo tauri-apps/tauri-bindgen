@@ -1,21 +1,25 @@
 #![allow(clippy::must_use_candidate)]
 
-use heck::{ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
-use std::fmt::Write as _;
-use std::mem;
-use tauri_bindgen_core::{
-    postprocess, uwrite, uwriteln, Files, InterfaceGenerator as _, Source, TypeInfo, Types,
-    WorldGenerator,
-};
-use tauri_bindgen_gen_rust::{BorrowMode, FnSig, RustFlagsRepr, RustGenerator};
-use wit_parser::{Docs, Enum, Flags, Function, Interface, Record, Type, TypeId, Union, Variant};
+use std::path::PathBuf;
+
+use heck::ToKebabCase;
+use heck::ToSnakeCase;
+use proc_macro2::TokenStream;
+use quote::format_ident;
+use quote::quote;
+use syn::parse_quote;
+use tauri_bindgen_core::Generate;
+use tauri_bindgen_core::GeneratorBuilder;
+use tauri_bindgen_gen_rust::FnSig;
+use tauri_bindgen_gen_rust::{BorrowMode, RustGenerator, TypeInfo, TypeInfos};
+use wit_parser::{Function, Interface};
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
-pub struct Opts {
+pub struct Builder {
     /// Whether or not `rustfmt` is executed to format generated code.
     #[cfg_attr(feature = "clap", clap(long))]
-    pub rustfmt: bool,
+    pub fmt: bool,
 
     /// Whether or not the bindings assume interface values are always
     /// well-formed or whether checks are performed.
@@ -27,259 +31,133 @@ pub struct Opts {
     pub no_std: bool,
 }
 
-impl Opts {
-    pub fn build(self) -> Box<dyn WorldGenerator> {
+impl GeneratorBuilder for Builder {
+    fn build(self, interface: Interface) -> Box<dyn Generate> {
+        let mut infos = TypeInfos::new();
+
+        for func in &interface.functions {
+            infos.collect_param_info(&interface.typedefs, &func.params);
+            infos.collect_result_info(&interface.typedefs, &func.result);
+        }
+
+        for (id, typedef) in &interface.typedefs {
+            log::debug!("type info: {} {:#?}", typedef.ident, infos[id]);
+        }
+
         Box::new(RustWasm {
             opts: self,
-            ..Default::default()
+            interface,
+            infos,
         })
     }
 }
 
-#[derive(Debug, Default)]
-struct RustWasm {
-    src: Source,
-    opts: Opts,
+pub struct RustWasm {
+    opts: Builder,
+    interface: Interface,
+    infos: TypeInfos,
 }
 
-impl WorldGenerator for RustWasm {
-    fn import(
-        &mut self,
-        name: &str,
-        iface: &wit_parser::Interface,
-        _files: &mut Files,
-        world_hash: &str,
-    ) {
-        let mut gen =
-            InterfaceGenerator::new(self, iface, BorrowMode::AllBorrowed("'a"), world_hash);
-
-        gen.types();
-
-        for func in &iface.functions {
-            gen.generate_guest_import(func);
-        }
-
-        let snake = name.to_snake_case();
-        let module = &gen.src[..];
-
-        uwriteln!(
-            self.src,
-            "#[allow(clippy::all, unused)]
-            #[rustfmt::skip]
-            pub mod {snake} {{
-                use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
-                {module}
-            }}"
-        );
-    }
-
-    fn finish(&mut self, name: &str, files: &mut Files, _world_hash: &str) {
-        let mut src = mem::take(&mut self.src);
-        if self.opts.rustfmt {
-            postprocess(src.as_mut_string(), "rustfmt", ["--edition=2018"])
-                .expect("failed to run `rustfmt`");
-        }
-
-        files.push(&format!("{name}.rs"), src.as_bytes());
-    }
-}
-
-struct InterfaceGenerator<'a> {
-    src: Source,
-    types: Types,
-    gen: &'a mut RustWasm,
-    iface: &'a Interface,
-    default_param_mode: BorrowMode,
-    world_hash: &'a str,
-}
-
-impl<'a> InterfaceGenerator<'a> {
-    pub fn new(
-        gen: &'a mut RustWasm,
-        iface: &'a Interface,
-        default_param_mode: BorrowMode,
-        world_hash: &'a str,
-    ) -> Self {
-        let mut types = Types::default();
-        types.analyze(iface);
-
-        InterfaceGenerator {
-            src: Source::default(),
-            gen,
-            types,
-            iface,
-            default_param_mode,
-            world_hash,
-        }
-    }
-
-    fn generate_guest_import(&mut self, func: &Function) {
+impl RustWasm {
+    pub fn print_function(&self, func: &Function) -> TokenStream {
         let sig = FnSig {
             async_: true,
-            ..Default::default()
+            unsafe_: false,
+            private: false,
+            self_arg: None,
+            func,
         };
 
-        let param_mode = BorrowMode::AllBorrowed("'_");
-
-        self.print_signature(func, param_mode, &sig);
-        self.src.push_str(" {\n");
-
-        if !func.params.is_empty() {
-            self.print_param_struct(func);
-
-            self.src.push_str("let params = Params {");
-
-            for (param, _) in &func.params {
-                self.src.push_str(&param.to_snake_case());
-                self.src.push_str(",");
-            }
-
-            self.src.push_str("};\n");
-        }
-
-        uwrite!(
-            self.src,
-            r#"::tauri_bindgen_guest_rust::invoke("plugin:{}|{}", "#,
-            self.world_hash,
-            func.name
+        let sig = self.print_function_signature(
+            &sig,
+            &BorrowMode::AllBorrowed(parse_quote!('_)),
+            &BorrowMode::Owned,
         );
 
-        if func.params.is_empty() {
-            self.push_str("()");
-        } else {
-            self.push_str("&params");
+        quote! {
+            #sig {
+                todo!()
+            }
         }
-
-        self.push_str(").await.unwrap()\n");
-
-        self.src.push_str("}\n");
-    }
-
-    fn print_param_struct(&mut self, func: &Function) {
-        let lifetime = func.params.iter().any(|(_, ty)| self.needs_lifetime(ty));
-
-        self.push_str("#[derive(Debug, tauri_bindgen_abi::Writable)]\n");
-        // self.push_str("#[serde(rename_all = \"camelCase\")]\n");
-        self.src.push_str("struct Params");
-        self.print_generics(lifetime.then_some("'a"));
-        self.src.push_str(" {\n");
-
-        for (param, ty) in &func.params {
-            self.src.push_str(&param.to_snake_case());
-            self.src.push_str(" : ");
-            self.print_ty(ty, BorrowMode::AllBorrowed("'a"));
-            self.push_str(",\n");
-        }
-
-        self.src.push_str("}\n");
     }
 }
 
-impl<'a> RustGenerator<'a> for InterfaceGenerator<'a> {
-    fn iface(&self) -> &'a Interface {
-        self.iface
+impl RustGenerator for RustWasm {
+    fn interface(&self) -> &Interface {
+        &self.interface
     }
 
-    fn use_std(&self) -> bool {
-        !self.gen.opts.no_std
+    fn infos(&self) -> &TypeInfos {
+        &self.infos
     }
 
-    fn info(&self, ty: TypeId) -> TypeInfo {
-        self.types.get(ty)
+    fn additional_attrs(&self, ident: &str, info: TypeInfo) -> Option<TokenStream> {
+        let mut attrs = vec![];
+        if self.uses_two_names(info) {
+            if ident.ends_with("Param") {
+                attrs.push(quote! { serde::Serialize });
+            } else if ident.ends_with("Result") {
+                attrs.push(quote! { serde::Deserialize });
+            }
+        } else {
+            if info.contains(TypeInfo::PARAM) {
+                attrs.push(quote! { serde::Serialize });
+            }
+            if info.contains(TypeInfo::RESULT) {
+                attrs.push(quote! { serde::Deserialize });
+            }
+        }
+
+        Some(quote! { #[derive(#(#attrs),*)] })
     }
 
     fn default_param_mode(&self) -> BorrowMode {
-        self.default_param_mode
-    }
-
-    fn push_str(&mut self, s: &str) {
-        self.src.push_str(s);
-    }
-
-    fn print_borrowed_str(&mut self, lifetime: &'static str) {
-        self.push_str("&");
-        if lifetime != "'_" {
-            self.push_str(lifetime);
-            self.push_str(" ");
-        }
-        self.push_str("str");
+        BorrowMode::AllBorrowed(parse_quote!('a))
     }
 }
 
-impl<'a> tauri_bindgen_core::InterfaceGenerator<'a> for InterfaceGenerator<'a> {
-    fn iface(&self) -> &'a Interface {
-        self.iface
-    }
+impl tauri_bindgen_core::Generate for RustWasm {
+    fn to_tokens(&self) -> TokenStream {
+        let docs = self.print_docs(&self.interface.docs);
 
-    fn type_record(&mut self, id: TypeId, _name: &str, record: &Record, docs: &Docs) {
-        self.print_typedef_record(id, record, docs, get_serde_attrs);
-    }
+        let ident = format_ident!("{}", self.interface.ident.to_snake_case());
 
-    fn type_flags(&mut self, id: TypeId, name: &str, flags: &Flags, docs: &Docs) {
-        self.push_str("::tauri_bindgen_guest_rust::bitflags::bitflags! {\n");
-        self.print_rustdoc(docs);
+        let typedefs = self.print_typedefs(
+            self.interface.typedefs.iter().map(|(id, _)| id),
+            &BorrowMode::AllBorrowed(parse_quote!('a)),
+        );
 
-        let repr = RustFlagsRepr::new(flags);
-        let info = self.info(id);
+        let functions = self
+            .interface
+            .functions
+            .iter()
+            .map(|func| self.print_function(func));
 
-        if let Some(attrs) = get_serde_attrs(name, self.uses_two_names(&info), info) {
-            self.push_str(&attrs);
-        }
+        quote! {
+            #docs
+            #[allow(unused_imports, unused_variables, dead_code)]
+            #[rustfmt::skip]
+            pub mod #ident {
+                use ::tauri_bindgen_guest_rust::serde;
+                use ::tauri_bindgen_guest_rust::bitflags;
+                #typedefs
 
-        self.push_str(&format!(
-            "pub struct {}: {} {{\n",
-            name.to_upper_camel_case(),
-            repr
-        ));
-
-        for (i, flag) in flags.flags.iter().enumerate() {
-            self.print_rustdoc(&flag.docs);
-            self.src.push_str(&format!(
-                "const {} = 1 << {};\n",
-                flag.name.to_shouty_snake_case(),
-                i,
-            ));
-        }
-
-        self.push_str("}\n}\n");
-    }
-
-    fn type_variant(&mut self, id: TypeId, _name: &str, variant: &Variant, docs: &Docs) {
-        self.print_typedef_variant(id, variant, docs, get_serde_attrs);
-    }
-
-    fn type_union(&mut self, id: TypeId, _name: &str, union: &Union, docs: &Docs) {
-        self.print_typedef_union(id, union, docs, get_serde_attrs);
-    }
-
-    fn type_enum(&mut self, id: TypeId, _name: &str, enum_: &Enum, docs: &Docs) {
-        self.print_typedef_enum(id, enum_, docs, get_serde_attrs);
-    }
-
-    fn type_alias(&mut self, id: TypeId, _name: &str, ty: &Type, docs: &Docs) {
-        self.print_typedef_alias(id, ty, docs);
-    }
-}
-
-#[allow(clippy::unnecessary_wraps)]
-fn get_serde_attrs(name: &str, uses_two_names: bool, info: TypeInfo) -> Option<String> {
-    let mut attrs = vec![];
-
-    if uses_two_names {
-        if name.ends_with("Param") {
-            attrs.push("tauri_bindgen_abi::Writable");
-        }
-        if name.ends_with("Result") {
-            attrs.push("tauri_bindgen_abi::Readable");
-        }
-    } else {
-        if info.contains(TypeInfo::PARAM) {
-            attrs.push("tauri_bindgen_abi::Writable");
-        }
-        if info.contains(TypeInfo::RESULT) {
-            attrs.push("tauri_bindgen_abi::Readable");
+                #(#functions)*
+            }
         }
     }
 
-    Some(format!("#[derive({})]\n", attrs.join(", ")))
+    fn to_file(&self) -> (PathBuf, String) {
+        let mut filename = PathBuf::from(self.interface.ident.to_kebab_case());
+        filename.set_extension("rs");
+
+        let tokens = self.to_tokens();
+
+        if self.opts.fmt {
+            let syntax_tree = syn::parse2(tokens).unwrap();
+            (filename, prettyplease::unparse(&syntax_tree))
+        } else {
+            (filename, tokens.to_string())
+        }
+    }
 }
