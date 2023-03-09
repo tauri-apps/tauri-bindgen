@@ -9,5 +9,6 @@ rust-version.workspace = true
 
 [dependencies]
 anyhow = "1.0.69"
-tauri-bindgen-abi = { path = "../abi" }
+serde.workspace = true
 log.workspace = true
+postcard = { version = "1.0.4", features = ["alloc"] }

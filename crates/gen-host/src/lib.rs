@@ -62,22 +62,26 @@ impl RustGenerator for Host {
 
     fn additional_attrs(&self, ident: &str, info: TypeInfo) -> Option<TokenStream> {
         let mut attrs = vec![];
-        if tauri_bindgen_gen_rust::uses_two_names(info) {
+        if self.uses_two_names(info) {
             if ident.ends_with("Param") {
-                attrs.push(quote! { tauri_bindgen_abi::Readable })
+                attrs.push(quote! { serde::Deserialize })
             } else if ident.ends_with("Result") {
-                attrs.push(quote! { tauri_bindgen_abi::Writable })
+                attrs.push(quote! { serde::Serialize })
             }
         } else {
             if info.contains(TypeInfo::PARAM) {
-                attrs.push(quote! { tauri_bindgen_abi::Readable })
+                attrs.push(quote! { serde::Deserialize })
             }
             if info.contains(TypeInfo::RESULT) {
-                attrs.push(quote! { tauri_bindgen_abi::Writable })
+                attrs.push(quote! { serde::Serialize })
             }
         }
 
         Some(quote! { #[derive(#(#attrs),*)] })
+    }
+
+    fn default_param_mode(&self) -> BorrowMode {
+        BorrowMode::Owned
     }
 }
 
@@ -89,7 +93,7 @@ impl Generate for Host {
 
         let typedefs = self.print_typedefs(
             self.interface.typedefs.iter().map(|(id, _)| id),
-            &BorrowMode::Owned,
+            &BorrowMode::LeafBorrowed(parse_quote!('a)),
         );
 
         let trait_ = self.print_trait(&self.interface.ident, self.interface.functions.iter());
@@ -99,8 +103,9 @@ impl Generate for Host {
 
         quote! {
             #docs
+            #[allow(unused_imports, unused_variables)]
             pub mod #ident {
-                use ::tauri_bindgen_host::tauri_bindgen_abi;
+                use ::tauri_bindgen_host::serde;
                 use ::tauri_bindgen_host::bitflags;
 
                 #typedefs
@@ -163,35 +168,35 @@ impl Host {
     fn print_add_to_router<'a>(
         &self,
         mod_ident: &str,
-        functions: impl Iterator<Item = &'a Function>,
+        _functions: impl Iterator<Item = &'a Function>,
     ) -> TokenStream {
         let trait_ident = format_ident!("{}", mod_ident.to_upper_camel_case());
 
-        let mod_name = mod_ident.to_snake_case();
+        // let mod_name = mod_ident.to_snake_case();
 
-        let functions = functions.map(|func| {
-            let func_name = func.ident.to_snake_case();
-            let func_ident = format_ident!("{}", func_name);
+        // let functions = functions.map(|func| {
+        //     let func_name = func.ident.to_snake_case();
+        //     let func_ident = format_ident!("{}", func_name);
 
-            let params = self
-                .print_function_params(&func.params, &BorrowMode::Owned);
+        //     let params = self
+        //         .print_function_params(&func.params, &BorrowMode::Owned);
 
-            let param_idents = func
-                .params
-                .iter()
-                .map(|(ident, _)| format_ident!("{}", ident));
+        //     let param_idents = func
+        //         .params
+        //         .iter()
+        //         .map(|(ident, _)| format_ident!("{}", ident));
 
-            let results = self
-                .print_function_result(&func.result, &BorrowMode::AllBorrowed(parse_quote!('_)));
+        //     let results = self
+        //         .print_function_result(&func.result, &BorrowMode::AllBorrowed(parse_quote!('_)));
 
-            quote! {
-                router.func_wrap(#mod_name, #func_name, move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, #params| #results {
-                    let cx = get_cx(cx.data_mut());
+        //     quote! {
+        //         router.func_wrap(#mod_name, #func_name, move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, #params| #results {
+        //             let cx = get_cx(cx.data_mut());
 
-                    cx.#func_ident(#(#param_idents),*)
-                })?;
-            }
-        });
+        //             cx.#func_ident(#(#param_idents),*)
+        //         })?;
+        //     }
+        // });
 
         quote! {
             pub fn add_to_router<T, U>(
@@ -201,7 +206,7 @@ impl Host {
             where
                 U: #trait_ident
             {
-                #( #functions )*
+                // #( #functions )*
 
                 Ok(())
             }

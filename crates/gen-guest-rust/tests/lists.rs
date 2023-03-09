@@ -1,8 +1,9 @@
+#[allow(unused_imports, unused_variables)]
 pub mod lists {
-    use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+    use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub struct OtherRecord<'a> {
+    #[derive(serde::Serialize)]
+    pub struct OtherRecordParam<'a> {
         a1: u32,
         a2: u64,
         a3: i32,
@@ -10,30 +11,57 @@ pub mod lists {
         b: &'a str,
         c: &'a [u8],
     }
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub struct SomeRecord<'a> {
+    #[derive(serde::Deserialize)]
+    pub struct OtherRecordResult {
+        a1: u32,
+        a2: u64,
+        a3: i32,
+        a4: i64,
+        b: String,
+        c: Vec<u8>,
+    }
+    #[derive(serde::Serialize)]
+    pub struct SomeRecordParam<'a> {
         x: &'a str,
-        y: OtherRecord<'a>,
-        z: &'a [OtherRecord<'a>],
+        #[serde(borrow)]
+        y: OtherRecordParam<'a>,
+        #[serde(borrow)]
+        z: &'a [OtherRecordParam<'a>],
         c1: u32,
         c2: u64,
         c3: i32,
         c4: i64,
     }
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub enum OtherVariant<'a> {
+    #[derive(serde::Deserialize)]
+    pub struct SomeRecordResult {
+        x: String,
+        y: OtherRecordResult,
+        z: Vec<OtherRecordResult>,
+        c1: u32,
+        c2: u64,
+        c3: i32,
+        c4: i64,
+    }
+    #[derive(serde::Serialize)]
+    pub enum OtherVariantParam<'a> {
         A,
         B(u32),
         C(&'a str),
     }
-    #[derive(tauri_bindgen_abi::Writable)]
+    #[derive(serde::Deserialize)]
+    pub enum OtherVariantResult {
+        A,
+        B(u32),
+        C(String),
+    }
+    #[derive(serde::Serialize)]
     pub enum SomeVariant<'a> {
         A(&'a str),
         B,
         C(u32),
-        D(&'a [OtherVariant<'a>]),
+        D(&'a [OtherVariantParam<'a>]),
     }
-    pub type LoadStoreAllSizes<'a> = &'a [(
+    pub type LoadStoreAllSizesParam<'a> = &'a [(
         &'a str,
         u8,
         i8,
@@ -47,6 +75,9 @@ pub mod lists {
         f64,
         char,
     )];
+    pub type LoadStoreAllSizesResult = Vec<
+        (String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char),
+    >;
     pub async fn list_u8_param(x: &'_ [u8]) -> () {
         todo!()
     }
@@ -122,16 +153,20 @@ pub mod lists {
     pub async fn string_list(x: &'_ [&'_ str]) -> Vec<String> {
         todo!()
     }
-    pub async fn record_list(x: &'_ [SomeRecord<'_>]) -> Vec<OtherRecord> {
+    pub async fn record_list(x: &'_ [SomeRecordParam<'_>]) -> Vec<OtherRecordResult> {
         todo!()
     }
-    pub async fn record_list_reverse(x: &'_ [OtherRecord<'_>]) -> Vec<SomeRecord> {
+    pub async fn record_list_reverse(
+        x: &'_ [OtherRecordParam<'_>],
+    ) -> Vec<SomeRecordResult> {
         todo!()
     }
-    pub async fn variant_list(x: &'_ [SomeVariant<'_>]) -> Vec<OtherVariant> {
+    pub async fn variant_list(x: &'_ [SomeVariant<'_>]) -> Vec<OtherVariantResult> {
         todo!()
     }
-    pub async fn load_store_everything(a: LoadStoreAllSizes<'_>) -> LoadStoreAllSizes {
+    pub async fn load_store_everything(
+        a: LoadStoreAllSizesParam<'_>,
+    ) -> LoadStoreAllSizesResult {
         todo!()
     }
 }

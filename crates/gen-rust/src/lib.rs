@@ -13,6 +13,7 @@ pub trait RustGenerator {
     fn interface(&self) -> &Interface;
     fn infos(&self) -> &TypeInfos;
     fn additional_attrs(&self, ident: &str, info: TypeInfo) -> Option<TokenStream>;
+    fn default_param_mode(&self) -> BorrowMode;
 
     fn print_typedefs(
         &self,
@@ -24,10 +25,17 @@ pub trait RustGenerator {
         for id in ids {
             let typedef = &self.interface().typedefs[id];
             let info = self.infos()[id];
-            let variants = variants_of(&typedef.ident.to_upper_camel_case(), info, mode);
+            let variants = self.variants_of(&typedef.ident.to_upper_camel_case(), info, mode);
 
             for TypeVariant { ident, borrow_mode } in variants {
                 let docs = &typedef.docs;
+
+                log::debug!(
+                    "generating {:?} with mode info {:?} and mode {:?}",
+                    ident,
+                    info,
+                    mode
+                );
 
                 let typedef = match &typedef.kind {
                     TypeDefKind::Alias(ty) => {
@@ -72,12 +80,31 @@ pub trait RustGenerator {
                 BorrowMode::AllBorrowed(lt) | BorrowMode::LeafBorrowed(lt) => quote! { &#lt str },
             },
             Type::List(ty) => {
+                let is_primitive = match **ty {
+                    Type::U8
+                    | Type::S8
+                    | Type::U16
+                    | Type::S16
+                    | Type::U32
+                    | Type::S32
+                    | Type::U64
+                    | Type::S64
+                    | Type::Float32
+                    | Type::Float64 => true,
+                    _ => false,
+                };
+
                 let ty = self.print_ty(ty, mode);
 
                 match mode {
                     BorrowMode::Owned => quote! { Vec<#ty> },
-                    BorrowMode::AllBorrowed(lt) | BorrowMode::LeafBorrowed(lt) => {
-                        quote! { &#lt [ #ty ] }
+                    BorrowMode::AllBorrowed(lt) => quote! { &#lt [#ty] },
+                    BorrowMode::LeafBorrowed(lt) => {
+                       if is_primitive {
+                            quote! { &#lt [#ty] }
+                          } else {
+                            quote! { Vec<#ty> }
+                       }
                     }
                 }
             }
@@ -107,7 +134,7 @@ pub trait RustGenerator {
                 let typedef = &self.interface().typedefs[*id];
                 let info = self.infos()[*id];
 
-                let ident = if uses_two_names(info) {
+                let ident = if self.uses_two_names(info) {
                     match mode {
                         BorrowMode::Owned => {
                             format_ident!("{}Result", typedef.ident.to_upper_camel_case())
@@ -171,11 +198,15 @@ pub trait RustGenerator {
 
     fn print_record_field(&self, field: &RecordField, mode: &BorrowMode) -> TokenStream {
         let docs = self.print_docs(&field.docs);
+        let borrow_attr = self
+            .needs_borrow(&field.ty, mode)
+            .then_some(quote! { #[serde(borrow)] });
         let ident = format_ident!("{}", field.ident.to_snake_case());
         let ty = self.print_ty(&field.ty, mode);
 
         quote! {
             #docs
+            #borrow_attr
             #ident: #ty
         }
     }
@@ -357,6 +388,10 @@ pub trait RustGenerator {
     }
 
     fn print_function_result(&self, result: &FunctionResult, mode: &BorrowMode) -> TokenStream {
+        if result.is_empty() {
+            return quote! {};
+        }
+
         match result {
             FunctionResult::Anon(ty) => {
                 let ty = self.print_ty(ty, mode);
@@ -473,6 +508,60 @@ pub trait RustGenerator {
 
         case_names
     }
+
+    fn uses_two_names(&self, info: TypeInfo) -> bool {
+        info.contains(TypeInfo::HAS_LIST)
+            && info.contains(TypeInfo::PARAM | TypeInfo::RESULT)
+            && match self.default_param_mode() {
+                BorrowMode::AllBorrowed(_) | BorrowMode::LeafBorrowed(_) => true,
+                BorrowMode::Owned => false,
+            }
+    }
+
+    fn variants_of(
+        &self,
+        ident: &str,
+        info: TypeInfo,
+        default_mode: &BorrowMode,
+    ) -> Vec<TypeVariant> {
+        let mut result = Vec::new();
+
+        if !self.uses_two_names(info) {
+            return vec![TypeVariant {
+                ident: format_ident!("{ident}"),
+                borrow_mode: default_mode.clone(),
+            }];
+        }
+
+        if info.contains(TypeInfo::PARAM) {
+            result.push(TypeVariant {
+                ident: format_ident!("{ident}Param"),
+                borrow_mode: default_mode.clone(),
+            });
+        }
+        if info.contains(TypeInfo::RESULT)
+            && (!info.contains(TypeInfo::PARAM) || self.uses_two_names(info))
+        {
+            result.push(TypeVariant {
+                ident: format_ident!("{ident}Result"),
+                borrow_mode: BorrowMode::Owned,
+            });
+        }
+        result
+    }
+
+    fn needs_borrow(&self, ty: &Type, mode: &BorrowMode) -> bool {
+        match ty {
+            Type::Id(id) => {
+                let info = self.infos()[*id];
+
+                lifetime_for(info, mode).is_some()
+            }
+            Type::Tuple(types) => types.iter().any(|ty| self.needs_borrow(ty, mode)),
+            Type::List(ty) | Type::Option(ty) => self.needs_borrow(ty, mode),
+            _ => false,
+        }
+    }
 }
 
 pub struct FnSig<'a> {
@@ -540,37 +629,11 @@ pub struct TypeVariant {
     pub borrow_mode: BorrowMode,
 }
 
-#[must_use]
-pub fn variants_of(ident: &str, info: TypeInfo, default_mode: &BorrowMode) -> Vec<TypeVariant> {
-    let mut result = Vec::new();
+// #[must_use]
+// pub fn uses_two_names(info: TypeInfo) -> bool {
 
-    if !uses_two_names(info) {
-        return vec![TypeVariant {
-            ident: format_ident!("{ident}"),
-            borrow_mode: default_mode.clone(),
-        }];
-    }
-
-    if info.contains(TypeInfo::PARAM) {
-        result.push(TypeVariant {
-            ident: format_ident!("{ident}Param"),
-            borrow_mode: default_mode.clone(),
-        });
-    }
-    if info.contains(TypeInfo::RESULT) && (!info.contains(TypeInfo::PARAM) || uses_two_names(info))
-    {
-        result.push(TypeVariant {
-            ident: format_ident!("{ident}Result"),
-            borrow_mode: BorrowMode::Owned,
-        });
-    }
-    result
-}
-
-#[must_use]
-pub fn uses_two_names(info: TypeInfo) -> bool {
-    info.contains(TypeInfo::HAS_LIST) && info.contains(TypeInfo::PARAM | TypeInfo::RESULT)
-}
+//     // info.contains(TypeInfo::HAS_LIST) && info.contains(TypeInfo::PARAM | TypeInfo::RESULT)
+// }
 
 bitflags::bitflags! {
     #[derive(Default)]
@@ -622,33 +685,40 @@ impl TypeInfos {
         &mut self,
         typedefs: &TypeDefArena,
         id: TypeDefId,
-        mut info: TypeInfo,
+        base_info: TypeInfo,
     ) -> TypeInfo {
+        let mut info = base_info;
+
         match &typedefs[id].kind {
             TypeDefKind::Alias(ty) => {
-                info |= self.collect_type_info(typedefs, ty, info);
+                info |= self.collect_type_info(typedefs, ty, base_info);
             }
             TypeDefKind::Record(fields) => {
                 for field in fields {
-                    info |= self.collect_type_info(typedefs, &field.ty, info);
+                    info |= self.collect_type_info(typedefs, &field.ty, base_info);
                 }
             }
             TypeDefKind::Variant(cases) => {
                 for case in cases {
                     if let Some(ty) = &case.ty {
-                        info |= self.collect_type_info(typedefs, ty, info);
+                        info |= self.collect_type_info(typedefs, ty, base_info);
                     }
                 }
             }
             TypeDefKind::Union(cases) => {
                 for case in cases {
-                    info |= self.collect_type_info(typedefs, &case.ty, info);
+                    info |= self.collect_type_info(typedefs, &case.ty, base_info);
                 }
             }
             _ => {}
         }
 
-        self.infos.insert(id, info);
+        log::debug!("collected info for {:?}: {:?}", typedefs[id].ident, info,);
+
+        self.infos
+            .entry(id)
+            .and_modify(|i| *i |= info)
+            .or_insert(info);
 
         info
     }
@@ -666,17 +736,17 @@ impl TypeInfos {
             Type::Tuple(types) => {
                 let mut info = base_info;
                 for ty in types {
-                    info |= self.collect_type_info(typedefs, ty, info);
+                    info |= self.collect_type_info(typedefs, ty, base_info);
                 }
                 info
             }
             Type::Result { ok, err } => {
                 let mut info = base_info;
                 if let Some(ty) = &ok {
-                    info |= self.collect_type_info(typedefs, ty, info);
+                    info |= self.collect_type_info(typedefs, ty, base_info);
                 }
                 if let Some(ty) = &err {
-                    info |= self.collect_type_info(typedefs, ty, info);
+                    info |= self.collect_type_info(typedefs, ty, base_info);
                 }
                 info
             }

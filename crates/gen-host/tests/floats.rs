@@ -1,5 +1,6 @@
+#[allow(unused_imports, unused_variables)]
 pub mod floats {
-    use ::tauri_bindgen_host::tauri_bindgen_abi;
+    use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
     pub trait Floats: Sized {
         fn float32_param(&mut self, x: f32) -> ();
@@ -14,42 +15,6 @@ pub mod floats {
     where
         U: Floats,
     {
-        router
-            .func_wrap(
-                "floats",
-                "float32_param",
-                move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, x: f32| -> () {
-                    let cx = get_cx(cx.data_mut());
-                    cx.float32_param(x)
-                },
-            )?;
-        router
-            .func_wrap(
-                "floats",
-                "float64_param",
-                move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, x: f64| -> () {
-                    let cx = get_cx(cx.data_mut());
-                    cx.float64_param(x)
-                },
-            )?;
-        router
-            .func_wrap(
-                "floats",
-                "float32_result",
-                move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>| -> f32 {
-                    let cx = get_cx(cx.data_mut());
-                    cx.float32_result()
-                },
-            )?;
-        router
-            .func_wrap(
-                "floats",
-                "float64_result",
-                move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>| -> f64 {
-                    let cx = get_cx(cx.data_mut());
-                    cx.float64_result()
-                },
-            )?;
         Ok(())
     }
 }

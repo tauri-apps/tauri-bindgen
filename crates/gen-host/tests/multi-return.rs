@@ -1,5 +1,6 @@
+#[allow(unused_imports, unused_variables)]
 pub mod multi_return {
-    use ::tauri_bindgen_host::tauri_bindgen_abi;
+    use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
     pub trait MultiReturn: Sized {
         fn mra(&mut self) -> ();
@@ -15,51 +16,6 @@ pub mod multi_return {
     where
         U: MultiReturn,
     {
-        router
-            .func_wrap(
-                "multi_return",
-                "mra",
-                move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>| -> () {
-                    let cx = get_cx(cx.data_mut());
-                    cx.mra()
-                },
-            )?;
-        router
-            .func_wrap(
-                "multi_return",
-                "mrb",
-                move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>| {
-                    let cx = get_cx(cx.data_mut());
-                    cx.mrb()
-                },
-            )?;
-        router
-            .func_wrap(
-                "multi_return",
-                "mrc",
-                move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>| -> u32 {
-                    let cx = get_cx(cx.data_mut());
-                    cx.mrc()
-                },
-            )?;
-        router
-            .func_wrap(
-                "multi_return",
-                "mrd",
-                move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>| -> u32 {
-                    let cx = get_cx(cx.data_mut());
-                    cx.mrd()
-                },
-            )?;
-        router
-            .func_wrap(
-                "multi_return",
-                "mre",
-                move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>| -> (u32, f32) {
-                    let cx = get_cx(cx.data_mut());
-                    cx.mre()
-                },
-            )?;
         Ok(())
     }
 }

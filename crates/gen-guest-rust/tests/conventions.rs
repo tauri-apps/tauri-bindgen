@@ -1,7 +1,8 @@
+#[allow(unused_imports, unused_variables)]
 pub mod conventions {
-    use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+    use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
-    #[derive(tauri_bindgen_abi::Writable)]
+    #[derive(serde::Serialize)]
     pub struct LudicrousSpeed {
         how_fast_are_you_going: u32,
         i_am_going_extremely_slow: u64,

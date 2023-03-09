@@ -93,22 +93,26 @@ impl RustGenerator for RustWasm {
 
     fn additional_attrs(&self, ident: &str, info: TypeInfo) -> Option<TokenStream> {
         let mut attrs = vec![];
-        if tauri_bindgen_gen_rust::uses_two_names(info) {
+        if self.uses_two_names(info) {
             if ident.ends_with("Param") {
-                attrs.push(quote! { tauri_bindgen_abi::Writable })
+                attrs.push(quote! { serde::Serialize })
             } else if ident.ends_with("Result") {
-                attrs.push(quote! { tauri_bindgen_abi::Readable })
+                attrs.push(quote! { serde::Deserialize })
             }
         } else {
             if info.contains(TypeInfo::PARAM) {
-                attrs.push(quote! { tauri_bindgen_abi::Writable })
+                attrs.push(quote! { serde::Serialize })
             }
             if info.contains(TypeInfo::RESULT) {
-                attrs.push(quote! { tauri_bindgen_abi::Readable })
+                attrs.push(quote! { serde::Deserialize })
             }
         }
 
         Some(quote! { #[derive(#(#attrs),*)] })
+    }
+
+    fn default_param_mode(&self) -> BorrowMode {
+        BorrowMode::AllBorrowed(parse_quote!('a))
     }
 }
 
@@ -131,8 +135,9 @@ impl tauri_bindgen_core::Generate for RustWasm {
 
         quote! {
             #docs
+            #[allow(unused_imports, unused_variables)]
             pub mod #ident {
-                use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+                use ::tauri_bindgen_guest_rust::serde;
                 use ::tauri_bindgen_guest_rust::bitflags;
                 #typedefs
 

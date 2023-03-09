@@ -127,8 +127,8 @@ macro_rules! impl_into_func {
         impl<T, F, $($params,)* R> IntoFunc<T, ($($params,)*), R> for F
         where
             F: Fn($($params),*) -> R + Send + Sync + 'static,
-            $($params: tauri_bindgen_abi::Readable,)*
-            R: tauri_bindgen_abi::Writable
+            $($params: serde::de::DeserializeOwned,)*
+            R: serde::Serialize
         {
             fn into_func(self) -> Definition<T> {
                 let f = move |_: Caller<T>, $($params:$params),*| {
@@ -143,19 +143,19 @@ macro_rules! impl_into_func {
         impl<T, F, $($params,)* R> IntoFunc<T, (Caller<T>, $($params,)*), R> for F
         where
             F: Fn(Caller<T>, $($params),*) -> R + Send + Sync + 'static,
-            $($params: tauri_bindgen_abi::Readable,)*
-            R: tauri_bindgen_abi::Writable
+            $($params: serde::de::DeserializeOwned,)*
+            R: serde::Serialize
         {
             fn into_func(self) -> Definition<T> {
                 Box::new(move |caller, params, tx| {
                     log::debug!("Deserializing parameters...");
-                    let ($($params,)*) = tauri_bindgen_abi::from_slice(params).unwrap();
+                    let ($($params,)*) = postcard::from_bytes(params).unwrap();
 
                     log::debug!("Calling handler...");
                     let out = self(caller, $($params),*);
 
                     log::debug!("Serializing response...");
-                    let out = tauri_bindgen_abi::to_bytes(&out).unwrap();
+                    let out = postcard::to_allocvec(&out).unwrap();
 
                     tx.send(out).unwrap();
                 })
@@ -207,7 +207,7 @@ mod tests {
             .handle_request(
                 Some("app"),
                 "add",
-                tauri_bindgen_abi::to_bytes(&(5u32, 7u32)).unwrap(),
+                postcard::to_allocvec(&(5u32, 7u32)).unwrap(),
                 tx,
             )
             .unwrap();

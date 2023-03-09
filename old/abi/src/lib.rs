@@ -36,22 +36,26 @@ pub enum Error {
     InvalidFlags,
     #[error("Multiple errors {0:?}")]
     Multiple(Vec<Error>),
+    #[error(transparent)]
+    TryFromSlice(#[from] std::array::TryFromSliceError),
+    #[error(transparent)]
+    Utf8(#[from] std::str::Utf8Error),
 }
 
-/// # Errors
-///
-/// This conversion can fail if the structure of the input does not match the structure expected by `T`,
-/// for example if `T` is an enum type but the input doesn't lead with a valid tag.
-/// It can also fail if the structure is correct but T’s implementation of `Readable` decides decides that something is wrong with the data,
-/// for example when the bytes given for a `char` are outside the allowed ranges.
-/// It will also fail if the [`std::io::Read`] ends prematurely without delivering enough data for deserializing the type.
-pub fn from_reader<R, T>(rdr: &mut R) -> Result<T, Error>
-where
-    R: Read,
-    T: Readable,
-{
-    T::read_from(rdr)
-}
+// /// # Errors
+// ///
+// /// This conversion can fail if the structure of the input does not match the structure expected by `T`,
+// /// for example if `T` is an enum type but the input doesn't lead with a valid tag.
+// /// It can also fail if the structure is correct but T’s implementation of `Readable` decides decides that something is wrong with the data,
+// /// for example when the bytes given for a `char` are outside the allowed ranges.
+// /// It will also fail if the [`std::io::Read`] ends prematurely without delivering enough data for deserializing the type.
+// pub fn from_reader<R, T>(rdr: &mut R) -> Result<T, Error>
+// where
+//     R: Read,
+//     T: Readable,
+// {
+//     T::read_from(rdr)
+// }
 
 /// # Errors
 ///
@@ -100,11 +104,13 @@ pub trait Writable {
     fn size_hint(&self) -> usize;
 }
 
-pub trait Readable: Sized {
+pub trait Readable {
+    type Out<'a> where Self: 'a;
     /// # Errors
     ///
     /// Implementations should return errors when reading from the underlying [`std::io::Read`] implementation fails or when validating data fails.
-    fn read_from(read: &mut impl io::Read) -> Result<Self, Error>;
+    // fn read_from(read: &mut impl io::Read) -> Result<Self, Error>;
+    fn read_from<'a>(bytes: &mut &'a [u8]) -> Result<Self::Out<'a>, Error>;
 }
 
 #[macro_export]

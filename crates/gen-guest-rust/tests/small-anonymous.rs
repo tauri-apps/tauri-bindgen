@@ -1,7 +1,8 @@
+#[allow(unused_imports, unused_variables)]
 pub mod small_anonymous {
-    use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+    use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
-    #[derive(tauri_bindgen_abi::Readable)]
+    #[derive(serde::Deserialize)]
     pub enum Error {
         Success,
         Failure,

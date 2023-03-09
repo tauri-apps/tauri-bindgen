@@ -1,65 +1,81 @@
+#[allow(unused_imports, unused_variables)]
 pub mod variants {
-    use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+    use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
-    #[derive(tauri_bindgen_abi::Readable)]
+    #[derive(serde::Serialize, serde::Deserialize)]
     pub enum E1 {
         A,
     }
-    #[derive(tauri_bindgen_abi::Readable)]
+    #[derive(serde::Serialize, serde::Deserialize)]
     pub enum U1 {
         U32(u32),
         F32(f32),
     }
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub struct Empty<'a> {}
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub enum V1<'a> {
+    #[derive(serde::Serialize, serde::Deserialize)]
+    pub struct Empty {}
+    #[derive(serde::Serialize)]
+    pub enum V1Param<'a> {
         A,
         B(U1),
         C(E1),
         D(&'a str),
-        E(Empty<'a>),
+        E(Empty),
         F,
         G(u32),
     }
-    #[derive(tauri_bindgen_abi::Readable)]
+    #[derive(serde::Deserialize)]
+    pub enum V1Result {
+        A,
+        B(U1),
+        C(E1),
+        D(String),
+        E(Empty),
+        F,
+        G(u32),
+    }
+    #[derive(serde::Serialize, serde::Deserialize)]
     pub enum Casts1 {
         A(i32),
         B(f32),
     }
-    #[derive(tauri_bindgen_abi::Readable)]
+    #[derive(serde::Serialize, serde::Deserialize)]
     pub enum Casts2 {
         A(f64),
         B(f32),
     }
-    #[derive(tauri_bindgen_abi::Readable)]
+    #[derive(serde::Serialize, serde::Deserialize)]
     pub enum Casts3 {
         A(f64),
         B(u64),
     }
-    #[derive(tauri_bindgen_abi::Readable)]
+    #[derive(serde::Serialize, serde::Deserialize)]
     pub enum Casts4 {
         A(u32),
         B(i64),
     }
-    #[derive(tauri_bindgen_abi::Readable)]
+    #[derive(serde::Serialize, serde::Deserialize)]
     pub enum Casts5 {
         A(f32),
         B(i64),
     }
-    #[derive(tauri_bindgen_abi::Readable)]
+    #[derive(serde::Serialize, serde::Deserialize)]
     pub enum Casts6 {
         A((f32, u32)),
         B((u32, u32)),
     }
-    #[derive(tauri_bindgen_abi::Readable)]
+    #[derive(serde::Deserialize)]
     pub enum MyErrno {
         Bad1,
         Bad2,
     }
-    #[derive(tauri_bindgen_abi::Readable)]
-    pub struct IsClone<'a> {
-        v1: V1<'a>,
+    #[derive(serde::Serialize)]
+    pub struct IsCloneParam<'a> {
+        #[serde(borrow)]
+        v1: V1Param<'a>,
+    }
+    #[derive(serde::Deserialize)]
+    pub struct IsCloneResult {
+        v1: V1Result,
     }
     pub async fn e1_arg(x: E1) -> () {
         todo!()
@@ -73,10 +89,10 @@ pub mod variants {
     pub async fn u1_result() -> U1 {
         todo!()
     }
-    pub async fn v1_arg(x: V1<'_>) -> () {
+    pub async fn v1_arg(x: V1Param<'_>) -> () {
         todo!()
     }
-    pub async fn v1_result() -> V1 {
+    pub async fn v1_result() -> V1Result {
         todo!()
     }
     pub async fn bool_arg(x: bool) -> () {
@@ -122,7 +138,7 @@ pub mod variants {
         b: Result<(), E1>,
         c: Result<E1, ()>,
         d: Result<(), ()>,
-        e: Result<u32, V1<'_>>,
+        e: Result<u32, V1Param<'_>>,
         f: Result<&'_ str, &'_ [u8]>,
     ) -> () {
         todo!()
@@ -132,7 +148,7 @@ pub mod variants {
         Result<(), E1>,
         Result<E1, ()>,
         Result<(), ()>,
-        Result<u32, V1>,
+        Result<u32, V1Result>,
         Result<String, Vec<u8>>,
     ) {
         todo!()
@@ -158,10 +174,10 @@ pub mod variants {
     pub async fn result_simple() -> Result<u32, i32> {
         todo!()
     }
-    pub async fn is_clone_arg(a: IsClone<'_>) -> () {
+    pub async fn is_clone_arg(a: IsCloneParam<'_>) -> () {
         todo!()
     }
-    pub async fn is_clone_return() -> IsClone {
+    pub async fn is_clone_return() -> IsCloneResult {
         todo!()
     }
     pub async fn return_named_option() -> Option<u8> {

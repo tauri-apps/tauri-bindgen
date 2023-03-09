@@ -1,5 +1,6 @@
+#[allow(unused_imports, unused_variables)]
 pub mod integers {
-    use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+    use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
     pub async fn a1(x: u8) -> () {
         todo!()

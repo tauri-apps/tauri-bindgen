@@ -35,7 +35,7 @@ pub fn derive_readable(input: proc_macro::TokenStream) -> proc_macro::TokenStrea
 
     let output = quote! {
         impl #generics tauri_bindgen_abi::Readable for #ident #generics {
-            fn read_from(read: &mut impl ::std::io::Read) -> Result<Self, tauri_bindgen_abi::Error> {
+            fn read_from<'a>(bytes: &mut &'a [u8]) -> Result<&'a Self, tauri_bindgen_abi::Error> {
                 #inner
             }
         }

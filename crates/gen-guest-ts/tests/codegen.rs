@@ -74,11 +74,11 @@ fn flags() {
 
     let (filename, contents) = gen_interface(
         opts,
-        "flags",
+        "flegs",
         include_str!("../../../tests/codegen/flags.wit"),
     );
 
-    assert_eq!(filename, "flags.ts");
+    assert_eq!(filename, "flegs.ts");
     assert_eq!(contents, include_str!("./flegs.ts"));
 }
 

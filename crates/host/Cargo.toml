@@ -14,6 +14,5 @@ async-trait = "0.1.66"
 tauri = "1.2.4"
 tracing = { version = "0.1.37", features = ["log", "log-always"] }
 anyhow = "1.0.69"
-tauri-bindgen-abi = { path = "../abi", features = ["derive"] }
+serde.workspace = true
 ipc-router-wip = { path = "../ipc-router-wip" }
-# base64 = "0.21.0"

@@ -1,8 +1,9 @@
+#[allow(unused_imports, unused_variables)]
 pub mod unions {
-    use ::tauri_bindgen_guest_rust::tauri_bindgen_abi;
+    use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
     ///A union of all of the integral types
-    #[derive(tauri_bindgen_abi::Writable)]
+    #[derive(serde::Serialize, serde::Deserialize)]
     pub enum AllIntegers {
         /**Bool is equivalent to a 1 bit integer
 and is treated that way in some languages*/
@@ -16,17 +17,22 @@ and is treated that way in some languages*/
         S32(i32),
         S64(i64),
     }
-    #[derive(tauri_bindgen_abi::Writable)]
+    #[derive(serde::Serialize, serde::Deserialize)]
     pub enum AllFloats {
         F32(f32),
         F64(f64),
     }
-    #[derive(tauri_bindgen_abi::Writable)]
-    pub enum AllText<'a> {
+    #[derive(serde::Serialize)]
+    pub enum AllTextParam<'a> {
         Char(char),
         String(&'a str),
     }
-    #[derive(tauri_bindgen_abi::Writable)]
+    #[derive(serde::Deserialize)]
+    pub enum AllTextResult {
+        Char(char),
+        String(String),
+    }
+    #[derive(serde::Serialize, serde::Deserialize)]
     pub enum DuplicatedS32 {
         ///The first s32
         S320(i32),
@@ -36,7 +42,7 @@ and is treated that way in some languages*/
         S322(i32),
     }
     ///A type containing numeric types that are distinct in most languages
-    #[derive(tauri_bindgen_abi::Writable)]
+    #[derive(serde::Serialize, serde::Deserialize)]
     pub enum DistinguishableNum {
         ///A Floating Point Number
         F64(f64),
@@ -49,7 +55,10 @@ and is treated that way in some languages*/
     pub async fn add_one_float(num: AllFloats) -> AllFloats {
         todo!()
     }
-    pub async fn replace_first_char(text: AllText<'_>, letter: char) -> AllText {
+    pub async fn replace_first_char(
+        text: AllTextParam<'_>,
+        letter: char,
+    ) -> AllTextResult {
         todo!()
     }
     pub async fn identify_integer(num: AllIntegers) -> u8 {
@@ -58,7 +67,7 @@ and is treated that way in some languages*/
     pub async fn identify_float(num: AllFloats) -> u8 {
         todo!()
     }
-    pub async fn identify_text(text: AllText<'_>) -> u8 {
+    pub async fn identify_text(text: AllTextParam<'_>) -> u8 {
         todo!()
     }
     pub async fn add_one_duplicated(num: DuplicatedS32) -> DuplicatedS32 {
