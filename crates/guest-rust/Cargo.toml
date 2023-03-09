@@ -15,6 +15,4 @@ js-sys = "0.3.61"
 wasm-bindgen = { version = "0.2.84", features = ["serde-serialize"] }
 serde-wasm-bindgen = "0.4.5"
 serde.workspace = true
-# tauri-bindgen-abi = { path = "../abi", features = ["derive"] }
-# base64 = "0.21.0"
 tracing = "0.1.37"
