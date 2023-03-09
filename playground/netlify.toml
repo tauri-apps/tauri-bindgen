@@ -5,7 +5,7 @@
   command = """
     cd editor
     npx pnpm install --store=node_modules/.pnpm-store
-    pnpx tsup --target esnext --platform browser --format esm --minify index.ts
+    pnpm tsup index.ts --target esnext --platform browser --format esm --minify
     cd ..
     wget -qO- https://github.com/thedodd/trunk/releases/download/${VERSION}/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
     trunk build --release
