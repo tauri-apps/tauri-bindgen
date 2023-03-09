@@ -3,6 +3,7 @@
 [build]
   publish = 'dist'
   command = """
+    rustup toolchain install stable
     cd editor
     npx pnpm install --store=node_modules/.pnpm-store
     pnpm tsup index.ts --target esnext --platform browser --format esm --minify
