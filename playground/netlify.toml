@@ -2,8 +2,7 @@
   NPM_FLAGS = "--version" # prevent Netlify npm install
 [build]
   publish = 'dist'
-  command = """
-    rustup toolchain install stable
+  command = """    
     cd editor
     npx pnpm install --store=node_modules/.pnpm-store
     pnpm tsup index.ts --target esnext --platform browser --format esm --minify
