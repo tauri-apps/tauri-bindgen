@@ -16,7 +16,7 @@
 ## About
 
 
-Generaze type-safe bindings for Tauri's IPC bridge. Currently supports Rust [Host](#host) **and** Webview frontends (called [Guests](#guest)) in JavaScript, TypeScript, and Rust. Bindings are declared using [`*.wit`](docs/WIT.md) files that describe exposed functions and shared types.
+Generate type-safe bindings for Tauri's IPC bridge. Currently supports Rust [Host](#host) **and** Webview frontends (called [Guests](#guest)) in JavaScript, TypeScript, and Rust. Bindings are declared using [`*.wit`](docs/WIT.md) files that describe exposed functions and shared types.
 
 > **Note**: This project is still under heavy development and may not support all features yet. Feel free to try it out though, create issues, and open PRs!
 
