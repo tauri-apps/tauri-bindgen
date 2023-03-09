@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod flegs {
-    use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
+    use ::tauri_bindgen_guest_rust::serde;
     bitflags::bitflags! {
         #[derive(serde::Serialize, serde::Deserialize)] pub struct Flag1 : u8 { const B0
         = 1 << 0; }

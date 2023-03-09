@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod multi_return {
-    use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
+    use ::tauri_bindgen_host::serde;
     pub trait MultiReturn: Sized {
         fn mra(&mut self) -> ();
         fn mrb(&mut self);

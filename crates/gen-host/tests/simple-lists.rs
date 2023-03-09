@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod simple_lists {
-    use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
+    use ::tauri_bindgen_host::serde;
     pub trait SimpleLists: Sized {
         fn simple_list1(&mut self, l: Vec<u32>) -> ();
         fn simple_list2(&mut self) -> &'_ [u32];

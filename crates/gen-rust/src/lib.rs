@@ -100,11 +100,11 @@ pub trait RustGenerator {
                     BorrowMode::Owned => quote! { Vec<#ty> },
                     BorrowMode::AllBorrowed(lt) => quote! { &#lt [#ty] },
                     BorrowMode::LeafBorrowed(lt) => {
-                       if is_primitive {
+                        if is_primitive {
                             quote! { &#lt [#ty] }
-                          } else {
+                        } else {
                             quote! { Vec<#ty> }
-                       }
+                        }
                     }
                 }
             }

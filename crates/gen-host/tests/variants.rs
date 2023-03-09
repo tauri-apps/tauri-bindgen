@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod variants {
-    use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
+    use ::tauri_bindgen_host::serde;
     #[derive(serde::Deserialize, serde::Serialize)]
     pub enum E1 {
         A,

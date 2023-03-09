@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod simple_functions {
-    use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
+    use ::tauri_bindgen_guest_rust::serde;
     pub async fn f1() -> () {
         todo!()
     }

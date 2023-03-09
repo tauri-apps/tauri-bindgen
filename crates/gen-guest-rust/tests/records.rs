@@ -1,11 +1,11 @@
 #[allow(unused_imports, unused_variables)]
 pub mod records {
-    use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
+    use ::tauri_bindgen_guest_rust::serde;
     #[derive(serde::Serialize, serde::Deserialize)]
     pub struct Empty {}
     /**A record containing two scalar fields
-that both have the same type*/
+    that both have the same type*/
     #[derive(serde::Serialize, serde::Deserialize)]
     pub struct Scalars {
         ///The first field, named a
@@ -14,7 +14,7 @@ that both have the same type*/
         b: u32,
     }
     /**A record that is really just flags
-All of the fields are bool*/
+    All of the fields are bool*/
     #[derive(serde::Serialize, serde::Deserialize)]
     pub struct ReallyFlags {
         a: bool,

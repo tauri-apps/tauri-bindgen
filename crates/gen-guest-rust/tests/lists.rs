@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod lists {
-    use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
+    use ::tauri_bindgen_guest_rust::serde;
     #[derive(serde::Serialize)]
     pub struct OtherRecordParam<'a> {
         a1: u32,
@@ -75,9 +75,8 @@ pub mod lists {
         f64,
         char,
     )];
-    pub type LoadStoreAllSizesResult = Vec<
-        (String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char),
-    >;
+    pub type LoadStoreAllSizesResult =
+        Vec<(String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char)>;
     pub async fn list_u8_param(x: &'_ [u8]) -> () {
         todo!()
     }
@@ -156,17 +155,13 @@ pub mod lists {
     pub async fn record_list(x: &'_ [SomeRecordParam<'_>]) -> Vec<OtherRecordResult> {
         todo!()
     }
-    pub async fn record_list_reverse(
-        x: &'_ [OtherRecordParam<'_>],
-    ) -> Vec<SomeRecordResult> {
+    pub async fn record_list_reverse(x: &'_ [OtherRecordParam<'_>]) -> Vec<SomeRecordResult> {
         todo!()
     }
     pub async fn variant_list(x: &'_ [SomeVariant<'_>]) -> Vec<OtherVariantResult> {
         todo!()
     }
-    pub async fn load_store_everything(
-        a: LoadStoreAllSizesParam<'_>,
-    ) -> LoadStoreAllSizesResult {
+    pub async fn load_store_everything(a: LoadStoreAllSizesParam<'_>) -> LoadStoreAllSizesResult {
         todo!()
     }
 }

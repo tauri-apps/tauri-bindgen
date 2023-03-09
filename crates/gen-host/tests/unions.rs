@@ -1,12 +1,12 @@
 #[allow(unused_imports, unused_variables)]
 pub mod unions {
-    use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
+    use ::tauri_bindgen_host::serde;
     ///A union of all of the integral types
     #[derive(serde::Deserialize, serde::Serialize)]
     pub enum AllIntegers {
         /**Bool is equivalent to a 1 bit integer
-and is treated that way in some languages*/
+        and is treated that way in some languages*/
         Bool(bool),
         U8(u8),
         U16(u16),
@@ -53,10 +53,7 @@ and is treated that way in some languages*/
         fn identify_text(&mut self, text: AllText) -> u8;
         fn add_one_duplicated(&mut self, num: DuplicatedS32) -> DuplicatedS32;
         fn identify_duplicated(&mut self, num: DuplicatedS32) -> u8;
-        fn add_one_distinguishable_num(
-            &mut self,
-            num: DistinguishableNum,
-        ) -> DistinguishableNum;
+        fn add_one_distinguishable_num(&mut self, num: DistinguishableNum) -> DistinguishableNum;
         fn identify_distinguishable_num(&mut self, num: DistinguishableNum) -> u8;
     }
     pub fn add_to_router<T, U>(

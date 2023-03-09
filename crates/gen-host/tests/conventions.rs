@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod conventions {
-    use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
+    use ::tauri_bindgen_host::serde;
     #[derive(serde::Deserialize)]
     pub struct LudicrousSpeed {
         how_fast_are_you_going: u32,

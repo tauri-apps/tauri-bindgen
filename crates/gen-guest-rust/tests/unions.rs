@@ -1,12 +1,12 @@
 #[allow(unused_imports, unused_variables)]
 pub mod unions {
-    use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
+    use ::tauri_bindgen_guest_rust::serde;
     ///A union of all of the integral types
     #[derive(serde::Serialize, serde::Deserialize)]
     pub enum AllIntegers {
         /**Bool is equivalent to a 1 bit integer
-and is treated that way in some languages*/
+        and is treated that way in some languages*/
         Bool(bool),
         U8(u8),
         U16(u16),
@@ -55,10 +55,7 @@ and is treated that way in some languages*/
     pub async fn add_one_float(num: AllFloats) -> AllFloats {
         todo!()
     }
-    pub async fn replace_first_char(
-        text: AllTextParam<'_>,
-        letter: char,
-    ) -> AllTextResult {
+    pub async fn replace_first_char(text: AllTextParam<'_>, letter: char) -> AllTextResult {
         todo!()
     }
     pub async fn identify_integer(num: AllIntegers) -> u8 {
@@ -76,9 +73,7 @@ and is treated that way in some languages*/
     pub async fn identify_duplicated(num: DuplicatedS32) -> u8 {
         todo!()
     }
-    pub async fn add_one_distinguishable_num(
-        num: DistinguishableNum,
-    ) -> DistinguishableNum {
+    pub async fn add_one_distinguishable_num(num: DistinguishableNum) -> DistinguishableNum {
         todo!()
     }
     pub async fn identify_distinguishable_num(num: DistinguishableNum) -> u8 {

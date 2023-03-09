@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod chars {
-    use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
+    use ::tauri_bindgen_host::serde;
     pub trait Chars: Sized {
         ///A function that accepts a character
         fn take_char(&mut self, x: char) -> ();

@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod empty {
-    use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
+    use ::tauri_bindgen_host::serde;
     pub trait Empty: Sized {}
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,

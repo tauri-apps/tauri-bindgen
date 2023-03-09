@@ -1,7 +1,7 @@
 #[allow(unused_imports, unused_variables)]
 pub mod strings {
-    use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
+    use ::tauri_bindgen_host::serde;
     pub trait Strings: Sized {
         fn a(&mut self, x: String) -> ();
         fn b(&mut self) -> &'_ str;
