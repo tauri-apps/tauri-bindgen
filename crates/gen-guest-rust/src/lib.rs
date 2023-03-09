@@ -135,7 +135,7 @@ impl tauri_bindgen_core::Generate for RustWasm {
 
         quote! {
             #docs
-            #[allow(unused_imports, unused_variables)]
+            #[allow(unused_imports, unused_variables, dead_code)]
             #[rustfmt::skip]
             pub mod #ident {
                 use ::tauri_bindgen_guest_rust::serde;

@@ -1,4 +1,4 @@
-#[allow(unused_imports, unused_variables)]
+#[allow(unused_imports, unused_variables, dead_code)]
 #[rustfmt::skip]
 pub mod small_anonymous {
     use ::tauri_bindgen_host::serde;

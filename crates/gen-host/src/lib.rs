@@ -109,7 +109,7 @@ impl Generate for Host {
 
         quote! {
             #docs
-            #[allow(unused_imports, unused_variables)]
+            #[allow(unused_imports, unused_variables, dead_code)]
             #[rustfmt::skip]
             pub mod #ident {
                 use ::tauri_bindgen_host::serde;
