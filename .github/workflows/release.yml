@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install hub
-        run: ./install-hub.sh ${{ matrix.os }}
+        run: .github/workflows/install-hub.sh ${{ matrix.os }}
         shell: bash
       - uses: dtolnay/rust-toolchain@master
         with:
@@ -38,5 +38,5 @@ jobs:
       - name: Build and deploy artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./make-release.sh ${{ matrix.os }} ${{ matrix.target }}
+        run: .github/workflows/make-release.sh ${{ matrix.os }} ${{ matrix.target }}
         shell: bash
