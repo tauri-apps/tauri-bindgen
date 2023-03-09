@@ -28,6 +28,7 @@ struct Cli {
 
 #[derive(Debug, Parser)]
 enum Command {
+    /// Check a defintion file for errors.
     Check {
         #[clap(flatten)]
         world: WorldOpt,
@@ -36,6 +37,7 @@ enum Command {
     #[cfg(feature = "unstable")]
     Host(HostGenerator),
     /// Generators for webview libraries.
+    #[cfg(feature = "unstable")]
     #[clap(subcommand)]
     Guest(GuestGenerator),
     /// This generator outputs a Markdown file describing an interface.
@@ -57,10 +59,10 @@ struct HostGenerator {
     world: WorldOpt,
 }
 
+#[cfg(feature = "unstable")]
 #[derive(Debug, Parser)]
 enum GuestGenerator {
     /// Generates bindings for Rust guest modules using wasm-bindgen.
-    #[cfg(feature = "unstable")]
     Rust {
         #[clap(flatten)]
         builder: tauri_bindgen_gen_guest_rust::Builder,
@@ -68,7 +70,6 @@ enum GuestGenerator {
         world: WorldOpt,
     },
     /// Generates bindings for JavaScript guest modules.
-    #[cfg(feature = "unstable")]
     Javascript {
         #[clap(flatten)]
         builder: tauri_bindgen_gen_guest_js::Builder,
@@ -76,7 +77,6 @@ enum GuestGenerator {
         world: WorldOpt,
     },
     /// Generates bindings for TypeScript guest modules.
-    #[cfg(feature = "unstable")]
     Typescript {
         #[clap(flatten)]
         builder: tauri_bindgen_gen_guest_ts::Builder,
@@ -152,7 +152,6 @@ fn run() -> Result<()> {
 
             write_file(&out_dir, &path, &contents)?;
         }
-        Command::Guest(_) => bail!("no guest generators enabled"),
     };
 
     log::info!(action = "Finished"; "in {:.2}s", Instant::now().duration_since(start).as_secs_f32());
