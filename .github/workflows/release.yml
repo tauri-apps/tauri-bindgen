@@ -28,9 +28,6 @@ jobs:
             target: x86_64-pc-windows-msvc
     steps:
       - uses: actions/checkout@v3
-      - name: Install hub
-        run: .github/workflows/install-hub.sh ${{ matrix.os }}
-        shell: bash
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{matrix.config.target}}
