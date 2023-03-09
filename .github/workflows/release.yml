@@ -1,10 +1,10 @@
 name: Release
 
 on:
-  workflow_dispatch:
-  # push:
-  #   tags:
-  #     - desktop/*.*.*
+  # workflow_dispatch:
+  push:
+    tags:
+      - v*.*.*
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
