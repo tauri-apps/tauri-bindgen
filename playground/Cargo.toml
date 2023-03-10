@@ -1,3 +1,5 @@
+[workspace]
+
 [package]
 name = "vanilla-example"
 version = "0.1.0"
@@ -9,12 +11,12 @@ console_error_panic_hook = "0.1"
 wasm-bindgen = "0.2"
 web-sys = { version = "0.3", features = ["Window", "Document", "HtmlElement", "Node", "Text"] }
 wasm-logger = "0.2.0"
-log.workspace = true
-wit-parser.workspace = true
-miette.workspace = true
-tauri-bindgen-gen-host.workspace = true
-tauri-bindgen-gen-guest-rust.workspace = true
-tauri-bindgen-gen-guest-js.workspace = true
-tauri-bindgen-gen-guest-ts.workspace = true
-tauri-bindgen-gen-markdown.workspace = true
-tauri-bindgen-core.workspace = true
+miette = { version = "5.5.0", features = ["fancy"] }
+log = { version = "0.4.17", features = [ "kv_unstable", "kv_unstable_std" ] }
+tauri-bindgen-core = { path = "../crates/core" }
+tauri-bindgen-gen-host = { path = "../crates/gen-host" }
+tauri-bindgen-gen-markdown = { path = "../crates/gen-markdown" }
+tauri-bindgen-gen-guest-rust = { path = "../crates/gen-guest-rust" }
+tauri-bindgen-gen-guest-ts = { path = "../crates/gen-guest-ts" }
+tauri-bindgen-gen-guest-js = { path = "../crates/gen-guest-js" }
+wit-parser = { path = "../crates/wit-parser" }

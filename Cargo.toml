@@ -6,7 +6,7 @@ edition.workspace = true
 rust-version.workspace = true
 
 [workspace]
-members = ["crates/*", "playground"]
+members = ["crates/*"]
 resolver = "2"
 
 [workspace.package]
