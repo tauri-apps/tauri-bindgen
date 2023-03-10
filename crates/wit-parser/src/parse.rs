@@ -129,26 +129,15 @@ impl<'a> FromTokens<'a> for InterfaceItem {
             Token::Resource => todo!(),
             Token::Use => todo!(),
             found => {
-                let expected = [
-                    Token::Enum,
-                    Token::Flags,
-                    Token::Func,
-                    Token::Record,
-                    Token::Type,
-                    Token::Union,
-                    Token::Use,
-                    Token::Variant,
-                ];
-
                 let suggestions =
-                    find_similar(expected.iter().map(ToString::to_string), found.to_string());
+                    find_similar(Token::IFACE_ITEM_KEYWORD.iter().map(ToString::to_string), found.to_string());
 
                 if suggestions.is_empty() {
-                    return Err(Error::unexpected_token(kind_span, expected, found));
+                    return Err(Error::unexpected_token(kind_span, Token::IFACE_ITEM_KEYWORD, found));
                 }
                 return Err(Error::unexpected_token_with_help(
                     kind_span,
-                    expected,
+                    Token::IFACE_ITEM_KEYWORD,
                     found,
                     format!("Did you mean \"{}\"?", print_list(suggestions)),
                 ));
@@ -394,28 +383,7 @@ impl<'a> FromTokens<'a> for Type {
             }
             Token::Ident => Ok(Self::Id(span)),
             found => {
-                let expected = [
-                    Token::U8,
-                    Token::U16,
-                    Token::U32,
-                    Token::U64,
-                    Token::S8,
-                    Token::S16,
-                    Token::S32,
-                    Token::S64,
-                    Token::Float32,
-                    Token::Float64,
-                    Token::Char,
-                    Token::String,
-                    Token::Bool,
-                    Token::Option,
-                    Token::Result,
-                    Token::List,
-                    Token::Tuple,
-                    Token::Ident,
-                ];
-
-                Err(Error::unexpected_token(span, expected, found))
+                Err(Error::unexpected_token(span, Token::TYPE_KEYWORD, found))
             }
         }
     }

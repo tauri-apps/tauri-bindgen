@@ -29,7 +29,12 @@ pub enum Error {
     /// A name wasn't defined.
     #[error("name is not defined.")]
     #[diagnostic(code(wit_parser::not_defined))]
-    NotDefined { location: Span },
+    NotDefined { 
+        #[label("name is not defined")]
+        location: Span,
+        #[help]
+        help: Option<String>,
+    },
     /// Names can't be defined more than once.
     #[error("name already defined.")]
     #[diagnostic(code(wit_parser::already_defined))]
@@ -108,6 +113,14 @@ impl Error {
     pub fn not_defined(loc: impl Into<Span>) -> Self {
         Self::NotDefined {
             location: loc.into(),
+            help: None,
+        }
+    }
+
+    pub fn not_defined_with_help(loc: impl Into<Span>, help: impl Into<String>) -> Self {
+        Self::NotDefined {
+            location: loc.into(),
+            help: Some(help.into()),
         }
     }
 

@@ -1,8 +1,10 @@
 #![allow(clippy::missing_panics_doc, clippy::missing_errors_doc)]
 
 use crate::{
-    util::IteratorExt, EnumCase, Error, FlagsField, Function, FunctionResult, Interface,
-    RecordField, Result, Type, TypeDef, TypeDefKind, UnionCase, VariantCase,
+    lex,
+    util::{find_similar, print_list, IteratorExt},
+    EnumCase, Error, FlagsField, Function, FunctionResult, Interface, RecordField, Result, Type,
+    TypeDef, TypeDefKind, UnionCase, VariantCase,
 };
 use id_arena::{Arena, Id};
 use logos::Span;
@@ -212,10 +214,23 @@ impl<'a> Resolver<'a> {
                 if let Some(id) = self.ident2id.get(ident) {
                     Type::Id(*id)
                 } else {
-                    let typedef = self
-                        .iface_typedefs
-                        .get(ident)
-                        .ok_or(Error::not_defined(span.clone()))?;
+                    let typedef = self.iface_typedefs.get(ident).ok_or_else(|| {
+                        let expected = lex::Token::TYPE_KEYWORD
+                            .iter()
+                            .map(|t| t.as_str())
+                            .chain(self.iface_typedefs.keys().map(|str| &**str));
+
+                        let suggestions = find_similar(expected, ident);
+
+                        if suggestions.is_empty() {
+                            Error::not_defined(span.clone())
+                        } else {
+                            Error::not_defined_with_help(
+                                span.clone(),
+                                format!("Did you mean \"{}\"?", print_list(suggestions)),
+                            )
+                        }
+                    })?;
 
                     let id = self.resolve_typedef(&typedef.clone())?; // TODO: avoid clone
 
