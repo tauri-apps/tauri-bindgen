@@ -29,7 +29,7 @@ pub enum Error {
     /// A name wasn't defined.
     #[error("name is not defined.")]
     #[diagnostic(code(wit_parser::not_defined))]
-    NotDefined { 
+    NotDefined {
         #[label("name is not defined")]
         location: Span,
         #[help]

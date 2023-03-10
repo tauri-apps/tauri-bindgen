@@ -129,11 +129,17 @@ impl<'a> FromTokens<'a> for InterfaceItem {
             Token::Resource => todo!(),
             Token::Use => todo!(),
             found => {
-                let suggestions =
-                    find_similar(Token::IFACE_ITEM_KEYWORD.iter().map(ToString::to_string), found.to_string());
+                let suggestions = find_similar(
+                    Token::IFACE_ITEM_KEYWORD.iter().map(ToString::to_string),
+                    found.to_string(),
+                );
 
                 if suggestions.is_empty() {
-                    return Err(Error::unexpected_token(kind_span, Token::IFACE_ITEM_KEYWORD, found));
+                    return Err(Error::unexpected_token(
+                        kind_span,
+                        Token::IFACE_ITEM_KEYWORD,
+                        found,
+                    ));
                 }
                 return Err(Error::unexpected_token_with_help(
                     kind_span,
@@ -382,9 +388,7 @@ impl<'a> FromTokens<'a> for Type {
                 Ok(Self::Result { ok, err })
             }
             Token::Ident => Ok(Self::Id(span)),
-            found => {
-                Err(Error::unexpected_token(span, Token::TYPE_KEYWORD, found))
-            }
+            found => Err(Error::unexpected_token(span, Token::TYPE_KEYWORD, found)),
         }
     }
 }
