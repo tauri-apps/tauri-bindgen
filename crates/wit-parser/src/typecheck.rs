@@ -217,7 +217,7 @@ impl<'a> Resolver<'a> {
                     let typedef = self.iface_typedefs.get(ident).ok_or_else(|| {
                         let expected = lex::Token::TYPE_KEYWORD
                             .iter()
-                            .map(|t| t.as_str())
+                            .map(lex::Token::as_str)
                             .chain(self.iface_typedefs.keys().map(|str| &**str));
 
                         let suggestions = find_similar(expected, ident);
