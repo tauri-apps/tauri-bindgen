@@ -12,7 +12,7 @@ wit-parser.workspace = true
 heck.workspace = true
 quote = "1.0.23"
 proc-macro2 = "1.0.51"
-syn = "1.0.107"
+syn = "1.0.109"
 prettyplease = "0.1.24"
 clap = { workspace = true, optional = true }
 
