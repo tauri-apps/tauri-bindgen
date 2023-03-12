@@ -9,4 +9,4 @@ rust-version.workspace = true
 
 [dependencies]
 wit-parser.workspace = true
-proc-macro2 = "1.0.51"
+proc-macro2 = "1.0.52"
