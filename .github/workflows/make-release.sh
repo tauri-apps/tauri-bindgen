@@ -16,7 +16,7 @@ then
   export "CARGO_TARGET_$(echo $TARGET | tr a-z- A-Z_)_LINKER"=rust-lld
 fi
 export CARGO_PROFILE_RELEASE_LTO=true
-cargo build --locked --bin tauri-bindgen --release --target $TARGET
+cargo build --bin tauri-bindgen --release --target $TARGET
 cd target/$TARGET/release
 case $OS in
   ubuntu*)
