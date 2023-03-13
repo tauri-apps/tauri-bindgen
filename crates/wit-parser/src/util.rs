@@ -1,17 +1,22 @@
 use std::fmt::Display;
 use std::fmt::Write;
 
-pub trait IteratorExt<T, E, FromT, FromE> {
-    fn partition_result(self) -> Result<FromT, FromE>;
+pub trait IteratorExt<T, E> {
+    fn partition_result<FromT, FromE>(self) -> Result<FromT, FromE>
+    where
+        FromT: FromIterator<T>,
+        FromE: FromIterator<E>;
 }
 
-impl<T, E, FromT, FromE, I> IteratorExt<T, E, FromT, FromE> for I
+impl<T, E, I> IteratorExt<T, E> for I
 where
     I: Iterator<Item = Result<T, E>>,
-    FromT: FromIterator<T>,
-    FromE: FromIterator<E>,
 {
-    fn partition_result(self) -> Result<FromT, FromE> {
+    fn partition_result<FromT, FromE>(self) -> Result<FromT, FromE>
+    where
+        FromT: FromIterator<T>,
+        FromE: FromIterator<E>,
+    {
         let (types, errors): (Vec<_>, Vec<_>) = self.partition(Result::is_ok);
 
         if errors.is_empty() {
