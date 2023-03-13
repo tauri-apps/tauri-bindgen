@@ -46,7 +46,11 @@ impl TypeScript {
         let ident = func.ident.to_lower_camel_case();
 
         let params = self.print_function_params(&func.params);
-        let result = func.result.as_ref().map(|result| self.print_function_result(result)).unwrap_or_default();
+        let result = func
+            .result
+            .as_ref()
+            .map(|result| self.print_function_result(result))
+            .unwrap_or_default();
 
         format!(
             r#"

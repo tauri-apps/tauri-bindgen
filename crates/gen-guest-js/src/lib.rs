@@ -39,7 +39,7 @@ impl JavaScript {
     fn print_function(&self, func: &Function) -> String {
         let docs = self.print_docs(func);
         let ident = func.ident.to_lower_camel_case();
-        let params = self.print_function_params(&func.params);
+        let params = print_function_params(&func.params);
 
         format!(
             r#"
@@ -157,14 +157,6 @@ impl JavaScript {
             | Type::String => None,
         }
     }
-
-    fn print_function_params(&self, params: &[(String, Type)]) -> String {
-        params
-            .iter()
-            .map(|(name, _)| name.to_lower_camel_case())
-            .collect::<Vec<_>>()
-            .join(", ")
-    }
 }
 
 impl Generate for JavaScript {
@@ -194,4 +186,12 @@ impl Generate for JavaScript {
 
         (filename, contents)
     }
+}
+
+fn print_function_params(params: &[(String, Type)]) -> String {
+    params
+        .iter()
+        .map(|(name, _)| name.to_lower_camel_case())
+        .collect::<Vec<_>>()
+        .join(", ")
 }

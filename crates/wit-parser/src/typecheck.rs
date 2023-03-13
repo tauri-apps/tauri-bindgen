@@ -267,17 +267,16 @@ impl<'a> Resolver<'a> {
 
         let params = self.resolve_named_types(&func.params)?;
 
-
         let result = match &func.result {
             None => None,
             Some(parse::FuncResult::Anon(ty)) => {
                 let ty = self.resolve_type(ty)?;
                 Some(FunctionResult::Anon(ty))
-            },
+            }
             Some(parse::FuncResult::Named(types)) => {
                 let types = self.resolve_named_types(types)?;
                 Some(FunctionResult::Named(types))
-            },
+            }
         };
 
         Ok(Function {
@@ -387,8 +386,7 @@ impl<'a> Resolver<'a> {
         if !self.iface_typedefs.is_empty() {
             // we use `partition_result` here to aggregate all errors before throwing them,
             // this way all errors are reported together instead of one by one.
-            self
-                .iface_typedefs
+            self.iface_typedefs
                 .values()
                 .map(|item| Err(Error::unused_type(item.ident.clone())))
                 .partition_result::<_, Error>()?;

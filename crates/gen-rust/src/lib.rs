@@ -376,7 +376,11 @@ pub trait RustGenerator {
 
         let params = self.print_function_params(&sig.func.params, param_mode);
 
-        let result = sig.func.result.as_ref().map(|result| self.print_function_result(result, results_mode));
+        let result = sig
+            .func
+            .result
+            .as_ref()
+            .map(|result| self.print_function_result(result, results_mode));
 
         quote! {
             #docs

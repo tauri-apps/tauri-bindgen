@@ -164,7 +164,11 @@ impl Markdown {
             "### Function {ident}\n\n`func {ident} ({params}){result}`\n\n{docs}",
             ident = func.ident,
             params = self.print_named_types(&func.params),
-            result = func.result.as_ref().map(|result| self.print_result(result)).unwrap_or_default(),
+            result = func
+                .result
+                .as_ref()
+                .map(|result| self.print_result(result))
+                .unwrap_or_default(),
             docs = func.docs
         )
     }
@@ -178,10 +182,6 @@ impl Markdown {
     }
 
     fn print_result(&self, result: &FunctionResult) -> String {
-        if result.is_empty() {
-            return String::new();
-        }
-
         if let Some(Type::Tuple(types)) = result.types().next() {
             if types.is_empty() {
                 return String::new();
