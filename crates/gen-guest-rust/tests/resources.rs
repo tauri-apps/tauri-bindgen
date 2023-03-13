@@ -4,7 +4,7 @@ pub mod resources {
     use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
     #[derive(serde::Deserialize)]
-    struct A {
+    pub struct A {
         id: u64,
     }
     impl A {
@@ -19,7 +19,7 @@ pub mod resources {
         }
     }
     #[derive(serde::Deserialize)]
-    struct B {
+    pub struct B {
         id: u64,
     }
     impl B {

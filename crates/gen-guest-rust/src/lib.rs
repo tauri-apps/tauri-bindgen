@@ -151,7 +151,7 @@ impl RustGenerator for RustWasm {
         quote! {
             #docs
             #additional_attrs
-            struct #ident {
+            pub struct #ident {
                 id: u64
             }
 
