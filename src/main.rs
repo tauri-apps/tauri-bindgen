@@ -186,7 +186,7 @@ where
     let skipset: HashSet<String, std::collections::hash_map::RandomState> =
         opts.skip.into_iter().collect();
 
-    let iface = wit_parser::parse_file(&opts.wit, |t| skipset.contains(t))?;
+    let iface = wit_parser::parse_and_resolve_file(&opts.wit, |t| skipset.contains(t))?;
 
     let gen = builder.build(iface);
 
@@ -203,7 +203,7 @@ fn check_interface(opts: WorldOpt) -> Result<()> {
     let skipset: HashSet<String, std::collections::hash_map::RandomState> =
         opts.skip.into_iter().collect();
 
-    wit_parser::parse_file(&opts.wit, |t| skipset.contains(t))?;
+    wit_parser::parse_and_resolve_file(&opts.wit, |t| skipset.contains(t))?;
 
     Ok(())
 }

@@ -9,7 +9,7 @@ fn gen_interface(
     _name: impl AsRef<str>,
     input: impl AsRef<str>,
 ) -> (String, String) {
-    let iface = wit_parser::parse_str(&input, |_| false).unwrap();
+    let iface = wit_parser::parse_and_resolve_str(&input, |_| false).unwrap();
 
     let gen = opts.build(iface);
     let (filename, contents) = gen.to_file();

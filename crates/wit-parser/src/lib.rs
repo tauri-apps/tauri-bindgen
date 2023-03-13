@@ -18,36 +18,52 @@ use miette::{ErrReport, IntoDiagnostic, NamedSource};
 use parse::FromTokens;
 use std::path::Path;
 use typecheck::Resolver;
+use util::detect_invalid_input;
 
-pub fn parse_str(input: impl AsRef<str>, skip: impl Fn(&str) -> bool) -> miette::Result<Interface> {
-    let iface = parse(input.as_ref(), skip).map_err(|error: ErrReport| {
+#[inline]
+pub fn parse_and_resolve_str(
+    input: impl AsRef<str>,
+    skip: impl Fn(&str) -> bool,
+) -> miette::Result<Interface> {
+    let iface = parse_and_resolve(input.as_ref(), skip).map_err(|error: ErrReport| {
         error.with_source_code(NamedSource::new("virtual file", input.as_ref().to_string()))
     })?;
 
     Ok(iface)
 }
 
-pub fn parse_file(
+#[inline]
+pub fn parse_and_resolve_file(
     path: impl AsRef<Path>,
     skip: impl Fn(&str) -> bool,
 ) -> miette::Result<Interface> {
     let path = path.as_ref();
     let input = std::fs::read_to_string(path).into_diagnostic()?;
 
-    let iface = parse(&input, skip).map_err(|error: ErrReport| {
+    let iface = parse_and_resolve(&input, skip).map_err(|error: ErrReport| {
         error.with_source_code(NamedSource::new(path.to_string_lossy(), input))
     })?;
 
     Ok(iface)
 }
 
-fn parse(input: &str, _skip: impl Fn(&str) -> bool) -> miette::Result<Interface> {
+#[inline]
+fn parse_and_resolve(input: &str, skip: impl Fn(&str) -> bool) -> miette::Result<Interface> {
+    let iface = parse(input, skip)?;
+
+    let (resolver, rest_data) = Resolver::new(input, iface);
+    resolver.resolve(rest_data).map_err(Into::into)
+}
+
+#[inline]
+pub fn parse(input: &str, _skip: impl Fn(&str) -> bool) -> miette::Result<parse::Interface> {
+    detect_invalid_input(input)?;
+
     let mut tokens = lex::Token::lexer(input).spanned().peekable();
 
     let iface = parse::Interface::parse(&mut tokens)?;
 
-    let (resolver, rest_data) = Resolver::new(input, iface);
-    resolver.resolve(rest_data).map_err(Into::into)
+    Ok(iface)
 }
 
 pub enum Int {

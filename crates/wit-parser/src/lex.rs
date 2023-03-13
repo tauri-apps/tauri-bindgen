@@ -3,13 +3,21 @@ use logos::{FilterResult, Lexer, Logos, Source};
 fn block_comment(lex: &mut Lexer<Token>) -> FilterResult<()> {
     let mut depth = 1;
     while depth > 0 {
-        match lex.remainder().slice(0..2) {
+        let remainder = lex.remainder();
+        match remainder.slice(0..2) {
             Some("/*") => depth += 1,
             Some("*/") => depth -= 1,
             None => return FilterResult::Error,
             _ => {}
         }
-        lex.bump(1);
+
+        // comments might include multi-byte unicode code points
+        // and since `Lexer::bump()` panics if it ends up in the middle of a code point we find the next valid character boundary here and jump to that.
+        let mut bump_by = 1;
+        while !remainder.is_char_boundary(bump_by) {
+            bump_by += 1;
+        }
+        lex.bump(bump_by);
     }
 
     lex.bump(1);
