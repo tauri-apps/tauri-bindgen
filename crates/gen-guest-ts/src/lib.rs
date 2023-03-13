@@ -74,7 +74,7 @@ impl TypeScript {
         match result.len() {
             0 => String::new(),
             1 => {
-                let ty = self.print_type(func.result.types().next().unwrap());
+                let ty = self.print_type(result.types().next().unwrap());
                 format!(": Promise<{ty}>")
             }
             _ => {
