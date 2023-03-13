@@ -1,4 +1,4 @@
-#![allow(clippy::must_use_candidate)]
+#![allow(clippy::must_use_candidate, clippy::unused_self)]
 
 use heck::{ToKebabCase, ToLowerCamelCase, ToUpperCamelCase};
 use std::path::PathBuf;
@@ -39,7 +39,7 @@ impl JavaScript {
     fn print_function(&self, func: &Function) -> String {
         let docs = self.print_docs(func);
         let ident = func.ident.to_lower_camel_case();
-        let params = self.print_function_params(&func.params);
+        let params = print_function_params(&func.params);
 
         format!(
             r#"
@@ -54,9 +54,9 @@ impl JavaScript {
         let functions: String = functions
             .iter()
             .map(|func| {
-                let docs = self.print_docs(&func);
+                let docs = self.print_docs(func);
                 let ident = func.ident.to_lower_camel_case();
-                let params = self.print_function_params(&func.params);
+                let params = print_function_params(&func.params);
 
                 format!(
                     r#"
@@ -184,14 +184,6 @@ impl JavaScript {
             | Type::String => None,
         }
     }
-
-    fn print_function_params(&self, params: &[(String, Type)]) -> String {
-        params
-            .iter()
-            .map(|(name, _)| name.to_lower_camel_case())
-            .collect::<Vec<_>>()
-            .join(", ")
-    }
 }
 
 impl Generate for JavaScript {
@@ -208,14 +200,14 @@ impl Generate for JavaScript {
             .iter()
             .filter_map(|(_, typedef)| {
                 if let TypeDefKind::Resource(functions) = &typedef.kind {
-                    Some(self.print_resource(&typedef.docs, &typedef.ident, &functions))
+                    Some(self.print_resource(&typedef.docs, &typedef.ident, functions))
                 } else {
                     None
                 }
             })
             .collect();
 
-        let mut contents = format!("{}\n{}", functions, resources);
+        let mut contents = format!("{functions}\n{resources}");
 
         if self.opts.prettier {
             postprocess(&mut contents, "prettier", ["--parser=babel"])
@@ -234,4 +226,12 @@ impl Generate for JavaScript {
 
         (filename, contents)
     }
+}
+
+fn print_function_params(params: &[(String, Type)]) -> String {
+    params
+        .iter()
+        .map(|(name, _)| name.to_lower_camel_case())
+        .collect::<Vec<_>>()
+        .join(", ")
 }
