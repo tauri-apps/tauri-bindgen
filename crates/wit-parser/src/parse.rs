@@ -43,27 +43,6 @@ pub struct Interface {
     pub items: Vec<InterfaceItem>,
 }
 
-impl<'a> FromTokens<'a> for Interface {
-    fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
-        let docs = parse_docs(tokens);
-
-        tokens.expect_token(Token::Interface)?;
-
-        let (_, ident) = tokens.expect_token(Token::Ident)?;
-
-        tokens.expect_token(Token::LeftBrace)?;
-
-        let mut items = Vec::new();
-        while !matches!(tokens.peek(), Some((Token::RightBrace, _))) {
-            let item = InterfaceItem::parse(tokens)?;
-
-            items.push(item);
-        }
-
-        Ok(Interface { ident, docs, items })
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InterfaceItem {
     pub docs: Vec<Span>,
@@ -80,6 +59,22 @@ pub enum InterfaceItemInner {
     Enum(Vec<EnumCase>),
     Union(Vec<UnionCase>),
     Func(Func),
+impl<'a> FromTokens<'a> for Interface {
+    fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
+        let docs = parse_docs(tokens);
+
+        tokens.expect(Token::Interface)?;
+
+        let (_, ident) = tokens.expect(Token::Ident)?;
+
+        log::trace!("parsing interface items...");
+
+        let items = parse_list(tokens, Token::LeftBrace, Token::RightBrace, None)?;
+
+        log::debug!("successfully parsed interface");
+
+        Ok(Interface { ident, docs, items })
+    }
 }
 
 impl<'a> FromTokens<'a> for InterfaceItem {
@@ -92,27 +87,27 @@ impl<'a> FromTokens<'a> for InterfaceItem {
 
         let inner = match kind {
             Token::Record => {
-                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace)?;
+                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace, Some(Token::Comma))?;
 
                 InterfaceItemInner::Record(inner)
             }
             Token::Enum => {
-                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace)?;
+                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace, Some(Token::Comma))?;
 
                 InterfaceItemInner::Enum(inner)
             }
             Token::Flags => {
-                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace)?;
+                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace, Some(Token::Comma))?;
 
                 InterfaceItemInner::Flags(inner)
             }
             Token::Variant => {
-                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace)?;
+                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace, Some(Token::Comma))?;
 
                 InterfaceItemInner::Variant(inner)
             }
             Token::Union => {
-                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace)?;
+                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace, Some(Token::Comma))?;
 
                 InterfaceItemInner::Union(inner)
             }
@@ -178,7 +173,7 @@ pub type NamedTypeList = Vec<(Span, Type)>;
 
 impl<'a> FromTokens<'a> for NamedTypeList {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
-        parse_list(tokens, Token::LeftParen, Token::RightParen)
+        parse_list(tokens, Token::LeftParen, Token::RightParen, Some(Token::Comma))
     }
 }
 
@@ -356,7 +351,7 @@ impl<'a> FromTokens<'a> for Type {
                 Ok(Self::List(Box::new(ty)))
             }
             Token::Tuple => {
-                let types = parse_list(tokens, Token::LessThan, Token::GreaterThan)?;
+                let types = parse_list(tokens, Token::LessThan, Token::GreaterThan, Some(Token::Comma))?;
 
                 Ok(Self::Tuple(types))
             }
@@ -393,7 +388,12 @@ impl<'a> FromTokens<'a> for Type {
     }
 }
 
-fn parse_list<'a, O>(tokens: &mut Tokens<'a>, start: Token, end: Token) -> Result<Vec<O>>
+fn parse_list<'a, O>(
+    tokens: &mut Tokens<'a>,
+    start: Token,
+    end: Token,
+    sep: Option<Token>,
+) -> Result<Vec<O>>
 where
     O: FromTokens<'a>,
 {
@@ -409,11 +409,13 @@ where
         let item = FromTokens::parse(tokens)?;
         items.push(item);
 
-        // if there's no trailing comma then this is required to be the end,
+        // if there's no trailing separator then this is required to be the end,
         // otherwise we go through the loop to try to get another item
-        if tokens.next_if_token(Token::Comma).is_none() {
-            tokens.expect_token(end)?;
-            break;
+        if let Some(sep) = sep {
+            if tokens.next_if_token(sep).is_none() {
+                tokens.expect(end)?;
+                break;
+            }
         }
     }
     Ok(items)
