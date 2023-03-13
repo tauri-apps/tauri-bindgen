@@ -227,13 +227,13 @@ impl<'a> FromTokens<'a> for Func {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let params = NamedTypeList::parse(tokens)?;
 
-        let results = if tokens.next_if_token(Token::RArrow).is_some() {
-            FuncResult::parse(tokens)?
+        let result = if tokens.next_if_token(Token::RArrow).is_some() {
+            Some(FuncResult::parse(tokens)?)
         } else {
-            FuncResult::Anon(Type::Tuple(vec![]))
+            None
         };
 
-        Ok(Func { params, results })
+        Ok(Func { params, result })
     }
 }
 

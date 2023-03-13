@@ -376,7 +376,7 @@ pub trait RustGenerator {
 
         let params = self.print_function_params(&sig.func.params, param_mode);
 
-        let result = self.print_function_result(&sig.func.result, results_mode);
+        let result = sig.func.result.as_ref().map(|result| self.print_function_result(result, results_mode));
 
         quote! {
             #docs
@@ -396,10 +396,6 @@ pub trait RustGenerator {
     }
 
     fn print_function_result(&self, result: &FunctionResult, mode: &BorrowMode) -> TokenStream {
-        if result.is_empty() {
-            return quote! {};
-        }
-
         match result {
             FunctionResult::Anon(ty) => {
                 let ty = self.print_ty(ty, mode);
