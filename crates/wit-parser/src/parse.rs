@@ -12,7 +12,7 @@ pub type Tokens<'a> = Peekable<SpannedIter<'a, Token>>;
 
 trait TokensExt {
     fn next_if_token(&mut self, token: Token) -> Option<(Token, Span)>;
-    fn expect_token(&mut self, token: Token) -> Result<(Token, Span)>;
+    fn expect(&mut self, token: Token) -> Result<(Token, Span)>;
 }
 
 impl<'a> TokensExt for Tokens<'a> {
@@ -20,7 +20,7 @@ impl<'a> TokensExt for Tokens<'a> {
         self.next_if(|(found, _)| *found == expected)
     }
 
-    fn expect_token(&mut self, expected: Token) -> Result<(Token, Span)> {
+    fn expect(&mut self, expected: Token) -> Result<(Token, Span)> {
         match self.next() {
             Some((found, span)) if found == expected => Ok((found, span)),
             Some((found, span)) => Err(Error::unexpected_token(span, [expected], found)),
@@ -88,7 +88,7 @@ impl<'a> FromTokens<'a> for InterfaceItem {
 
         let (kind, kind_span) = tokens.next().ok_or(Error::UnexpectedEof)?;
 
-        let (_, ident) = tokens.expect_token(Token::Ident)?;
+        let (_, ident) = tokens.expect(Token::Ident)?;
 
         let inner = match kind {
             Token::Record => {
@@ -117,7 +117,7 @@ impl<'a> FromTokens<'a> for InterfaceItem {
                 InterfaceItemInner::Union(inner)
             }
             Token::Type => {
-                tokens.expect_token(Token::Equals)?;
+                tokens.expect(Token::Equals)?;
 
                 InterfaceItemInner::Alias(Type::parse(tokens)?)
             }
@@ -184,9 +184,9 @@ impl<'a> FromTokens<'a> for NamedTypeList {
 
 impl<'a> FromTokens<'a> for (Span, Type) {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
-        let (_, ident) = tokens.expect_token(Token::Ident)?;
+        let (_, ident) = tokens.expect(Token::Ident)?;
 
-        tokens.expect_token(Token::Colon)?;
+        tokens.expect(Token::Colon)?;
 
         let ty = Type::parse(tokens)?;
 
@@ -221,9 +221,9 @@ impl<'a> FromTokens<'a> for RecordField {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = parse_docs(tokens);
 
-        let (_, ident) = tokens.expect_token(Token::Ident)?;
+        let (_, ident) = tokens.expect(Token::Ident)?;
 
-        tokens.expect_token(Token::Colon)?;
+        tokens.expect(Token::Colon)?;
 
         let ty = Type::parse(tokens)?;
 
@@ -241,7 +241,7 @@ impl<'a> FromTokens<'a> for FlagsField {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = parse_docs(tokens);
 
-        let (_, ident) = tokens.expect_token(Token::Ident)?;
+        let (_, ident) = tokens.expect(Token::Ident)?;
 
         Ok(FlagsField { ident, docs })
     }
@@ -258,11 +258,11 @@ impl<'a> FromTokens<'a> for VariantCase {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = parse_docs(tokens);
 
-        let (_, ident) = tokens.expect_token(Token::Ident)?;
+        let (_, ident) = tokens.expect(Token::Ident)?;
 
         let ty = if tokens.next_if_token(Token::LeftParen).is_some() {
             let ty = Type::parse(tokens)?;
-            tokens.expect_token(Token::RightParen)?;
+            tokens.expect(Token::RightParen)?;
 
             Some(ty)
         } else {
@@ -283,7 +283,7 @@ impl<'a> FromTokens<'a> for EnumCase {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = parse_docs(tokens);
 
-        let (_, ident) = tokens.expect_token(Token::Ident)?;
+        let (_, ident) = tokens.expect(Token::Ident)?;
 
         Ok(EnumCase { ident, docs })
     }
@@ -349,9 +349,9 @@ impl<'a> FromTokens<'a> for Type {
             Token::Char => Ok(Self::Char),
             Token::String => Ok(Self::String),
             Token::List => {
-                tokens.expect_token(Token::LessThan)?;
+                tokens.expect(Token::LessThan)?;
                 let ty = Type::parse(tokens)?;
-                tokens.expect_token(Token::GreaterThan)?;
+                tokens.expect(Token::GreaterThan)?;
 
                 Ok(Self::List(Box::new(ty)))
             }
@@ -361,9 +361,9 @@ impl<'a> FromTokens<'a> for Type {
                 Ok(Self::Tuple(types))
             }
             Token::Option => {
-                tokens.expect_token(Token::LessThan)?;
+                tokens.expect(Token::LessThan)?;
                 let ty = Type::parse(tokens)?;
-                tokens.expect_token(Token::GreaterThan)?;
+                tokens.expect(Token::GreaterThan)?;
 
                 Ok(Self::Option(Box::new(ty)))
             }
@@ -373,7 +373,7 @@ impl<'a> FromTokens<'a> for Type {
 
                 if tokens.next_if_token(Token::LessThan).is_some() {
                     if tokens.next_if_token(Token::Underscore).is_some() {
-                        tokens.expect_token(Token::Comma)?;
+                        tokens.expect(Token::Comma)?;
                         err = Some(Box::new(Type::parse(tokens)?));
                     } else {
                         ok = Some(Box::new(Type::parse(tokens)?));
@@ -382,7 +382,7 @@ impl<'a> FromTokens<'a> for Type {
                             err = Some(Box::new(Type::parse(tokens)?));
                         }
                     };
-                    tokens.expect_token(Token::GreaterThan)?;
+                    tokens.expect(Token::GreaterThan)?;
                 };
 
                 Ok(Self::Result { ok, err })
@@ -397,7 +397,7 @@ fn parse_list<'a, O>(tokens: &mut Tokens<'a>, start: Token, end: Token) -> Resul
 where
     O: FromTokens<'a>,
 {
-    tokens.expect_token(start)?;
+    tokens.expect(start)?;
 
     let mut items = Vec::new();
     loop {
