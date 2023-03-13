@@ -175,22 +175,16 @@ impl Error {
 
     #[must_use]
     pub fn bidirectional_override_codepoint(pos: usize) -> Self {
-        Self::BidirectionalOverrideCodepoint {
-            location: pos,
-        }
+        Self::BidirectionalOverrideCodepoint { location: pos }
     }
 
     #[must_use]
     pub fn deprecated_codepoint(pos: usize) -> Self {
-        Self::DeprecatedCodepoint {
-            location: pos,
-        }
+        Self::DeprecatedCodepoint { location: pos }
     }
 
     #[must_use]
     pub fn control_code(pos: usize) -> Self {
-        Self::ControlCode {
-            location: pos,
-        }
+        Self::ControlCode { location: pos }
     }
 }
