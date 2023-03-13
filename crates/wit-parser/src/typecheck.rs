@@ -94,7 +94,7 @@ impl<'a> Resolver<'a> {
                 TypeDefKind::Alias(ty)
             }
             parse::InterfaceItemInner::Record(fields) => {
-                let res: Result<Vec<_>> = fields
+                let inner = fields
                     .iter()
                     .map(|field| {
                         let docs = self.resolve_docs(&field.docs);
@@ -103,9 +103,9 @@ impl<'a> Resolver<'a> {
 
                         Ok(RecordField { docs, ident, ty })
                     })
-                    .partition_result();
+                    .partition_result::<_, Error>()?;
 
-                TypeDefKind::Record(res?)
+                TypeDefKind::Record(inner)
             }
             parse::InterfaceItemInner::Flags(fields) => {
                 let fields = fields.iter().map(|field| {
@@ -118,7 +118,7 @@ impl<'a> Resolver<'a> {
                 TypeDefKind::Flags(fields.collect())
             }
             parse::InterfaceItemInner::Variant(cases) => {
-                let res: Result<Vec<_>> = cases
+                let inner = cases
                     .iter()
                     .map(|case| {
                         let docs = self.resolve_docs(&case.docs);
@@ -131,9 +131,9 @@ impl<'a> Resolver<'a> {
 
                         Ok(VariantCase { docs, ident, ty })
                     })
-                    .partition_result();
+                    .partition_result::<_, Error>()?;
 
-                TypeDefKind::Variant(res?)
+                TypeDefKind::Variant(inner)
             }
             parse::InterfaceItemInner::Enum(cases) => {
                 let cases = cases.iter().map(|case| {
@@ -146,7 +146,7 @@ impl<'a> Resolver<'a> {
                 TypeDefKind::Enum(cases.collect())
             }
             parse::InterfaceItemInner::Union(cases) => {
-                let res: Result<Vec<_>> = cases
+                let inner = cases
                     .iter()
                     .map(|case| {
                         let docs = self.resolve_docs(&case.docs);
@@ -154,7 +154,7 @@ impl<'a> Resolver<'a> {
 
                         Ok(UnionCase { docs, ty })
                     })
-                    .partition_result();
+                    .partition_result::<_, Error>()?;
 
                 TypeDefKind::Union(res?)
             }
@@ -167,7 +167,6 @@ impl<'a> Resolver<'a> {
             kind,
         });
         self.ident2id.insert(ident, id);
-
         self.iface_typedefs.remove(ident);
 
         Ok(id)
@@ -191,12 +190,12 @@ impl<'a> Resolver<'a> {
             parse::Type::List(ty) => Type::List(Box::new(self.resolve_type(ty)?)),
             parse::Type::Option(ty) => Type::Option(Box::new(self.resolve_type(ty)?)),
             parse::Type::Tuple(types) => {
-                let res: Result<Vec<Type>> = types
+                let types = types
                     .iter()
                     .map(|ty| self.resolve_type(ty))
-                    .partition_result();
+                    .partition_result::<_, Error>()?;
 
-                Type::Tuple(res?)
+                Type::Tuple(types)
             }
             parse::Type::Result { ok, err } => {
                 let ok = ok.as_ref().map(|ty| self.resolve_type(ty)).transpose()?;
@@ -384,12 +383,13 @@ impl<'a> Resolver<'a> {
         }
 
         if !self.iface_typedefs.is_empty() {
-            let res: Result<()> = self
+            // we use `partition_result` here to aggregate all errors before throwing them,
+            // this way all errors are reported together instead of one by one.
+            self
                 .iface_typedefs
                 .values()
                 .map(|item| Err(Error::unused_type(item.ident.clone())))
-                .partition_result();
-            res?;
+                .partition_result::<_, Error>()?;
         }
 
         Ok(Interface {
