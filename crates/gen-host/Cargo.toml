@@ -10,9 +10,9 @@ tauri-bindgen-core.workspace = true
 tauri-bindgen-gen-rust = { path = "../gen-rust" }
 wit-parser.workspace = true
 heck.workspace = true
-quote = "1.0.25"
-proc-macro2 = "1.0.52"
-syn = "1.0.109"
+quote.workspace = true
+proc-macro2.workspace = true
+syn.workspace = true
 prettyplease = "0.1.24"
 clap = { workspace = true, optional = true }
 
