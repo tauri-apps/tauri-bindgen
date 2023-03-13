@@ -114,35 +114,11 @@ pub struct RecordField {
     pub ty: Type,
 }
 
-// impl Flags {
-//     pub fn repr(&self) -> Int {
-//         match self.fields.len() {
-//             n if n <= 8 => Int::U8,
-//             n if n <= 16 => Int::U16,
-//             n if n <= 32 => Int::U32,
-//             n if n <= 64 => Int::U64,
-//             _ => panic!("too many flags to fit in a repr"),
-//         }
-//     }
-// }
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FlagsField {
     pub docs: String,
     pub ident: String,
 }
-
-// impl Variant {
-//     pub fn tag(&self) -> Int {
-//         match self.cases.len() {
-//             n if u8::try_from(n).is_ok() => Int::U8,
-//             n if u16::try_from(n).is_ok() => Int::U16,
-//             n if u32::try_from(n).is_ok() => Int::U32,
-//             n if u64::try_from(n).is_ok() => Int::U64,
-//             _ => panic!("too many cases to fit in a repr"),
-//         }
-//     }
-// }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VariantCase {
@@ -151,35 +127,11 @@ pub struct VariantCase {
     pub ty: Option<Type>,
 }
 
-// impl Enum {
-//     pub fn tag(&self) -> Int {
-//         match self.cases.len() {
-//             n if u8::try_from(n).is_ok() => Int::U8,
-//             n if u16::try_from(n).is_ok() => Int::U16,
-//             n if u32::try_from(n).is_ok() => Int::U32,
-//             n if u64::try_from(n).is_ok() => Int::U64,
-//             _ => panic!("too many cases to fit in a repr"),
-//         }
-//     }
-// }
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EnumCase {
     pub docs: String,
     pub ident: String,
 }
-
-// impl Union {
-//     pub fn tag(&self) -> Int {
-//         match self.cases.len() {
-//             n if u8::try_from(n).is_ok() => Int::U8,
-//             n if u16::try_from(n).is_ok() => Int::U16,
-//             n if u32::try_from(n).is_ok() => Int::U32,
-//             n if u64::try_from(n).is_ok() => Int::U64,
-//             _ => panic!("too many cases to fit in a repr"),
-//         }
-//     }
-// }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UnionCase {
