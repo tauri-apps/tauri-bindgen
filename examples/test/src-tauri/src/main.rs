@@ -7,7 +7,6 @@ mod roundtrip;
 
 use tauri_plugin_log::{LogTarget, LoggerBuilder};
 
-
 #[tauri::command]
 fn exit_with_error(e: &str) -> bool {
     eprintln!("{}", e);
