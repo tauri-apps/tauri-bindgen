@@ -5,6 +5,7 @@
     clippy::unused_self
 )]
 
+use std::collections::HashSet;
 use std::path::PathBuf;
 
 use heck::ToKebabCase;
@@ -14,8 +15,10 @@ use quote::format_ident;
 use quote::quote;
 use syn::parse_quote;
 use tauri_bindgen_core::{Generate, GeneratorBuilder};
-use tauri_bindgen_gen_rust::{BorrowMode, FnSig, RustGenerator, TypeInfo, TypeInfos};
-use wit_parser::{Function, Interface};
+use tauri_bindgen_gen_rust::{
+    print_generics, BorrowMode, FnSig, RustGenerator, TypeInfo, TypeInfos,
+};
+use wit_parser::{Function, Interface, Type, TypeDefKind};
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -90,6 +93,144 @@ impl RustGenerator for Host {
     fn default_param_mode(&self) -> BorrowMode {
         BorrowMode::Owned
     }
+
+    fn print_resource(
+        &self,
+        docs: &str,
+        ident: &proc_macro2::Ident,
+        functions: &[Function],
+        _info: TypeInfo,
+    ) -> TokenStream {
+        let docs = self.print_docs(docs);
+
+        let mut resources = HashSet::new();
+        for func in functions {
+            for (_, ty) in &func.params {
+                self.extract_resources(ty, &mut resources);
+            }
+            if let Some(result) = &func.result {
+                for ty in result.types() {
+                    self.extract_resources(ty, &mut resources);
+                }
+            }
+        }
+
+        let resources = resources.iter().map(|r| {
+            let ident = format_ident!("{}", r.to_upper_camel_case());
+
+            quote! { type #ident: #ident; }
+        });
+
+        let trait_ = self.print_trait(&ident.to_string(), functions.iter(), resources, false);
+
+        quote! {
+            #docs
+            #trait_
+        }
+    }
+
+    fn print_ty(&self, ty: &Type, mode: &BorrowMode) -> TokenStream {
+        match ty {
+            Type::Bool => quote! { bool },
+            Type::U8 => quote! { u8 },
+            Type::U16 => quote! { u16 },
+            Type::U32 => quote! { u32 },
+            Type::U64 => quote! { u64 },
+            Type::S8 => quote! { i8 },
+            Type::S16 => quote! { i16 },
+            Type::S32 => quote! { i32 },
+            Type::S64 => quote! { i64 },
+            Type::Float32 => quote! { f32 },
+            Type::Float64 => quote! { f64 },
+            Type::Char => quote! { char },
+            Type::String => match mode {
+                BorrowMode::Owned => quote! { String },
+                BorrowMode::AllBorrowed(lt) | BorrowMode::LeafBorrowed(lt) => quote! { &#lt str },
+            },
+            Type::List(ty) => {
+                let is_primitive = matches!(
+                    **ty,
+                    Type::U8
+                        | Type::S8
+                        | Type::U16
+                        | Type::S16
+                        | Type::U32
+                        | Type::S32
+                        | Type::U64
+                        | Type::S64
+                        | Type::Float32
+                        | Type::Float64
+                );
+
+                let ty = self.print_ty(ty, mode);
+
+                match mode {
+                    BorrowMode::Owned => quote! { Vec<#ty> },
+                    BorrowMode::AllBorrowed(lt) => quote! { &#lt [#ty] },
+                    BorrowMode::LeafBorrowed(lt) => {
+                        if is_primitive {
+                            quote! { &#lt [#ty] }
+                        } else {
+                            quote! { Vec<#ty> }
+                        }
+                    }
+                }
+            }
+            Type::Tuple(types) => {
+                if types.len() == 1 {
+                    let ty = self.print_ty(&types[0], mode);
+
+                    quote! { (#ty,) }
+                } else {
+                    let types = types.iter().map(|ty| self.print_ty(ty, mode));
+
+                    quote! { (#(#types),*) }
+                }
+            }
+            Type::Option(ty) => {
+                let ty = self.print_ty(ty, mode);
+
+                quote! { Option<#ty> }
+            }
+            Type::Result { ok, err } => {
+                let ok = ok
+                    .as_ref()
+                    .map(|ty| self.print_ty(ty, mode))
+                    .unwrap_or(quote! { () });
+                let err = err
+                    .as_ref()
+                    .map(|ty| self.print_ty(ty, mode))
+                    .unwrap_or(quote! { () });
+
+                quote! { Result<#ok, #err> }
+            }
+            Type::Id(id) => {
+                let typedef = &self.interface().typedefs[*id];
+                let info = self.infos()[*id];
+
+                if let TypeDefKind::Resource(_) = &typedef.kind {
+                    return quote! { ::tauri_bindgen_host::ResourceId };
+                }
+
+                let ident = if self.uses_two_names(info) {
+                    match mode {
+                        BorrowMode::Owned => {
+                            format_ident!("{}Result", typedef.ident.to_upper_camel_case())
+                        }
+                        BorrowMode::AllBorrowed(_) | BorrowMode::LeafBorrowed(_) => {
+                            format_ident!("{}Param", typedef.ident.to_upper_camel_case())
+                        }
+                    }
+                } else {
+                    format_ident!("{}", typedef.ident.to_upper_camel_case())
+                };
+
+                let generics = print_generics(info, mode);
+
+                quote! { #ident #generics }
+            }
+        }
+    }
 }
 
 impl Generate for Host {
@@ -103,7 +244,27 @@ impl Generate for Host {
             &BorrowMode::LeafBorrowed(parse_quote!('a)),
         );
 
-        let trait_ = self.print_trait(&self.interface.ident, self.interface.functions.iter());
+        let resources = self.interface.typedefs.iter().filter_map(|(_, typedef)| {
+            if let TypeDefKind::Resource(_) = &typedef.kind {
+                let ident = format_ident!("{}", typedef.ident.to_upper_camel_case());
+                let func_ident = format_ident!("get_{}_mut", typedef.ident.to_snake_case());
+
+                Some(quote! {
+                    type #ident: #ident;
+
+                    fn #func_ident(&mut self, id: ::tauri_bindgen_host::ResourceId) -> &mut Self::#ident;
+                })
+            } else {
+                None
+            }
+        });
+
+        let trait_ = self.print_trait(
+            &self.interface.ident,
+            self.interface.functions.iter(),
+            resources,
+            true,
+        );
 
         let add_to_router = self.print_add_to_router(
             &self.interface.ident, /*, self.interface.functions.iter()*/
@@ -146,6 +307,8 @@ impl Host {
         &self,
         ident: &str,
         functions: impl Iterator<Item = &'a Function>,
+        additional_items: impl Iterator<Item = TokenStream>,
+        sized: bool,
     ) -> TokenStream {
         let ident = format_ident!("{}", ident.to_upper_camel_case());
 
@@ -167,10 +330,43 @@ impl Host {
             quote! { #sig; }
         });
 
+        let sized = sized.then_some(quote!(: Sized));
+
         quote! {
-            pub trait #ident: Sized {
+            pub trait #ident #sized {
+                #(#additional_items)*
                 #(#functions)*
             }
+        }
+    }
+
+    fn extract_resources<'a>(&'a self, ty: &Type, resources: &mut HashSet<&'a str>) {
+        match ty {
+            Type::List(ty) | Type::Option(ty) => {
+                self.extract_resources(ty, resources);
+            }
+            Type::Tuple(types) => {
+                for ty in types {
+                    self.extract_resources(ty, resources)
+                }
+            }
+            Type::Result { ok, err } => {
+                if let Some(ok) = ok {
+                    self.extract_resources(ok, resources);
+                }
+
+                if let Some(err) = err {
+                    self.extract_resources(err, resources);
+                }
+            }
+            Type::Id(id) => {
+                let typedef = &self.interface().typedefs[*id];
+
+                if let TypeDefKind::Resource(_) = &typedef.kind {
+                    resources.insert(&typedef.ident);
+                }
+            }
+            _ => {}
         }
     }
 

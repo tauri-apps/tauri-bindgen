@@ -41,16 +41,16 @@ pub mod lists {
         (&'a str, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char),
     >;
     pub trait Lists: Sized {
-        fn list_u8_param(&mut self, x: Vec<u8>) -> ();
-        fn list_u16_param(&mut self, x: Vec<u16>) -> ();
-        fn list_u32_param(&mut self, x: Vec<u32>) -> ();
-        fn list_u64_param(&mut self, x: Vec<u64>) -> ();
-        fn list_s8_param(&mut self, x: Vec<i8>) -> ();
-        fn list_s16_param(&mut self, x: Vec<i16>) -> ();
-        fn list_s32_param(&mut self, x: Vec<i32>) -> ();
-        fn list_s64_param(&mut self, x: Vec<i64>) -> ();
-        fn list_float32_param(&mut self, x: Vec<f32>) -> ();
-        fn list_float64_param(&mut self, x: Vec<f64>) -> ();
+        fn list_u8_param(&mut self, x: Vec<u8>);
+        fn list_u16_param(&mut self, x: Vec<u16>);
+        fn list_u32_param(&mut self, x: Vec<u32>);
+        fn list_u64_param(&mut self, x: Vec<u64>);
+        fn list_s8_param(&mut self, x: Vec<i8>);
+        fn list_s16_param(&mut self, x: Vec<i16>);
+        fn list_s32_param(&mut self, x: Vec<i32>);
+        fn list_s64_param(&mut self, x: Vec<i64>);
+        fn list_float32_param(&mut self, x: Vec<f32>);
+        fn list_float64_param(&mut self, x: Vec<f64>);
         fn list_u8_ret(&mut self) -> &'_ [u8];
         fn list_u16_ret(&mut self) -> &'_ [u16];
         fn list_u32_ret(&mut self) -> &'_ [u32];
@@ -62,7 +62,7 @@ pub mod lists {
         fn list_float32_ret(&mut self) -> &'_ [f32];
         fn list_float64_ret(&mut self) -> &'_ [f64];
         fn tuple_list(&mut self, x: Vec<(u8, i8)>) -> &'_ [(i64, u32)];
-        fn string_list_arg(&mut self, a: Vec<String>) -> ();
+        fn string_list_arg(&mut self, a: Vec<String>);
         fn string_list_ret(&mut self) -> &'_ [&'_ str];
         fn tuple_string_list(&mut self, x: Vec<(u8, String)>) -> &'_ [(&'_ str, u8)];
         fn string_list(&mut self, x: Vec<String>) -> &'_ [&'_ str];

@@ -79,34 +79,34 @@ pub mod lists {
     pub type LoadStoreAllSizesResult = Vec<
         (String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char),
     >;
-    pub async fn list_u8_param(x: &'_ [u8]) -> () {
+    pub async fn list_u8_param(x: &'_ [u8]) {
         todo!()
     }
-    pub async fn list_u16_param(x: &'_ [u16]) -> () {
+    pub async fn list_u16_param(x: &'_ [u16]) {
         todo!()
     }
-    pub async fn list_u32_param(x: &'_ [u32]) -> () {
+    pub async fn list_u32_param(x: &'_ [u32]) {
         todo!()
     }
-    pub async fn list_u64_param(x: &'_ [u64]) -> () {
+    pub async fn list_u64_param(x: &'_ [u64]) {
         todo!()
     }
-    pub async fn list_s8_param(x: &'_ [i8]) -> () {
+    pub async fn list_s8_param(x: &'_ [i8]) {
         todo!()
     }
-    pub async fn list_s16_param(x: &'_ [i16]) -> () {
+    pub async fn list_s16_param(x: &'_ [i16]) {
         todo!()
     }
-    pub async fn list_s32_param(x: &'_ [i32]) -> () {
+    pub async fn list_s32_param(x: &'_ [i32]) {
         todo!()
     }
-    pub async fn list_s64_param(x: &'_ [i64]) -> () {
+    pub async fn list_s64_param(x: &'_ [i64]) {
         todo!()
     }
-    pub async fn list_float32_param(x: &'_ [f32]) -> () {
+    pub async fn list_float32_param(x: &'_ [f32]) {
         todo!()
     }
-    pub async fn list_float64_param(x: &'_ [f64]) -> () {
+    pub async fn list_float64_param(x: &'_ [f64]) {
         todo!()
     }
     pub async fn list_u8_ret() -> Vec<u8> {
@@ -142,7 +142,7 @@ pub mod lists {
     pub async fn tuple_list(x: &'_ [(u8, i8)]) -> Vec<(i64, u32)> {
         todo!()
     }
-    pub async fn string_list_arg(a: &'_ [&'_ str]) -> () {
+    pub async fn string_list_arg(a: &'_ [&'_ str]) {
         todo!()
     }
     pub async fn string_list_ret() -> Vec<String> {

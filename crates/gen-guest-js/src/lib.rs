@@ -50,6 +50,33 @@ impl JavaScript {
         )
     }
 
+    fn print_resource(&self, docs: &str, ident: &str, functions: &[Function]) -> String {
+        let functions: String = functions
+            .iter()
+            .map(|func| {
+                let docs = self.print_docs(&func);
+                let ident = func.ident.to_lower_camel_case();
+                let params = self.print_function_params(&func.params);
+
+                format!(
+                    r#"
+                {docs}
+                async {ident} ({params}) {{
+                }}
+            "#
+                )
+            })
+            .collect();
+
+        format!(
+            "{docs}\nclass {ident} {{
+            #id: number;
+    
+            {functions}
+        }}"
+        )
+    }
+
     fn print_docs(&self, func: &Function) -> String {
         let docs = func
             .docs
@@ -169,13 +196,26 @@ impl JavaScript {
 
 impl Generate for JavaScript {
     fn to_file(&self) -> (std::path::PathBuf, String) {
-        let mut contents = self
+        let functions: String = self
             .interface
             .functions
             .iter()
             .map(|func| self.print_function(func))
-            .collect::<Vec<_>>()
-            .join("\n");
+            .collect();
+        let resources: String = self
+            .interface
+            .typedefs
+            .iter()
+            .filter_map(|(_, typedef)| {
+                if let TypeDefKind::Resource(functions) = &typedef.kind {
+                    Some(self.print_resource(&typedef.docs, &typedef.ident, &functions))
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        let mut contents = format!("{}\n{}", functions, resources);
 
         if self.opts.prettier {
             postprocess(&mut contents, "prettier", ["--parser=babel"])

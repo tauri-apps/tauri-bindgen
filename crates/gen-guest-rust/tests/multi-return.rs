@@ -3,7 +3,7 @@
 pub mod multi_return {
     use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
-    pub async fn mra() -> () {
+    pub async fn mra() {
         todo!()
     }
     pub async fn mrb() {

@@ -156,6 +156,26 @@ impl Markdown {
 
                 format!("## Union {ident}\n\n{docs}\n\n### Cases\n\n{cases}")
             }
+            wit_parser::TypeDefKind::Resource(functions) => {
+                let functions: String = functions
+                    .iter()
+                    .map(|func| {
+                        format!(
+                            "### Method {ident}\n\n`func {ident} ({params}){result}`\n\n{docs}",
+                            ident = func.ident,
+                            params = self.print_named_types(&func.params),
+                            result = func
+                                .result
+                                .as_ref()
+                                .map(|result| self.print_result(result))
+                                .unwrap_or_default(),
+                            docs = func.docs
+                        )
+                    })
+                    .collect();
+
+                format!("## Resource {ident}\n\n{docs}\n\n### Methods\n\n{functions}")
+            }
         }
     }
 
@@ -164,7 +184,11 @@ impl Markdown {
             "### Function {ident}\n\n`func {ident} ({params}){result}`\n\n{docs}",
             ident = func.ident,
             params = self.print_named_types(&func.params),
-            result = func.result.as_ref().map(|result| self.print_result(result)).unwrap_or_default(),
+            result = func
+                .result
+                .as_ref()
+                .map(|result| self.print_result(result))
+                .unwrap_or_default(),
             docs = func.docs
         )
     }
@@ -178,10 +202,6 @@ impl Markdown {
     }
 
     fn print_result(&self, result: &FunctionResult) -> String {
-        if result.is_empty() {
-            return String::new();
-        }
-
         if let Some(Type::Tuple(types)) = result.types().next() {
             if types.is_empty() {
                 return String::new();

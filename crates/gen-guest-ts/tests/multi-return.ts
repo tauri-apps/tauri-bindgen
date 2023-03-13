@@ -2,7 +2,7 @@
 
 
             
-            export async function mra () : Promise<[]> {
+            export async function mra ()  {
             }
         
             

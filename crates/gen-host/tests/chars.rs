@@ -5,7 +5,7 @@ pub mod chars {
     use ::tauri_bindgen_host::bitflags;
     pub trait Chars: Sized {
         ///A function that accepts a character
-        fn take_char(&mut self, x: char) -> ();
+        fn take_char(&mut self, x: char);
         ///A function that returns a character
         fn return_char(&mut self) -> char;
     }

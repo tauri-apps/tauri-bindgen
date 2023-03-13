@@ -65,13 +65,13 @@ pub mod variants {
         v1: V1<'a>,
     }
     pub trait Variants: Sized {
-        fn e1_arg(&mut self, x: E1) -> ();
+        fn e1_arg(&mut self, x: E1);
         fn e1_result(&mut self) -> E1;
-        fn u1_arg(&mut self, x: U1) -> ();
+        fn u1_arg(&mut self, x: U1);
         fn u1_result(&mut self) -> U1;
-        fn v1_arg(&mut self, x: V1) -> ();
+        fn v1_arg(&mut self, x: V1);
         fn v1_result(&mut self) -> V1<'_>;
-        fn bool_arg(&mut self, x: bool) -> ();
+        fn bool_arg(&mut self, x: bool);
         fn bool_result(&mut self) -> bool;
         fn option_arg(
             &mut self,
@@ -82,7 +82,7 @@ pub mod variants {
             e: Option<f32>,
             f: Option<U1>,
             g: Option<Option<bool>>,
-        ) -> ();
+        );
         fn option_result(
             &mut self,
         ) -> (
@@ -111,7 +111,7 @@ pub mod variants {
             d: Result<(), ()>,
             e: Result<u32, V1>,
             f: Result<String, Vec<u8>>,
-        ) -> ();
+        );
         fn result_result(
             &mut self,
         ) -> (
@@ -129,7 +129,7 @@ pub mod variants {
         fn return_option_sugar(&mut self) -> Option<i32>;
         fn return_option_sugar2(&mut self) -> Option<MyErrno>;
         fn result_simple(&mut self) -> Result<u32, i32>;
-        fn is_clone_arg(&mut self, a: IsClone) -> ();
+        fn is_clone_arg(&mut self, a: IsClone);
         fn is_clone_return(&mut self) -> IsClone<'_>;
         fn return_named_option(&mut self) -> Option<u8>;
         fn return_named_result(&mut self) -> Result<u8, MyErrno>;

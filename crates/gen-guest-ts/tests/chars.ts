@@ -4,7 +4,7 @@
             /**
  * A function that accepts a character 
 */
-            export async function takeChar (x: string) : Promise<[]> {
+            export async function takeChar (x: string)  {
             }
         
             /**

@@ -78,25 +78,25 @@ pub mod variants {
     pub struct IsCloneResult {
         v1: V1Result,
     }
-    pub async fn e1_arg(x: E1) -> () {
+    pub async fn e1_arg(x: E1) {
         todo!()
     }
     pub async fn e1_result() -> E1 {
         todo!()
     }
-    pub async fn u1_arg(x: U1) -> () {
+    pub async fn u1_arg(x: U1) {
         todo!()
     }
     pub async fn u1_result() -> U1 {
         todo!()
     }
-    pub async fn v1_arg(x: V1Param<'_>) -> () {
+    pub async fn v1_arg(x: V1Param<'_>) {
         todo!()
     }
     pub async fn v1_result() -> V1Result {
         todo!()
     }
-    pub async fn bool_arg(x: bool) -> () {
+    pub async fn bool_arg(x: bool) {
         todo!()
     }
     pub async fn bool_result() -> bool {
@@ -110,7 +110,7 @@ pub mod variants {
         e: Option<f32>,
         f: Option<U1>,
         g: Option<Option<bool>>,
-    ) -> () {
+    ) {
         todo!()
     }
     pub async fn option_result() -> (
@@ -141,7 +141,7 @@ pub mod variants {
         d: Result<(), ()>,
         e: Result<u32, V1Param<'_>>,
         f: Result<&'_ str, &'_ [u8]>,
-    ) -> () {
+    ) {
         todo!()
     }
     pub async fn result_result() -> (
@@ -175,7 +175,7 @@ pub mod variants {
     pub async fn result_simple() -> Result<u32, i32> {
         todo!()
     }
-    pub async fn is_clone_arg(a: IsCloneParam<'_>) -> () {
+    pub async fn is_clone_arg(a: IsCloneParam<'_>) {
         todo!()
     }
     pub async fn is_clone_return() -> IsCloneResult {

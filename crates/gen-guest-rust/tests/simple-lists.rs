@@ -3,7 +3,7 @@
 pub mod simple_lists {
     use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
-    pub async fn simple_list1(l: &'_ [u32]) -> () {
+    pub async fn simple_list1(l: &'_ [u32]) {
         todo!()
     }
     pub async fn simple_list2() -> Vec<u32> {

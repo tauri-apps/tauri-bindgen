@@ -3,28 +3,28 @@
 pub mod integers {
     use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
-    pub async fn a1(x: u8) -> () {
+    pub async fn a1(x: u8) {
         todo!()
     }
-    pub async fn a2(x: i8) -> () {
+    pub async fn a2(x: i8) {
         todo!()
     }
-    pub async fn a3(x: u16) -> () {
+    pub async fn a3(x: u16) {
         todo!()
     }
-    pub async fn a4(x: i16) -> () {
+    pub async fn a4(x: i16) {
         todo!()
     }
-    pub async fn a5(x: u32) -> () {
+    pub async fn a5(x: u32) {
         todo!()
     }
-    pub async fn a6(x: i32) -> () {
+    pub async fn a6(x: i32) {
         todo!()
     }
-    pub async fn a7(x: u64) -> () {
+    pub async fn a7(x: u64) {
         todo!()
     }
-    pub async fn a8(x: i64) -> () {
+    pub async fn a8(x: i64) {
         todo!()
     }
     pub async fn a9(
@@ -36,7 +36,7 @@ pub mod integers {
         p6: i32,
         p7: u64,
         p8: i64,
-    ) -> () {
+    ) {
         todo!()
     }
     pub async fn r1() -> u8 {

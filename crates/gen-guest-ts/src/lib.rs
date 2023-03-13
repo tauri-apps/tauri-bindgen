@@ -46,7 +46,11 @@ impl TypeScript {
         let ident = func.ident.to_lower_camel_case();
 
         let params = self.print_function_params(&func.params);
-        let result = func.result.as_ref().map(|result| self.print_function_result(result)).unwrap_or_default();
+        let result = func
+            .result
+            .as_ref()
+            .map(|result| self.print_function_result(result))
+            .unwrap_or_default();
 
         format!(
             r#"
@@ -234,6 +238,39 @@ impl TypeScript {
                     .join(" | ");
 
                 format!("{docs}\nexport type {ident} = {cases};\n")
+            }
+            TypeDefKind::Resource(functions) => {
+                let functions: String = functions
+                    .iter()
+                    .map(|func| {
+                        let docs = print_docs(&func.docs);
+
+                        let ident = func.ident.to_lower_camel_case();
+
+                        let params = self.print_function_params(&func.params);
+                        let result = func
+                            .result
+                            .as_ref()
+                            .map(|result| self.print_function_result(result))
+                            .unwrap_or_default();
+
+                        format!(
+                            r#"
+                        {docs}
+                        async {ident} ({params}) {result} {{
+                        }}
+                    "#
+                        )
+                    })
+                    .collect();
+
+                format!(
+                    "{docs}\nclass {ident} {{
+                    #id: number;
+
+                    {functions}
+                }}"
+                )
             }
         }
     }

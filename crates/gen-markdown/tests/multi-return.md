@@ -15,7 +15,7 @@
 
 ### Function mrb
 
-`func mrb ()`
+`func mrb () -> ()`
 
 
 ### Function mrc

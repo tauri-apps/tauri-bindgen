@@ -3,13 +3,13 @@
 pub mod simple_functions {
     use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
-    pub async fn f1() -> () {
+    pub async fn f1() {
         todo!()
     }
-    pub async fn f2(a: u32) -> () {
+    pub async fn f2(a: u32) {
         todo!()
     }
-    pub async fn f3(a: u32, b: u32) -> () {
+    pub async fn f3(a: u32, b: u32) {
         todo!()
     }
     pub async fn f4() -> u32 {

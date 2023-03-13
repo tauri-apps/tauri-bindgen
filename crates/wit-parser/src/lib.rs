@@ -105,6 +105,7 @@ pub enum TypeDefKind {
     Variant(Vec<VariantCase>),
     Enum(Vec<EnumCase>),
     Union(Vec<UnionCase>),
+    Resource(Vec<Function>),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

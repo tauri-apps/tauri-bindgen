@@ -3,7 +3,7 @@
 pub mod strings {
     use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
-    pub async fn a(x: &'_ str) -> () {
+    pub async fn a(x: &'_ str) {
         todo!()
     }
     pub async fn b() -> String {

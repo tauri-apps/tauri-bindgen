@@ -116,6 +116,50 @@ impl RustGenerator for RustWasm {
     fn default_param_mode(&self) -> BorrowMode {
         BorrowMode::AllBorrowed(parse_quote!('a))
     }
+
+    fn print_resource(
+        &self,
+        docs: &str,
+        ident: &proc_macro2::Ident,
+        functions: &[Function],
+        info: TypeInfo,
+    ) -> TokenStream {
+        let docs = self.print_docs(docs);
+        let additional_attrs = self.additional_attrs(&ident.to_string(), info);
+        let functions = functions.iter().map(|func| {
+            let sig = FnSig {
+                async_: true,
+                unsafe_: false,
+                private: false,
+                self_arg: Some(quote!(&self)),
+                func,
+            };
+
+            let sig = self.print_function_signature(
+                &sig,
+                &BorrowMode::AllBorrowed(parse_quote!('_)),
+                &BorrowMode::Owned,
+            );
+
+            quote! {
+                #sig {
+                    todo!()
+                }
+            }
+        });
+
+        quote! {
+            #docs
+            #additional_attrs
+            struct #ident {
+                id: u64
+            }
+
+            impl #ident {
+                #(#functions)*
+            }
+        }
+    }
 }
 
 impl tauri_bindgen_core::Generate for RustWasm {

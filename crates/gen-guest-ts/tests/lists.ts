@@ -61,43 +61,43 @@ export type LoadStoreAllSizes = [string, number, number, number, number, number,
 
 
             
-            export async function listU8Param (x: Uint8Array[]) : Promise<[]> {
+            export async function listU8Param (x: Uint8Array[])  {
             }
         
             
-            export async function listU16Param (x: Uint16Array[]) : Promise<[]> {
+            export async function listU16Param (x: Uint16Array[])  {
             }
         
             
-            export async function listU32Param (x: Uint32Array[]) : Promise<[]> {
+            export async function listU32Param (x: Uint32Array[])  {
             }
         
             
-            export async function listU64Param (x: BigUint64Array[]) : Promise<[]> {
+            export async function listU64Param (x: BigUint64Array[])  {
             }
         
             
-            export async function listS8Param (x: Int8Array[]) : Promise<[]> {
+            export async function listS8Param (x: Int8Array[])  {
             }
         
             
-            export async function listS16Param (x: Int16Array[]) : Promise<[]> {
+            export async function listS16Param (x: Int16Array[])  {
             }
         
             
-            export async function listS32Param (x: Int32Array[]) : Promise<[]> {
+            export async function listS32Param (x: Int32Array[])  {
             }
         
             
-            export async function listS64Param (x: BigInt64Array[]) : Promise<[]> {
+            export async function listS64Param (x: BigInt64Array[])  {
             }
         
             
-            export async function listFloat32Param (x: Float32Array[]) : Promise<[]> {
+            export async function listFloat32Param (x: Float32Array[])  {
             }
         
             
-            export async function listFloat64Param (x: Float64Array[]) : Promise<[]> {
+            export async function listFloat64Param (x: Float64Array[])  {
             }
         
             
@@ -145,7 +145,7 @@ export type LoadStoreAllSizes = [string, number, number, number, number, number,
             }
         
             
-            export async function stringListArg (a: string[]) : Promise<[]> {
+            export async function stringListArg (a: string[])  {
             }
         
             

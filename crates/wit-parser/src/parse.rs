@@ -59,6 +59,7 @@ pub enum InterfaceItemInner {
     Enum(Vec<EnumCase>),
     Union(Vec<UnionCase>),
     Func(Func),
+    Resource(Vec<Method>),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -95,7 +96,6 @@ pub struct VariantCase {
     pub ty: Option<Type>,
 }
 
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EnumCase {
     pub ident: Span,
@@ -106,6 +106,13 @@ pub struct EnumCase {
 pub struct UnionCase {
     pub docs: Vec<Span>,
     pub ty: Type,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Method {
+    pub ident: Span,
+    pub docs: Vec<Span>,
+    pub inner: Func,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -161,27 +168,52 @@ impl<'a> FromTokens<'a> for InterfaceItem {
 
         let inner = match kind {
             Token::Record => {
-                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace, Some(Token::Comma))?;
+                let inner = parse_list(
+                    tokens,
+                    Token::LeftBrace,
+                    Token::RightBrace,
+                    Some(Token::Comma),
+                )?;
 
                 InterfaceItemInner::Record(inner)
             }
             Token::Enum => {
-                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace, Some(Token::Comma))?;
+                let inner = parse_list(
+                    tokens,
+                    Token::LeftBrace,
+                    Token::RightBrace,
+                    Some(Token::Comma),
+                )?;
 
                 InterfaceItemInner::Enum(inner)
             }
             Token::Flags => {
-                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace, Some(Token::Comma))?;
+                let inner = parse_list(
+                    tokens,
+                    Token::LeftBrace,
+                    Token::RightBrace,
+                    Some(Token::Comma),
+                )?;
 
                 InterfaceItemInner::Flags(inner)
             }
             Token::Variant => {
-                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace, Some(Token::Comma))?;
+                let inner = parse_list(
+                    tokens,
+                    Token::LeftBrace,
+                    Token::RightBrace,
+                    Some(Token::Comma),
+                )?;
 
                 InterfaceItemInner::Variant(inner)
             }
             Token::Union => {
-                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace, Some(Token::Comma))?;
+                let inner = parse_list(
+                    tokens,
+                    Token::LeftBrace,
+                    Token::RightBrace,
+                    Some(Token::Comma),
+                )?;
 
                 InterfaceItemInner::Union(inner)
             }
@@ -195,7 +227,11 @@ impl<'a> FromTokens<'a> for InterfaceItem {
 
                 InterfaceItemInner::Func(inner)
             }
-            Token::Resource => todo!(),
+            Token::Resource => {
+                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace, None)?;
+
+                InterfaceItemInner::Resource(inner)
+            }
             Token::Use => todo!(),
             found => {
                 let suggestions = find_similar(
@@ -239,7 +275,12 @@ impl<'a> FromTokens<'a> for Func {
 
 impl<'a> FromTokens<'a> for NamedTypeList {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
-        parse_list(tokens, Token::LeftParen, Token::RightParen, Some(Token::Comma))
+        parse_list(
+            tokens,
+            Token::LeftParen,
+            Token::RightParen,
+            Some(Token::Comma),
+        )
     }
 }
 
@@ -328,6 +369,18 @@ impl<'a> FromTokens<'a> for UnionCase {
     }
 }
 
+impl<'a> FromTokens<'a> for Method {
+    fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
+        let docs = parse_docs(tokens);
+
+        let _ = tokens.expect(Token::Func)?;
+
+        let (_, ident) = tokens.expect(Token::Ident)?;
+
+        let inner = Func::parse(tokens)?;
+
+        Ok(Method { ident, docs, inner })
+    }
 }
 
 impl<'a> FromTokens<'a> for Type {
@@ -356,7 +409,12 @@ impl<'a> FromTokens<'a> for Type {
                 Ok(Self::List(Box::new(ty)))
             }
             Token::Tuple => {
-                let types = parse_list(tokens, Token::LessThan, Token::GreaterThan, Some(Token::Comma))?;
+                let types = parse_list(
+                    tokens,
+                    Token::LessThan,
+                    Token::GreaterThan,
+                    Some(Token::Comma),
+                )?;
 
                 Ok(Self::Tuple(types))
             }

@@ -16,6 +16,13 @@ pub trait RustGenerator {
     fn infos(&self) -> &TypeInfos;
     fn additional_attrs(&self, ident: &str, info: TypeInfo) -> Option<TokenStream>;
     fn default_param_mode(&self) -> BorrowMode;
+    fn print_resource(
+        &self,
+        docs: &str,
+        ident: &Ident,
+        functions: &[Function],
+        info: TypeInfo,
+    ) -> TokenStream;
 
     fn print_typedefs(
         &self,
@@ -53,6 +60,9 @@ pub trait RustGenerator {
                     TypeDefKind::Enum(cases) => self.print_enum(docs, &ident, cases, info),
                     TypeDefKind::Union(cases) => {
                         self.print_union(docs, &ident, cases, info, &borrow_mode)
+                    }
+                    TypeDefKind::Resource(functions) => {
+                        self.print_resource(docs, &ident, functions, info)
                     }
                 };
 
@@ -376,7 +386,11 @@ pub trait RustGenerator {
 
         let params = self.print_function_params(&sig.func.params, param_mode);
 
-        let result = sig.func.result.as_ref().map(|result| self.print_function_result(result, results_mode));
+        let result = sig
+            .func
+            .result
+            .as_ref()
+            .map(|result| self.print_function_result(result, results_mode));
 
         quote! {
             #docs
@@ -460,6 +474,7 @@ pub trait RustGenerator {
                 TypeDefKind::Variant(_) => "Variant".to_string(),
                 TypeDefKind::Enum(_) => "Enum".to_string(),
                 TypeDefKind::Union(_) => "Union".to_string(),
+                TypeDefKind::Resource(_) => "Resource".to_string(),
             },
         }
     }

@@ -2,15 +2,15 @@
 
 
             
-            export async function f1 () : Promise<[]> {
+            export async function f1 ()  {
             }
         
             
-            export async function f2 (a: number) : Promise<[]> {
+            export async function f2 (a: number)  {
             }
         
             
-            export async function f3 (a: number, b: number) : Promise<[]> {
+            export async function f3 (a: number, b: number)  {
             }
         
             

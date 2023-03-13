@@ -39,15 +39,15 @@ All of the fields are bool*/
     pub type IntTypedef = i32;
     pub type TupleTypedef2 = (IntTypedef,);
     pub trait Records: Sized {
-        fn tuple_arg(&mut self, x: (char, u32)) -> ();
+        fn tuple_arg(&mut self, x: (char, u32));
         fn tuple_result(&mut self) -> (char, u32);
-        fn empty_arg(&mut self, x: Empty) -> ();
+        fn empty_arg(&mut self, x: Empty);
         fn empty_result(&mut self) -> Empty;
-        fn scalar_arg(&mut self, x: Scalars) -> ();
+        fn scalar_arg(&mut self, x: Scalars);
         fn scalar_result(&mut self) -> Scalars;
-        fn flags_arg(&mut self, x: ReallyFlags) -> ();
+        fn flags_arg(&mut self, x: ReallyFlags);
         fn flags_result(&mut self) -> ReallyFlags;
-        fn aggregate_arg(&mut self, x: Aggregates) -> ();
+        fn aggregate_arg(&mut self, x: Aggregates);
         fn aggregate_result(&mut self) -> Aggregates<'_>;
         fn typedef_inout(&mut self, e: TupleTypedef2) -> i32;
     }

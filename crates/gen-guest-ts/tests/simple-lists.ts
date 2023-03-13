@@ -2,7 +2,7 @@
 
 
             
-            export async function simpleList1 (l: Uint32Array[]) : Promise<[]> {
+            export async function simpleList1 (l: Uint32Array[])  {
             }
         
             

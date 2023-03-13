@@ -4,7 +4,7 @@ pub mod multi_return {
     use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
     pub trait MultiReturn: Sized {
-        fn mra(&mut self) -> ();
+        fn mra(&mut self);
         fn mrb(&mut self);
         fn mrc(&mut self) -> u32;
         fn mrd(&mut self) -> u32;
