@@ -7,7 +7,7 @@
 use heck::{ToKebabCase, ToLowerCamelCase, ToUpperCamelCase};
 use std::path::PathBuf;
 use tauri_bindgen_core::{postprocess, Generate, GeneratorBuilder};
-use wit_parser::{Function, Interface, Type, TypeDefId, TypeDefKind};
+use wit_parser::{Function, FunctionResult, Interface, Type, TypeDefId, TypeDefKind};
 
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -45,34 +45,8 @@ impl TypeScript {
 
         let ident = func.ident.to_lower_camel_case();
 
-        let params = func
-            .params
-            .iter()
-            .map(|(ident, ty)| {
-                let ident = ident.to_lower_camel_case();
-                let ty = self.print_type(ty);
-
-                format!("{ident}: {ty}")
-            })
-            .collect::<Vec<_>>()
-            .join(", ");
-
-        let result = match func.result.len() {
-            0 => String::new(),
-            1 => {
-                let ty = self.print_type(func.result.types().next().unwrap());
-                format!(": Promise<{ty}>")
-            }
-            _ => {
-                let tys = func
-                    .result
-                    .types()
-                    .map(|ty| self.print_type(ty))
-                    .collect::<Vec<_>>()
-                    .join(", ");
-                format!(": Promise<[{tys}]>")
-            }
-        };
+        let params = self.print_function_params(&func.params);
+        let result = func.result.as_ref().map(|result| self.print_function_result(result)).unwrap_or_default();
 
         format!(
             r#"
@@ -81,6 +55,37 @@ impl TypeScript {
             }}
         "#
         )
+    }
+
+    fn print_function_params(&self, params: &[(String, Type)]) -> String {
+        params
+            .iter()
+            .map(|(ident, ty)| {
+                let ident = ident.to_lower_camel_case();
+                let ty = self.print_type(ty);
+
+                format!("{ident}: {ty}")
+            })
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
+
+    fn print_function_result(&self, result: &FunctionResult) -> String {
+        match result.len() {
+            0 => String::new(),
+            1 => {
+                let ty = self.print_type(func.result.types().next().unwrap());
+                format!(": Promise<{ty}>")
+            }
+            _ => {
+                let tys = result
+                    .types()
+                    .map(|ty| self.print_type(ty))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                format!(": Promise<[{tys}]>")
+            }
+        }
     }
 
     fn print_type(&self, ty: &Type) -> String {

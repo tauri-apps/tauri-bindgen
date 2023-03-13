@@ -267,22 +267,24 @@ impl<'a> Resolver<'a> {
 
         let params = self.resolve_named_types(&func.params)?;
 
-        let results = match &func.results {
-            parse::FuncResult::Anon(ty) => {
+
+        let result = match &func.result {
+            None => None,
+            Some(parse::FuncResult::Anon(ty)) => {
                 let ty = self.resolve_type(ty)?;
-                FunctionResult::Anon(ty)
-            }
-            parse::FuncResult::Named(types) => {
+                Some(FunctionResult::Anon(ty))
+            },
+            Some(parse::FuncResult::Named(types)) => {
                 let types = self.resolve_named_types(types)?;
-                FunctionResult::Named(types)
-            }
+                Some(FunctionResult::Named(types))
+            },
         };
 
         Ok(Function {
             docs,
             ident,
             params,
-            result: results,
+            result,
         })
     }
 

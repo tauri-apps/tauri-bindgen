@@ -37,7 +37,9 @@ impl GeneratorBuilder for Builder {
 
         for func in &interface.functions {
             infos.collect_param_info(&interface.typedefs, &func.params);
-            infos.collect_result_info(&interface.typedefs, &func.result);
+            if let Some(result) = &func.result {
+                infos.collect_result_info(&interface.typedefs, result);
+            }
         }
 
         for (id, typedef) in &interface.typedefs {

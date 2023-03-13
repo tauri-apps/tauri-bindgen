@@ -192,15 +192,17 @@ pub struct Function {
     pub docs: String,
     pub ident: String,
     pub params: NamedTypeList,
-    pub result: FunctionResult,
+    pub result: Option<FunctionResult>,
 }
 
 impl Function {
     #[must_use]
     pub fn throws(&self) -> bool {
-        self.result
-            .types()
-            .any(|ty| matches!(ty, Type::Result { .. }))
+        if let Some(result) = &self.result {
+            result.types().any(|ty| matches!(ty, Type::Result { .. }))
+        } else {
+            false
+        }
     }
 }
 
@@ -213,11 +215,6 @@ pub enum FunctionResult {
 }
 
 impl FunctionResult {
-    #[must_use]
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-
     #[must_use]
     pub fn len(&self) -> usize {
         match self {

@@ -3,7 +3,7 @@
 use heck::{ToKebabCase, ToLowerCamelCase, ToUpperCamelCase};
 use std::path::PathBuf;
 use tauri_bindgen_core::{postprocess, Generate, GeneratorBuilder};
-use wit_parser::{Function, Interface, Type, TypeDefKind};
+use wit_parser::{Function, FunctionResult, Interface, Type, TypeDefKind};
 
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -36,17 +36,10 @@ pub struct JavaScript {
 }
 
 impl JavaScript {
-    pub fn print_function(&self, func: &Function) -> String {
+    fn print_function(&self, func: &Function) -> String {
         let docs = self.print_docs(func);
-
         let ident = func.ident.to_lower_camel_case();
-
-        let params = func
-            .params
-            .iter()
-            .map(|(name, _)| name.to_lower_camel_case())
-            .collect::<Vec<_>>()
-            .join(", ");
+        let params = self.print_function_params(&func.params);
 
         format!(
             r#"
@@ -75,23 +68,25 @@ impl JavaScript {
             })
             .collect::<String>();
 
-        let result_docs = match func.result.len() {
-            0 => String::new(),
-            1 => {
-                let ty = self.print_ty(func.result.types().next().unwrap());
-                format!("* @returns {{Promise<{ty}>}} \n")
-            }
-            _ => {
-                let types = func
-                    .result
-                    .types()
-                    .map(|ty| self.print_ty(ty))
-                    .collect::<Vec<_>>()
-                    .join(", ");
+        let result_docs = func
+            .result
+            .as_ref()
+            .map(|result| match result {
+                FunctionResult::Anon(ty) => {
+                    let ty = self.print_ty(ty);
+                    format!("* @returns {{Promise<{ty}>}} \n")
+                }
+                FunctionResult::Named(types) => {
+                    let types = types
+                        .iter()
+                        .map(|(_, ty)| self.print_ty(ty))
+                        .collect::<Vec<_>>()
+                        .join(", ");
 
-                format!("* @returns {{Promise<[{types}]>}} \n")
-            }
-        };
+                    format!("* @returns {{Promise<[{types}]>}} \n")
+                }
+            })
+            .unwrap_or_default();
 
         format!("/**\n{docs}{param_docs}{result_docs}*/")
     }
@@ -161,6 +156,14 @@ impl JavaScript {
             | Type::Char
             | Type::String => None,
         }
+    }
+
+    fn print_function_params(&self, params: &[(String, Type)]) -> String {
+        params
+            .iter()
+            .map(|(name, _)| name.to_lower_camel_case())
+            .collect::<Vec<_>>()
+            .join(", ")
     }
 }
 
