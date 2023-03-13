@@ -1,13 +1,17 @@
 #![allow(
     clippy::must_use_candidate,
     clippy::missing_panics_doc,
-    clippy::missing_errors_doc
+    clippy::missing_errors_doc,
+    clippy::unused_self
 )]
 
 use heck::{ToKebabCase, ToLowerCamelCase, ToUpperCamelCase};
 use std::path::PathBuf;
 use tauri_bindgen_core::{postprocess, Generate, GeneratorBuilder};
-use wit_parser::{Function, FunctionResult, Interface, Type, TypeDefId, TypeDefKind};
+use wit_parser::{
+    EnumCase, FlagsField, Function, FunctionResult, Interface, RecordField, Type, TypeDefId,
+    TypeDefKind, UnionCase, VariantCase,
+};
 
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -143,136 +147,148 @@ impl TypeScript {
         let docs = print_docs(&typedef.docs);
 
         match &typedef.kind {
-            TypeDefKind::Alias(ty) => {
-                let ty = self.print_type(ty);
+            TypeDefKind::Alias(ty) => self.print_alias(&docs, ident, ty),
+            TypeDefKind::Record(fields) => self.print_record(&docs, ident, fields),
+            TypeDefKind::Flags(fields) => self.print_flags(&docs, ident, fields),
+            TypeDefKind::Variant(cases) => self.print_variant(&docs, ident, cases),
+            TypeDefKind::Enum(cases) => self.print_enum(&docs, ident, cases),
+            TypeDefKind::Union(cases) => self.print_union(&docs, ident, cases),
+            TypeDefKind::Resource(functions) => self.print_resource(&docs, ident, functions),
+        }
+    }
 
-                format!("{docs}\nexport type {ident} = {ty};\n")
-            }
-            TypeDefKind::Record(fields) => {
-                let fields: String = fields
-                    .iter()
-                    .map(|field| {
-                        let docs = print_docs(&field.docs);
-                        let ident = field.ident.to_lower_camel_case();
-                        let ty = self.print_type(&field.ty);
+    fn print_alias(&self, docs: &str, ident: &str, ty: &Type) -> String {
+        let ty = self.print_type(ty);
 
-                        format!("{docs}\n{ident}: {ty},\n")
+        format!("{docs}\nexport type {ident} = {ty};\n")
+    }
+
+    fn print_record(&self, docs: &str, ident: &str, fields: &[RecordField]) -> String {
+        let fields: String = fields
+            .iter()
+            .map(|field| {
+                let docs = print_docs(&field.docs);
+                let ident = field.ident.to_lower_camel_case();
+                let ty = self.print_type(&field.ty);
+
+                format!("{docs}\n{ident}: {ty},\n")
+            })
+            .collect();
+
+        format!("{docs}\nexport interface {ident} {{ {fields} }}\n")
+    }
+
+    fn print_flags(&self, docs: &str, ident: &str, fields: &[FlagsField]) -> String {
+        let fields: String = fields
+            .iter()
+            .enumerate()
+            .map(|(i, field)| {
+                let docs = print_docs(&field.docs);
+                let ident = field.ident.to_upper_camel_case();
+                let value: u64 = 2 << i;
+
+                format!("{docs}\n{ident} = {value},\n")
+            })
+            .collect();
+
+        format!("{docs}\nexport enum {ident} {{ {fields} }}\n")
+    }
+
+    fn print_variant(&self, docs: &str, ident: &str, cases: &[VariantCase]) -> String {
+        let interfaces: String = cases
+            .iter()
+            .enumerate()
+            .map(|(i, case)| {
+                let docs = print_docs(&case.docs);
+                let case_ident = case.ident.to_upper_camel_case();
+                let value = case
+                    .ty
+                    .as_ref()
+                    .map(|ty| {
+                        let ty = self.print_type(ty);
+                        format!(", value: {ty}")
                     })
-                    .collect();
+                    .unwrap_or_default();
 
-                format!("{docs}\nexport interface {ident} {{ {fields} }}\n")
-            }
-            TypeDefKind::Flags(fields) => {
-                let fields: String = fields
-                    .iter()
-                    .enumerate()
-                    .map(|(i, field)| {
-                        let docs = print_docs(&field.docs);
-                        let ident = field.ident.to_upper_camel_case();
-                        let value: u64 = 2 << i;
+                format!("{docs}\nexport interface {ident}{case_ident} {{ tag: {i}{value} }}\n")
+            })
+            .collect();
 
-                        format!("{docs}\n{ident} = {value},\n")
-                    })
-                    .collect();
+        let cases: String = cases
+            .iter()
+            .map(|case| {
+                let docs = print_docs(&case.docs);
+                let case_ident = case.ident.to_upper_camel_case();
 
-                format!("{docs}\nexport enum {ident} {{ {fields} }}\n")
-            }
-            TypeDefKind::Variant(cases) => {
-                let interfaces: String = cases
-                    .iter()
-                    .enumerate()
-                    .map(|(i, case)| {
-                        let docs = print_docs(&case.docs);
-                        let case_ident = case.ident.to_upper_camel_case();
-                        let value = case
-                            .ty
-                            .as_ref()
-                            .map(|ty| {
-                                let ty = self.print_type(ty);
-                                format!(", value: {ty}")
-                            })
-                            .unwrap_or_default();
+                format!("{docs}\n{ident}{case_ident}")
+            })
+            .collect::<Vec<_>>()
+            .join(" | ");
 
-                        format!(
-                            "{docs}\nexport interface {ident}{case_ident} {{ tag: {i}{value} }}\n"
-                        )
-                    })
-                    .collect();
+        format!("{interfaces}\n{docs}\nexport type {ident} = {cases}\n")
+    }
 
-                let cases: String = cases
-                    .iter()
-                    .map(|case| {
-                        let docs = print_docs(&case.docs);
-                        let case_ident = case.ident.to_upper_camel_case();
+    fn print_enum(&self, docs: &str, ident: &str, cases: &[EnumCase]) -> String {
+        let cases: String = cases
+            .iter()
+            .map(|case| {
+                let docs = print_docs(&case.docs);
+                let ident = case.ident.to_upper_camel_case();
 
-                        format!("{docs}\n{ident}{case_ident}")
-                    })
-                    .collect::<Vec<_>>()
-                    .join(" | ");
+                format!("{docs}\n{ident},\n")
+            })
+            .collect();
 
-                format!("{interfaces}\n{docs}\nexport type {ident} = {cases}\n")
-            }
-            TypeDefKind::Enum(cases) => {
-                let cases: String = cases
-                    .iter()
-                    .map(|case| {
-                        let docs = print_docs(&case.docs);
-                        let ident = case.ident.to_upper_camel_case();
+        format!("{docs}\nexport enum {ident} {{ {cases} }}\n")
+    }
 
-                        format!("{docs}\n{ident},\n")
-                    })
-                    .collect();
+    fn print_union(&self, docs: &str, ident: &str, cases: &[UnionCase]) -> String {
+        let cases: String = cases
+            .iter()
+            .map(|case| {
+                let docs = print_docs(&case.docs);
+                let ty = self.print_type(&case.ty);
 
-                format!("{docs}\nexport enum {ident} {{ {cases} }}\n")
-            }
-            TypeDefKind::Union(cases) => {
-                let cases: String = cases
-                    .iter()
-                    .map(|case| {
-                        let docs = print_docs(&case.docs);
-                        let ty = self.print_type(&case.ty);
+                format!("{docs}\n{ty}\n")
+            })
+            .collect::<Vec<_>>()
+            .join(" | ");
 
-                        format!("{docs}\n{ty}\n")
-                    })
-                    .collect::<Vec<_>>()
-                    .join(" | ");
+        format!("{docs}\nexport type {ident} = {cases};\n")
+    }
 
-                format!("{docs}\nexport type {ident} = {cases};\n")
-            }
-            TypeDefKind::Resource(functions) => {
-                let functions: String = functions
-                    .iter()
-                    .map(|func| {
-                        let docs = print_docs(&func.docs);
+    fn print_resource(&self, docs: &str, ident: &str, functions: &[Function]) -> String {
+        let functions: String = functions
+            .iter()
+            .map(|func| {
+                let docs = print_docs(&func.docs);
 
-                        let ident = func.ident.to_lower_camel_case();
+                let ident = func.ident.to_lower_camel_case();
 
-                        let params = self.print_function_params(&func.params);
-                        let result = func
-                            .result
-                            .as_ref()
-                            .map(|result| self.print_function_result(result))
-                            .unwrap_or_default();
+                let params = self.print_function_params(&func.params);
+                let result = func
+                    .result
+                    .as_ref()
+                    .map(|result| self.print_function_result(result))
+                    .unwrap_or_default();
 
-                        format!(
-                            r#"
+                format!(
+                    r#"
                         {docs}
                         async {ident} ({params}) {result} {{
                         }}
                     "#
-                        )
-                    })
-                    .collect();
+                )
+            })
+            .collect();
 
-                format!(
-                    "{docs}\nclass {ident} {{
+        format!(
+            "{docs}\nclass {ident} {{
                     #id: number;
 
                     {functions}
                 }}"
-                )
-            }
-        }
+        )
     }
 
     fn array_ty(&self, ty: &Type) -> Option<String> {

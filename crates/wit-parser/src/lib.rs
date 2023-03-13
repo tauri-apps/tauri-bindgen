@@ -169,6 +169,11 @@ pub enum FunctionResult {
 
 impl FunctionResult {
     #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    #[must_use]
     pub fn len(&self) -> usize {
         match self {
             FunctionResult::Named(ps) => ps.len(),

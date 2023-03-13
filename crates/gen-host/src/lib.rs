@@ -347,7 +347,7 @@ impl Host {
             }
             Type::Tuple(types) => {
                 for ty in types {
-                    self.extract_resources(ty, resources)
+                    self.extract_resources(ty, resources);
                 }
             }
             Type::Result { ok, err } => {
