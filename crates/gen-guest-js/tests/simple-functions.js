@@ -1,6 +1,5 @@
 
             /**
-* @returns {Promise<[]>} 
 */
             export async function f1 () {
             }
@@ -8,7 +7,6 @@
 
             /**
 * @param {number} a 
-* @returns {Promise<[]>} 
 */
             export async function f2 (a) {
             }
@@ -17,7 +15,6 @@
             /**
 * @param {number} a 
 * @param {number} b 
-* @returns {Promise<[]>} 
 */
             export async function f3 (a, b) {
             }

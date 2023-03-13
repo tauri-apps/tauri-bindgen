@@ -43,10 +43,10 @@ pub mod many_arguments {
         a14: u64,
         a15: u64,
         a16: u64,
-    ) -> () {
+    ) {
         todo!()
     }
-    pub async fn big_argument(x: BigStruct<'_>) -> () {
+    pub async fn big_argument(x: BigStruct<'_>) {
         todo!()
     }
 }

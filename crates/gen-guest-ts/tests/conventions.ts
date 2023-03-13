@@ -8,50 +8,50 @@ iAmGoingExtremelySlow: bigint,
 
 
             
-            export async function kebabCase () : Promise<[]> {
+            export async function kebabCase ()  {
             }
         
             
-            export async function foo (x: LudicrousSpeed) : Promise<[]> {
+            export async function foo (x: LudicrousSpeed)  {
             }
         
             
-            export async function functionWithUnderscores () : Promise<[]> {
+            export async function functionWithUnderscores ()  {
             }
         
             
-            export async function functionWithNoWeirdCharacters () : Promise<[]> {
+            export async function functionWithNoWeirdCharacters ()  {
             }
         
             
-            export async function apple () : Promise<[]> {
+            export async function apple ()  {
             }
         
             
-            export async function applePear () : Promise<[]> {
+            export async function applePear ()  {
             }
         
             
-            export async function applePearGrape () : Promise<[]> {
+            export async function applePearGrape ()  {
             }
         
             
-            export async function a0 () : Promise<[]> {
+            export async function a0 ()  {
             }
         
             
-            export async function isXml () : Promise<[]> {
+            export async function isXml ()  {
             }
         
             
-            export async function explicit () : Promise<[]> {
+            export async function explicit ()  {
             }
         
             
-            export async function explicitSnake () : Promise<[]> {
+            export async function explicitSnake ()  {
             }
         
             
-            export async function bool () : Promise<[]> {
+            export async function bool ()  {
             }
         

@@ -4,9 +4,9 @@ pub mod simple_functions {
     use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
     pub trait SimpleFunctions: Sized {
-        fn f1(&mut self) -> ();
-        fn f2(&mut self, a: u32) -> ();
-        fn f3(&mut self, a: u32, b: u32) -> ();
+        fn f1(&mut self);
+        fn f2(&mut self, a: u32);
+        fn f3(&mut self, a: u32, b: u32);
         fn f4(&mut self) -> u32;
         fn f5(&mut self) -> (u32, u32);
         fn f6(&mut self, a: u32, b: u32, c: u32) -> (u32, u32, u32);

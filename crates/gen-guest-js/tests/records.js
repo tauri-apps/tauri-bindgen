@@ -1,7 +1,6 @@
 
             /**
 * @param {[string, number]} x 
-* @returns {Promise<[]>} 
 */
             export async function tupleArg (x) {
             }
@@ -16,7 +15,6 @@
 
             /**
 * @param {Empty} x 
-* @returns {Promise<[]>} 
 */
             export async function emptyArg (x) {
             }
@@ -31,7 +29,6 @@
 
             /**
 * @param {Scalars} x 
-* @returns {Promise<[]>} 
 */
             export async function scalarArg (x) {
             }
@@ -46,7 +43,6 @@
 
             /**
 * @param {ReallyFlags} x 
-* @returns {Promise<[]>} 
 */
             export async function flagsArg (x) {
             }
@@ -61,7 +57,6 @@
 
             /**
 * @param {Aggregates} x 
-* @returns {Promise<[]>} 
 */
             export async function aggregateArg (x) {
             }

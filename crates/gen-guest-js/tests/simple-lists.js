@@ -1,7 +1,6 @@
 
             /**
 * @param {Uint32Array[]} l 
-* @returns {Promise<[]>} 
 */
             export async function simpleList1 (l) {
             }

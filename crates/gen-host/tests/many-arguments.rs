@@ -45,8 +45,8 @@ pub mod many_arguments {
             a14: u64,
             a15: u64,
             a16: u64,
-        ) -> ();
-        fn big_argument(&mut self, x: BigStruct) -> ();
+        );
+        fn big_argument(&mut self, x: BigStruct);
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,

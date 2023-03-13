@@ -2,7 +2,6 @@
             /**
  * A function that accepts a character 
 * @param {string} x 
-* @returns {Promise<[]>} 
 */
             export async function takeChar (x) {
             }

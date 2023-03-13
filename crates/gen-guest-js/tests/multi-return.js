@@ -1,12 +1,12 @@
 
             /**
-* @returns {Promise<[]>} 
 */
             export async function mra () {
             }
         
 
             /**
+* @returns {Promise<[]>} 
 */
             export async function mrb () {
             }
@@ -20,7 +20,7 @@
         
 
             /**
-* @returns {Promise<number>} 
+* @returns {Promise<[number]>} 
 */
             export async function mrd () {
             }

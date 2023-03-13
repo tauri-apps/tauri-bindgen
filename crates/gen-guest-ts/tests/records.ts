@@ -56,7 +56,7 @@ export type TupleTypedef2 = [IntTypedef];
 
 
             
-            export async function tupleArg (x: [string, number]) : Promise<[]> {
+            export async function tupleArg (x: [string, number])  {
             }
         
             
@@ -64,7 +64,7 @@ export type TupleTypedef2 = [IntTypedef];
             }
         
             
-            export async function emptyArg (x: Empty) : Promise<[]> {
+            export async function emptyArg (x: Empty)  {
             }
         
             
@@ -72,7 +72,7 @@ export type TupleTypedef2 = [IntTypedef];
             }
         
             
-            export async function scalarArg (x: Scalars) : Promise<[]> {
+            export async function scalarArg (x: Scalars)  {
             }
         
             
@@ -80,7 +80,7 @@ export type TupleTypedef2 = [IntTypedef];
             }
         
             
-            export async function flagsArg (x: ReallyFlags) : Promise<[]> {
+            export async function flagsArg (x: ReallyFlags)  {
             }
         
             
@@ -88,7 +88,7 @@ export type TupleTypedef2 = [IntTypedef];
             }
         
             
-            export async function aggregateArg (x: Aggregates) : Promise<[]> {
+            export async function aggregateArg (x: Aggregates)  {
             }
         
             

@@ -2,7 +2,7 @@
 
 
             
-            export async function a (x: string) : Promise<[]> {
+            export async function a (x: string)  {
             }
         
             

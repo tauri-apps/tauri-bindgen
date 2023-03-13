@@ -103,7 +103,7 @@ v1: V1,
 
 
             
-            export async function e1Arg (x: E1) : Promise<[]> {
+            export async function e1Arg (x: E1)  {
             }
         
             
@@ -111,7 +111,7 @@ v1: V1,
             }
         
             
-            export async function u1Arg (x: U1) : Promise<[]> {
+            export async function u1Arg (x: U1)  {
             }
         
             
@@ -119,7 +119,7 @@ v1: V1,
             }
         
             
-            export async function v1Arg (x: V1) : Promise<[]> {
+            export async function v1Arg (x: V1)  {
             }
         
             
@@ -127,7 +127,7 @@ v1: V1,
             }
         
             
-            export async function boolArg (x: boolean) : Promise<[]> {
+            export async function boolArg (x: boolean)  {
             }
         
             
@@ -135,7 +135,7 @@ v1: V1,
             }
         
             
-            export async function optionArg (a: boolean | null, b: [] | null, c: number | null, d: E1 | null, e: number | null, f: U1 | null, g: boolean | null | null) : Promise<[]> {
+            export async function optionArg (a: boolean | null, b: [] | null, c: number | null, d: E1 | null, e: number | null, f: U1 | null, g: boolean | null | null)  {
             }
         
             
@@ -147,7 +147,7 @@ v1: V1,
             }
         
             
-            export async function resultArg (a: Result<_, _>, b: Result<_, E1>, c: Result<E1, _>, d: Result<[], []>, e: Result<number, V1>, f: Result<string, Uint8Array[]>) : Promise<[]> {
+            export async function resultArg (a: Result<_, _>, b: Result<_, E1>, c: Result<E1, _>, d: Result<[], []>, e: Result<number, V1>, f: Result<string, Uint8Array[]>)  {
             }
         
             
@@ -183,7 +183,7 @@ v1: V1,
             }
         
             
-            export async function isCloneArg (a: IsClone) : Promise<[]> {
+            export async function isCloneArg (a: IsClone)  {
             }
         
             

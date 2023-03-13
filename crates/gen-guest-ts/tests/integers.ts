@@ -2,39 +2,39 @@
 
 
             
-            export async function a1 (x: number) : Promise<[]> {
+            export async function a1 (x: number)  {
             }
         
             
-            export async function a2 (x: number) : Promise<[]> {
+            export async function a2 (x: number)  {
             }
         
             
-            export async function a3 (x: number) : Promise<[]> {
+            export async function a3 (x: number)  {
             }
         
             
-            export async function a4 (x: number) : Promise<[]> {
+            export async function a4 (x: number)  {
             }
         
             
-            export async function a5 (x: number) : Promise<[]> {
+            export async function a5 (x: number)  {
             }
         
             
-            export async function a6 (x: number) : Promise<[]> {
+            export async function a6 (x: number)  {
             }
         
             
-            export async function a7 (x: bigint) : Promise<[]> {
+            export async function a7 (x: bigint)  {
             }
         
             
-            export async function a8 (x: bigint) : Promise<[]> {
+            export async function a8 (x: bigint)  {
             }
         
             
-            export async function a9 (p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: bigint, p8: bigint) : Promise<[]> {
+            export async function a9 (p1: number, p2: number, p3: number, p4: number, p5: number, p6: number, p7: bigint, p8: bigint)  {
             }
         
             

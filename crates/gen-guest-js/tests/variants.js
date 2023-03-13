@@ -1,7 +1,6 @@
 
             /**
 * @param {E1} x 
-* @returns {Promise<[]>} 
 */
             export async function e1Arg (x) {
             }
@@ -16,7 +15,6 @@
 
             /**
 * @param {U1} x 
-* @returns {Promise<[]>} 
 */
             export async function u1Arg (x) {
             }
@@ -31,7 +29,6 @@
 
             /**
 * @param {V1} x 
-* @returns {Promise<[]>} 
 */
             export async function v1Arg (x) {
             }
@@ -46,7 +43,6 @@
 
             /**
 * @param {boolean} x 
-* @returns {Promise<[]>} 
 */
             export async function boolArg (x) {
             }
@@ -67,7 +63,6 @@
 * @param {number | null} e 
 * @param {U1 | null} f 
 * @param {boolean | null | null} g 
-* @returns {Promise<[]>} 
 */
             export async function optionArg (a, b, c, d, e, f, g) {
             }
@@ -100,7 +95,6 @@
 * @param {Result<[], []>} d 
 * @param {Result<number, V1>} e 
 * @param {Result<string, Uint8Array[]>} f 
-* @returns {Promise<[]>} 
 */
             export async function resultArg (a, b, c, d, e, f) {
             }
@@ -164,7 +158,6 @@
 
             /**
 * @param {IsClone} a 
-* @returns {Promise<[]>} 
 */
             export async function isCloneArg (a) {
             }
@@ -178,14 +171,14 @@
         
 
             /**
-* @returns {Promise<number | null>} 
+* @returns {Promise<[number | null]>} 
 */
             export async function returnNamedOption () {
             }
         
 
             /**
-* @returns {Promise<Result<number, MyErrno>>} 
+* @returns {Promise<[Result<number, MyErrno>]>} 
 */
             export async function returnNamedResult () {
             }

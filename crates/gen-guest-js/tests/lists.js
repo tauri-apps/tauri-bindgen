@@ -1,7 +1,6 @@
 
             /**
 * @param {Uint8Array[]} x 
-* @returns {Promise<[]>} 
 */
             export async function listU8Param (x) {
             }
@@ -9,7 +8,6 @@
 
             /**
 * @param {Uint16Array[]} x 
-* @returns {Promise<[]>} 
 */
             export async function listU16Param (x) {
             }
@@ -17,7 +15,6 @@
 
             /**
 * @param {Uint32Array[]} x 
-* @returns {Promise<[]>} 
 */
             export async function listU32Param (x) {
             }
@@ -25,7 +22,6 @@
 
             /**
 * @param {BigUint64Array[]} x 
-* @returns {Promise<[]>} 
 */
             export async function listU64Param (x) {
             }
@@ -33,7 +29,6 @@
 
             /**
 * @param {Int8Array[]} x 
-* @returns {Promise<[]>} 
 */
             export async function listS8Param (x) {
             }
@@ -41,7 +36,6 @@
 
             /**
 * @param {Int16Array[]} x 
-* @returns {Promise<[]>} 
 */
             export async function listS16Param (x) {
             }
@@ -49,7 +43,6 @@
 
             /**
 * @param {Int32Array[]} x 
-* @returns {Promise<[]>} 
 */
             export async function listS32Param (x) {
             }
@@ -57,7 +50,6 @@
 
             /**
 * @param {BigInt64Array[]} x 
-* @returns {Promise<[]>} 
 */
             export async function listS64Param (x) {
             }
@@ -65,7 +57,6 @@
 
             /**
 * @param {Float32Array[]} x 
-* @returns {Promise<[]>} 
 */
             export async function listFloat32Param (x) {
             }
@@ -73,7 +64,6 @@
 
             /**
 * @param {Float64Array[]} x 
-* @returns {Promise<[]>} 
 */
             export async function listFloat64Param (x) {
             }
@@ -159,7 +149,6 @@
 
             /**
 * @param {string[]} a 
-* @returns {Promise<[]>} 
 */
             export async function stringListArg (a) {
             }

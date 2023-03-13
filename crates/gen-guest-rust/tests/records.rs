@@ -46,31 +46,31 @@ All of the fields are bool*/
     }
     pub type IntTypedef = i32;
     pub type TupleTypedef2 = (IntTypedef,);
-    pub async fn tuple_arg(x: (char, u32)) -> () {
+    pub async fn tuple_arg(x: (char, u32)) {
         todo!()
     }
     pub async fn tuple_result() -> (char, u32) {
         todo!()
     }
-    pub async fn empty_arg(x: Empty) -> () {
+    pub async fn empty_arg(x: Empty) {
         todo!()
     }
     pub async fn empty_result() -> Empty {
         todo!()
     }
-    pub async fn scalar_arg(x: Scalars) -> () {
+    pub async fn scalar_arg(x: Scalars) {
         todo!()
     }
     pub async fn scalar_result() -> Scalars {
         todo!()
     }
-    pub async fn flags_arg(x: ReallyFlags) -> () {
+    pub async fn flags_arg(x: ReallyFlags) {
         todo!()
     }
     pub async fn flags_result() -> ReallyFlags {
         todo!()
     }
-    pub async fn aggregate_arg(x: AggregatesParam<'_>) -> () {
+    pub async fn aggregate_arg(x: AggregatesParam<'_>) {
         todo!()
     }
     pub async fn aggregate_result() -> AggregatesResult {

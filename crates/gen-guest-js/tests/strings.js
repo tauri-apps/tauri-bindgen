@@ -1,7 +1,6 @@
 
             /**
 * @param {string} x 
-* @returns {Promise<[]>} 
 */
             export async function a (x) {
             }
