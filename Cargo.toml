@@ -54,5 +54,5 @@ unstable = ["dep:tauri-bindgen-gen-host", "dep:tauri-bindgen-gen-markdown", "dep
 panic = "abort" 
 codegen-units = 1
 lto = true
-opt-level = "s"
+opt-level = "z"
 strip = true
