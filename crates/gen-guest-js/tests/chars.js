@@ -6,7 +6,6 @@
             export async function takeChar (x) {
             }
         
-
             /**
  * A function that returns a character 
 * @returns {Promise<string>} 

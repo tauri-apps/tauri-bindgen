@@ -146,6 +146,7 @@ impl Token {
         Token::Type,
         Token::Union,
         Token::Variant,
+        Token::Resource,
     ];
     pub const TYPE_KEYWORD: [Token; 18] = [
         Token::U8,

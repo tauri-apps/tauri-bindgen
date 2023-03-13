@@ -59,6 +59,7 @@ pub enum InterfaceItemInner {
     Enum(Vec<EnumCase>),
     Union(Vec<UnionCase>),
     Func(Func),
+    Resource(Vec<Method>),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -105,6 +106,13 @@ pub struct EnumCase {
 pub struct UnionCase {
     pub docs: Vec<Span>,
     pub ty: Type,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Method {
+    pub ident: Span,
+    pub docs: Vec<Span>,
+    pub inner: Func,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -219,7 +227,11 @@ impl<'a> FromTokens<'a> for InterfaceItem {
 
                 InterfaceItemInner::Func(inner)
             }
-            Token::Resource => todo!(),
+            Token::Resource => {
+                let inner = parse_list(tokens, Token::LeftBrace, Token::RightBrace, None)?;
+
+                InterfaceItemInner::Resource(inner)
+            }
             Token::Use => todo!(),
             found => {
                 let suggestions = find_similar(
@@ -354,6 +366,20 @@ impl<'a> FromTokens<'a> for UnionCase {
         let ty = Type::parse(tokens)?;
 
         Ok(UnionCase { docs, ty })
+    }
+}
+
+impl<'a> FromTokens<'a> for Method {
+    fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
+        let docs = parse_docs(tokens);
+
+        let _ = tokens.expect(Token::Func)?;
+
+        let (_, ident) = tokens.expect(Token::Ident)?;
+
+        let inner = Func::parse(tokens)?;
+
+        Ok(Method { ident, docs, inner })
     }
 }
 

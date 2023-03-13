@@ -158,6 +158,14 @@ impl<'a> Resolver<'a> {
 
                 TypeDefKind::Union(inner)
             }
+            parse::InterfaceItemInner::Resource(methods) => {
+                let functions = methods
+                    .iter()
+                    .map(|method| self.resolve_func(&method.docs, &method.ident, &method.inner))
+                    .partition_result::<_, Error>()?;
+
+                TypeDefKind::Resource(functions)
+            }
             parse::InterfaceItemInner::Func(_) => unreachable!(),
         };
 

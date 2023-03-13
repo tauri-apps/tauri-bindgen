@@ -1,0 +1,17 @@
+interface resources {
+  resource a {
+    func f1()
+    func f2(a: u32)
+    func f3(a: u32, b: u32)
+  }
+
+  resource b {
+    func f1() -> a
+
+    func f2(x: a) -> result<u32>
+    func f3(x: option<list<a>>) -> result<a>
+  }
+
+  func constructor_a () -> a
+  func constructor_b () -> b
+}

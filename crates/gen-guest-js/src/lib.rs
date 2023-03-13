@@ -1,4 +1,4 @@
-#![allow(clippy::must_use_candidate)]
+#![allow(clippy::must_use_candidate, clippy::unused_self)]
 
 use heck::{ToKebabCase, ToLowerCamelCase, ToUpperCamelCase};
 use std::path::PathBuf;
@@ -47,6 +47,33 @@ impl JavaScript {
             export async function {ident} ({params}) {{
             }}
         "#
+        )
+    }
+
+    fn print_resource(&self, docs: &str, ident: &str, functions: &[Function]) -> String {
+        let functions: String = functions
+            .iter()
+            .map(|func| {
+                let docs = self.print_docs(func);
+                let ident = func.ident.to_lower_camel_case();
+                let params = print_function_params(&func.params);
+
+                format!(
+                    r#"
+                {docs}
+                async {ident} ({params}) {{
+                }}
+            "#
+                )
+            })
+            .collect();
+
+        format!(
+            "{docs}\nclass {ident} {{
+            #id: number;
+    
+            {functions}
+        }}"
         )
     }
 
@@ -161,13 +188,26 @@ impl JavaScript {
 
 impl Generate for JavaScript {
     fn to_file(&self) -> (std::path::PathBuf, String) {
-        let mut contents = self
+        let functions: String = self
             .interface
             .functions
             .iter()
             .map(|func| self.print_function(func))
-            .collect::<Vec<_>>()
-            .join("\n");
+            .collect();
+        let resources: String = self
+            .interface
+            .typedefs
+            .iter()
+            .filter_map(|(_, typedef)| {
+                if let TypeDefKind::Resource(functions) = &typedef.kind {
+                    Some(self.print_resource(&typedef.docs, &typedef.ident, functions))
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        let mut contents = format!("{functions}\n{resources}");
 
         if self.opts.prettier {
             postprocess(&mut contents, "prettier", ["--parser=babel"])
