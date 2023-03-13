@@ -9,6 +9,36 @@ pub enum Error {
     IoError(#[from] std::io::Error),
     #[error("unexpected end of file")]
     UnexpectedEof,
+    /// Bidirectional override codepoints can be used to craft source code that
+    /// appears to have a different meaning than its actual meaning. See
+    /// [CVE-2021-42574] for background and motivation.
+    ///
+    /// [CVE-2021-42574]: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-42574
+    #[error("bidirectional override codepoints are not allowed")]
+    BidirectionalOverrideCodepoint {
+        #[label("this bidirectional override codepoint is not allowed")]
+        location: usize,
+    },
+    /// Disallow several characters which are deprecated or discouraged in Unicode.
+    ///
+    /// U+149 deprecated; see Unicode 13.0.0, sec. 7.1 Latin, Compatibility Digraphs.
+    /// U+673 deprecated; see Unicode 13.0.0, sec. 9.2 Arabic, Additional Vowel Marks.
+    /// U+F77 and U+F79 deprecated; see Unicode 13.0.0, sec. 13.4 Tibetan, Vowels.
+    /// U+17A3 and U+17A4 deprecated, and U+17B4 and U+17B5 discouraged; see
+    /// Unicode 13.0.0, sec. 16.4 Khmer, Characters Whose Use Is Discouraged.
+    #[error("codepoint is discouraged by Unicode")]
+    DeprecatedCodepoint {
+        #[label("use of this codepoint is discouraged by Unicode")]
+        location: usize,
+    },
+    /// Disallow control codes other than the ones explicitly recognized above,
+    /// so that viewing a wit file on a terminal doesn't have surprising side
+    /// effects or appear to have a different meaning than its actual meaning.
+    #[error("control codes are not allowed")]
+    ControlCode {
+        #[label("use of this codepoint is discouraged by Unicode")]
+        location: usize,
+    },
     #[error("expected {}, but found {found}", print_list(expected))]
     #[diagnostic(code(wit_parser::unexpected_token))]
     UnexpectedToken {
@@ -140,6 +170,27 @@ impl Error {
     pub fn unused_type(loc: impl Into<Span>) -> Self {
         Self::UnusedType {
             location: loc.into(),
+        }
+    }
+
+    #[must_use]
+    pub fn bidirectional_override_codepoint(pos: usize) -> Self {
+        Self::BidirectionalOverrideCodepoint {
+            location: pos,
+        }
+    }
+
+    #[must_use]
+    pub fn deprecated_codepoint(pos: usize) -> Self {
+        Self::DeprecatedCodepoint {
+            location: pos,
+        }
+    }
+
+    #[must_use]
+    pub fn control_code(pos: usize) -> Self {
+        Self::ControlCode {
+            location: pos,
         }
     }
 }

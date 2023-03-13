@@ -19,7 +19,7 @@ where
     B: GeneratorBuilder + Default,
 {
     let input = syn::parse_macro_input!(input as Opts<F, B>);
-    let iface = wit_parser::parse_file(&input.file, |t| input.skip.contains(t)).unwrap();
+    let iface = wit_parser::parse_and_resolve_file(&input.file, |t| input.skip.contains(t)).unwrap();
 
     let gen = input.builder.build(iface);
     let mut tokens = gen.to_tokens();

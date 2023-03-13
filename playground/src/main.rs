@@ -17,7 +17,7 @@ fn main() {
     let on_change = Closure::wrap(Box::new(|value: JsValue| {
         let source = value.as_string().unwrap();
 
-        let parse_res = wit_parser::parse_str(&source, |_| false)
+        let parse_res = wit_parser::parse_and_resolve_str(&source, |_| false)
             .map_err(|err| err.with_source_code(NamedSource::new("input", source)));
 
         log::debug!("value: {:?}", parse_res);
