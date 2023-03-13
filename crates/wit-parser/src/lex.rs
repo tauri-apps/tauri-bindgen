@@ -138,7 +138,7 @@ pub enum Token {
 }
 
 impl Token {
-    pub const IFACE_ITEM_KEYWORD: [Token; 7] = [
+    pub const IFACE_ITEM_KEYWORD: [Token; 8] = [
         Token::Enum,
         Token::Flags,
         Token::Func,
