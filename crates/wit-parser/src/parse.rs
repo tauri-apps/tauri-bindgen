@@ -59,6 +59,80 @@ pub enum InterfaceItemInner {
     Enum(Vec<EnumCase>),
     Union(Vec<UnionCase>),
     Func(Func),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Func {
+    pub params: NamedTypeList,
+    pub result: Option<FuncResult>,
+}
+
+pub type NamedTypeList = Vec<(Span, Type)>;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FuncResult {
+    Anon(Type),
+    Named(NamedTypeList),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecordField {
+    pub ident: Span,
+    pub docs: Vec<Span>,
+    pub ty: Type,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FlagsField {
+    pub ident: Span,
+    pub docs: Vec<Span>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct VariantCase {
+    pub ident: Span,
+    pub docs: Vec<Span>,
+    pub ty: Option<Type>,
+}
+
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EnumCase {
+    pub ident: Span,
+    pub docs: Vec<Span>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UnionCase {
+    pub docs: Vec<Span>,
+    pub ty: Type,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Type {
+    Bool,
+    U8,
+    U16,
+    U32,
+    U64,
+    S8,
+    S16,
+    S32,
+    S64,
+    Float32,
+    Float64,
+    Char,
+    String,
+    List(Box<Type>),
+    Tuple(Vec<Type>),
+    Option(Box<Type>),
+    Result {
+        ok: Option<Box<Type>>,
+        err: Option<Box<Type>>,
+    },
+    Id(Span),
+}
+
 impl<'a> FromTokens<'a> for Interface {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = parse_docs(tokens);
@@ -149,12 +223,6 @@ impl<'a> FromTokens<'a> for InterfaceItem {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Func {
-    pub params: NamedTypeList,
-    pub results: FuncResult,
-}
-
 impl<'a> FromTokens<'a> for Func {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let params = NamedTypeList::parse(tokens)?;
@@ -168,8 +236,6 @@ impl<'a> FromTokens<'a> for Func {
         Ok(Func { params, results })
     }
 }
-
-pub type NamedTypeList = Vec<(Span, Type)>;
 
 impl<'a> FromTokens<'a> for NamedTypeList {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
@@ -189,12 +255,6 @@ impl<'a> FromTokens<'a> for (Span, Type) {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum FuncResult {
-    Anon(Type),
-    Named(NamedTypeList),
-}
-
 impl<'a> FromTokens<'a> for FuncResult {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         if let Some((Token::LeftParen, _)) = tokens.peek() {
@@ -203,13 +263,6 @@ impl<'a> FromTokens<'a> for FuncResult {
             Ok(FuncResult::Anon(Type::parse(tokens)?))
         }
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RecordField {
-    pub ident: Span,
-    pub docs: Vec<Span>,
-    pub ty: Type,
 }
 
 impl<'a> FromTokens<'a> for RecordField {
@@ -226,12 +279,6 @@ impl<'a> FromTokens<'a> for RecordField {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct FlagsField {
-    pub ident: Span,
-    pub docs: Vec<Span>,
-}
-
 impl<'a> FromTokens<'a> for FlagsField {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = parse_docs(tokens);
@@ -240,13 +287,6 @@ impl<'a> FromTokens<'a> for FlagsField {
 
         Ok(FlagsField { ident, docs })
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct VariantCase {
-    pub ident: Span,
-    pub docs: Vec<Span>,
-    pub ty: Option<Type>,
 }
 
 impl<'a> FromTokens<'a> for VariantCase {
@@ -268,12 +308,6 @@ impl<'a> FromTokens<'a> for VariantCase {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct EnumCase {
-    pub ident: Span,
-    pub docs: Vec<Span>,
-}
-
 impl<'a> FromTokens<'a> for EnumCase {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = parse_docs(tokens);
@@ -282,12 +316,6 @@ impl<'a> FromTokens<'a> for EnumCase {
 
         Ok(EnumCase { ident, docs })
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct UnionCase {
-    pub docs: Vec<Span>,
-    pub ty: Type,
 }
 
 impl<'a> FromTokens<'a> for UnionCase {
@@ -300,29 +328,6 @@ impl<'a> FromTokens<'a> for UnionCase {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Type {
-    Bool,
-    U8,
-    U16,
-    U32,
-    U64,
-    S8,
-    S16,
-    S32,
-    S64,
-    Float32,
-    Float64,
-    Char,
-    String,
-    List(Box<Type>),
-    Tuple(Vec<Type>),
-    Option(Box<Type>),
-    Result {
-        ok: Option<Box<Type>>,
-        err: Option<Box<Type>>,
-    },
-    Id(Span),
 }
 
 impl<'a> FromTokens<'a> for Type {
