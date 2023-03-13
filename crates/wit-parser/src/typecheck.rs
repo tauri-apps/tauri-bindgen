@@ -156,7 +156,7 @@ impl<'a> Resolver<'a> {
                     })
                     .partition_result::<_, Error>()?;
 
-                TypeDefKind::Union(res?)
+                TypeDefKind::Union(inner)
             }
             parse::InterfaceItemInner::Func(_) => unreachable!(),
         };
