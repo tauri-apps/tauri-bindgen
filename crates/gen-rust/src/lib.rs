@@ -655,7 +655,7 @@ pub struct TypeVariant {
 // }
 
 bitflags::bitflags! {
-    #[derive(Default)]
+    #[derive(Debug, Clone, Copy)]
     pub struct TypeInfo: u32 {
         /// Whether or not this type is ever used (transitively) within the
         /// parameter of a function.
