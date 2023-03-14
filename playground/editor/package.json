@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test": "mocha test/test.js",
-    "build": "rollup -c"
+    "prepare": "rollup -c"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.1.4",
