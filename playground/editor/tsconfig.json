@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "es6",
+    "module": "es2020",
+    "newLine": "lf",
+    "moduleResolution": "node"
+  },
+  "include": ["src/*.ts"]
+}

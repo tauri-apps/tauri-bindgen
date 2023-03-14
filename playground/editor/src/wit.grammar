@@ -1,0 +1,125 @@
+@top Program { Interface }
+
+commaSep<expr> { commaSep1<expr>? }
+
+commaSep1<expr> { expr ("," expr?)* }
+
+@skip { whitespace | LineComment | BlockComment }
+
+@skip {} {
+  BlockComment { "/*" (BlockComment | blockCommentContent)* blockCommentEnd }
+}
+
+Interface {
+  "interface" Identifier "{" (InterfaceItem)* "}"
+}
+
+InterfaceItem {
+  Alias |
+  Record |
+  Flags |
+  Variant |
+  Enum |
+  Union |
+  Resource |
+  Function
+}
+
+Alias {
+  "type" Identifier "=" Type
+}
+
+Record {
+  "record" Identifier "{" commaSep<NamedType> "}"
+}
+
+Flags {
+  "flags" Identifier "{" commaSep<Identifier> "}"
+}
+
+Variant {
+  "variant" Identifier "{" commaSep<VariantCase> "}"
+}
+
+VariantCase {
+  Identifier ("(" Type ")")?
+}
+
+Enum {
+  "enum" Identifier "{" commaSep<Identifier> "}"
+}
+
+Union {
+  "union" Identifier "{" commaSep<Type> "}"
+}
+
+Resource {
+  "resource" Identifier "{" (Function)* "}"
+}
+
+Function {
+  "func" Identifier "(" commaSep<NamedType> ")" ("->" FunctionResult)?
+}
+
+FunctionResult {
+  Type |
+  "(" commaSep<NamedType> ")"
+}
+
+NamedType {
+  Identifier ":" Type
+}
+
+Type {
+  "u8" |
+  "u16" |
+  "u32" |
+  "u64" |
+  "s8" |
+  "s16" |
+  "s32" |
+  "s64" |
+  "float32" |
+  "float64" |
+  "char" |
+  "string" |
+  "list" "<" Type ">" |
+  "tuple" "<" commaSep<Type> ">" |
+  "option" "<" Type ">" |
+  "result" "<" Type "," Type ">" |
+  "result" "<" "_" "," Type ">"
+  "result" "<" Type ">"
+  Identifier
+}
+
+@tokens {
+  whitespace { $[ \t\n\f]+ }
+
+  LineComment { 
+    "//" ![\n]* |
+    "///" ![\n]*
+  }
+
+  blockCommentContent { ![*/] blockCommentContent? | "*" blockCommentStar | "/" blockCommentSlash }
+  blockCommentStar { ![/*] blockCommentContent | "*" blockCommentStar }
+  blockCommentSlash { ![/*] blockCommentContent | "/" blockCommentSlash }
+
+  blockCommentEnd { ![*/] blockCommentEnd | "*" blockCommentEndStar | "/" blockCommentEndSlash }
+  blockCommentEndStar { "/" | ![/*] blockCommentEnd | "*" blockCommentEndStar }
+  blockCommentEndSlash { ![/*] blockCommentEnd | "/" blockCommentSlash }
+
+  @precedence { blockCommentEnd, blockCommentContent }
+
+  IdentBase { $[a-zA-Zα-ωΑ-Ωµ0-9_]+ }
+  Identifier { ("%")? IdentBase }
+
+  "u8" "u16" "u32" "u64" "s8" "s16" "s32" "s64" "float32" "float64" "char" "string" "list" "tuple" "option" "result"
+  "(" ")"
+  "<" ">"
+  "{" "}"
+  "="
+  "->" ":" "_" ","
+  "interface" "type" "record" "flags" "variant" "enum" "union" "resource" "func"
+}
+
+@detectDelim

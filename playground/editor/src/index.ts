@@ -2,6 +2,7 @@ import { EditorView, basicSetup } from "codemirror"
 import { javascript } from "@codemirror/lang-javascript"
 import { rust } from "@codemirror/lang-rust"
 import { EditorState } from "@codemirror/state"
+import { wit } from './wit'
 
 const default_content = `interface greet {
     func greet(name: string) -> string
@@ -30,7 +31,7 @@ const outputs = {
     }),
 }
 
-export function updateOutput(id: string, data: string) {
+export function updateOutput(id: 'errors' | 'host' | 'guest-rust' | 'guest-js' | 'guest-ts', data: string) {
     outputs[id].dispatch({
         changes: {
             from: 0,
@@ -43,7 +44,7 @@ export function updateOutput(id: string, data: string) {
 export function setup(onChange: (data: string) => void) {
     const input = new EditorView({
         parent: document.getElementById('input')!,
-        extensions: [basicSetup, EditorView.updateListener.of((v) => {
+        extensions: [basicSetup, wit(), EditorView.updateListener.of((v) => {
             if (v.docChanged) {
                 console.log(v.state.doc.toString())
 

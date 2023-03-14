@@ -3,7 +3,7 @@ use tauri_bindgen_core::GeneratorBuilder;
 use wasm_bindgen::prelude::*;
 use wit_parser::Interface;
 
-#[wasm_bindgen(module = "/editor/dist/index.mjs")]
+#[wasm_bindgen(module = "/editor/dist/index.js")]
 extern "C" {
     fn setup(on_change: &Closure<dyn FnMut(JsValue)>);
     #[wasm_bindgen(js_name = "updateOutput")]
