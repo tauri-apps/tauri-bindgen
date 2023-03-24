@@ -18,6 +18,6 @@
     "@rollup/plugin-node-resolve": "^15.0.1",
     "rollup": "^2.60.2",
     "rollup-plugin-ts": "^3.0.2",
-    "typescript": "^4.3.4"
+    "typescript": "^5.0.0"
   }
 }
