@@ -10,6 +10,8 @@ use std::{
     time::Instant,
 };
 use tauri_bindgen_core::GeneratorBuilder;
+#[cfg(feature = "unstable")]
+use tauri_bindgen_gen_guest_dart::Dart;
 
 /// Helper for passing VERSION to opt.
 /// If `CARGO_VERSION_INFO` is set, use it, otherwise use `CARGO_PKG_VERSION`.
@@ -83,6 +85,13 @@ enum GuestGenerator {
         #[clap(flatten)]
         world: WorldOpt,
     },
+    /// Generates bindings for Dart guest modules.
+    Dart {
+        #[clap(flatten)]
+        builder: tauri_bindgen_gen_guest_dart::Builder,
+        #[clap(flatten)]
+        world: WorldOpt,
+    },
 }
 
 #[derive(Debug, Parser)]
@@ -145,6 +154,16 @@ fn run() -> Result<()> {
             let (path, contents) = gen_interface(builder, world)?;
 
             write_file(&out_dir, &path, &contents)?;
+        }
+        #[cfg(feature = "unstable")]
+        Command::Guest(GuestGenerator::Dart { builder, world, .. }) => {
+            let (path, contents) = gen_interface(builder, world)?;
+
+            write_file(&out_dir, &path, &contents)?;
+            match Dart::postprocess("dart", ["format", path.as_os_str().to_str().unwrap(), "--fix"]) {
+                Ok(()) => println!("Completed succesfully."),
+                Err(e) => println!("Formatting failed with message: {}.", e),
+            }
         }
         #[cfg(feature = "unstable")]
         Command::Markdown { builder, world } => {
