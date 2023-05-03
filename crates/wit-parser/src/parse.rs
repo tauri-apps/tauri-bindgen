@@ -373,7 +373,7 @@ impl<'a> FromTokens<'a> for Method {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let docs = parse_docs(tokens);
 
-        let _ = tokens.expect(Token::Func)?;
+        tokens.expect(Token::Func)?;
 
         let (_, ident) = tokens.expect(Token::Ident)?;
 
