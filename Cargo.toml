@@ -24,6 +24,7 @@ tauri-bindgen-core = { path = "crates/core" }
 tauri-bindgen-gen-host = { path = "crates/gen-host", features = ['cli'] }
 tauri-bindgen-gen-markdown = { path = "crates/gen-markdown", features = ['cli'] }
 tauri-bindgen-gen-guest-rust = { path = "crates/gen-guest-rust", features = ['cli'] }
+tauri-bindgen-gen-guest-dart = { path = "crates/gen-guest-dart", features = ['cli'] }
 tauri-bindgen-gen-guest-ts = { path = "crates/gen-guest-ts", features = ['cli'] }
 tauri-bindgen-gen-guest-js = { path = "crates/gen-guest-js", features = ['cli'] }
 wit-parser = { path = "crates/wit-parser" }
@@ -42,16 +43,17 @@ tauri-bindgen-gen-markdown = { workspace = true, optional = true }
 tauri-bindgen-gen-guest-rust  = { workspace = true, optional = true }
 tauri-bindgen-gen-guest-ts.workspace = true
 tauri-bindgen-gen-guest-js = { workspace = true, optional = true }
+tauri-bindgen-gen-guest-dart = { workspace = true, optional = true }
 wit-parser.workspace = true
 miette.workspace = true
 env_logger = "0.10.0"
 log.workspace = true
 
 [features]
-unstable = ["dep:tauri-bindgen-gen-host", "dep:tauri-bindgen-gen-markdown", "dep:tauri-bindgen-gen-guest-rust", "dep:tauri-bindgen-gen-guest-js"]
+unstable = ["dep:tauri-bindgen-gen-host", "dep:tauri-bindgen-gen-markdown", "dep:tauri-bindgen-gen-guest-rust", "dep:tauri-bindgen-gen-guest-js", "dep:tauri-bindgen-gen-guest-dart"]
 
 [profile.release]
-panic = "abort" 
+panic = "abort"
 codegen-units = 1
 lto = true
 opt-level = "z"
