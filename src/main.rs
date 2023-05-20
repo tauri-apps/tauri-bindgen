@@ -83,6 +83,13 @@ enum GuestGenerator {
         #[clap(flatten)]
         world: WorldOpt,
     },
+    /// Generates bindings for Elm guest modules.
+    Elm {
+        #[clap(flatten)]
+        builder: tauri_bindgen_gen_guest_elm::Builder,
+        #[clap(flatten)]
+        world: WorldOpt,
+    },
 }
 
 #[derive(Debug, Parser)]
@@ -142,6 +149,12 @@ fn run() -> Result<()> {
         }
         #[cfg(feature = "unstable")]
         Command::Guest(GuestGenerator::Typescript { builder, world, .. }) => {
+            let (path, contents) = gen_interface(builder, world)?;
+
+            write_file(&out_dir, &path, &contents)?;
+        }
+        #[cfg(feature = "unstable")]
+        Command::Guest(GuestGenerator::Elm { builder, world, .. }) => {
             let (path, contents) = gen_interface(builder, world)?;
 
             write_file(&out_dir, &path, &contents)?;
