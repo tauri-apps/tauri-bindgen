@@ -20,6 +20,7 @@ tauri = { version = "1.2.4", features = ["api-all"] }
 tauri-bindgen-host = { path = "../../../crates/host" }
 tracing-subscriber = "0.3.16"
 tracing = "0.1.37"
+anyhow = "1.0.71"
 
 [features]
 # by default Tauri runs in production mode

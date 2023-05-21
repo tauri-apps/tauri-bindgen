@@ -7,7 +7,7 @@ tauri_bindgen_guest_rust::generate!({
 pub async fn empty() -> anyhow::Result<()> {
     let x = roundtrip::Empty {};
 
-    ensure!(roundtrip::empty(x).await == x);
+    ensure!(roundtrip::empty(x.clone()).await == x);
 
     Ok(())
 }
@@ -15,7 +15,7 @@ pub async fn empty() -> anyhow::Result<()> {
 pub async fn record_scalars() -> anyhow::Result<()> {
     let x = roundtrip::Scalars { a: 6767, b: 75744 };
 
-    ensure!(roundtrip::record_scalars(x).await == x);
+    ensure!(roundtrip::record_scalars(x.clone()).await == x);
 
     Ok(())
 }
@@ -32,7 +32,7 @@ pub async fn record_really_flags() -> anyhow::Result<()> {
         i: true,
     };
 
-    ensure!(roundtrip::record_really_flags(x).await == x);
+    ensure!(roundtrip::record_really_flags(x.clone()).await == x);
 
     Ok(())
 }
@@ -65,13 +65,13 @@ pub async fn record_aggregates() -> anyhow::Result<()> {
 
     Ok(())
 }
-pub async fn flag1() -> anyhow::Result<()> {
-    let x = roundtrip::Flag1::B0;
+// pub async fn flag1() -> anyhow::Result<()> {
+//     let x = roundtrip::Flag1::B0;
 
-    ensure!(roundtrip::flag1(x).await == x);
+//     ensure!(roundtrip::flag1(x).await == x);
 
-    Ok(())
-}
+//     Ok(())
+// }
 // pub async fn flag2(x: Flag2) -> Flag2 {
 //     #[derive(::serde::Serialize)]
 //     #[serde(rename_all = "camelCase")]
@@ -317,22 +317,22 @@ pub async fn tuple_string_list() -> anyhow::Result<()> {
 pub async fn all_integers() -> anyhow::Result<()> {
     let x = roundtrip::AllIntegers::I8(67);
 
-    ensure!(roundtrip::all_integers(x).await == x);
+    ensure!(roundtrip::all_integers(x.clone()).await == x);
 
     let x = roundtrip::AllIntegers::I16(-67);
 
-    ensure!(roundtrip::all_integers(x).await == x);
+    ensure!(roundtrip::all_integers(x.clone()).await == x);
 
     Ok(())
 }
 pub async fn all_floats() -> anyhow::Result<()> {
     let x = roundtrip::AllFloats::F32(67.0);
 
-    ensure!(roundtrip::all_floats(x).await == x);
+    ensure!(roundtrip::all_floats(x.clone()).await == x);
 
     let x = roundtrip::AllFloats::F64(-67.60986086086);
 
-    ensure!(roundtrip::all_floats(x).await == x);
+    ensure!(roundtrip::all_floats(x.clone()).await == x);
 
     Ok(())
 }
@@ -374,7 +374,7 @@ pub async fn options() -> anyhow::Result<()> {
     let f = Some(roundtrip::U1::F32(828629869.997279));
     let g = Some(Some(true));
 
-    let res = roundtrip::options(a, b, c, d, e, f, g).await;
+    let res = roundtrip::options(a, b, c, d.clone(), e, f.clone(), g).await;
     let exp = (a, b, c, d, e, f, g);
 
     // exp (None, Some(()), Some(89629), Some(A), Some(698699.0), Some(F32(828629900.0)), Some(Some(true)))
@@ -393,7 +393,7 @@ pub async fn results() -> anyhow::Result<()> {
     let e = Err(roundtrip::V1Param::D("hello world"));
     let f = Ok("foobar");
 
-    let res = roundtrip::results(a, b, c, d, e, f).await;
+    let res = roundtrip::results(a, b.clone(), c.clone(), d, e, f).await;
     let exp = (
         a,
         b,

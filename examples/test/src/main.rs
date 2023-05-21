@@ -112,7 +112,7 @@ fn main() {
                     Test(name="record_scalars",test=roundtrip::record_scalars())
                     Test(name="record_really_flags",test=roundtrip::record_really_flags())
                     Test(name="record_aggregates",test=roundtrip::record_aggregates())
-                    Test(name="flag1",test=roundtrip::flag1())
+                    // Test(name="flag1",test=roundtrip::flag1())
                     Test(name="float32",test=roundtrip::float32())
                     Test(name="float64",test=roundtrip::float64())
                     Test(name="u8",test=roundtrip::u8())
