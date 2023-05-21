@@ -15,11 +15,11 @@ pub enum Error {
     #[error("todo")]
     JsError(JsValue),
     #[error("todo")]
-    NoWindow
+    NoWindow,
 }
 
 /// # Errors
-/// 
+///
 /// Everything here is fallible (TODO improve this)
 pub async fn invoke<P, R>(module: &str, method: &str, val: &P) -> Result<R, Error>
 where
