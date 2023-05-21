@@ -4,27 +4,28 @@ pub mod many_arguments {
     use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
     #[derive(serde::Deserialize)]
-    pub struct BigStruct<'a> {
-        a1: &'a str,
-        a2: &'a str,
-        a3: &'a str,
-        a4: &'a str,
-        a5: &'a str,
-        a6: &'a str,
-        a7: &'a str,
-        a8: &'a str,
-        a9: &'a str,
-        a10: &'a str,
-        a11: &'a str,
-        a12: &'a str,
-        a13: &'a str,
-        a14: &'a str,
-        a15: &'a str,
-        a16: &'a str,
-        a17: &'a str,
-        a18: &'a str,
-        a19: &'a str,
-        a20: &'a str,
+    #[derive(Debug, Clone, PartialEq)]
+    pub struct BigStruct {
+        pub a1: String,
+        pub a2: String,
+        pub a3: String,
+        pub a4: String,
+        pub a5: String,
+        pub a6: String,
+        pub a7: String,
+        pub a8: String,
+        pub a9: String,
+        pub a10: String,
+        pub a11: String,
+        pub a12: String,
+        pub a13: String,
+        pub a14: String,
+        pub a15: String,
+        pub a16: String,
+        pub a17: String,
+        pub a18: String,
+        pub a19: String,
+        pub a20: String,
     }
     pub trait ManyArguments: Sized {
         fn many_args(
@@ -50,11 +51,73 @@ pub mod many_arguments {
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
-        get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + Copy + 'static,
+        get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
-        U: ManyArguments,
+        U: ManyArguments + Send + Sync + 'static,
     {
+        let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "many_arguments",
+                "many_args",
+                move |
+                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    a1: u64,
+                    a2: u64,
+                    a3: u64,
+                    a4: u64,
+                    a5: u64,
+                    a6: u64,
+                    a7: u64,
+                    a8: u64,
+                    a9: u64,
+                    a10: u64,
+                    a11: u64,
+                    a12: u64,
+                    a13: u64,
+                    a14: u64,
+                    a15: u64,
+                    a16: u64,
+                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                    let ctx = get_cx(ctx.data_mut());
+                    Ok(
+                        ctx
+                            .many_args(
+                                a1,
+                                a2,
+                                a3,
+                                a4,
+                                a5,
+                                a6,
+                                a7,
+                                a8,
+                                a9,
+                                a10,
+                                a11,
+                                a12,
+                                a13,
+                                a14,
+                                a15,
+                                a16,
+                            ),
+                    )
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "many_arguments",
+                "big_argument",
+                move |
+                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: BigStruct,
+                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                    let ctx = get_cx(ctx.data_mut());
+                    Ok(ctx.big_argument(x))
+                },
+            )?;
         Ok(())
     }
 }

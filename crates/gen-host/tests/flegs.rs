@@ -69,11 +69,103 @@ pub mod flegs {
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
-        get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + Copy + 'static,
+        get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
-        U: Flegs,
+        U: Flegs + Send + Sync + 'static,
     {
+        let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "flegs",
+                "roundtrip_flag1",
+                move |
+                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Flag1,
+                | -> ::tauri_bindgen_host::anyhow::Result<Flag1> {
+                    let ctx = get_cx(ctx.data_mut());
+                    Ok(ctx.roundtrip_flag1(x))
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "flegs",
+                "roundtrip_flag2",
+                move |
+                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Flag2,
+                | -> ::tauri_bindgen_host::anyhow::Result<Flag2> {
+                    let ctx = get_cx(ctx.data_mut());
+                    Ok(ctx.roundtrip_flag2(x))
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "flegs",
+                "roundtrip_flag4",
+                move |
+                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Flag4,
+                | -> ::tauri_bindgen_host::anyhow::Result<Flag4> {
+                    let ctx = get_cx(ctx.data_mut());
+                    Ok(ctx.roundtrip_flag4(x))
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "flegs",
+                "roundtrip_flag8",
+                move |
+                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Flag8,
+                | -> ::tauri_bindgen_host::anyhow::Result<Flag8> {
+                    let ctx = get_cx(ctx.data_mut());
+                    Ok(ctx.roundtrip_flag8(x))
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "flegs",
+                "roundtrip_flag16",
+                move |
+                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Flag16,
+                | -> ::tauri_bindgen_host::anyhow::Result<Flag16> {
+                    let ctx = get_cx(ctx.data_mut());
+                    Ok(ctx.roundtrip_flag16(x))
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "flegs",
+                "roundtrip_flag32",
+                move |
+                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Flag32,
+                | -> ::tauri_bindgen_host::anyhow::Result<Flag32> {
+                    let ctx = get_cx(ctx.data_mut());
+                    Ok(ctx.roundtrip_flag32(x))
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "flegs",
+                "roundtrip_flag64",
+                move |
+                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Flag64,
+                | -> ::tauri_bindgen_host::anyhow::Result<Flag64> {
+                    let ctx = get_cx(ctx.data_mut());
+                    Ok(ctx.roundtrip_flag64(x))
+                },
+            )?;
         Ok(())
     }
 }

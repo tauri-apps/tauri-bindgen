@@ -59,24 +59,38 @@ pub mod flegs {
         << 62; const B63 = 1 << 63; }
     }
     pub async fn roundtrip_flag1(x: Flag1) -> Flag1 {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("flegs", "roundtrip_flag1", &(x))
+            .await
+            .unwrap()
     }
     pub async fn roundtrip_flag2(x: Flag2) -> Flag2 {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("flegs", "roundtrip_flag2", &(x))
+            .await
+            .unwrap()
     }
     pub async fn roundtrip_flag4(x: Flag4) -> Flag4 {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("flegs", "roundtrip_flag4", &(x))
+            .await
+            .unwrap()
     }
     pub async fn roundtrip_flag8(x: Flag8) -> Flag8 {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("flegs", "roundtrip_flag8", &(x))
+            .await
+            .unwrap()
     }
     pub async fn roundtrip_flag16(x: Flag16) -> Flag16 {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("flegs", "roundtrip_flag16", &(x))
+            .await
+            .unwrap()
     }
     pub async fn roundtrip_flag32(x: Flag32) -> Flag32 {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("flegs", "roundtrip_flag32", &(x))
+            .await
+            .unwrap()
     }
     pub async fn roundtrip_flag64(x: Flag64) -> Flag64 {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("flegs", "roundtrip_flag64", &(x))
+            .await
+            .unwrap()
     }
 }

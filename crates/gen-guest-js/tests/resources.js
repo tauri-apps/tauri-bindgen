@@ -3,12 +3,14 @@
 * @returns {Promise<A>} 
 */
             export async function constructorA () {
+                return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: JSON.stringify([]) }).then(r => r.json())
             }
         
             /**
 * @returns {Promise<B>} 
 */
             export async function constructorB () {
+                return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: JSON.stringify([]) }).then(r => r.json())
             }
         
 

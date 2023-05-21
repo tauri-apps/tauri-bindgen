@@ -37,9 +37,11 @@ class B {
 
             
             export async function constructorA () : Promise<A> {
+                return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: JSON.stringify([]) }).then(r => r.json())
             }
         
             
             export async function constructorB () : Promise<B> {
+                return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: JSON.stringify([]) }).then(r => r.json())
             }
         

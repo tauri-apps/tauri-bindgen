@@ -4,79 +4,92 @@ pub mod records {
     use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
     #[derive(serde::Serialize, serde::Deserialize)]
+    #[derive(Debug, Clone, PartialEq)]
     pub struct Empty {}
     /**A record containing two scalar fields
 that both have the same type*/
     #[derive(serde::Serialize, serde::Deserialize)]
+    #[derive(Debug, Clone, PartialEq)]
     pub struct Scalars {
         ///The first field, named a
-        a: u32,
+        pub a: u32,
         ///The second field, named b
-        b: u32,
+        pub b: u32,
     }
     /**A record that is really just flags
 All of the fields are bool*/
     #[derive(serde::Serialize, serde::Deserialize)]
+    #[derive(Debug, Clone, PartialEq)]
     pub struct ReallyFlags {
-        a: bool,
-        b: bool,
-        c: bool,
-        d: bool,
-        e: bool,
-        f: bool,
-        g: bool,
-        h: bool,
-        i: bool,
+        pub a: bool,
+        pub b: bool,
+        pub c: bool,
+        pub d: bool,
+        pub e: bool,
+        pub f: bool,
+        pub g: bool,
+        pub h: bool,
+        pub i: bool,
     }
     #[derive(serde::Serialize)]
+    #[derive(Debug, Clone, PartialEq)]
     pub struct AggregatesParam<'a> {
-        a: Scalars,
-        b: u32,
-        c: Empty,
-        d: &'a str,
-        e: ReallyFlags,
+        pub a: Scalars,
+        pub b: u32,
+        pub c: Empty,
+        pub d: &'a str,
+        pub e: ReallyFlags,
     }
     #[derive(serde::Deserialize)]
+    #[derive(Debug, Clone, PartialEq)]
     pub struct AggregatesResult {
-        a: Scalars,
-        b: u32,
-        c: Empty,
-        d: String,
-        e: ReallyFlags,
+        pub a: Scalars,
+        pub b: u32,
+        pub c: Empty,
+        pub d: String,
+        pub e: ReallyFlags,
     }
     pub type IntTypedef = i32;
     pub type TupleTypedef2 = (IntTypedef,);
     pub async fn tuple_arg(x: (char, u32)) {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("records", "tuple_arg", &(x)).await.unwrap()
     }
     pub async fn tuple_result() -> (char, u32) {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("records", "tuple_result", &()).await.unwrap()
     }
     pub async fn empty_arg(x: Empty) {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("records", "empty_arg", &(x)).await.unwrap()
     }
     pub async fn empty_result() -> Empty {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("records", "empty_result", &()).await.unwrap()
     }
     pub async fn scalar_arg(x: Scalars) {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("records", "scalar_arg", &(x)).await.unwrap()
     }
     pub async fn scalar_result() -> Scalars {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("records", "scalar_result", &())
+            .await
+            .unwrap()
     }
     pub async fn flags_arg(x: ReallyFlags) {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("records", "flags_arg", &(x)).await.unwrap()
     }
     pub async fn flags_result() -> ReallyFlags {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("records", "flags_result", &()).await.unwrap()
     }
     pub async fn aggregate_arg(x: AggregatesParam<'_>) {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("records", "aggregate_arg", &(x))
+            .await
+            .unwrap()
     }
     pub async fn aggregate_result() -> AggregatesResult {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("records", "aggregate_result", &())
+            .await
+            .unwrap()
     }
     pub async fn typedef_inout(e: TupleTypedef2) -> i32 {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("records", "typedef_inout", &(e))
+            .await
+            .unwrap()
     }
 }

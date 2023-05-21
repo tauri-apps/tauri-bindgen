@@ -4,27 +4,28 @@ pub mod many_arguments {
     use ::tauri_bindgen_guest_rust::serde;
     use ::tauri_bindgen_guest_rust::bitflags;
     #[derive(serde::Serialize)]
+    #[derive(Debug, Clone, PartialEq)]
     pub struct BigStruct<'a> {
-        a1: &'a str,
-        a2: &'a str,
-        a3: &'a str,
-        a4: &'a str,
-        a5: &'a str,
-        a6: &'a str,
-        a7: &'a str,
-        a8: &'a str,
-        a9: &'a str,
-        a10: &'a str,
-        a11: &'a str,
-        a12: &'a str,
-        a13: &'a str,
-        a14: &'a str,
-        a15: &'a str,
-        a16: &'a str,
-        a17: &'a str,
-        a18: &'a str,
-        a19: &'a str,
-        a20: &'a str,
+        pub a1: &'a str,
+        pub a2: &'a str,
+        pub a3: &'a str,
+        pub a4: &'a str,
+        pub a5: &'a str,
+        pub a6: &'a str,
+        pub a7: &'a str,
+        pub a8: &'a str,
+        pub a9: &'a str,
+        pub a10: &'a str,
+        pub a11: &'a str,
+        pub a12: &'a str,
+        pub a13: &'a str,
+        pub a14: &'a str,
+        pub a15: &'a str,
+        pub a16: &'a str,
+        pub a17: &'a str,
+        pub a18: &'a str,
+        pub a19: &'a str,
+        pub a20: &'a str,
     }
     pub async fn many_args(
         a1: u64,
@@ -44,9 +45,17 @@ pub mod many_arguments {
         a15: u64,
         a16: u64,
     ) {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke(
+                "many_arguments",
+                "many_args",
+                &(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16),
+            )
+            .await
+            .unwrap()
     }
     pub async fn big_argument(x: BigStruct<'_>) {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("many_arguments", "big_argument", &(x))
+            .await
+            .unwrap()
     }
 }

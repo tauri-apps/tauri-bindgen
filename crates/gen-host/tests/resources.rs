@@ -27,11 +27,40 @@ pub mod resources {
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
-        get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + Copy + 'static,
+        get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
-        U: Resources,
+        U: Resources + Send + Sync + 'static,
     {
+        let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "resources",
+                "constructor_a",
+                move |
+                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                | -> ::tauri_bindgen_host::anyhow::Result<
+                    ::tauri_bindgen_host::ResourceId,
+                > {
+                    let ctx = get_cx(ctx.data_mut());
+                    Ok(ctx.constructor_a())
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "resources",
+                "constructor_b",
+                move |
+                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                | -> ::tauri_bindgen_host::anyhow::Result<
+                    ::tauri_bindgen_host::ResourceId,
+                > {
+                    let ctx = get_cx(ctx.data_mut());
+                    Ok(ctx.constructor_b())
+                },
+            )?;
         Ok(())
     }
 }

@@ -34,9 +34,13 @@ pub mod resources {
         }
     }
     pub async fn constructor_a() -> A {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("resources", "constructor_a", &())
+            .await
+            .unwrap()
     }
     pub async fn constructor_b() -> B {
-        todo!()
+        ::tauri_bindgen_guest_rust::invoke("resources", "constructor_b", &())
+            .await
+            .unwrap()
     }
 }

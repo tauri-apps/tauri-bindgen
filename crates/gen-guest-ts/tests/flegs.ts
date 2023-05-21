@@ -271,29 +271,36 @@ B63 = 0,
 
             
             export async function roundtripFlag1 (x: Flag1) : Promise<Flag1> {
+                return fetch('ipc://localhost/flegs/roundtrip_flag1', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
             }
         
             
             export async function roundtripFlag2 (x: Flag2) : Promise<Flag2> {
+                return fetch('ipc://localhost/flegs/roundtrip_flag2', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
             }
         
             
             export async function roundtripFlag4 (x: Flag4) : Promise<Flag4> {
+                return fetch('ipc://localhost/flegs/roundtrip_flag4', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
             }
         
             
             export async function roundtripFlag8 (x: Flag8) : Promise<Flag8> {
+                return fetch('ipc://localhost/flegs/roundtrip_flag8', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
             }
         
             
             export async function roundtripFlag16 (x: Flag16) : Promise<Flag16> {
+                return fetch('ipc://localhost/flegs/roundtrip_flag16', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
             }
         
             
             export async function roundtripFlag32 (x: Flag32) : Promise<Flag32> {
+                return fetch('ipc://localhost/flegs/roundtrip_flag32', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
             }
         
             
             export async function roundtripFlag64 (x: Flag64) : Promise<Flag64> {
+                return fetch('ipc://localhost/flegs/roundtrip_flag64', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
             }
         

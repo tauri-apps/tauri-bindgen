@@ -57,45 +57,56 @@ export type TupleTypedef2 = [IntTypedef];
 
             
             export async function tupleArg (x: [string, number])  {
+                return fetch('ipc://localhost/records/tuple_arg', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
             }
         
             
             export async function tupleResult () : Promise<[string, number]> {
+                return fetch('ipc://localhost/records/tuple_result', { method: "POST", body: JSON.stringify([]) }).then(r => r.json())
             }
         
             
             export async function emptyArg (x: Empty)  {
+                return fetch('ipc://localhost/records/empty_arg', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
             }
         
             
             export async function emptyResult () : Promise<Empty> {
+                return fetch('ipc://localhost/records/empty_result', { method: "POST", body: JSON.stringify([]) }).then(r => r.json())
             }
         
             
             export async function scalarArg (x: Scalars)  {
+                return fetch('ipc://localhost/records/scalar_arg', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
             }
         
             
             export async function scalarResult () : Promise<Scalars> {
+                return fetch('ipc://localhost/records/scalar_result', { method: "POST", body: JSON.stringify([]) }).then(r => r.json())
             }
         
             
             export async function flagsArg (x: ReallyFlags)  {
+                return fetch('ipc://localhost/records/flags_arg', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
             }
         
             
             export async function flagsResult () : Promise<ReallyFlags> {
+                return fetch('ipc://localhost/records/flags_result', { method: "POST", body: JSON.stringify([]) }).then(r => r.json())
             }
         
             
             export async function aggregateArg (x: Aggregates)  {
+                return fetch('ipc://localhost/records/aggregate_arg', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
             }
         
             
             export async function aggregateResult () : Promise<Aggregates> {
+                return fetch('ipc://localhost/records/aggregate_result', { method: "POST", body: JSON.stringify([]) }).then(r => r.json())
             }
         
             
             export async function typedefInout (e: TupleTypedef2) : Promise<number> {
+                return fetch('ipc://localhost/records/typedef_inout', { method: "POST", body: JSON.stringify([e]) }).then(r => r.json())
             }
         
