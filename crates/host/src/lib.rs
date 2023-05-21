@@ -1,8 +1,10 @@
 pub use tauri_bindgen_host_macro::*;
 
-pub use generational_arena::{Arena as ResourceTable, Index as ResourceId};
+pub use generational_arena::Arena as ResourceTable;
 #[doc(hidden)]
 pub use {anyhow, async_trait::async_trait, bitflags, ipc_router_wip, serde, tauri, tracing};
+
+pub type ResourceId = u64;
 
 // #[derive(Debug)]
 // pub struct ResourceId<T> {

@@ -61,13 +61,13 @@ pub struct RustWasm {
 }
 
 impl RustWasm {
-    pub fn print_function(&self, func: &Function) -> TokenStream {
+    pub fn print_function(&self, mod_ident: &str, func: &Function) -> TokenStream {
         let sig = FnSig {
             async_: true,
             unsafe_: false,
             private: false,
             self_arg: None,
-            func,
+            func
         };
 
         let sig = self.print_function_signature(
@@ -76,9 +76,16 @@ impl RustWasm {
             &BorrowMode::Owned,
         );
 
+        let ident = func.ident.to_snake_case();
+
+        let param_idents = func
+                .params
+                .iter()
+                .map(|(ident, _)| { format_ident!("{}", ident) });
+
         quote! {
             #sig {
-                todo!()
+                ::tauri_bindgen_guest_rust::invoke(#mod_ident, #ident, &(#(#param_idents),*)).await.unwrap()
             }
         }
     }
@@ -177,7 +184,7 @@ impl tauri_bindgen_core::Generate for RustWasm {
             .interface
             .functions
             .iter()
-            .map(|func| self.print_function(func));
+            .map(|func| self.print_function(&self.interface.ident.to_snake_case(), func));
 
         quote! {
             #docs

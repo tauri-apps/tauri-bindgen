@@ -13,12 +13,11 @@ use heck::{ToSnakeCase, ToUpperCamelCase};
 use proc_macro2::TokenStream;
 use quote::format_ident;
 use quote::quote;
-use syn::parse_quote;
 use tauri_bindgen_core::{Generate, GeneratorBuilder};
 use tauri_bindgen_gen_rust::{
     print_generics, BorrowMode, FnSig, RustGenerator, TypeInfo, TypeInfos,
 };
-use wit_parser::{Function, Interface, Type, TypeDefKind};
+use wit_parser::{Function, Interface, Type, TypeDefKind, FunctionResult};
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -241,7 +240,7 @@ impl Generate for Host {
 
         let typedefs = self.print_typedefs(
             self.interface.typedefs.iter().map(|(id, _)| id),
-            &BorrowMode::LeafBorrowed(parse_quote!('a)),
+            &BorrowMode::Owned,
         );
 
         let resources = self.interface.typedefs.iter().filter_map(|(_, typedef)| {
@@ -267,7 +266,7 @@ impl Generate for Host {
         );
 
         let add_to_router = self.print_add_to_router(
-            &self.interface.ident, /*, self.interface.functions.iter()*/
+            &self.interface.ident, self.interface.functions.iter()
         );
 
         quote! {
@@ -324,7 +323,7 @@ impl Host {
             let sig = self.print_function_signature(
                 &sig,
                 &BorrowMode::Owned,
-                &BorrowMode::AllBorrowed(parse_quote!('_)),
+                &BorrowMode::Owned,
             );
 
             quote! { #sig; }
@@ -370,48 +369,94 @@ impl Host {
         }
     }
 
-    fn print_add_to_router(
+    fn print_add_to_router<'a>(
         &self,
         mod_ident: &str,
-        // _functions: impl Iterator<Item = &'a Function>,
+        functions: impl Iterator<Item = &'a Function>,
     ) -> TokenStream {
         let trait_ident = format_ident!("{}", mod_ident.to_upper_camel_case());
 
-        // let mod_name = mod_ident.to_snake_case();
+        let mod_name = mod_ident.to_snake_case();
 
-        // let functions = functions.map(|func| {
-        //     let func_name = func.ident.to_snake_case();
-        //     let func_ident = format_ident!("{}", func_name);
+        let functions = functions.map(|func| {
+            let func_name = func.ident.to_snake_case();
+            let func_ident = format_ident!("{}", func_name);
 
-        //     let params = self
-        //         .print_function_params(&func.params, &BorrowMode::Owned);
+            let params = self.print_function_params(&func.params, &BorrowMode::Owned);
+        
+            let param_idents = func
+                .params
+                .iter()
+                .map(|(ident, _)| { format_ident!("{}", ident) });
+                // .map(|(ident, ty)| {
+                //     let ident = format_ident!("{}", ident);
+                    
+                //     if self.needs_borrow(ty, &BorrowMode::AllBorrowed(parse_quote!('_))) || matches!(ty, Type::String | Type::List(_)) {
+                //         quote! { &#ident }
+                //     } else {
+                //         quote! { #ident }
+                //     }
+                // });
 
-        //     let param_idents = func
-        //         .params
-        //         .iter()
-        //         .map(|(ident, _)| format_ident!("{}", ident));
+            let result = match func.result.as_ref() {
+                Some(FunctionResult::Anon(ty)) => {
+                    let ty = self.print_ty(ty, &BorrowMode::Owned);
+    
+                    quote! { #ty }
+                }
+                Some(FunctionResult::Named(types)) if types.len() == 1 => {
+                    let (_, ty) = &types[0];
+                    let ty = self.print_ty(ty, &BorrowMode::Owned);
+    
+                    quote! { #ty }
+                }
+                Some(FunctionResult::Named(types)) => {
+                    let types = types.iter().map(|(_, ty)| self.print_ty(ty, &BorrowMode::Owned));
+    
+                    quote! { (#(#types),*) }
+                }
+                _ => quote! { () },
+            };
 
-        //     let results = self
-        //         .print_function_result(&func.result, &BorrowMode::AllBorrowed(parse_quote!('_)));
+            quote! {
+                let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+                router.func_wrap(
+                    #mod_name,
+                    #func_name,
+                    move |mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, #params| -> ::tauri_bindgen_host::anyhow::Result<#result> {
+                        let ctx = get_cx(ctx.data_mut());
 
-        //     quote! {
-        //         router.func_wrap(#mod_name, #func_name, move |cx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, #params| #results {
-        //             let cx = get_cx(cx.data_mut());
+                        Ok(ctx.#func_ident(#(#param_idents),*))
+                    },
+                )?;
+            }
+        });
 
-        //             cx.#func_ident(#(#param_idents),*)
-        //         })?;
+        // quote! {
+        //     pub fn add_to_router<T, U>(
+        //         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
+        //         get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + Copy + 'static,
+        //     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
+        //     where
+        //         U: 
+        //     {
+        //         #( #functions )*
+
+        //         Ok(())
         //     }
-        // });
-
+        // }
         quote! {
             pub fn add_to_router<T, U>(
                 router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
-                get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + Copy + 'static,
+                get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + 'static,
             ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
             where
-                U: #trait_ident
+                U: #trait_ident + Send + Sync + 'static,
             {
-                // #( #functions )*
+                let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
+
+
+                #( #functions )*
 
                 Ok(())
             }

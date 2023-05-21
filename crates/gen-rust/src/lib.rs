@@ -208,6 +208,7 @@ pub trait RustGenerator {
         quote! {
             #docs
             #additional_attrs
+            #[derive(Debug, Clone, PartialEq)]
             pub struct #ident #generics {
                 #(#fields),*
             }
@@ -225,7 +226,7 @@ pub trait RustGenerator {
         quote! {
             #docs
             #borrow_attr
-            #ident: #ty
+            pub #ident: #ty
         }
     }
 
@@ -281,6 +282,7 @@ pub trait RustGenerator {
         quote! {
             #docs
             #additional_attrs
+            #[derive(Debug, Clone, PartialEq)]
             pub enum #ident #generics {
                 #(#cases),*
             }
@@ -317,6 +319,7 @@ pub trait RustGenerator {
         quote! {
             #docs
             #additional_attrs
+            #[derive(Debug, Clone, PartialEq)]
             pub enum #ident {
                 #(#cases),*
             }
@@ -363,6 +366,7 @@ pub trait RustGenerator {
         quote! {
             #docs
             #additional_attrs
+            #[derive(Debug, Clone, PartialEq)]
             pub enum #ident #generics {
                 #(#cases),*
             }

@@ -5,7 +5,7 @@
     clippy::unused_self
 )]
 
-use heck::{ToKebabCase, ToLowerCamelCase, ToUpperCamelCase};
+use heck::{ToKebabCase, ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
 use std::path::PathBuf;
 use tauri_bindgen_core::{postprocess, Generate, GeneratorBuilder};
 use wit_parser::{
@@ -44,12 +44,21 @@ pub struct TypeScript {
 }
 
 impl TypeScript {
-    pub fn print_function(&self, func: &Function) -> String {
+    pub fn print_function(&self, intf_name: &str, func: &Function) -> String {
         let docs = print_docs(&func.docs);
 
         let ident = func.ident.to_lower_camel_case();
+        let name = func.ident.to_snake_case();
 
         let params = self.print_function_params(&func.params);
+
+        let param_idents = func
+            .params
+            .iter()
+            .map(|(ident, _)| ident.to_lower_camel_case())
+            .collect::<Vec<_>>()
+            .join(", ");
+
         let result = func
             .result
             .as_ref()
@@ -60,6 +69,7 @@ impl TypeScript {
             r#"
             {docs}
             export async function {ident} ({params}) {result} {{
+                return fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: JSON.stringify([{param_idents}]) }}).then(r => r.json())
             }}
         "#
         )
@@ -354,7 +364,7 @@ impl Generate for TypeScript {
             .interface
             .functions
             .iter()
-            .map(|func| self.print_function(func))
+            .map(|func| self.print_function(&self.interface.ident.to_snake_case(), func))
             .collect();
 
         let mut contents = format!("{result_ty}\n{typedefs}\n{functions}");

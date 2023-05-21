@@ -1,6 +1,6 @@
 #![allow(clippy::must_use_candidate, clippy::unused_self)]
 
-use heck::{ToKebabCase, ToLowerCamelCase, ToUpperCamelCase};
+use heck::{ToKebabCase, ToLowerCamelCase, ToUpperCamelCase, ToSnakeCase};
 use std::path::PathBuf;
 use tauri_bindgen_core::{postprocess, Generate, GeneratorBuilder};
 use wit_parser::{Function, FunctionResult, Interface, Type, TypeDefKind};
@@ -36,15 +36,17 @@ pub struct JavaScript {
 }
 
 impl JavaScript {
-    fn print_function(&self, func: &Function) -> String {
+    fn print_function(&self, intf_name: &str, func: &Function) -> String {
         let docs = self.print_docs(func);
         let ident = func.ident.to_lower_camel_case();
+        let name = func.ident.to_snake_case();
         let params = print_function_params(&func.params);
 
         format!(
             r#"
             {docs}
             export async function {ident} ({params}) {{
+                return fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: JSON.stringify([{params}]) }}).then(r => r.json())
             }}
         "#
         )
@@ -192,8 +194,9 @@ impl Generate for JavaScript {
             .interface
             .functions
             .iter()
-            .map(|func| self.print_function(func))
+            .map(|func| self.print_function(&self.interface.ident.to_snake_case(), func))
             .collect();
+
         let resources: String = self
             .interface
             .typedefs

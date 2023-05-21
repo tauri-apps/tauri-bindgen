@@ -4,27 +4,30 @@ pub use anyhow::Error;
 use anyhow::{bail, Result};
 use std::{
     collections::{hash_map::Entry, HashMap},
-    marker::PhantomData,
-    sync::{mpsc::Sender, Arc},
+    sync::{mpsc::Sender, Arc, Mutex},
 };
+use tauri::{AppHandle, Manager, Runtime};
+use url::Url;
 
 #[derive(Default)]
-pub struct Router<U> {
+pub struct Router<T> {
+    data: Arc<Mutex<T>>,
     string2idx: HashMap<Arc<str>, usize>,
     strings: Vec<Arc<str>>,
-    map: HashMap<ImportKey, Definition<U>>,
+    map: HashMap<ImportKey, Definition<T>>,
 }
 
-pub type Definition<U> = Box<dyn Fn(Caller<U>, &[u8], Sender<Vec<u8>>)>;
+pub type Definition<T> =
+    Box<dyn Fn(Caller<T>, &[u8], Sender<Vec<u8>>) -> anyhow::Result<()> + Send + Sync>;
 
-pub struct Caller<T> {
-    _m: PhantomData<T>,
+pub struct Caller<'a, T> {
+    data: &'a mut T,
 }
 
-impl<T> Caller<T> {
+impl<'a, T> Caller<'a, T> {
     #[must_use]
-    pub fn data_mut(&self) -> &mut T {
-        todo!()
+    pub fn data_mut(&mut self) -> &mut T {
+        self.data
     }
 }
 
@@ -36,11 +39,12 @@ struct ImportKey {
 
 impl<U> Router<U> {
     #[must_use]
-    pub fn new() -> Self {
+    pub fn new(data: U) -> Self {
         Self {
             string2idx: HashMap::new(),
             strings: Vec::new(),
             map: HashMap::new(),
+            data: Arc::new(Mutex::new(data)),
         }
     }
 
@@ -62,7 +66,7 @@ impl<U> Router<U> {
         &mut self,
         module: Option<impl AsRef<str>>,
         name: impl AsRef<str>,
-        params: impl AsRef<[u8]>,
+        params: &[u8],
         res_tx: Sender<Vec<u8>>,
     ) -> anyhow::Result<()> {
         let key = self.import_key(module, name.as_ref());
@@ -72,9 +76,11 @@ impl<U> Router<U> {
             .get(&key)
             .ok_or(anyhow::anyhow!("method not found"))?;
 
-        let caller = Caller { _m: PhantomData };
+        let mut data = self.data.lock().unwrap();
 
-        handler(caller, params.as_ref(), res_tx);
+        let caller = Caller { data: &mut *data };
+
+        handler(caller, params, res_tx)?;
 
         Ok(())
     }
@@ -115,7 +121,7 @@ impl<U> Router<U> {
     }
 }
 
-pub trait IntoFunc<U, Params, Results>: Send + Sync + 'static {
+pub trait IntoFunc<U, Params, Results>: Send + Sync {
     #[doc(hidden)]
     fn into_func(self) -> Definition<U>;
 }
@@ -128,7 +134,7 @@ macro_rules! impl_into_func {
         #[allow(non_snake_case)]
         impl<T, F, $($params,)* R> IntoFunc<T, ($($params,)*), R> for F
         where
-            F: Fn($($params),*) -> R + Send + Sync + 'static,
+            F: Fn($($params),*) -> anyhow::Result<R> + Send + Sync + 'static,
             $($params: serde::de::DeserializeOwned,)*
             R: serde::Serialize
         {
@@ -142,24 +148,26 @@ macro_rules! impl_into_func {
         }
 
         #[allow(non_snake_case)]
-        impl<T, F, $($params,)* R> IntoFunc<T, (Caller<T>, $($params,)*), R> for F
+        impl<T, F, $($params,)* R> IntoFunc<T, (Caller<'_, T>, $($params,)*), R> for F
         where
-            F: Fn(Caller<T>, $($params),*) -> R + Send + Sync + 'static,
+            F: Fn(Caller<T>, $($params),*) -> anyhow::Result<R> + Send + Sync + 'static,
             $($params: serde::de::DeserializeOwned,)*
             R: serde::Serialize
         {
             fn into_func(self) -> Definition<T> {
                 Box::new(move |caller, params, tx| {
                     log::debug!("Deserializing parameters...");
-                    let ($($params,)*) = postcard::from_bytes(params).unwrap();
+                    let ($($params,)*) = postcard::from_bytes(params)?;
 
                     log::debug!("Calling handler...");
-                    let out = self(caller, $($params),*);
+                    let out = self(caller, $($params),*)?;
 
                     log::debug!("Serializing response...");
-                    let out = postcard::to_allocvec(&out).unwrap();
+                    let out = postcard::to_allocvec(&out)?;
 
-                    tx.send(out).unwrap();
+                    tx.send(out)?;                    
+
+                    Ok(())
                 })
             }
         }
@@ -190,30 +198,97 @@ macro_rules! for_each_function_signature {
 
 for_each_function_signature!(impl_into_func);
 
+pub trait BuilderExt {
+    fn ipc_router<U: Send + Sync + 'static>(self, router: Router<U>) -> Self;
+}
+
+impl<R: Runtime> BuilderExt for tauri::Builder<R> {
+    fn ipc_router<U: Send + Sync + 'static>(self, router: Router<U>) -> Self {
+        self.manage(Mutex::new(router))
+            .register_uri_scheme_protocol("ipc", |app, req| {
+                let res = uri_scheme_handler_inner::<U, _>(app, req);
+
+                log::debug!("call result {:?}", res);
+
+                let mut resp = match res {
+                    Ok(val) => {
+                        let mut resp = tauri::http::Response::new(val);
+                        resp.set_status(tauri::http::status::StatusCode::OK);
+                        resp.set_mimetype(Some("application/octet-stream".to_string()));
+                        resp
+                    }
+                    Err(err) => {
+                        let mut resp = tauri::http::Response::new(err.to_string().into_bytes());
+                        resp.set_status(tauri::http::status::StatusCode::BAD_REQUEST);
+                        resp
+                    }
+                };
+
+                resp.headers_mut().insert(
+                    tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN,
+                    tauri::http::header::HeaderValue::from_static("*"),
+                );
+
+                log::trace!("sending response {:?}", resp);
+
+                Ok(resp)
+            })
+    }
+}
+
+fn uri_scheme_handler_inner<U: Send + Sync + 'static, R: Runtime>(
+    app: &AppHandle<R>,
+    req: &tauri::http::Request,
+) -> anyhow::Result<Vec<u8>> {
+    let url = Url::parse(req.uri())?;
+
+    let path = url.path().strip_prefix('/').unwrap();
+
+    let (module, method) = path.split_once('/')
+        .map(|(module, method)| (Some(module), method))
+        .unwrap_or((None, path));
+
+    log::debug!("ipc request for {:?}::{}", module, method);
+
+    let (res_tx, res_rx) = std::sync::mpsc::channel();
+
+    let router = app.state::<Mutex<Router<U>>>();
+    let mut router = router.lock().unwrap();
+
+    // this is terrible we should not clone here
+    router.handle_request(module, method, req.body(), res_tx)?;
+
+    Ok(res_rx.recv()?)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn feature() {
-        let mut router: Router<()> = Router::new();
-        router
-            .func_wrap("app", "add", |a: u32, b: u32| -> Result<u32, ()> {
-                Ok(a + b)
-            })
-            .unwrap();
+        // fn add_to_builder<R: tauri::Runtime>(builder: &mut tauri::Builder<R>) {
+        //     builder.
+        // }
 
-        let (tx, rx) = std::sync::mpsc::channel();
+        // let mut router: Router<()> = Router::new();
+        // router
+        //     .func_wrap("app", "add", |a: u32, b: u32| -> Result<u32, ()> {
+        //         Ok(a + b)
+        //     })
+        //     .unwrap();
 
-        router
-            .handle_request(
-                Some("app"),
-                "add",
-                postcard::to_allocvec(&(5u32, 7u32)).unwrap(),
-                tx,
-            )
-            .unwrap();
+        //
 
-        println!("{:?}", rx.recv());
+        // router
+        //     .handle_request(
+        //         Some("app"),
+        //         "add",
+        //         postcard::to_allocvec(&(5u32, 7u32)).unwrap(),
+        //         tx,
+        //     )
+        //     .unwrap();
+
+        // println!("{:?}", rx.recv());
     }
 }
