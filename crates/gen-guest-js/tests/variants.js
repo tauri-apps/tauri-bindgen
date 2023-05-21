@@ -1,7 +1,4 @@
 export class Deserializer {
-        source
-        offset
-    
         constructor(bytes) {
             this.source = bytes
             this.offset = 0

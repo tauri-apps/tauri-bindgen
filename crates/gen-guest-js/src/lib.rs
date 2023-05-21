@@ -558,9 +558,6 @@ impl Generate for JavaScript {
             .collect();
 
         let bits = self.serde_utils.load(Ordering::Acquire);
-
-        println!("{} {:?}", bits, SerdeUtils::from_bits_retain(bits));
-
         let serde_util = print_serde_utils(&SerdeUtils::from_bits_retain(bits)).unwrap();
 
         let mut contents = format!("{serde_util}{deserializers}\n{functions}\n{resources}");
