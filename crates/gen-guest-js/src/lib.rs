@@ -1,7 +1,7 @@
 #![allow(clippy::must_use_candidate, clippy::unused_self)]
 
 use heck::{ToKebabCase, ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
-use std::{collections::HashSet, fmt::Write, path::PathBuf, sync::atomic::{AtomicU32, Ordering}};
+use std::{fmt::Write, path::PathBuf, sync::atomic::{AtomicU32, Ordering}};
 use tauri_bindgen_core::{
     flags_repr, postprocess, Generate, GeneratorBuilder, TypeInfo, TypeInfos,
 };

@@ -260,35 +260,3 @@ fn uri_scheme_handler_inner<U: Send + Sync + 'static, R: Runtime>(
 
     Ok(res_rx.recv()?)
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn feature() {
-        // fn add_to_builder<R: tauri::Runtime>(builder: &mut tauri::Builder<R>) {
-        //     builder.
-        // }
-
-        // let mut router: Router<()> = Router::new();
-        // router
-        //     .func_wrap("app", "add", |a: u32, b: u32| -> Result<u32, ()> {
-        //         Ok(a + b)
-        //     })
-        //     .unwrap();
-
-        //
-
-        // router
-        //     .handle_request(
-        //         Some("app"),
-        //         "add",
-        //         postcard::to_allocvec(&(5u32, 7u32)).unwrap(),
-        //         tx,
-        //     )
-        //     .unwrap();
-
-        // println!("{:?}", rx.recv());
-    }
-}
