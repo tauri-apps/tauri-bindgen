@@ -3737,6 +3737,8 @@ dependencies = [
 name = "tauri-bindgen-core"
 version = "0.1.0"
 dependencies = [
+ "bitflags 2.3.1",
+ "log",
  "proc-macro2",
  "wit-parser",
 ]
@@ -3775,12 +3777,12 @@ dependencies = [
 name = "tauri-bindgen-gen-rust"
 version = "0.1.0"
 dependencies = [
- "bitflags 2.3.1",
  "heck 0.4.1",
  "log",
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+ "tauri-bindgen-core",
  "wit-parser",
 ]
 

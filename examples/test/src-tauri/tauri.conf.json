@@ -7,7 +7,7 @@
     "withGlobalTauri": true
   },
   "package": {
-    "productName": "tauri-sys-test",
+    "productName": "tauri-bindgen-test",
     "version": "0.0.0"
   },
   "tauri": {
@@ -63,7 +63,7 @@
         "fullscreen": false,
         "height": 600,
         "resizable": true,
-        "title": "tauri-sys testing suite",
+        "title": "tauri-bindgen testing suite",
         "width": 800
       }
     ]
