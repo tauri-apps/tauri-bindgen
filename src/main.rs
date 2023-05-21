@@ -34,10 +34,8 @@ enum Command {
         world: WorldOpt,
     },
     /// Generator for creating bindings that are exposed to the WebView.
-    #[cfg(feature = "unstable")]
     Host(HostGenerator),
     /// Generators for webview libraries.
-    #[cfg(feature = "unstable")]
     #[clap(subcommand)]
     Guest(GuestGenerator),
     /// This generator outputs a Markdown file describing an interface.
@@ -50,7 +48,6 @@ enum Command {
     },
 }
 
-#[cfg(feature = "unstable")]
 #[derive(Debug, Parser)]
 struct HostGenerator {
     #[clap(flatten)]
@@ -59,7 +56,6 @@ struct HostGenerator {
     world: WorldOpt,
 }
 
-#[cfg(feature = "unstable")]
 #[derive(Debug, Parser)]
 enum GuestGenerator {
     /// Generates bindings for Rust guest modules using wasm-bindgen.
@@ -69,6 +65,7 @@ enum GuestGenerator {
         #[clap(flatten)]
         world: WorldOpt,
     },
+    #[cfg(feature = "unstable")]
     /// Generates bindings for JavaScript guest modules.
     Javascript {
         #[clap(flatten)]
@@ -76,6 +73,7 @@ enum GuestGenerator {
         #[clap(flatten)]
         world: WorldOpt,
     },
+    #[cfg(feature = "unstable")]
     /// Generates bindings for TypeScript guest modules.
     Typescript {
         #[clap(flatten)]
@@ -122,13 +120,11 @@ fn run() -> Result<()> {
     let out_dir = &opt.common.out_dir.unwrap_or_default();
     match opt.cmd {
         Command::Check { world } => check_interface(world)?,
-        #[cfg(feature = "unstable")]
         Command::Host(HostGenerator { builder, world, .. }) => {
             let (path, contents) = gen_interface(builder, world)?;
 
             write_file(&out_dir, &path, &contents)?;
         }
-        #[cfg(feature = "unstable")]
         Command::Guest(GuestGenerator::Rust { builder, world, .. }) => {
             let (path, contents) = gen_interface(builder, world)?;
 

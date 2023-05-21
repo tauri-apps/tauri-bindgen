@@ -37,10 +37,10 @@ syn = "1.0.109"
 [dependencies]
 clap.workspace = true
 tauri-bindgen-core.workspace = true
-tauri-bindgen-gen-host = { workspace = true, optional = true }
+tauri-bindgen-gen-host.workspace = true
 tauri-bindgen-gen-markdown = { workspace = true, optional = true }
-tauri-bindgen-gen-guest-rust  = { workspace = true, optional = true }
-tauri-bindgen-gen-guest-ts.workspace = true
+tauri-bindgen-gen-guest-rust.workspace = true
+tauri-bindgen-gen-guest-ts = { workspace = true, optional = true }
 tauri-bindgen-gen-guest-js = { workspace = true, optional = true }
 wit-parser.workspace = true
 miette.workspace = true
@@ -48,7 +48,7 @@ env_logger = "0.10.0"
 log.workspace = true
 
 [features]
-unstable = ["dep:tauri-bindgen-gen-host", "dep:tauri-bindgen-gen-markdown", "dep:tauri-bindgen-gen-guest-rust", "dep:tauri-bindgen-gen-guest-js"]
+unstable = ["dep:tauri-bindgen-gen-markdown", "dep:tauri-bindgen-gen-guest-js", "dep:tauri-bindgen-gen-guest-ts"]
 
 [profile.release]
 panic = "abort" 
