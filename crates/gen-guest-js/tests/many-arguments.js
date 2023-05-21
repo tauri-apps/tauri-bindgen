@@ -1,3 +1,23 @@
+export class Deserializer {
+        source
+        offset
+    
+        constructor(bytes) {
+            this.source = bytes
+            this.offset = 0
+        }
+    
+        pop() {
+            return this.source[this.offset++]
+        }
+    
+        try_take_n(len) {
+            const out = this.source.slice(this.offset, this.offset + len)
+            this.offset += len
+            return out
+        }
+    }
+    
 
             /**
 * @param {bigint} a1 
@@ -18,13 +38,13 @@
 * @param {bigint} a16 
 */
             export async function manyArgs (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16) {
-                return fetch('ipc://localhost/many_arguments/many_args', { method: "POST", body: JSON.stringify([a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16]) }).then(r => r.json())
+                return fetch('ipc://localhost/many_arguments/many_args', { method: "POST", body: JSON.stringify([a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16]) })
             }
         
             /**
 * @param {BigStruct} x 
 */
             export async function bigArgument (x) {
-                return fetch('ipc://localhost/many_arguments/big_argument', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
+                return fetch('ipc://localhost/many_arguments/big_argument', { method: "POST", body: JSON.stringify([x]) })
             }
         

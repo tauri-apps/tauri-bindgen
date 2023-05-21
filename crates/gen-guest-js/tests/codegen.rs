@@ -11,7 +11,7 @@ fn gen_interface(
 ) -> (String, String) {
     let iface = wit_parser::parse_and_resolve_str(&input, |_| false).unwrap();
 
-    let gen = opts.build(iface);
+    let mut gen = opts.build(iface);
     let (filename, contents) = gen.to_file();
 
     (filename.to_str().unwrap().to_string(), contents)

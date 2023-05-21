@@ -222,7 +222,7 @@ fn print_docs(docs: &str) -> String {
 }
 
 impl Generate for Markdown {
-    fn to_file(&self) -> (std::path::PathBuf, String) {
+    fn to_file(&mut self) -> (std::path::PathBuf, String) {
         let ident = &self.interface.ident;
         let docs = print_docs(&self.interface.docs);
         let typedefs = self

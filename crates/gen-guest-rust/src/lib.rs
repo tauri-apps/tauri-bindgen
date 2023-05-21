@@ -10,8 +10,10 @@ use quote::quote;
 use syn::parse_quote;
 use tauri_bindgen_core::Generate;
 use tauri_bindgen_core::GeneratorBuilder;
+use tauri_bindgen_core::TypeInfo;
+use tauri_bindgen_core::TypeInfos;
 use tauri_bindgen_gen_rust::FnSig;
-use tauri_bindgen_gen_rust::{BorrowMode, RustGenerator, TypeInfo, TypeInfos};
+use tauri_bindgen_gen_rust::{BorrowMode, RustGenerator};
 use wit_parser::{Function, Interface};
 
 #[derive(Default, Debug, Clone)]
@@ -170,7 +172,7 @@ impl RustGenerator for RustWasm {
 }
 
 impl tauri_bindgen_core::Generate for RustWasm {
-    fn to_tokens(&self) -> TokenStream {
+    fn to_tokens(&mut self) -> TokenStream {
         let docs = self.print_docs(&self.interface.docs);
 
         let ident = format_ident!("{}", self.interface.ident.to_snake_case());
@@ -200,7 +202,7 @@ impl tauri_bindgen_core::Generate for RustWasm {
         }
     }
 
-    fn to_file(&self) -> (PathBuf, String) {
+    fn to_file(&mut self) -> (PathBuf, String) {
         let mut filename = PathBuf::from(self.interface.ident.to_kebab_case());
         filename.set_extension("rs");
 

@@ -184,7 +184,7 @@ where
 
     let iface = wit_parser::parse_and_resolve_file(&opts.wit, |t| skipset.contains(t))?;
 
-    let gen = builder.build(iface);
+    let mut gen = builder.build(iface);
 
     Ok(gen.to_file())
 }

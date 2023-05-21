@@ -1,14 +1,14 @@
 use proc_macro2::TokenStream;
-use std::path::PathBuf;
-use wit_parser::Interface;
+use std::{path::PathBuf, collections::HashMap, ops::Index};
+use wit_parser::{Interface, TypeDefArena, Type, TypeDefId, FunctionResult, TypeDefKind, FlagsField, Int};
 
 pub trait GeneratorBuilder {
     fn build(self, interface: Interface) -> Box<dyn Generate>;
 }
 
 pub trait Generate {
-    fn to_file(&self) -> (PathBuf, String);
-    fn to_tokens(&self) -> TokenStream {
+    fn to_file(&mut self) -> (PathBuf, String);
+    fn to_tokens(&mut self) -> TokenStream {
         unimplemented!("to_tokens is not implemented for this generator")
     }
 }
@@ -47,4 +47,142 @@ where
     assert!(status.success());
 
     Ok(())
+}
+
+bitflags::bitflags! {
+    #[derive(Debug, Clone, Copy)]
+    pub struct TypeInfo: u32 {
+        /// Whether or not this type is ever used (transitively) within the
+        /// parameter of a function.
+        const PARAM = 0b0000_0001;
+        /// Whether or not this type is ever used (transitively) within the
+        /// result of a function.
+        const RESULT = 0b0000_0010;
+        /// Whether or not this type (transitively) has a list.
+        const HAS_LIST = 0b0000_1000;
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct TypeInfos {
+    infos: HashMap<TypeDefId, TypeInfo>,
+}
+
+impl TypeInfos {
+    #[must_use]
+    pub fn new() -> Self {
+        TypeInfos::default()
+    }
+
+    pub fn collect_param_info(&mut self, typedefs: &TypeDefArena, params: &[(String, Type)]) {
+        for (_, ty) in params {
+            self.collect_type_info(typedefs, ty, TypeInfo::PARAM);
+        }
+    }
+
+    pub fn collect_result_info(&mut self, typedefs: &TypeDefArena, result: &FunctionResult) {
+        match result {
+            FunctionResult::Anon(ty) => {
+                self.collect_type_info(typedefs, ty, TypeInfo::RESULT);
+            }
+            FunctionResult::Named(results) => {
+                for (_, ty) in results {
+                    self.collect_type_info(typedefs, ty, TypeInfo::RESULT);
+                }
+            }
+        }
+    }
+
+    fn collect_typedef_info(
+        &mut self,
+        typedefs: &TypeDefArena,
+        id: TypeDefId,
+        base_info: TypeInfo,
+    ) -> TypeInfo {
+        let mut info = base_info;
+
+        match &typedefs[id].kind {
+            TypeDefKind::Alias(ty) => {
+                info |= self.collect_type_info(typedefs, ty, base_info);
+            }
+            TypeDefKind::Record(fields) => {
+                for field in fields {
+                    info |= self.collect_type_info(typedefs, &field.ty, base_info);
+                }
+            }
+            TypeDefKind::Variant(cases) => {
+                for case in cases {
+                    if let Some(ty) = &case.ty {
+                        info |= self.collect_type_info(typedefs, ty, base_info);
+                    }
+                }
+            }
+            TypeDefKind::Union(cases) => {
+                for case in cases {
+                    info |= self.collect_type_info(typedefs, &case.ty, base_info);
+                }
+            }
+            _ => {}
+        }
+
+        log::debug!("collected info for {:?}: {:?}", typedefs[id].ident, info,);
+
+        self.infos
+            .entry(id)
+            .and_modify(|i| *i |= info)
+            .or_insert(info);
+
+        info
+    }
+
+    fn collect_type_info(
+        &mut self,
+        typedefs: &TypeDefArena,
+        ty: &Type,
+        base_info: TypeInfo,
+    ) -> TypeInfo {
+        match ty {
+            Type::String => base_info | TypeInfo::HAS_LIST,
+            Type::List(ty) => self.collect_type_info(typedefs, ty, base_info) | TypeInfo::HAS_LIST,
+            Type::Option(ty) => self.collect_type_info(typedefs, ty, base_info),
+            Type::Tuple(types) => {
+                let mut info = base_info;
+                for ty in types {
+                    info |= self.collect_type_info(typedefs, ty, base_info);
+                }
+                info
+            }
+            Type::Result { ok, err } => {
+                let mut info = base_info;
+                if let Some(ty) = &ok {
+                    info |= self.collect_type_info(typedefs, ty, base_info);
+                }
+                if let Some(ty) = &err {
+                    info |= self.collect_type_info(typedefs, ty, base_info);
+                }
+                info
+            }
+            Type::Id(id) => base_info | self.collect_typedef_info(typedefs, *id, base_info),
+            _ => base_info,
+        }
+    }
+}
+
+impl Index<TypeDefId> for TypeInfos {
+    type Output = TypeInfo;
+
+    fn index(&self, id: TypeDefId) -> &Self::Output {
+        &self.infos[&id]
+    }
+}
+
+#[must_use]
+pub fn flags_repr(fields: &[FlagsField]) -> Int {
+    match fields.len() {
+        n if n <= 8 => Int::U8,
+        n if n <= 16 => Int::U16,
+        n if n <= 32 => Int::U32,
+        n if n <= 64 => Int::U64,
+        _ => panic!("too many flags to fit in a repr"),
+    }
 }

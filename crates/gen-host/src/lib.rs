@@ -13,9 +13,9 @@ use heck::{ToSnakeCase, ToUpperCamelCase};
 use proc_macro2::TokenStream;
 use quote::format_ident;
 use quote::quote;
-use tauri_bindgen_core::{Generate, GeneratorBuilder};
+use tauri_bindgen_core::{Generate, GeneratorBuilder, TypeInfos, TypeInfo};
 use tauri_bindgen_gen_rust::{
-    print_generics, BorrowMode, FnSig, RustGenerator, TypeInfo, TypeInfos,
+    print_generics, BorrowMode, FnSig, RustGenerator,
 };
 use wit_parser::{Function, Interface, Type, TypeDefKind, FunctionResult};
 
@@ -233,7 +233,7 @@ impl RustGenerator for Host {
 }
 
 impl Generate for Host {
-    fn to_tokens(&self) -> TokenStream {
+    fn to_tokens(&mut self) -> TokenStream {
         let docs = self.print_docs(&self.interface.docs);
 
         let ident = format_ident!("{}", self.interface.ident.to_snake_case());
@@ -286,7 +286,7 @@ impl Generate for Host {
         }
     }
 
-    fn to_file(&self) -> (PathBuf, String) {
+    fn to_file(&mut self) -> (PathBuf, String) {
         let mut filename = PathBuf::from(self.interface.ident.to_kebab_case());
         filename.set_extension("rs");
 

@@ -10,3 +10,5 @@ rust-version.workspace = true
 [dependencies]
 wit-parser.workspace = true
 proc-macro2 = "1.0.56"
+bitflags.workspace = true
+log.workspace = true
