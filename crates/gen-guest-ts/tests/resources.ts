@@ -1,3 +1,22 @@
+export class Deserializer {
+    source
+    offset
+    
+    constructor(bytes) {
+        this.source = bytes
+        this.offset = 0
+    }
+
+    pop() {
+        return this.source[this.offset++]
+    }
+
+    try_take_n(len) {
+        const out = this.source.slice(this.offset, this.offset + len)
+        this.offset += len
+        return out
+    }
+}
 
 
 class A {
@@ -37,11 +56,23 @@ class B {
 
             
             export async function constructorA () : Promise<A> {
-                return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: JSON.stringify([]) }).then(r => r.json())
+                return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: JSON.stringify([]) })
+                .then(r => r.arrayBuffer())
+                .then(bytes => {
+                    const de = new Deserializer(new Uint8Array(bytes))
+
+                    return A.deserialize(de)
+                })
             }
         
             
             export async function constructorB () : Promise<B> {
-                return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: JSON.stringify([]) }).then(r => r.json())
+                return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: JSON.stringify([]) })
+                .then(r => r.arrayBuffer())
+                .then(bytes => {
+                    const de = new Deserializer(new Uint8Array(bytes))
+
+                    return B.deserialize(de)
+                })
             }
         

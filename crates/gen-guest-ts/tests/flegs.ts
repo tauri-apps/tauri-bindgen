@@ -1,4 +1,37 @@
+export class Deserializer {
+    source
+    offset
+    
+    constructor(bytes) {
+        this.source = bytes
+        this.offset = 0
+    }
 
+    pop() {
+        return this.source[this.offset++]
+    }
+
+    try_take_n(len) {
+        const out = this.source.slice(this.offset, this.offset + len)
+        this.offset += len
+        return out
+    }
+}
+function deserializeFlag1(de) {
+                return deserializeU8(de)
+        }function deserializeFlag2(de) {
+                return deserializeU8(de)
+        }function deserializeFlag4(de) {
+                return deserializeU8(de)
+        }function deserializeFlag8(de) {
+                return deserializeU8(de)
+        }function deserializeFlag16(de) {
+                return deserializeU16(de)
+        }function deserializeFlag32(de) {
+                return deserializeU32(de)
+        }function deserializeFlag64(de) {
+                return deserializeU64(de)
+        }
 
 export enum Flag1 { 
 B0 = 2,
@@ -271,36 +304,78 @@ B63 = 0,
 
             
             export async function roundtripFlag1 (x: Flag1) : Promise<Flag1> {
-                return fetch('ipc://localhost/flegs/roundtrip_flag1', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
+                return fetch('ipc://localhost/flegs/roundtrip_flag1', { method: "POST", body: JSON.stringify([x]) })
+                .then(r => r.arrayBuffer())
+                .then(bytes => {
+                    const de = new Deserializer(new Uint8Array(bytes))
+
+                    return deserializeFlag1(de)
+                })
             }
         
             
             export async function roundtripFlag2 (x: Flag2) : Promise<Flag2> {
-                return fetch('ipc://localhost/flegs/roundtrip_flag2', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
+                return fetch('ipc://localhost/flegs/roundtrip_flag2', { method: "POST", body: JSON.stringify([x]) })
+                .then(r => r.arrayBuffer())
+                .then(bytes => {
+                    const de = new Deserializer(new Uint8Array(bytes))
+
+                    return deserializeFlag2(de)
+                })
             }
         
             
             export async function roundtripFlag4 (x: Flag4) : Promise<Flag4> {
-                return fetch('ipc://localhost/flegs/roundtrip_flag4', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
+                return fetch('ipc://localhost/flegs/roundtrip_flag4', { method: "POST", body: JSON.stringify([x]) })
+                .then(r => r.arrayBuffer())
+                .then(bytes => {
+                    const de = new Deserializer(new Uint8Array(bytes))
+
+                    return deserializeFlag4(de)
+                })
             }
         
             
             export async function roundtripFlag8 (x: Flag8) : Promise<Flag8> {
-                return fetch('ipc://localhost/flegs/roundtrip_flag8', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
+                return fetch('ipc://localhost/flegs/roundtrip_flag8', { method: "POST", body: JSON.stringify([x]) })
+                .then(r => r.arrayBuffer())
+                .then(bytes => {
+                    const de = new Deserializer(new Uint8Array(bytes))
+
+                    return deserializeFlag8(de)
+                })
             }
         
             
             export async function roundtripFlag16 (x: Flag16) : Promise<Flag16> {
-                return fetch('ipc://localhost/flegs/roundtrip_flag16', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
+                return fetch('ipc://localhost/flegs/roundtrip_flag16', { method: "POST", body: JSON.stringify([x]) })
+                .then(r => r.arrayBuffer())
+                .then(bytes => {
+                    const de = new Deserializer(new Uint8Array(bytes))
+
+                    return deserializeFlag16(de)
+                })
             }
         
             
             export async function roundtripFlag32 (x: Flag32) : Promise<Flag32> {
-                return fetch('ipc://localhost/flegs/roundtrip_flag32', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
+                return fetch('ipc://localhost/flegs/roundtrip_flag32', { method: "POST", body: JSON.stringify([x]) })
+                .then(r => r.arrayBuffer())
+                .then(bytes => {
+                    const de = new Deserializer(new Uint8Array(bytes))
+
+                    return deserializeFlag32(de)
+                })
             }
         
             
             export async function roundtripFlag64 (x: Flag64) : Promise<Flag64> {
-                return fetch('ipc://localhost/flegs/roundtrip_flag64', { method: "POST", body: JSON.stringify([x]) }).then(r => r.json())
+                return fetch('ipc://localhost/flegs/roundtrip_flag64', { method: "POST", body: JSON.stringify([x]) })
+                .then(r => r.arrayBuffer())
+                .then(bytes => {
+                    const de = new Deserializer(new Uint8Array(bytes))
+
+                    return deserializeFlag64(de)
+                })
             }
         

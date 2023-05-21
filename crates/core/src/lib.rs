@@ -1,7 +1,8 @@
 use proc_macro2::TokenStream;
 use std::{collections::HashMap, ops::Index, path::PathBuf};
 use wit_parser::{
-    FlagsField, FunctionResult, Int, Interface, Type, TypeDefArena, TypeDefId, TypeDefKind,
+    FlagsField, Function, FunctionResult, Int, Interface, Type, TypeDefArena, TypeDefId,
+    TypeDefKind,
 };
 
 pub trait GeneratorBuilder {
@@ -72,27 +73,32 @@ pub struct TypeInfos {
 
 impl TypeInfos {
     #[must_use]
-    pub fn new() -> Self {
-        TypeInfos::default()
-    }
+    pub fn collect_from_functions(typedefs: &TypeDefArena, functions: &[Function]) -> Self {
+        let mut this = Self::default();
 
-    pub fn collect_param_info(&mut self, typedefs: &TypeDefArena, params: &[(String, Type)]) {
-        for (_, ty) in params {
-            self.collect_type_info(typedefs, ty, TypeInfo::PARAM);
-        }
-    }
-
-    pub fn collect_result_info(&mut self, typedefs: &TypeDefArena, result: &FunctionResult) {
-        match result {
-            FunctionResult::Anon(ty) => {
-                self.collect_type_info(typedefs, ty, TypeInfo::RESULT);
+        for func in functions {
+            for (_, ty) in &func.params {
+                this.collect_type_info(typedefs, ty, TypeInfo::PARAM);
             }
-            FunctionResult::Named(results) => {
-                for (_, ty) in results {
-                    self.collect_type_info(typedefs, ty, TypeInfo::RESULT);
+
+            match &func.result {
+                Some(FunctionResult::Anon(ty)) => {
+                    this.collect_type_info(typedefs, ty, TypeInfo::RESULT);
                 }
+                Some(FunctionResult::Named(results)) => {
+                    for (_, ty) in results {
+                        this.collect_type_info(typedefs, ty, TypeInfo::RESULT);
+                    }
+                }
+                None => {}
             }
         }
+
+        for (id, typedef) in typedefs {
+            log::debug!("type info: {} {:#?}", typedef.ident, this[id]);
+        }
+
+        this
     }
 
     fn collect_typedef_info(

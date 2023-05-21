@@ -10,6 +10,7 @@ tauri-bindgen-core.workspace = true
 wit-parser.workspace = true
 heck.workspace = true
 clap = { workspace = true, optional = true }
+tauri-bindgen-gen-js = { path = "../gen-js" }
 
 [features]
 cli = ["clap"]
