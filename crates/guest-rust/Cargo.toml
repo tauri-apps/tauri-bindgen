@@ -17,6 +17,7 @@ tracing = "0.1.37"
 postcard = { version = "1.0.4", features = ["alloc"]}
 heapless = "0.7.16"
 js-sys = "0.3.63"
+thiserror.workspace = true
 
 [dependencies.web-sys]
 version = "0.3.63"

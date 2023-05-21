@@ -1,7 +1,11 @@
 #![allow(clippy::must_use_candidate, clippy::unused_self)]
 
 use heck::{ToKebabCase, ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
-use std::{fmt::Write, path::PathBuf, sync::atomic::{AtomicU32, Ordering}};
+use std::{
+    fmt::Write,
+    path::PathBuf,
+    sync::atomic::{AtomicU32, Ordering},
+};
 use tauri_bindgen_core::{
     flags_repr, postprocess, Generate, GeneratorBuilder, TypeInfo, TypeInfos,
 };
@@ -68,7 +72,7 @@ impl JavaScript {
         let deserialize_result = func
             .result
             .as_ref()
-            .map(|res| self.print_deserialize_function_result(&res))
+            .map(|res| self.print_deserialize_function_result(res))
             .unwrap_or_default();
 
         format!(
@@ -272,58 +276,72 @@ impl JavaScript {
         }
     }
 
+    #[allow(clippy::too_many_lines)]
     fn print_deserialize_ty(&self, ty: &Type) -> String {
         match ty {
             Type::Bool => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_BOOl.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_BOOl.bits(), Ordering::Relaxed);
                 "deserializeBoolean(de)".to_string()
             }
             Type::U8 => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_U8.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_U8.bits(), Ordering::Relaxed);
                 "deserializeU8(de)".to_string()
             }
             Type::U16 => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_U16.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_U16.bits(), Ordering::Relaxed);
                 "deserializeU16(de)".to_string()
             }
             Type::U32 => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_U32.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_U32.bits(), Ordering::Relaxed);
                 "deserializeU32(de)".to_string()
             }
             Type::U64 => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_U64.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_U64.bits(), Ordering::Relaxed);
                 "deserializeU64(de)".to_string()
             }
             Type::S8 => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_S8.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_S8.bits(), Ordering::Relaxed);
                 "deserializeS8(de)".to_string()
             }
             Type::S16 => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_S16.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_S16.bits(), Ordering::Relaxed);
                 "deserializeS16(de)".to_string()
             }
             Type::S32 => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_S32.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_S32.bits(), Ordering::Relaxed);
                 "deserializeS32(de)".to_string()
             }
             Type::S64 => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_S64.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_S64.bits(), Ordering::Relaxed);
                 "deserializeS64(de)".to_string()
             }
             Type::Float32 => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_F32.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_F32.bits(), Ordering::Relaxed);
                 "deserializeF32(de)".to_string()
             }
             Type::Float64 => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_F64.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_F64.bits(), Ordering::Relaxed);
                 "deserializeF64(de)".to_string()
             }
             Type::Char => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_CHAR.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_CHAR.bits(), Ordering::Relaxed);
                 "deserializeChar(de)".to_string()
             }
             Type::String => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_STRING.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_STRING.bits(), Ordering::Relaxed);
                 "deserializeString(de)".to_string()
             }
             Type::Tuple(types) => {
@@ -336,21 +354,25 @@ impl JavaScript {
                 format!("[{types}]")
             }
             Type::List(ty) if **ty == Type::U8 => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_BYTES.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_BYTES.bits(), Ordering::Relaxed);
                 "deserializeBytes(de)".to_string()
             }
             Type::List(ty) => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_LIST.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_LIST.bits(), Ordering::Relaxed);
                 let ty = self.print_deserialize_ty(ty);
                 format!("deserializeList(de, (de) => {ty})")
             }
             Type::Option(ty) => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_OPTION.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_OPTION.bits(), Ordering::Relaxed);
                 let ty = self.print_deserialize_ty(ty);
                 format!("deserializeOption(de, (de) => {ty})")
             }
             Type::Result { ok, err } => {
-                self.serde_utils.fetch_or(SerdeUtils::DE_RESULT.bits(), Ordering::Relaxed);
+                self.serde_utils
+                    .fetch_or(SerdeUtils::DE_RESULT.bits(), Ordering::Relaxed);
                 let ok = ok
                     .as_ref()
                     .map_or("() => {}".to_string(), |ty| self.print_deserialize_ty(ty));
@@ -380,19 +402,19 @@ impl JavaScript {
         let typedef = &self.interface.typedefs[id];
         let ident = &typedef.ident.to_upper_camel_case();
 
-        match typedef.kind.clone() {
+        match &typedef.kind {
             TypeDefKind::Alias(ty) => self.print_deserialize_alias(ident, ty),
-            TypeDefKind::Record(fields) => self.print_deserialize_record(ident, &fields),
-            TypeDefKind::Flags(fields) => self.print_deserialize_flags(ident, &fields),
-            TypeDefKind::Variant(cases) => self.print_deserialize_variant(ident, &cases),
-            TypeDefKind::Enum(cases) => self.print_deserialize_enum(ident, &cases),
-            TypeDefKind::Union(cases) => self.print_deserialize_union(ident, &cases),
+            TypeDefKind::Record(fields) => self.print_deserialize_record(ident, fields),
+            TypeDefKind::Flags(fields) => self.print_deserialize_flags(ident, fields),
+            TypeDefKind::Variant(cases) => self.print_deserialize_variant(ident, cases),
+            TypeDefKind::Enum(cases) => self.print_deserialize_enum(ident, cases),
+            TypeDefKind::Union(cases) => self.print_deserialize_union(ident, cases),
             TypeDefKind::Resource(_) => String::new(),
         }
     }
 
-    fn print_deserialize_alias(&self, ident: &str, ty: Type) -> String {
-        let inner = self.print_deserialize_ty(&ty);
+    fn print_deserialize_alias(&self, ident: &str, ty: &Type) -> String {
+        let inner = self.print_deserialize_ty(ty);
 
         format!(
             r#"function deserialize{ident}(de) {{
@@ -444,8 +466,7 @@ impl JavaScript {
                 let inner = case
                     .ty
                     .as_ref()
-                    .map(|ty| self.print_deserialize_ty(&ty))
-                    .unwrap_or("null".to_string());
+                    .map_or("null".to_string(), |ty| self.print_deserialize_ty(ty));
 
                 format!(
                     "case {tag}:
@@ -526,13 +547,12 @@ impl JavaScript {
 
 impl Generate for JavaScript {
     fn to_file(&mut self) -> (std::path::PathBuf, String) {
-
         let mut deserializers = String::new();
         for (id, _) in self.interface.typedefs.iter() {
             let info = self.infos[id];
 
             if info.contains(TypeInfo::RESULT) {
-                deserializers.push_str(&self.print_deserialize_typedef(id))
+                deserializers.push_str(&self.print_deserialize_typedef(id));
             }
         }
 
@@ -629,6 +649,7 @@ bitflags::bitflags! {
     }
 }
 
+#[allow(clippy::too_many_lines)]
 fn print_serde_utils(serde_utils: &SerdeUtils) -> Result<String, std::fmt::Error> {
     let mut out = "export class Deserializer {
         constructor(bytes) {

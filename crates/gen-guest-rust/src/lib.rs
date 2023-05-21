@@ -69,7 +69,7 @@ impl RustWasm {
             unsafe_: false,
             private: false,
             self_arg: None,
-            func
+            func,
         };
 
         let sig = self.print_function_signature(
@@ -81,9 +81,9 @@ impl RustWasm {
         let ident = func.ident.to_snake_case();
 
         let param_idents = func
-                .params
-                .iter()
-                .map(|(ident, _)| { format_ident!("{}", ident) });
+            .params
+            .iter()
+            .map(|(ident, _)| format_ident!("{}", ident));
 
         quote! {
             #sig {

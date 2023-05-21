@@ -1,6 +1,8 @@
 use proc_macro2::TokenStream;
-use std::{path::PathBuf, collections::HashMap, ops::Index};
-use wit_parser::{Interface, TypeDefArena, Type, TypeDefId, FunctionResult, TypeDefKind, FlagsField, Int};
+use std::{collections::HashMap, ops::Index, path::PathBuf};
+use wit_parser::{
+    FlagsField, FunctionResult, Int, Interface, Type, TypeDefArena, TypeDefId, TypeDefKind,
+};
 
 pub trait GeneratorBuilder {
     fn build(self, interface: Interface) -> Box<dyn Generate>;
@@ -176,6 +178,9 @@ impl Index<TypeDefId> for TypeInfos {
     }
 }
 
+/// # Panics
+///
+/// Panics if the number of flags field is larger than 64
 #[must_use]
 pub fn flags_repr(fields: &[FlagsField]) -> Int {
     match fields.len() {

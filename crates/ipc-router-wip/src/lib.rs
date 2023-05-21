@@ -165,7 +165,7 @@ macro_rules! impl_into_func {
                     log::debug!("Serializing response...");
                     let out = postcard::to_allocvec(&out)?;
 
-                    tx.send(out)?;                    
+                    tx.send(out)?;
 
                     Ok(())
                 })
@@ -199,6 +199,7 @@ macro_rules! for_each_function_signature {
 for_each_function_signature!(impl_into_func);
 
 pub trait BuilderExt {
+    #[must_use]
     fn ipc_router<U: Send + Sync + 'static>(self, router: Router<U>) -> Self;
 }
 
@@ -244,9 +245,9 @@ fn uri_scheme_handler_inner<U: Send + Sync + 'static, R: Runtime>(
 
     let path = url.path().strip_prefix('/').unwrap();
 
-    let (module, method) = path.split_once('/')
-        .map(|(module, method)| (Some(module), method))
-        .unwrap_or((None, path));
+    let (module, method) = path
+        .split_once('/')
+        .map_or((None, path), |(module, method)| (Some(module), method));
 
     log::debug!("ipc request for {:?}::{}", module, method);
 

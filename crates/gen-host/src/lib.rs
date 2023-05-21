@@ -13,11 +13,9 @@ use heck::{ToSnakeCase, ToUpperCamelCase};
 use proc_macro2::TokenStream;
 use quote::format_ident;
 use quote::quote;
-use tauri_bindgen_core::{Generate, GeneratorBuilder, TypeInfos, TypeInfo};
-use tauri_bindgen_gen_rust::{
-    print_generics, BorrowMode, FnSig, RustGenerator,
-};
-use wit_parser::{Function, Interface, Type, TypeDefKind, FunctionResult};
+use tauri_bindgen_core::{Generate, GeneratorBuilder, TypeInfo, TypeInfos};
+use tauri_bindgen_gen_rust::{print_generics, BorrowMode, FnSig, RustGenerator};
+use wit_parser::{Function, FunctionResult, Interface, Type, TypeDefKind};
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -265,9 +263,8 @@ impl Generate for Host {
             true,
         );
 
-        let add_to_router = self.print_add_to_router(
-            &self.interface.ident, self.interface.functions.iter()
-        );
+        let add_to_router =
+            self.print_add_to_router(&self.interface.ident, self.interface.functions.iter());
 
         quote! {
             #docs
@@ -320,11 +317,7 @@ impl Host {
                 func,
             };
 
-            let sig = self.print_function_signature(
-                &sig,
-                &BorrowMode::Owned,
-                &BorrowMode::Owned,
-            );
+            let sig = self.print_function_signature(&sig, &BorrowMode::Owned, &BorrowMode::Owned);
 
             quote! { #sig; }
         });
@@ -383,36 +376,27 @@ impl Host {
             let func_ident = format_ident!("{}", func_name);
 
             let params = self.print_function_params(&func.params, &BorrowMode::Owned);
-        
+
             let param_idents = func
                 .params
                 .iter()
                 .map(|(ident, _)| { format_ident!("{}", ident) });
-                // .map(|(ident, ty)| {
-                //     let ident = format_ident!("{}", ident);
-                    
-                //     if self.needs_borrow(ty, &BorrowMode::AllBorrowed(parse_quote!('_))) || matches!(ty, Type::String | Type::List(_)) {
-                //         quote! { &#ident }
-                //     } else {
-                //         quote! { #ident }
-                //     }
-                // });
 
             let result = match func.result.as_ref() {
                 Some(FunctionResult::Anon(ty)) => {
                     let ty = self.print_ty(ty, &BorrowMode::Owned);
-    
+
                     quote! { #ty }
                 }
                 Some(FunctionResult::Named(types)) if types.len() == 1 => {
                     let (_, ty) = &types[0];
                     let ty = self.print_ty(ty, &BorrowMode::Owned);
-    
+
                     quote! { #ty }
                 }
                 Some(FunctionResult::Named(types)) => {
                     let types = types.iter().map(|(_, ty)| self.print_ty(ty, &BorrowMode::Owned));
-    
+
                     quote! { (#(#types),*) }
                 }
                 _ => quote! { () },
@@ -438,7 +422,7 @@ impl Host {
         //         get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + Copy + 'static,
         //     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
         //     where
-        //         U: 
+        //         U:
         //     {
         //         #( #functions )*
 

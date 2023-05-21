@@ -123,12 +123,12 @@ fn run() -> Result<()> {
         Command::Host(HostGenerator { builder, world, .. }) => {
             let (path, contents) = gen_interface(builder, world)?;
 
-            write_file(&out_dir, &path, &contents)?;
+            write_file(out_dir, &path, &contents)?;
         }
         Command::Guest(GuestGenerator::Rust { builder, world, .. }) => {
             let (path, contents) = gen_interface(builder, world)?;
 
-            write_file(&out_dir, &path, &contents)?;
+            write_file(out_dir, &path, &contents)?;
         }
         #[cfg(feature = "unstable")]
         Command::Guest(GuestGenerator::Javascript { builder, world, .. }) => {

@@ -5,11 +5,11 @@ use proc_macro2::{Ident, Literal, TokenStream};
 use quote::{format_ident, quote};
 use std::collections::HashMap;
 use syn::Lifetime;
-use tauri_bindgen_core::{TypeInfos, TypeInfo, flags_repr};
+use tauri_bindgen_core::{flags_repr, TypeInfo, TypeInfos};
 
 use wit_parser::{
-    EnumCase, FlagsField, Function, FunctionResult, Int, Interface, RecordField, Type,
-    TypeDefId, TypeDefKind, UnionCase, VariantCase,
+    EnumCase, FlagsField, Function, FunctionResult, Int, Interface, RecordField, Type, TypeDefId,
+    TypeDefKind, UnionCase, VariantCase,
 };
 
 pub trait RustGenerator {
