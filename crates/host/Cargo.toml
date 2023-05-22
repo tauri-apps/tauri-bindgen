@@ -16,4 +16,4 @@ tracing = { version = "0.1.37", features = ["log", "log-always"] }
 anyhow = "1.0.71"
 serde.workspace = true
 ipc-router-wip = { path = "../ipc-router-wip" }
-generational-arena = "0.2.8"
+generational-arena = "0.2.9"
