@@ -33,12 +33,12 @@ function max_of_last_byte(type) {
 }
 
 function de_varint(de, type) {
-    let out = 0n;
+    let out = 0;
 
     for (let i = 0; i < varint_max(type); i++) {
         const val = de.pop();
-        const carry = BigInt(val & 0x7F);
-        out |= carry << (7n * BigInt(i));
+        const carry = val & 0x7F;
+        out |= carry << (7 * i);
 
         if ((val & 0x80) === 0) {
             if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
@@ -59,18 +59,21 @@ function de_varint(de, type) {
 }function deserializeU64(de) {
     return de_varint(de, 64)
 }function ser_varint(out, type, val) {
+    let buf = []
     for (let i = 0; i < varint_max(type); i++) {
-        const buffer = new Uint8Array(type / 8);
+        const buffer = new ArrayBuffer(type / 8);
         const view = new DataView(buffer);
-        view.setInt16(0, Number(val), true);
-        out[i] = view.getUint8(0);
-        if (val < 128n) {
+        view.setInt16(0, val, true);
+        buf[i] = view.getUint8(0);
+        if (val < 128) {
+            out.push(...buf)
             return;
         }
 
-        out[i] |= 0x80;
-        val >>= 7n;
+        buf[i] |= 0x80;
+        val >>= 7;
     }
+    out.push(...buf)
 }
 function serializeU8(out, val) {
     return out.push(val)
@@ -118,7 +121,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeFlag1(out, x)
 
-                return fetch('ipc://localhost/flegs/roundtrip_flag1', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/flegs/roundtrip_flag1', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -135,7 +138,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeFlag2(out, x)
 
-                return fetch('ipc://localhost/flegs/roundtrip_flag2', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/flegs/roundtrip_flag2', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -152,7 +155,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeFlag4(out, x)
 
-                return fetch('ipc://localhost/flegs/roundtrip_flag4', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/flegs/roundtrip_flag4', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -169,7 +172,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeFlag8(out, x)
 
-                return fetch('ipc://localhost/flegs/roundtrip_flag8', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/flegs/roundtrip_flag8', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -186,7 +189,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeFlag16(out, x)
 
-                return fetch('ipc://localhost/flegs/roundtrip_flag16', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/flegs/roundtrip_flag16', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -203,7 +206,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeFlag32(out, x)
 
-                return fetch('ipc://localhost/flegs/roundtrip_flag32', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/flegs/roundtrip_flag32', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -220,7 +223,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeFlag64(out, x)
 
-                return fetch('ipc://localhost/flegs/roundtrip_flag64', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/flegs/roundtrip_flag64', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))

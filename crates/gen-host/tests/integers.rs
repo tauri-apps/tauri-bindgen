@@ -51,8 +51,7 @@ pub mod integers {
                     x: u8,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.a1(x);
-                    Ok(())
+                    Ok(ctx.a1(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -65,8 +64,7 @@ pub mod integers {
                     x: i8,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.a2(x);
-                    Ok(())
+                    Ok(ctx.a2(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -79,8 +77,7 @@ pub mod integers {
                     x: u16,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.a3(x);
-                    Ok(())
+                    Ok(ctx.a3(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -93,8 +90,7 @@ pub mod integers {
                     x: i16,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.a4(x);
-                    Ok(())
+                    Ok(ctx.a4(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -107,8 +103,7 @@ pub mod integers {
                     x: u32,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.a5(x);
-                    Ok(())
+                    Ok(ctx.a5(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -121,8 +116,7 @@ pub mod integers {
                     x: i32,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.a6(x);
-                    Ok(())
+                    Ok(ctx.a6(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -135,8 +129,7 @@ pub mod integers {
                     x: u64,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.a7(x);
-                    Ok(())
+                    Ok(ctx.a7(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -149,8 +142,7 @@ pub mod integers {
                     x: i64,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.a8(x);
-                    Ok(())
+                    Ok(ctx.a8(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -170,8 +162,7 @@ pub mod integers {
                     p8: i64,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.a9(p1, p2, p3, p4, p5, p6, p7, p8);
-                    Ok(())
+                    Ok(ctx.a9(p1, p2, p3, p4, p5, p6, p7, p8))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);

@@ -91,8 +91,7 @@ pub mod lists {
                     x: Vec<u8>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.list_u8_param(x);
-                    Ok(())
+                    Ok(ctx.list_u8_param(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -105,8 +104,7 @@ pub mod lists {
                     x: Vec<u16>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.list_u16_param(x);
-                    Ok(())
+                    Ok(ctx.list_u16_param(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -119,8 +117,7 @@ pub mod lists {
                     x: Vec<u32>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.list_u32_param(x);
-                    Ok(())
+                    Ok(ctx.list_u32_param(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -133,8 +130,7 @@ pub mod lists {
                     x: Vec<u64>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.list_u64_param(x);
-                    Ok(())
+                    Ok(ctx.list_u64_param(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -147,8 +143,7 @@ pub mod lists {
                     x: Vec<i8>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.list_s8_param(x);
-                    Ok(())
+                    Ok(ctx.list_s8_param(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -161,8 +156,7 @@ pub mod lists {
                     x: Vec<i16>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.list_s16_param(x);
-                    Ok(())
+                    Ok(ctx.list_s16_param(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -175,8 +169,7 @@ pub mod lists {
                     x: Vec<i32>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.list_s32_param(x);
-                    Ok(())
+                    Ok(ctx.list_s32_param(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -189,8 +182,7 @@ pub mod lists {
                     x: Vec<i64>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.list_s64_param(x);
-                    Ok(())
+                    Ok(ctx.list_s64_param(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -203,8 +195,7 @@ pub mod lists {
                     x: Vec<f32>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.list_float32_param(x);
-                    Ok(())
+                    Ok(ctx.list_float32_param(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -217,8 +208,7 @@ pub mod lists {
                     x: Vec<f64>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.list_float64_param(x);
-                    Ok(())
+                    Ok(ctx.list_float64_param(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -364,8 +354,7 @@ pub mod lists {
                     a: Vec<String>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.string_list_arg(a);
-                    Ok(())
+                    Ok(ctx.string_list_arg(a))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);

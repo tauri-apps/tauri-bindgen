@@ -34,12 +34,12 @@ function max_of_last_byte(type) {
 }
 
 function de_varint(de, type) {
-    let out = 0n;
+    let out = 0;
 
     for (let i = 0; i < varint_max(type); i++) {
         const val = de.pop();
-        const carry = BigInt(val & 0x7F);
-        out |= carry << (7n * BigInt(i));
+        const carry = val & 0x7F;
+        out |= carry << (7 * i);
 
         if ((val & 0x80) === 0) {
             if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
@@ -64,11 +64,11 @@ function de_varint(de, type) {
 }function deserializeS32(de) {
     const n = de_varint(de, 32)
 
-    return Number(((n >> 1n) & 0xFFFFFFFFn) ^ (-((n & 0b1n) & 0xFFFFFFFFn)))
+    return Number(((n >> 1) & 0xFFFFFFFF) ^ (-((n & 0b1) & 0xFFFFFFFF)))
 }function deserializeS64(de) {
     const n = de_varint(de, 64)
 
-    return Number(((n >> 1n) & 0xFFFFFFFFFFFFFFFFn) ^ (-((n & 0b1n) & 0xFFFFFFFFFFFFFFFFn)))
+    return Number(((n >> 1) & 0xFFFFFFFFFFFFFFFF) ^ (-((n & 0b1) & 0xFFFFFFFFFFFFFFFF)))
 }function deserializeF32(de) {
     const bytes = de.try_take_n(4);
 
@@ -102,40 +102,43 @@ function de_varint(de, type) {
 
     return bytes;
 }function deserializeOption(de, inner) {
-    const disc = de.pop()
+    const tag = de.pop()
 
-    switch (disc) {
+    switch (tag) {
         case 0:
             return null
         case 1: 
             return inner(de)
         default:
-            throw new Error('Deserialize bad option')
+            throw new Error(`Deserialize bad option ${tag}`)
     }
 }function deserializeResult(de, ok, err) {
-    const disc = de.pop()
+    const tag = de.pop()
 
-    switch (disc) {
+    switch (tag) {
         case 0:
-            return ok(de)
+            return { Ok: ok(de) }
         case 1: 
-            return err(de)
+            return { Err: err(de) }
         default:
-            throw new Error('Deserialize bad result')
+            throw new Error(`Deserialize bad result ${tag}`)
     }
 }function ser_varint(out, type, val) {
+    let buf = []
     for (let i = 0; i < varint_max(type); i++) {
-        const buffer = new Uint8Array(type / 8);
+        const buffer = new ArrayBuffer(type / 8);
         const view = new DataView(buffer);
-        view.setInt16(0, Number(val), true);
-        out[i] = view.getUint8(0);
-        if (val < 128n) {
+        view.setInt16(0, val, true);
+        buf[i] = view.getUint8(0);
+        if (val < 128) {
+            out.push(...buf)
             return;
         }
 
-        out[i] |= 0x80;
-        val >>= 7n;
+        buf[i] |= 0x80;
+        val >>= 7;
     }
+    out.push(...buf)
 }
 function serializeBool(out, val) {
     out.push(val === true ? 1 : 0)
@@ -146,23 +149,23 @@ function serializeBool(out, val) {
 }function serializeU64(out, val) {
     return ser_varint(out, 64, val)
 }function serializeS32(out, val) {
-    ser_varint(out, 32, BigInt((val << 1) ^ (val >> 31)))
+    ser_varint(out, 32, (val << 1) ^ (val >> 31))
 }function serializeS64(out, val) {
-    ser_varint(out, 64, BigInt((val << 1) ^ (val >> 63)))
+    ser_varint(out, 64, (val << 1) ^ (val >> 63))
 }function serializeF32(out, val) {
-    const buf = new Uint8Array(4);
+    const buf = new ArrayBuffer(4);
     const view = new DataView(buf);
 
     view.setFloat32(0, val, true);
 
-    out.push([...buf])
+    out.push(...new Uint8Array(buf))
 }function serializeF64(out, val) {
-    const buf = new Uint8Array(8);
+    const buf = new ArrayBuffer(8);
     const view = new DataView(buf);
 
     view.setFloat64(0, val, true);
 
-    out.push([...buf])
+    out.push(...new Uint8Array(buf))
 }function serializeString(out, val) {
     serializeU64(out, val.length);
 
@@ -174,149 +177,152 @@ function serializeBool(out, val) {
     out.push(...val)
 }function serializeOption(out, inner, val) {
     serializeU8(out, !!val ? 1 : 0)
-    inner(out, val)
-}function serializeResult(out, ok, err, val) {
-    switch (val.tag) {
-        case 0:
-            serializeU8(out, 0);
-            return ok(out, val.val);
-        case 1:
-            serializeU8(out, 1);
-            return err(out, val.val);
-        default:
-            throw new Error('Serialize bad result');
+    if (val) {
+        inner(out, val)
     }
-}function deserializeE1(de) {
-                const disc = deserializeU32(de)
+}function serializeResult(out, ok, err, val) {
+    if (val.Ok) {
+        serializeU8(out, 0);
+        return ok(out, val.Ok);
+    }
 
-                switch (disc) {
-                    case 0n:
+    if (val.Err) {
+        serializeU8(out, 1);
+        return err(out, val.Err);
+    }
+
+    throw new Error(`Serialize bad result ${val}`);
+}function deserializeE1(de) {
+                const tag = deserializeU32(de)
+
+                switch (tag) {
+                    case 0:
                 return "A"
             
                     default:
-                        throw new Error("unknown enum case")
+                        throw new Error(`unknown enum case ${tag}`)
                 }
         }function deserializeU1(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
-                return { tag: 0, value: deserializeU32(de) }
-            case 1n:
-                return { tag: 1, value: deserializeF32(de) }
+                switch (tag) {
+                    case 0:
+                return { U32: deserializeU32(de) }
+            case 1:
+                return { F32: deserializeF32(de) }
             
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown union case ${tag}`)
                 }
         }function deserializeEmpty(de) {
             return {
                 
             }
         }function deserializeV1(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
-                return { tag: 0, value: null }
-            case 1n:
-                return { tag: 1, value: deserializeU1(de) }
-            case 2n:
-                return { tag: 2, value: deserializeE1(de) }
-            case 3n:
-                return { tag: 3, value: deserializeString(de) }
-            case 4n:
-                return { tag: 4, value: deserializeEmpty(de) }
-            case 5n:
-                return { tag: 5, value: null }
-            case 6n:
-                return { tag: 6, value: deserializeU32(de) }
-            
+                switch (tag) {
+                    case 0:
+            return { A: null }
+        case 1:
+            return { B: deserializeU1(de) }
+        case 2:
+            return { C: deserializeE1(de) }
+        case 3:
+            return { D: deserializeString(de) }
+        case 4:
+            return { E: deserializeEmpty(de) }
+        case 5:
+            return { F: null }
+        case 6:
+            return { G: deserializeU32(de) }
+        
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown variant case ${tag}`)
                 }
         }function deserializeCasts1(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
-                return { tag: 0, value: deserializeS32(de) }
-            case 1n:
-                return { tag: 1, value: deserializeF32(de) }
-            
+                switch (tag) {
+                    case 0:
+            return { A: deserializeS32(de) }
+        case 1:
+            return { B: deserializeF32(de) }
+        
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown variant case ${tag}`)
                 }
         }function deserializeCasts2(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
-                return { tag: 0, value: deserializeF64(de) }
-            case 1n:
-                return { tag: 1, value: deserializeF32(de) }
-            
+                switch (tag) {
+                    case 0:
+            return { A: deserializeF64(de) }
+        case 1:
+            return { B: deserializeF32(de) }
+        
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown variant case ${tag}`)
                 }
         }function deserializeCasts3(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
-                return { tag: 0, value: deserializeF64(de) }
-            case 1n:
-                return { tag: 1, value: deserializeU64(de) }
-            
+                switch (tag) {
+                    case 0:
+            return { A: deserializeF64(de) }
+        case 1:
+            return { B: deserializeU64(de) }
+        
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown variant case ${tag}`)
                 }
         }function deserializeCasts4(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
-                return { tag: 0, value: deserializeU32(de) }
-            case 1n:
-                return { tag: 1, value: deserializeS64(de) }
-            
+                switch (tag) {
+                    case 0:
+            return { A: deserializeU32(de) }
+        case 1:
+            return { B: deserializeS64(de) }
+        
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown variant case ${tag}`)
                 }
         }function deserializeCasts5(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
-                return { tag: 0, value: deserializeF32(de) }
-            case 1n:
-                return { tag: 1, value: deserializeS64(de) }
-            
+                switch (tag) {
+                    case 0:
+            return { A: deserializeF32(de) }
+        case 1:
+            return { B: deserializeS64(de) }
+        
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown variant case ${tag}`)
                 }
         }function deserializeCasts6(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
-                return { tag: 0, value: [deserializeF32(de), deserializeU32(de)] }
-            case 1n:
-                return { tag: 1, value: [deserializeU32(de), deserializeU32(de)] }
-            
+                switch (tag) {
+                    case 0:
+            return { A: [deserializeF32(de), deserializeU32(de)] }
+        case 1:
+            return { B: [deserializeU32(de), deserializeU32(de)] }
+        
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown variant case ${tag}`)
                 }
         }function deserializeMyErrno(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
+                switch (tag) {
+                    case 0:
                 return "Bad1"
-            case 1n:
+            case 1:
                 return "Bad2"
             
                     default:
-                        throw new Error("unknown enum case")
+                        throw new Error(`unknown enum case ${tag}`)
                 }
         }function deserializeIsClone(de) {
             return {
@@ -332,134 +338,123 @@ function serializeBool(out, val) {
                         throw new Error("unknown enum case")
                 }
         }function serializeU1(out, val) {
-                serializeU32(out, val.tag)
-
-                switch (val.tag) {
-                    case 0:
-                    serializeU32(out, val.val)
-                    return
-                case 1:
-                    serializeF32(out, val.val)
-                    return
-                
-                    default:
-                        throw new Error("unknown union case")
+                if (val.U32) {
+                    serializeU32(out, 0);
+                    return serializeU32(out, val.U32)
                 }
+                if (val.F32) {
+                    serializeU32(out, 1);
+                    return serializeF32(out, val.F32)
+                }
+                
+
+                throw new Error("unknown union case")
         }function serializeEmpty(out, val) {
                 
             }function serializeV1(out, val) {
-                serializeU32(out, val.tag)
-
-                switch (val.tag) {
-                    case 0:
-                    
-                    return
-                case 1:
-                    serializeU1(out, val.val)
-                    return
-                case 2:
-                    serializeE1(out, val.val)
-                    return
-                case 3:
-                    serializeString(out, val.val)
-                    return
-                case 4:
-                    serializeEmpty(out, val.val)
-                    return
-                case 5:
-                    
-                    return
-                case 6:
-                    serializeU32(out, val.val)
-                    return
-                
-                    default:
-                        throw new Error("unknown variant case")
+                if (val.A) {
+                    serializeU32(out, 0);
+                    return 
                 }
+                if (val.B) {
+                    serializeU32(out, 1);
+                    return serializeU1(out, val.B)
+                }
+                if (val.C) {
+                    serializeU32(out, 2);
+                    return serializeE1(out, val.C)
+                }
+                if (val.D) {
+                    serializeU32(out, 3);
+                    return serializeString(out, val.D)
+                }
+                if (val.E) {
+                    serializeU32(out, 4);
+                    return serializeEmpty(out, val.E)
+                }
+                if (val.F) {
+                    serializeU32(out, 5);
+                    return 
+                }
+                if (val.G) {
+                    serializeU32(out, 6);
+                    return serializeU32(out, val.G)
+                }
+                
+
+                throw new Error("unknown variant case")
         }function serializeCasts1(out, val) {
-                serializeU32(out, val.tag)
-
-                switch (val.tag) {
-                    case 0:
-                    serializeS32(out, val.val)
-                    return
-                case 1:
-                    serializeF32(out, val.val)
-                    return
-                
-                    default:
-                        throw new Error("unknown variant case")
+                if (val.A) {
+                    serializeU32(out, 0);
+                    return serializeS32(out, val.A)
                 }
+                if (val.B) {
+                    serializeU32(out, 1);
+                    return serializeF32(out, val.B)
+                }
+                
+
+                throw new Error("unknown variant case")
         }function serializeCasts2(out, val) {
-                serializeU32(out, val.tag)
-
-                switch (val.tag) {
-                    case 0:
-                    serializeF64(out, val.val)
-                    return
-                case 1:
-                    serializeF32(out, val.val)
-                    return
-                
-                    default:
-                        throw new Error("unknown variant case")
+                if (val.A) {
+                    serializeU32(out, 0);
+                    return serializeF64(out, val.A)
                 }
+                if (val.B) {
+                    serializeU32(out, 1);
+                    return serializeF32(out, val.B)
+                }
+                
+
+                throw new Error("unknown variant case")
         }function serializeCasts3(out, val) {
-                serializeU32(out, val.tag)
-
-                switch (val.tag) {
-                    case 0:
-                    serializeF64(out, val.val)
-                    return
-                case 1:
-                    serializeU64(out, val.val)
-                    return
-                
-                    default:
-                        throw new Error("unknown variant case")
+                if (val.A) {
+                    serializeU32(out, 0);
+                    return serializeF64(out, val.A)
                 }
+                if (val.B) {
+                    serializeU32(out, 1);
+                    return serializeU64(out, val.B)
+                }
+                
+
+                throw new Error("unknown variant case")
         }function serializeCasts4(out, val) {
-                serializeU32(out, val.tag)
-
-                switch (val.tag) {
-                    case 0:
-                    serializeU32(out, val.val)
-                    return
-                case 1:
-                    serializeS64(out, val.val)
-                    return
-                
-                    default:
-                        throw new Error("unknown variant case")
+                if (val.A) {
+                    serializeU32(out, 0);
+                    return serializeU32(out, val.A)
                 }
+                if (val.B) {
+                    serializeU32(out, 1);
+                    return serializeS64(out, val.B)
+                }
+                
+
+                throw new Error("unknown variant case")
         }function serializeCasts5(out, val) {
-                serializeU32(out, val.tag)
-
-                switch (val.tag) {
-                    case 0:
-                    serializeF32(out, val.val)
-                    return
-                case 1:
-                    serializeS64(out, val.val)
-                    return
-                
-                    default:
-                        throw new Error("unknown variant case")
+                if (val.A) {
+                    serializeU32(out, 0);
+                    return serializeF32(out, val.A)
                 }
+                if (val.B) {
+                    serializeU32(out, 1);
+                    return serializeS64(out, val.B)
+                }
+                
+
+                throw new Error("unknown variant case")
         }function serializeCasts6(out, val) {
-                serializeU32(out, val.tag)
-
-                switch (val.tag) {
-                    case 0:
-                    {serializeF32(out, val.val[0]);serializeU32(out, val.val[1])}
-                    return
-                case 1:
-                    {serializeU32(out, val.val[0]);serializeU32(out, val.val[1])}
-                    return
-                
-                    default:
-                        throw new Error("unknown variant case")
+                if (val.A) {
+                    serializeU32(out, 0);
+                    return {serializeF32(out, val.A[0]);serializeU32(out, val.A[1])}
                 }
+                if (val.B) {
+                    serializeU32(out, 1);
+                    return {serializeU32(out, val.B[0]);serializeU32(out, val.B[1])}
+                }
+                
+
+                throw new Error("unknown variant case")
         }function serializeIsClone(out, val) {
                 serializeV1(out, val.v1)
             }
@@ -656,13 +651,13 @@ v1: V1,
             
             export async function optionArg (a: boolean | null, b: [] | null, c: number | null, d: E1 | null, e: number | null, f: U1 | null, g: boolean | null | null) : Promise<void> {
                 const out = []
-                serializeOption(out, (v) => serializeBool(out, v), a);
-serializeOption(out, (v) => {}, b);
-serializeOption(out, (v) => serializeU32(out, v), c);
-serializeOption(out, (v) => serializeE1(out, v), d);
-serializeOption(out, (v) => serializeF32(out, v), e);
-serializeOption(out, (v) => serializeU1(out, v), f);
-serializeOption(out, (v) => serializeOption(out, (v) => serializeBool(out, v), v), g)
+                serializeOption(out, (out, v) => serializeBool(out, v), a);
+serializeOption(out, (out, v) => {}, b);
+serializeOption(out, (out, v) => serializeU32(out, v), c);
+serializeOption(out, (out, v) => serializeE1(out, v), d);
+serializeOption(out, (out, v) => serializeF32(out, v), e);
+serializeOption(out, (out, v) => serializeU1(out, v), f);
+serializeOption(out, (out, v) => serializeOption(out, (out, v) => serializeBool(out, v), v), g)
                 
                  fetch('ipc://localhost/variants/option_arg', { method: "POST", body: Uint8Array.from(out) }) 
             }
@@ -703,12 +698,12 @@ serializeCasts6(out, f)
             
             export async function resultArg (a: Result<null, null>, b: Result<null, E1>, c: Result<E1, null>, d: Result<[], []>, e: Result<number, V1>, f: Result<string, Uint8Array[]>) : Promise<void> {
                 const out = []
-                serializeResult(out, (v) => {}, (v) => {}, a);
-serializeResult(out, (v) => {}, (v) => serializeE1(out, v), b);
-serializeResult(out, (v) => serializeE1(out, v), (v) => {}, c);
-serializeResult(out, (v) => {}, (v) => {}, d);
-serializeResult(out, (v) => serializeU32(out, v), (v) => serializeV1(out, v), e);
-serializeResult(out, (v) => serializeString(out, v), (v) => serializeList(out, (v) => serializeU8(out, v), v), f)
+                serializeResult(out, (out, v) => {}, (out, v) => {}, a);
+serializeResult(out, (out, v) => {}, (out, v) => serializeE1(out, v), b);
+serializeResult(out, (out, v) => serializeE1(out, v), (out, v) => {}, c);
+serializeResult(out, (out, v) => {}, (out, v) => {}, d);
+serializeResult(out, (out, v) => serializeU32(out, v), (out, v) => serializeV1(out, v), e);
+serializeResult(out, (out, v) => serializeString(out, v), (out, v) => serializeList(out, (out, v) => serializeU8(out, v), v), f)
                 
                  fetch('ipc://localhost/variants/result_arg', { method: "POST", body: Uint8Array.from(out) }) 
             }

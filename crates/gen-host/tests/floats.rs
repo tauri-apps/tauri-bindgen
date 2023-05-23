@@ -27,8 +27,7 @@ pub mod floats {
                     x: f32,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.float32_param(x);
-                    Ok(())
+                    Ok(ctx.float32_param(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -41,8 +40,7 @@ pub mod floats {
                     x: f64,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.float64_param(x);
-                    Ok(())
+                    Ok(ctx.float64_param(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);

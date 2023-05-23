@@ -27,8 +27,7 @@ pub mod multi_return {
                     mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.mra();
-                    Ok(())
+                    Ok(ctx.mra())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -40,8 +39,7 @@ pub mod multi_return {
                     mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.mrb();
-                    Ok(())
+                    Ok(ctx.mrb())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);

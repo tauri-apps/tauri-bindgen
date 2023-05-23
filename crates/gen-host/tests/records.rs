@@ -73,8 +73,7 @@ All of the fields are bool*/
                     x: (char, u32),
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.tuple_arg(x);
-                    Ok(())
+                    Ok(ctx.tuple_arg(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -99,8 +98,7 @@ All of the fields are bool*/
                     x: Empty,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.empty_arg(x);
-                    Ok(())
+                    Ok(ctx.empty_arg(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -125,8 +123,7 @@ All of the fields are bool*/
                     x: Scalars,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.scalar_arg(x);
-                    Ok(())
+                    Ok(ctx.scalar_arg(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -151,8 +148,7 @@ All of the fields are bool*/
                     x: ReallyFlags,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.flags_arg(x);
-                    Ok(())
+                    Ok(ctx.flags_arg(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -177,8 +173,7 @@ All of the fields are bool*/
                     x: Aggregates,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.aggregate_arg(x);
-                    Ok(())
+                    Ok(ctx.aggregate_arg(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);

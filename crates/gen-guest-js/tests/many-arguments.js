@@ -28,18 +28,21 @@ function varint_max(type) {
     return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
 }
 function ser_varint(out, type, val) {
+    let buf = []
     for (let i = 0; i < varint_max(type); i++) {
-        const buffer = new Uint8Array(type / 8);
+        const buffer = new ArrayBuffer(type / 8);
         const view = new DataView(buffer);
-        view.setInt16(0, Number(val), true);
-        out[i] = view.getUint8(0);
-        if (val < 128n) {
+        view.setInt16(0, val, true);
+        buf[i] = view.getUint8(0);
+        if (val < 128) {
+            out.push(...buf)
             return;
         }
 
-        out[i] |= 0x80;
-        val >>= 7n;
+        buf[i] |= 0x80;
+        val >>= 7;
     }
+    out.push(...buf)
 }
 function serializeU64(out, val) {
     return ser_varint(out, 64, val)
@@ -109,7 +112,7 @@ serializeU64(out, a14);
 serializeU64(out, a15);
 serializeU64(out, a16)
 
-                return fetch('ipc://localhost/many_arguments/many_args', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/many_arguments/many_args', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -119,6 +122,6 @@ serializeU64(out, a16)
                 const out = []
                 serializeBigStruct(out, x)
 
-                return fetch('ipc://localhost/many_arguments/big_argument', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/many_arguments/big_argument', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         

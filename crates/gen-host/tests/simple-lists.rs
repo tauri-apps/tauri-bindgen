@@ -27,8 +27,7 @@ pub mod simple_lists {
                     l: Vec<u32>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.simple_list1(l);
-                    Ok(())
+                    Ok(ctx.simple_list1(l))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);

@@ -33,12 +33,12 @@ function max_of_last_byte(type) {
 }
 
 function de_varint(de, type) {
-    let out = 0n;
+    let out = 0;
 
     for (let i = 0; i < varint_max(type); i++) {
         const val = de.pop();
-        const carry = BigInt(val & 0x7F);
-        out |= carry << (7n * BigInt(i));
+        const carry = val & 0x7F;
+        out |= carry << (7 * i);
 
         if ((val & 0x80) === 0) {
             if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
@@ -63,19 +63,24 @@ function de_varint(de, type) {
 }function deserializeU64(de) {
     return de_varint(de, 64)
 }function deserializeS8(de) {
-    return de.pop()
+    const buf = new ArrayBuffer(1);
+    const view = new DataView(buf);
+
+    buf[0] = view.setUint8(0, de.pop());
+
+    return view.getInt8(0);
 }function deserializeS16(de) {
     const n = de_varint(de, 16)
 
-    return Number(((n >> 1n) & 0xFFFFn) ^ (-((n & 0b1n) & 0xFFFFn)))
+    return Number(((n >> 1) & 0xFFFF) ^ (-((n & 0b1) & 0xFFFF)))
 }function deserializeS32(de) {
     const n = de_varint(de, 32)
 
-    return Number(((n >> 1n) & 0xFFFFFFFFn) ^ (-((n & 0b1n) & 0xFFFFFFFFn)))
+    return Number(((n >> 1) & 0xFFFFFFFF) ^ (-((n & 0b1) & 0xFFFFFFFF)))
 }function deserializeS64(de) {
     const n = de_varint(de, 64)
 
-    return Number(((n >> 1n) & 0xFFFFFFFFFFFFFFFFn) ^ (-((n & 0b1n) & 0xFFFFFFFFFFFFFFFFn)))
+    return Number(((n >> 1) & 0xFFFFFFFFFFFFFFFF) ^ (-((n & 0b1) & 0xFFFFFFFFFFFFFFFF)))
 }function deserializeF32(de) {
     const bytes = de.try_take_n(4);
 
@@ -113,18 +118,21 @@ function de_varint(de, type) {
 
     return decoder.decode(bytes);
 }function ser_varint(out, type, val) {
+    let buf = []
     for (let i = 0; i < varint_max(type); i++) {
-        const buffer = new Uint8Array(type / 8);
+        const buffer = new ArrayBuffer(type / 8);
         const view = new DataView(buffer);
-        view.setInt16(0, Number(val), true);
-        out[i] = view.getUint8(0);
-        if (val < 128n) {
+        view.setInt16(0, val, true);
+        buf[i] = view.getUint8(0);
+        if (val < 128) {
+            out.push(...buf)
             return;
         }
 
-        out[i] |= 0x80;
-        val >>= 7n;
+        buf[i] |= 0x80;
+        val >>= 7;
     }
+    out.push(...buf)
 }
 function serializeBool(out, val) {
     out.push(val === true ? 1 : 0)
@@ -139,25 +147,25 @@ function serializeBool(out, val) {
 }function serializeS8(out, val) {
     out.push(val)
 }function serializeS16(out, val) {
-    ser_varint(out, 16, BigInt((val << 1) ^ (val >> 15)))
+    ser_varint(out, 16, (val << 1) ^ (val >> 15))
 }function serializeS32(out, val) {
-    ser_varint(out, 32, BigInt((val << 1) ^ (val >> 31)))
+    ser_varint(out, 32, (val << 1) ^ (val >> 31))
 }function serializeS64(out, val) {
-    ser_varint(out, 64, BigInt((val << 1) ^ (val >> 63)))
+    ser_varint(out, 64, (val << 1) ^ (val >> 63))
 }function serializeF32(out, val) {
-    const buf = new Uint8Array(4);
+    const buf = new ArrayBuffer(4);
     const view = new DataView(buf);
 
     view.setFloat32(0, val, true);
 
-    out.push([...buf])
+    out.push(...new Uint8Array(buf))
 }function serializeF64(out, val) {
-    const buf = new Uint8Array(8);
+    const buf = new ArrayBuffer(8);
     const view = new DataView(buf);
 
     view.setFloat64(0, val, true);
 
-    out.push([...buf])
+    out.push(...new Uint8Array(buf))
 }function serializeChar(out, val) {
     if (val.len > 1) {
         throw new Error("Serialize bad char");
@@ -175,175 +183,173 @@ function serializeBool(out, val) {
 
     out.push(...encoder.encode(val))
 }function deserializeAllIntegers(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
-                return { tag: 0, value: deserializeBool(de) }
-            case 1n:
-                return { tag: 1, value: deserializeU8(de) }
-            case 2n:
-                return { tag: 2, value: deserializeU16(de) }
-            case 3n:
-                return { tag: 3, value: deserializeU32(de) }
-            case 4n:
-                return { tag: 4, value: deserializeU64(de) }
-            case 5n:
-                return { tag: 5, value: deserializeS8(de) }
-            case 6n:
-                return { tag: 6, value: deserializeS16(de) }
-            case 7n:
-                return { tag: 7, value: deserializeS32(de) }
-            case 8n:
-                return { tag: 8, value: deserializeS64(de) }
+                switch (tag) {
+                    case 0:
+                return { Bool: deserializeBool(de) }
+            case 1:
+                return { U8: deserializeU8(de) }
+            case 2:
+                return { U16: deserializeU16(de) }
+            case 3:
+                return { U32: deserializeU32(de) }
+            case 4:
+                return { U64: deserializeU64(de) }
+            case 5:
+                return { I8: deserializeS8(de) }
+            case 6:
+                return { I16: deserializeS16(de) }
+            case 7:
+                return { S32: deserializeS32(de) }
+            case 8:
+                return { S64: deserializeS64(de) }
             
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown union case ${tag}`)
                 }
         }function deserializeAllFloats(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
-                return { tag: 0, value: deserializeF32(de) }
-            case 1n:
-                return { tag: 1, value: deserializeF64(de) }
+                switch (tag) {
+                    case 0:
+                return { F32: deserializeF32(de) }
+            case 1:
+                return { F64: deserializeF64(de) }
             
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown union case ${tag}`)
                 }
         }function deserializeAllText(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
-                return { tag: 0, value: deserializeChar(de) }
-            case 1n:
-                return { tag: 1, value: deserializeString(de) }
+                switch (tag) {
+                    case 0:
+                return { Char: deserializeChar(de) }
+            case 1:
+                return { String: deserializeString(de) }
             
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown union case ${tag}`)
                 }
         }function deserializeDuplicatedS32(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
-                return { tag: 0, value: deserializeS32(de) }
-            case 1n:
-                return { tag: 1, value: deserializeS32(de) }
-            case 2n:
-                return { tag: 2, value: deserializeS32(de) }
+                switch (tag) {
+                    case 0:
+                return { S320: deserializeS32(de) }
+            case 1:
+                return { S321: deserializeS32(de) }
+            case 2:
+                return { S322: deserializeS32(de) }
             
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown union case ${tag}`)
                 }
         }function deserializeDistinguishableNum(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
-                return { tag: 0, value: deserializeF64(de) }
-            case 1n:
-                return { tag: 1, value: deserializeS64(de) }
+                switch (tag) {
+                    case 0:
+                return { F64: deserializeF64(de) }
+            case 1:
+                return { S64: deserializeS64(de) }
             
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown union case ${tag}`)
                 }
         }function serializeAllIntegers(out, val) {
-                serializeU32(out, val.tag)
-
-                switch (val.tag) {
-                    case 0:
-                    serializeBool(out, val.val)
-                    return
-                case 1:
-                    serializeU8(out, val.val)
-                    return
-                case 2:
-                    serializeU16(out, val.val)
-                    return
-                case 3:
-                    serializeU32(out, val.val)
-                    return
-                case 4:
-                    serializeU64(out, val.val)
-                    return
-                case 5:
-                    serializeS8(out, val.val)
-                    return
-                case 6:
-                    serializeS16(out, val.val)
-                    return
-                case 7:
-                    serializeS32(out, val.val)
-                    return
-                case 8:
-                    serializeS64(out, val.val)
-                    return
-                
-                    default:
-                        throw new Error("unknown union case")
+                if (val.Bool) {
+                    serializeU32(out, 0);
+                    return serializeBool(out, val.Bool)
                 }
+                if (val.U8) {
+                    serializeU32(out, 1);
+                    return serializeU8(out, val.U8)
+                }
+                if (val.U16) {
+                    serializeU32(out, 2);
+                    return serializeU16(out, val.U16)
+                }
+                if (val.U32) {
+                    serializeU32(out, 3);
+                    return serializeU32(out, val.U32)
+                }
+                if (val.U64) {
+                    serializeU32(out, 4);
+                    return serializeU64(out, val.U64)
+                }
+                if (val.I8) {
+                    serializeU32(out, 5);
+                    return serializeS8(out, val.I8)
+                }
+                if (val.I16) {
+                    serializeU32(out, 6);
+                    return serializeS16(out, val.I16)
+                }
+                if (val.S32) {
+                    serializeU32(out, 7);
+                    return serializeS32(out, val.S32)
+                }
+                if (val.S64) {
+                    serializeU32(out, 8);
+                    return serializeS64(out, val.S64)
+                }
+                
+
+                throw new Error("unknown union case")
         }function serializeAllFloats(out, val) {
-                serializeU32(out, val.tag)
-
-                switch (val.tag) {
-                    case 0:
-                    serializeF32(out, val.val)
-                    return
-                case 1:
-                    serializeF64(out, val.val)
-                    return
-                
-                    default:
-                        throw new Error("unknown union case")
+                if (val.F32) {
+                    serializeU32(out, 0);
+                    return serializeF32(out, val.F32)
                 }
+                if (val.F64) {
+                    serializeU32(out, 1);
+                    return serializeF64(out, val.F64)
+                }
+                
+
+                throw new Error("unknown union case")
         }function serializeAllText(out, val) {
-                serializeU32(out, val.tag)
-
-                switch (val.tag) {
-                    case 0:
-                    serializeChar(out, val.val)
-                    return
-                case 1:
-                    serializeString(out, val.val)
-                    return
-                
-                    default:
-                        throw new Error("unknown union case")
+                if (val.Char) {
+                    serializeU32(out, 0);
+                    return serializeChar(out, val.Char)
                 }
+                if (val.String) {
+                    serializeU32(out, 1);
+                    return serializeString(out, val.String)
+                }
+                
+
+                throw new Error("unknown union case")
         }function serializeDuplicatedS32(out, val) {
-                serializeU32(out, val.tag)
-
-                switch (val.tag) {
-                    case 0:
-                    serializeS32(out, val.val)
-                    return
-                case 1:
-                    serializeS32(out, val.val)
-                    return
-                case 2:
-                    serializeS32(out, val.val)
-                    return
-                
-                    default:
-                        throw new Error("unknown union case")
+                if (val.S320) {
+                    serializeU32(out, 0);
+                    return serializeS32(out, val.S320)
                 }
+                if (val.S321) {
+                    serializeU32(out, 1);
+                    return serializeS32(out, val.S321)
+                }
+                if (val.S322) {
+                    serializeU32(out, 2);
+                    return serializeS32(out, val.S322)
+                }
+                
+
+                throw new Error("unknown union case")
         }function serializeDistinguishableNum(out, val) {
-                serializeU32(out, val.tag)
-
-                switch (val.tag) {
-                    case 0:
-                    serializeF64(out, val.val)
-                    return
-                case 1:
-                    serializeS64(out, val.val)
-                    return
-                
-                    default:
-                        throw new Error("unknown union case")
+                if (val.F64) {
+                    serializeU32(out, 0);
+                    return serializeF64(out, val.F64)
                 }
+                if (val.S64) {
+                    serializeU32(out, 1);
+                    return serializeS64(out, val.S64)
+                }
+                
+
+                throw new Error("unknown union case")
         }
 /**
  * A union of all of the integral types 

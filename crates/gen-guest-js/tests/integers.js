@@ -33,12 +33,12 @@ function max_of_last_byte(type) {
 }
 
 function de_varint(de, type) {
-    let out = 0n;
+    let out = 0;
 
     for (let i = 0; i < varint_max(type); i++) {
         const val = de.pop();
-        const carry = BigInt(val & 0x7F);
-        out |= carry << (7n * BigInt(i));
+        const carry = val & 0x7F;
+        out |= carry << (7 * i);
 
         if ((val & 0x80) === 0) {
             if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
@@ -59,32 +59,40 @@ function de_varint(de, type) {
 }function deserializeU64(de) {
     return de_varint(de, 64)
 }function deserializeS8(de) {
-    return de.pop()
+    const buf = new ArrayBuffer(1);
+    const view = new DataView(buf);
+
+    buf[0] = view.setUint8(0, de.pop());
+
+    return view.getInt8(0);
 }function deserializeS16(de) {
     const n = de_varint(de, 16)
 
-    return Number(((n >> 1n) & 0xFFFFn) ^ (-((n & 0b1n) & 0xFFFFn)))
+    return Number(((n >> 1) & 0xFFFF) ^ (-((n & 0b1) & 0xFFFF)))
 }function deserializeS32(de) {
     const n = de_varint(de, 32)
 
-    return Number(((n >> 1n) & 0xFFFFFFFFn) ^ (-((n & 0b1n) & 0xFFFFFFFFn)))
+    return Number(((n >> 1) & 0xFFFFFFFF) ^ (-((n & 0b1) & 0xFFFFFFFF)))
 }function deserializeS64(de) {
     const n = de_varint(de, 64)
 
-    return Number(((n >> 1n) & 0xFFFFFFFFFFFFFFFFn) ^ (-((n & 0b1n) & 0xFFFFFFFFFFFFFFFFn)))
+    return Number(((n >> 1) & 0xFFFFFFFFFFFFFFFF) ^ (-((n & 0b1) & 0xFFFFFFFFFFFFFFFF)))
 }function ser_varint(out, type, val) {
+    let buf = []
     for (let i = 0; i < varint_max(type); i++) {
-        const buffer = new Uint8Array(type / 8);
+        const buffer = new ArrayBuffer(type / 8);
         const view = new DataView(buffer);
-        view.setInt16(0, Number(val), true);
-        out[i] = view.getUint8(0);
-        if (val < 128n) {
+        view.setInt16(0, val, true);
+        buf[i] = view.getUint8(0);
+        if (val < 128) {
+            out.push(...buf)
             return;
         }
 
-        out[i] |= 0x80;
-        val >>= 7n;
+        buf[i] |= 0x80;
+        val >>= 7;
     }
+    out.push(...buf)
 }
 function serializeU8(out, val) {
     return out.push(val)
@@ -97,11 +105,11 @@ function serializeU8(out, val) {
 }function serializeS8(out, val) {
     out.push(val)
 }function serializeS16(out, val) {
-    ser_varint(out, 16, BigInt((val << 1) ^ (val >> 15)))
+    ser_varint(out, 16, (val << 1) ^ (val >> 15))
 }function serializeS32(out, val) {
-    ser_varint(out, 32, BigInt((val << 1) ^ (val >> 31)))
+    ser_varint(out, 32, (val << 1) ^ (val >> 31))
 }function serializeS64(out, val) {
-    ser_varint(out, 64, BigInt((val << 1) ^ (val >> 63)))
+    ser_varint(out, 64, (val << 1) ^ (val >> 63))
 }
 
             /**
@@ -111,7 +119,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeU8(out, x)
 
-                return fetch('ipc://localhost/integers/a1', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/a1', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -121,7 +129,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeS8(out, x)
 
-                return fetch('ipc://localhost/integers/a2', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/a2', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -131,7 +139,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeU16(out, x)
 
-                return fetch('ipc://localhost/integers/a3', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/a3', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -141,7 +149,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeS16(out, x)
 
-                return fetch('ipc://localhost/integers/a4', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/a4', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -151,7 +159,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeU32(out, x)
 
-                return fetch('ipc://localhost/integers/a5', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/a5', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -161,7 +169,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeS32(out, x)
 
-                return fetch('ipc://localhost/integers/a6', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/a6', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -171,7 +179,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeU64(out, x)
 
-                return fetch('ipc://localhost/integers/a7', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/a7', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -181,7 +189,7 @@ function serializeU8(out, val) {
                 const out = []
                 serializeS64(out, x)
 
-                return fetch('ipc://localhost/integers/a8', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/a8', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -205,7 +213,7 @@ serializeS32(out, p6);
 serializeU64(out, p7);
 serializeS64(out, p8)
 
-                return fetch('ipc://localhost/integers/a9', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/a9', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -215,7 +223,7 @@ serializeS64(out, p8)
                 const out = []
                 
 
-                return fetch('ipc://localhost/integers/r1', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/r1', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -231,7 +239,7 @@ serializeS64(out, p8)
                 const out = []
                 
 
-                return fetch('ipc://localhost/integers/r2', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/r2', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -247,7 +255,7 @@ serializeS64(out, p8)
                 const out = []
                 
 
-                return fetch('ipc://localhost/integers/r3', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/r3', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -263,7 +271,7 @@ serializeS64(out, p8)
                 const out = []
                 
 
-                return fetch('ipc://localhost/integers/r4', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/r4', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -279,7 +287,7 @@ serializeS64(out, p8)
                 const out = []
                 
 
-                return fetch('ipc://localhost/integers/r5', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/r5', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -295,7 +303,7 @@ serializeS64(out, p8)
                 const out = []
                 
 
-                return fetch('ipc://localhost/integers/r6', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/r6', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -311,7 +319,7 @@ serializeS64(out, p8)
                 const out = []
                 
 
-                return fetch('ipc://localhost/integers/r7', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/r7', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -327,7 +335,7 @@ serializeS64(out, p8)
                 const out = []
                 
 
-                return fetch('ipc://localhost/integers/r8', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/r8', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -343,7 +351,7 @@ serializeS64(out, p8)
                 const out = []
                 
 
-                return fetch('ipc://localhost/integers/pair_ret', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/integers/pair_ret', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))

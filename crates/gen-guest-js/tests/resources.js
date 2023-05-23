@@ -26,7 +26,7 @@ class Deserializer {
                 const out = []
                 
 
-                return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -42,7 +42,7 @@ class Deserializer {
                 const out = []
                 
 
-                return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))

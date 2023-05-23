@@ -26,8 +26,7 @@ pub mod strings {
                     x: String,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    ctx.a(x);
-                    Ok(())
+                    Ok(ctx.a(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);

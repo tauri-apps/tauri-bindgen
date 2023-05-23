@@ -33,12 +33,12 @@ function max_of_last_byte(type) {
 }
 
 function de_varint(de, type) {
-    let out = 0n;
+    let out = 0;
 
     for (let i = 0; i < varint_max(type); i++) {
         const val = de.pop();
-        const carry = BigInt(val & 0x7F);
-        out |= carry << (7n * BigInt(i));
+        const carry = val & 0x7F;
+        out |= carry << (7 * i);
 
         if ((val & 0x80) === 0) {
             if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
@@ -53,18 +53,21 @@ function de_varint(de, type) {
 }function deserializeU32(de) {
     return de_varint(de, 32)
 }function ser_varint(out, type, val) {
+    let buf = []
     for (let i = 0; i < varint_max(type); i++) {
-        const buffer = new Uint8Array(type / 8);
+        const buffer = new ArrayBuffer(type / 8);
         const view = new DataView(buffer);
-        view.setInt16(0, Number(val), true);
-        out[i] = view.getUint8(0);
-        if (val < 128n) {
+        view.setInt16(0, val, true);
+        buf[i] = view.getUint8(0);
+        if (val < 128) {
+            out.push(...buf)
             return;
         }
 
-        out[i] |= 0x80;
-        val >>= 7n;
+        buf[i] |= 0x80;
+        val >>= 7;
     }
+    out.push(...buf)
 }
 function serializeU32(out, val) {
     return ser_varint(out, 32, val)
@@ -76,7 +79,7 @@ function serializeU32(out, val) {
                 const out = []
                 
 
-                return fetch('ipc://localhost/simple_functions/f1', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/simple_functions/f1', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -86,7 +89,7 @@ function serializeU32(out, val) {
                 const out = []
                 serializeU32(out, a)
 
-                return fetch('ipc://localhost/simple_functions/f2', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/simple_functions/f2', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -98,7 +101,7 @@ function serializeU32(out, val) {
                 serializeU32(out, a);
 serializeU32(out, b)
 
-                return fetch('ipc://localhost/simple_functions/f3', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/simple_functions/f3', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -108,7 +111,7 @@ serializeU32(out, b)
                 const out = []
                 
 
-                return fetch('ipc://localhost/simple_functions/f4', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/simple_functions/f4', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -124,7 +127,7 @@ serializeU32(out, b)
                 const out = []
                 
 
-                return fetch('ipc://localhost/simple_functions/f5', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/simple_functions/f5', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -145,7 +148,7 @@ serializeU32(out, b)
 serializeU32(out, b);
 serializeU32(out, c)
 
-                return fetch('ipc://localhost/simple_functions/f6', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/simple_functions/f6', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))

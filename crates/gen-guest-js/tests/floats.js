@@ -36,19 +36,19 @@ function deserializeF32(de) {
 
     return view.getFloat64(0, true);
 }function serializeF32(out, val) {
-    const buf = new Uint8Array(4);
+    const buf = new ArrayBuffer(4);
     const view = new DataView(buf);
 
     view.setFloat32(0, val, true);
 
-    out.push([...buf])
+    out.push(...new Uint8Array(buf))
 }function serializeF64(out, val) {
-    const buf = new Uint8Array(8);
+    const buf = new ArrayBuffer(8);
     const view = new DataView(buf);
 
     view.setFloat64(0, val, true);
 
-    out.push([...buf])
+    out.push(...new Uint8Array(buf))
 }
 
             /**
@@ -58,7 +58,7 @@ function deserializeF32(de) {
                 const out = []
                 serializeF32(out, x)
 
-                return fetch('ipc://localhost/floats/float32_param', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/floats/float32_param', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -68,7 +68,7 @@ function deserializeF32(de) {
                 const out = []
                 serializeF64(out, x)
 
-                return fetch('ipc://localhost/floats/float64_param', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/floats/float64_param', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
             }
         
             /**
@@ -78,7 +78,7 @@ function deserializeF32(de) {
                 const out = []
                 
 
-                return fetch('ipc://localhost/floats/float32_result', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/floats/float32_result', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -94,7 +94,7 @@ function deserializeF32(de) {
                 const out = []
                 
 
-                return fetch('ipc://localhost/floats/float64_result', { method: "POST", body: Uint8Array.from(out) })
+                return fetch('ipc://localhost/floats/float64_result', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))

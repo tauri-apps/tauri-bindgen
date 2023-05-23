@@ -34,12 +34,12 @@ function max_of_last_byte(type) {
 }
 
 function de_varint(de, type) {
-    let out = 0n;
+    let out = 0;
 
     for (let i = 0; i < varint_max(type); i++) {
         const val = de.pop();
-        const carry = BigInt(val & 0x7F);
-        out |= carry << (7n * BigInt(i));
+        const carry = val & 0x7F;
+        out |= carry << (7 * i);
 
         if ((val & 0x80) === 0) {
             if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
@@ -64,38 +64,38 @@ function de_varint(de, type) {
 
     return decoder.decode(bytes);
 }function deserializeOption(de, inner) {
-    const disc = de.pop()
+    const tag = de.pop()
 
-    switch (disc) {
+    switch (tag) {
         case 0:
             return null
         case 1: 
             return inner(de)
         default:
-            throw new Error('Deserialize bad option')
+            throw new Error(`Deserialize bad option ${tag}`)
     }
 }function deserializeResult(de, ok, err) {
-    const disc = de.pop()
+    const tag = de.pop()
 
-    switch (disc) {
+    switch (tag) {
         case 0:
-            return ok(de)
+            return { Ok: ok(de) }
         case 1: 
-            return err(de)
+            return { Err: err(de) }
         default:
-            throw new Error('Deserialize bad result')
+            throw new Error(`Deserialize bad result ${tag}`)
     }
 }function deserializeError(de) {
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0n:
+                switch (tag) {
+                    case 0:
                 return "Success"
-            case 1n:
+            case 1:
                 return "Failure"
             
                     default:
-                        throw new Error("unknown enum case")
+                        throw new Error(`unknown enum case ${tag}`)
                 }
         }
 

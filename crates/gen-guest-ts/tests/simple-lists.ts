@@ -33,12 +33,12 @@ function max_of_last_byte(type) {
 }
 
 function de_varint(de, type) {
-    let out = 0n;
+    let out = 0;
 
     for (let i = 0; i < varint_max(type); i++) {
         const val = de.pop();
-        const carry = BigInt(val & 0x7F);
-        out |= carry << (7n * BigInt(i));
+        const carry = val & 0x7F;
+        out |= carry << (7 * i);
 
         if ((val & 0x80) === 0) {
             if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
@@ -65,18 +65,21 @@ function de_varint(de, type) {
 
     return out;
 }function ser_varint(out, type, val) {
+    let buf = []
     for (let i = 0; i < varint_max(type); i++) {
-        const buffer = new Uint8Array(type / 8);
+        const buffer = new ArrayBuffer(type / 8);
         const view = new DataView(buffer);
-        view.setInt16(0, Number(val), true);
-        out[i] = view.getUint8(0);
-        if (val < 128n) {
+        view.setInt16(0, val, true);
+        buf[i] = view.getUint8(0);
+        if (val < 128) {
+            out.push(...buf)
             return;
         }
 
-        out[i] |= 0x80;
-        val >>= 7n;
+        buf[i] |= 0x80;
+        val >>= 7;
     }
+    out.push(...buf)
 }
 function serializeU32(out, val) {
     return ser_varint(out, 32, val)
@@ -84,7 +87,7 @@ function serializeU32(out, val) {
     return ser_varint(out, 64, val)
 }function serializeList(out, inner, val) {
     serializeU64(out, val.length)
-    for (const el in val) {
+    for (const el of val) {
         inner(out, el)
     }
 }
@@ -93,7 +96,7 @@ function serializeU32(out, val) {
             
             export async function simpleList1 (l: Uint32Array[]) : Promise<void> {
                 const out = []
-                serializeList(out, (v) => serializeU32(out, v), l)
+                serializeList(out, (out, v) => serializeU32(out, v), l)
                 
                  fetch('ipc://localhost/simple_lists/simple_list1', { method: "POST", body: Uint8Array.from(out) }) 
             }
@@ -115,8 +118,8 @@ function serializeU32(out, val) {
             
             export async function simpleList3 (a: Uint32Array[], b: Uint32Array[]) : Promise<[Uint32Array[], Uint32Array[]]> {
                 const out = []
-                serializeList(out, (v) => serializeU32(out, v), a);
-serializeList(out, (v) => serializeU32(out, v), b)
+                serializeList(out, (out, v) => serializeU32(out, v), a);
+serializeList(out, (out, v) => serializeU32(out, v), b)
                 
                 return fetch('ipc://localhost/simple_lists/simple_list3', { method: "POST", body: Uint8Array.from(out) })
                 .then(r => r.arrayBuffer())
@@ -130,7 +133,7 @@ serializeList(out, (v) => serializeU32(out, v), b)
             
             export async function simpleList4 (l: Uint32Array[][]) : Promise<Uint32Array[][]> {
                 const out = []
-                serializeList(out, (v) => serializeList(out, (v) => serializeU32(out, v), v), l)
+                serializeList(out, (out, v) => serializeList(out, (out, v) => serializeU32(out, v), v), l)
                 
                 return fetch('ipc://localhost/simple_lists/simple_list4', { method: "POST", body: Uint8Array.from(out) })
                 .then(r => r.arrayBuffer())
