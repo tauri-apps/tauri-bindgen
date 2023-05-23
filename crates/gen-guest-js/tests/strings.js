@@ -1,4 +1,4 @@
-export class Deserializer {
+class Deserializer {
     source
     offset
     
@@ -27,13 +27,12 @@ function varint_max(type) {
 
     return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
 }
-
 function max_of_last_byte(type) {
     let extra_bits = type % 7;
     return (1 << extra_bits) - 1;
 }
 
-function try_take_varint(de, type) {
+function de_varint(de, type) {
     let out = 0n;
 
     for (let i = 0; i < varint_max(type); i++) {
@@ -52,7 +51,7 @@ function try_take_varint(de, type) {
 
     throw new Error('deserialize bad variant')
 }function deserializeU64(de) {
-    return try_take_varint(de, 64)
+    return de_varint(de, 64)
 }function deserializeString(de) {
     const sz = deserializeU64(de);
 
@@ -61,20 +60,48 @@ function try_take_varint(de, type) {
     const decoder = new TextDecoder('utf-8');
 
     return decoder.decode(bytes);
+}function ser_varint(out, type, val) {
+    for (let i = 0; i < varint_max(type); i++) {
+        const buffer = new ArrayBuffer(type / 8);
+        const view = new DataView(buffer);
+        view.setInt16(0, Number(val), true);
+        out[i] = view.getUint8(0);
+        if (val < 128n) {
+            return;
+        }
+
+        out[i] |= 0x80;
+        val >>= 7n;
+    }
+}
+function serializeU64(out, val) {
+    return ser_varint(out, 64, val)
+}function serializeString(out, val) {
+    serializeU64(out, val.length);
+
+    const encoder = new TextEncoder();
+
+    out.push(...encoder.encode(val))
 }
 
             /**
 * @param {string} x 
 */
             export async function a (x) {
-                return fetch('ipc://localhost/strings/a', { method: "POST", body: JSON.stringify([x]) })
+                const out = []
+                serializeString(out, x)
+
+                return fetch('ipc://localhost/strings/a', { method: "POST", body: Uint8Array.from(out) })
             }
         
             /**
 * @returns {Promise<string>} 
 */
             export async function b () {
-                return fetch('ipc://localhost/strings/b', { method: "POST", body: JSON.stringify([]) })
+                const out = []
+                
+
+                return fetch('ipc://localhost/strings/b', { method: "POST", body: Uint8Array.from(out) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -89,7 +116,11 @@ function try_take_varint(de, type) {
 * @returns {Promise<string>} 
 */
             export async function c (a, b) {
-                return fetch('ipc://localhost/strings/c', { method: "POST", body: JSON.stringify([a, b]) })
+                const out = []
+                serializeString(out, a);
+serializeString(out, b)
+
+                return fetch('ipc://localhost/strings/c', { method: "POST", body: Uint8Array.from(out) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))

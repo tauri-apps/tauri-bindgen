@@ -4,7 +4,7 @@ function deserializeF64(de) {
     const buf = new ArrayBuffer(8);
     const view = new DataView(buf);
 
-    bytes.reverse().forEach((v, i) => view.setUint8(i, v));
+    bytes.forEach((v, i) => view.setUint8(i, v));
 
-    return view.getFloat64(0);
+    return view.getFloat64(0, true);
 }

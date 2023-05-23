@@ -1,5 +1,5 @@
 export type Result<T, E> = { tag: 'ok', val: T } | { tag: 'err', val: E };
-export class Deserializer {
+class Deserializer {
     source
     offset
     
@@ -28,13 +28,12 @@ function varint_max(type) {
 
     return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
 }
-
 function max_of_last_byte(type) {
     let extra_bits = type % 7;
     return (1 << extra_bits) - 1;
 }
 
-function try_take_varint(de, type) {
+function de_varint(de, type) {
     let out = 0n;
 
     for (let i = 0; i < varint_max(type); i++) {
@@ -52,8 +51,10 @@ function try_take_varint(de, type) {
     }
 
     throw new Error('deserialize bad variant')
+}function deserializeU32(de) {
+    return de_varint(de, 32)
 }function deserializeU64(de) {
-    return try_take_varint(de, 64)
+    return de_varint(de, 64)
 }function deserializeString(de) {
     const sz = deserializeU64(de);
 
@@ -88,9 +89,9 @@ function try_take_varint(de, type) {
                 const disc = deserializeU32(de)
 
                 switch (disc) {
-                    case 0:
+                    case 0n:
                 return "Success"
-            case 1:
+            case 1n:
                 return "Failure"
             
                     default:
@@ -107,12 +108,15 @@ Failure,
 
             
             export async function optionTest () : Promise<Result<string | null, Error>> {
-                return fetch('ipc://localhost/small_anonymous/option_test', { method: "POST", body: JSON.stringify([]) })
+                const out = []
+                
+                
+                return fetch('ipc://localhost/small_anonymous/option_test', { method: "POST", body: Uint8Array.from(out) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeResult(de, deserializeOption(de, (de) => deserializeString(de)), deserializeError(de))
-                })
+                }) as Promise<Result<string | null, Error>>
             }
         

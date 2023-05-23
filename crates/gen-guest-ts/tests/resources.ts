@@ -1,4 +1,4 @@
-export class Deserializer {
+class Deserializer {
     source
     offset
     
@@ -41,38 +41,44 @@ class B {
 
                     
                         
-                        async f1 () : Promise<A> {
+                        async f1 () Promise<A> {
                         }
                     
                         
-                        async f2 (x: A) : Promise<Result<number, _>> {
+                        async f2 (x: A) Promise<Result<number, null>> {
                         }
                     
                         
-                        async f3 (x: A[] | null) : Promise<Result<A, _>> {
+                        async f3 (x: A[] | null) Promise<Result<A, null>> {
                         }
                     
                 }
 
             
             export async function constructorA () : Promise<A> {
-                return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: JSON.stringify([]) })
+                const out = []
+                
+                
+                return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: Uint8Array.from(out) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
 
                     return A.deserialize(de)
-                })
+                }) as Promise<A>
             }
         
             
             export async function constructorB () : Promise<B> {
-                return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: JSON.stringify([]) })
+                const out = []
+                
+                
+                return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: Uint8Array.from(out) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
 
                     return B.deserialize(de)
-                })
+                }) as Promise<B>
             }
         

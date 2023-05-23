@@ -4,7 +4,7 @@ function deserializeF32(de) {
     const buf = new ArrayBuffer(4);
     const view = new DataView(buf);
 
-    bytes.reverse().forEach((v, i) => view.setUint8(i, v));
+    bytes.forEach((v, i) => view.setUint8(i, v));
 
-    return view.getFloat32(0);
+    return view.getFloat32(0, true);
 }

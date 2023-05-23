@@ -62,18 +62,11 @@ impl TypeScript {
 
         let params = self.print_function_params(&func.params);
 
-        let param_idents = func
-            .params
-            .iter()
-            .map(|(ident, _)| ident.to_lower_camel_case())
-            .collect::<Vec<_>>()
-            .join(", ");
-
         let result = func
             .result
             .as_ref()
             .map(|result| self.print_function_result(result))
-            .unwrap_or_default();
+            .unwrap_or("Promise<void>".to_string());
 
         let deserialize_result = func
             .result
@@ -81,11 +74,27 @@ impl TypeScript {
             .map(|res| self.print_deserialize_function_result(res))
             .unwrap_or_default();
 
+        let serialize_params = func
+            .params
+            .iter()
+            .map(|(ident, ty)| self.print_serialize_ty(&ident.to_lower_camel_case(), ty))
+            .collect::<Vec<_>>()
+            .join(";\n");
+        
+        let (ret, as_ret) = if func.result.is_some() {
+            ("return".to_string(), format!("as {result}"))
+        } else {
+            ("".to_string(), "".to_string())
+        };
+
         format!(
             r#"
             {docs}
-            export async function {ident} ({params}) {result} {{
-                return fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: JSON.stringify([{param_idents}]) }}){deserialize_result}
+            export async function {ident} ({params}) : {result} {{
+                const out = []
+                {serialize_params}
+                
+                {ret} fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: Uint8Array.from(out) }}){deserialize_result} {as_ret}
             }}
         "#
         )
@@ -106,10 +115,10 @@ impl TypeScript {
 
     fn print_function_result(&self, result: &FunctionResult) -> String {
         match result.len() {
-            0 => String::new(),
+            0 => "Promise<void>".to_string(),
             1 => {
                 let ty = self.print_type(result.types().next().unwrap());
-                format!(": Promise<{ty}>")
+                format!("Promise<{ty}>")
             }
             _ => {
                 let tys = result
@@ -117,7 +126,7 @@ impl TypeScript {
                     .map(|ty| self.print_type(ty))
                     .collect::<Vec<_>>()
                     .join(", ");
-                format!(": Promise<[{tys}]>")
+                format!("Promise<[{tys}]>")
             }
         }
     }
@@ -156,10 +165,10 @@ impl TypeScript {
             Type::Result { ok, err } => {
                 let ok = ok
                     .as_ref()
-                    .map_or("_".to_string(), |ty| self.print_type(ty));
+                    .map_or("null".to_string(), |ty| self.print_type(ty));
                 let err = err
                     .as_ref()
-                    .map_or("_".to_string(), |ty| self.print_type(ty));
+                    .map_or("null".to_string(), |ty| self.print_type(ty));
 
                 format!("Result<{ok}, {err}>")
             }
@@ -396,6 +405,21 @@ impl Generate for TypeScript {
             })
             .collect();
 
+        let serializers: String = self
+            .interface
+            .typedefs
+            .iter()
+            .filter_map(|(id, _)| {
+                let info = self.infos[id];
+
+                if info.contains(TypeInfo::PARAM) {
+                    Some(self.print_serialize_typedef(id))
+                } else {
+                    None
+                }
+            })
+            .collect();
+
         let typedefs: String = self
             .interface
             .typedefs
@@ -411,7 +435,7 @@ impl Generate for TypeScript {
             .collect();
 
         let mut contents =
-            format!("{result_ty}{serde_utils}{deserializers}\n{typedefs}\n{functions}");
+            format!("{result_ty}{serde_utils}{deserializers}{serializers}\n{typedefs}\n{functions}");
 
         if self.opts.prettier {
             postprocess(&mut contents, "prettier", ["--parser=typescript"])

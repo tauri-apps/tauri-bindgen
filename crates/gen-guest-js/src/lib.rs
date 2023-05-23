@@ -28,6 +28,8 @@ impl GeneratorBuilder for Builder {
         let serde_utils =
             SerdeUtils::collect_from_functions(&interface.typedefs, &interface.functions);
 
+        println!("{:?}", serde_utils);
+
         Box::new(JavaScript {
             opts: self,
             interface,
@@ -58,11 +60,21 @@ impl JavaScript {
             .map(|res| self.print_deserialize_function_result(res))
             .unwrap_or_default();
 
+        let serialize_params = func
+            .params
+            .iter()
+            .map(|(ident, ty)| self.print_serialize_ty(&ident.to_lower_camel_case(), ty))
+            .collect::<Vec<_>>()
+            .join(";\n");
+
         format!(
             r#"
             {docs}
             export async function {ident} ({params}) {{
-                return fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: JSON.stringify([{params}]) }}){deserialize_result}
+                const out = []
+                {serialize_params}
+
+                return fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: Uint8Array.from(out) }}){deserialize_result}
             }}
         "#
         )
@@ -251,6 +263,21 @@ impl Generate for JavaScript {
             })
             .collect();
 
+        let serializers: String = self
+            .interface
+            .typedefs
+            .iter()
+            .filter_map(|(id, _)| {
+                let info = self.infos[id];
+
+                if info.contains(TypeInfo::PARAM) {
+                    Some(self.print_serialize_typedef(id))
+                } else {
+                    None
+                }
+            })
+            .collect();
+
         let functions: String = self
             .interface
             .functions
@@ -274,7 +301,7 @@ impl Generate for JavaScript {
 
         let serde_utils = self.serde_utils.to_string();
 
-        let mut contents = format!("{serde_utils}{deserializers}\n{functions}\n{resources}");
+        let mut contents = format!("{serde_utils}{deserializers}{serializers}\n{functions}\n{resources}");
 
         if self.opts.prettier {
             postprocess(&mut contents, "prettier", ["--parser=babel"])

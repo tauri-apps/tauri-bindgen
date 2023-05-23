@@ -1,3 +1,3 @@
 function deserializeU32(de) {
-    return try_take_varint(de, 32)
+    return de_varint(de, 32)
 }

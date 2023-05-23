@@ -1,4 +1,4 @@
-export class Deserializer {
+class Deserializer {
     source
     offset
     
@@ -23,7 +23,10 @@ export class Deserializer {
 * @returns {Promise<A>} 
 */
             export async function constructorA () {
-                return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: JSON.stringify([]) })
+                const out = []
+                
+
+                return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: Uint8Array.from(out) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
@@ -36,7 +39,10 @@ export class Deserializer {
 * @returns {Promise<B>} 
 */
             export async function constructorB () {
-                return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: JSON.stringify([]) })
+                const out = []
+                
+
+                return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: Uint8Array.from(out) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
                     const de = new Deserializer(new Uint8Array(bytes))
