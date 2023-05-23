@@ -6,6 +6,8 @@ use crate::{lex::Token, util::print_list};
 #[derive(Debug, thiserror::Error, Diagnostic)]
 pub enum Error {
     #[error(transparent)]
+    Lex(#[from] crate::lex::Error),
+    #[error(transparent)]
     IoError(#[from] std::io::Error),
     #[error("unexpected end of file")]
     UnexpectedEof,

@@ -11,19 +11,23 @@ use std::iter::Peekable;
 pub type Tokens<'a> = Peekable<SpannedIter<'a, Token>>;
 
 trait TokensExt {
-    fn next_if_token(&mut self, token: Token) -> Option<(Token, Span)>;
+    fn next_if_token(&mut self, token: Token) -> Result<Option<(Token, Span)>>;
     fn expect(&mut self, token: Token) -> Result<(Token, Span)>;
 }
 
 impl<'a> TokensExt for Tokens<'a> {
-    fn next_if_token(&mut self, expected: Token) -> Option<(Token, Span)> {
-        self.next_if(|(found, _)| *found == expected)
+    fn next_if_token(&mut self, expected: Token) -> Result<Option<(Token, Span)>> {
+        self.next_if(|(found, _)| *found == Ok(expected))
+            .map(|(found, range)| found.map(|token| (token, range)))
+            .transpose()
+            .map_err(Error::Lex)
     }
 
     fn expect(&mut self, expected: Token) -> Result<(Token, Span)> {
         match self.next() {
-            Some((found, span)) if found == expected => Ok((found, span)),
-            Some((found, span)) => Err(Error::unexpected_token(span, [expected], found)),
+            Some((Ok(found), span)) if found == expected => Ok((found, span)),
+            Some((Ok(found), span)) => Err(Error::unexpected_token(span, [expected], found)),
+            Some((Err(err), _)) => Err(Error::Lex(err)),
             None => Err(Error::UnexpectedEof),
         }
     }
@@ -166,7 +170,7 @@ impl<'a> FromTokens<'a> for InterfaceItem {
 
         let (_, ident) = tokens.expect(Token::Ident)?;
 
-        let inner = match kind {
+        let inner = match kind? {
             Token::Record => {
                 let inner = parse_list(
                     tokens,
@@ -263,7 +267,7 @@ impl<'a> FromTokens<'a> for Func {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let params = NamedTypeList::parse(tokens)?;
 
-        let result = if tokens.next_if_token(Token::RArrow).is_some() {
+        let result = if tokens.next_if_token(Token::RArrow)?.is_some() {
             Some(FuncResult::parse(tokens)?)
         } else {
             None
@@ -298,7 +302,7 @@ impl<'a> FromTokens<'a> for (Span, Type) {
 
 impl<'a> FromTokens<'a> for FuncResult {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
-        if let Some((Token::LeftParen, _)) = tokens.peek() {
+        if let Some((Ok(Token::LeftParen), _)) = tokens.peek() {
             Ok(FuncResult::Named(NamedTypeList::parse(tokens)?))
         } else {
             Ok(FuncResult::Anon(Type::parse(tokens)?))
@@ -336,7 +340,7 @@ impl<'a> FromTokens<'a> for VariantCase {
 
         let (_, ident) = tokens.expect(Token::Ident)?;
 
-        let ty = if tokens.next_if_token(Token::LeftParen).is_some() {
+        let ty = if tokens.next_if_token(Token::LeftParen)?.is_some() {
             let ty = Type::parse(tokens)?;
             tokens.expect(Token::RightParen)?;
 
@@ -387,7 +391,7 @@ impl<'a> FromTokens<'a> for Type {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let (token, span) = tokens.next().ok_or(Error::UnexpectedEof)?;
 
-        match token {
+        match token? {
             Token::Bool => Ok(Self::Bool),
             Token::U8 => Ok(Self::U8),
             Token::U16 => Ok(Self::U16),
@@ -429,14 +433,14 @@ impl<'a> FromTokens<'a> for Type {
                 let mut ok = None;
                 let mut err = None;
 
-                if tokens.next_if_token(Token::LessThan).is_some() {
-                    if tokens.next_if_token(Token::Underscore).is_some() {
+                if tokens.next_if_token(Token::LessThan)?.is_some() {
+                    if tokens.next_if_token(Token::Underscore)?.is_some() {
                         tokens.expect(Token::Comma)?;
                         err = Some(Box::new(Type::parse(tokens)?));
                     } else {
                         ok = Some(Box::new(Type::parse(tokens)?));
 
-                        if tokens.next_if_token(Token::Comma).is_some() {
+                        if tokens.next_if_token(Token::Comma)?.is_some() {
                             err = Some(Box::new(Type::parse(tokens)?));
                         }
                     };
@@ -465,7 +469,7 @@ where
     let mut items = Vec::new();
     loop {
         // if we found an end token then we're done
-        if tokens.next_if_token(end).is_some() {
+        if tokens.next_if_token(end)?.is_some() {
             break;
         }
 
@@ -475,7 +479,7 @@ where
         // if there's no trailing separator then this is required to be the end,
         // otherwise we go through the loop to try to get another item
         if let Some(sep) = sep {
-            if tokens.next_if_token(sep).is_none() {
+            if tokens.next_if_token(sep)?.is_none() {
                 tokens.expect(end)?;
                 break;
             }
@@ -487,7 +491,7 @@ where
 fn parse_docs(tokens: &mut Tokens) -> Vec<Span> {
     let mut spans = Vec::new();
 
-    while let Some((Token::DocComment | Token::BlockDocComment, span)) = tokens.peek() {
+    while let Some((Ok(Token::DocComment | Token::BlockDocComment), span)) = tokens.peek() {
         spans.push(span.clone());
 
         tokens.next();
