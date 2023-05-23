@@ -6,6 +6,8 @@ pub use {anyhow, async_trait::async_trait, bitflags, ipc_router_wip, serde, taur
 
 pub type ResourceId = u64;
 
+pub type Error = anyhow::Error;
+
 // #[derive(Debug)]
 // pub struct ResourceId<T> {
 //     id: generational_arena::Index,
