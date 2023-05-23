@@ -35,18 +35,7 @@ pub struct Builder {
 
 impl GeneratorBuilder for Builder {
     fn build(self, interface: Interface) -> Box<dyn Generate> {
-        let mut infos = TypeInfos::new();
-
-        for func in &interface.functions {
-            infos.collect_param_info(&interface.typedefs, &func.params);
-            if let Some(result) = &func.result {
-                infos.collect_result_info(&interface.typedefs, result);
-            }
-        }
-
-        for (id, typedef) in &interface.typedefs {
-            log::debug!("type info: {} {:#?}", typedef.ident, infos[id]);
-        }
+        let infos = TypeInfos::collect_from_functions(&interface.typedefs, &interface.functions);
 
         Box::new(RustWasm {
             opts: self,

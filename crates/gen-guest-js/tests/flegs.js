@@ -1,20 +1,23 @@
 export class Deserializer {
-        constructor(bytes) {
-            this.source = bytes
-            this.offset = 0
-        }
+    source
+    offset
     
-        pop() {
-            return this.source[this.offset++]
-        }
-    
-        try_take_n(len) {
-            const out = this.source.slice(this.offset, this.offset + len)
-            this.offset += len
-            return out
-        }
+    constructor(bytes) {
+        this.source = bytes
+        this.offset = 0
     }
-    function deserializeFlag1(de) {
+
+    pop() {
+        return this.source[this.offset++]
+    }
+
+    try_take_n(len) {
+        const out = this.source.slice(this.offset, this.offset + len)
+        this.offset += len
+        return out
+    }
+}
+function deserializeFlag1(de) {
                 return deserializeU8(de)
         }function deserializeFlag2(de) {
                 return deserializeU8(de)
@@ -38,7 +41,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/flegs/roundtrip_flag1', { method: "POST", body: JSON.stringify([x]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeFlag1(de)
                 })
@@ -52,7 +55,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/flegs/roundtrip_flag2', { method: "POST", body: JSON.stringify([x]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeFlag2(de)
                 })
@@ -66,7 +69,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/flegs/roundtrip_flag4', { method: "POST", body: JSON.stringify([x]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeFlag4(de)
                 })
@@ -80,7 +83,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/flegs/roundtrip_flag8', { method: "POST", body: JSON.stringify([x]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeFlag8(de)
                 })
@@ -94,7 +97,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/flegs/roundtrip_flag16', { method: "POST", body: JSON.stringify([x]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeFlag16(de)
                 })
@@ -108,7 +111,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/flegs/roundtrip_flag32', { method: "POST", body: JSON.stringify([x]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeFlag32(de)
                 })
@@ -122,7 +125,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/flegs/roundtrip_flag64', { method: "POST", body: JSON.stringify([x]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeFlag64(de)
                 })

@@ -1,139 +1,131 @@
 export class Deserializer {
-        constructor(bytes) {
-            this.source = bytes
-            this.offset = 0
-        }
+    source
+    offset
     
-        pop() {
-            return this.source[this.offset++]
-        }
-    
-        try_take_n(len) {
-            const out = this.source.slice(this.offset, this.offset + len)
-            this.offset += len
-            return out
+    constructor(bytes) {
+        this.source = bytes
+        this.offset = 0
+    }
+
+    pop() {
+        return this.source[this.offset++]
+    }
+
+    try_take_n(len) {
+        const out = this.source.slice(this.offset, this.offset + len)
+        this.offset += len
+        return out
+    }
+}
+function varint_max(type) {
+    const BITS_PER_BYTE = 8;
+    const BITS_PER_VARINT_BYTE = 7;
+
+    const bits = type * BITS_PER_BYTE;
+
+    const roundup_bits = bits + (BITS_PER_BYTE - 1);
+
+    return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
+}
+
+function max_of_last_byte(type) {
+    let extra_bits = type % 7;
+    return (1 << extra_bits) - 1;
+}
+
+function try_take_varint(de, type) {
+    let out = 0n;
+
+    for (let i = 0; i < varint_max(type); i++) {
+        const val = de.pop();
+        const carry = BigInt(val & 0x7F);
+        out |= carry << (7n * BigInt(i));
+
+        if ((val & 0x80) === 0) {
+            if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
+                throw new Error('deserialize bad variant')
+            } else {
+                return out
+            }
         }
     }
-    function varint_max(type) {
-            const BITS_PER_BYTE = 8;
-            const BITS_PER_VARINT_BYTE = 7;
-        
-            const bits = type * BITS_PER_BYTE;
-    
-            const roundup_bits = bits + (BITS_PER_BYTE - 1);
-        
-            return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
-        }
-        function max_of_last_byte(type) {
-            let extra_bits = type % 7;
-            return (1 << extra_bits) - 1;
-        }
-        function try_take_varint(de, type) {
-            let out = 0n;
 
-            for (let i = 0; i < varint_max(type); i++) {
-                const val = de.pop();
-                const carry = BigInt(val & 0x7F);
-                out |= carry << (7n * BigInt(i));
-        
-                if ((val & 0x80) === 0) {
-                    if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
-                        throw new Error('deserialize bad variant')
-                    } else {
-                        return out
-                    }
-                }
-            }
-        
-            throw new Error('deserialize bad variant')
-        }
-        function deserializeBool(de) {
-            const val = de.pop();
-        
-            return val != 0
-        }
-        function deserializeU8(de) {
-            return de.pop()
-        }
-        function deserializeU32(de) {
-            return try_take_varint(de, 32)
-        }
-        function deserializeU64(de) {
-            return try_take_varint(de, 64)
-        }
-        function deserializeI32(de) {
-            const n = try_take_varint(de, 32)
+    throw new Error('deserialize bad variant')
+}function deserializeBool(de) {
+    const val = de.pop();
 
-            return Number(((n >> 1n) as & 0xFFFFFFFFn) ^ (-((n & 0b1n) as & 0xFFFFFFFFn)))
-        }
-        function deserializeI64(de) {
-            const n = try_take_varint(de, u64)
+    return val != 0
+}function deserializeU8(de) {
+    return de.pop()
+}function deserializeU32(de) {
+    return try_take_varint(de, 32)
+}function deserializeU64(de) {
+    return try_take_varint(de, 64)
+}function deserializeS32(de) {
+    const n = try_take_varint(de, 32)
 
-            return Number(((n >> 1n) & 0xFFFFFFFFFFFFFFFFn) ^ (-((n & 0b1n) & 0xFFFFFFFFFFFFFFFFn)))
-        }
-        function deserializeF32(de) {
-            const bytes = de.try_take_n(4);
+    return Number(((n >> 1n) & 0xFFFFFFFFn) ^ (-((n & 0b1n) & 0xFFFFFFFFn)))
+}function deserializeS64(de) {
+    const n = try_take_varint(de, u64)
 
-            const buf = new ArrayBuffer(4);
-            const view = new DataView(buf);
-        
-            bytes.reverse().forEach((v, i) => view.setUint8(i, v));
-        
-            return view.getFloat32(0);
-        }
-        function deserializeF64(de) {
-            const bytes = de.try_take_n(8);
+    return Number(((n >> 1n) & 0xFFFFFFFFFFFFFFFFn) ^ (-((n & 0b1n) & 0xFFFFFFFFFFFFFFFFn)))
+}function deserializeF32(de) {
+    const bytes = de.try_take_n(4);
 
-            const buf = new ArrayBuffer(8);
-            const view = new DataView(buf);
-        
-            bytes.reverse().forEach((v, i) => view.setUint8(i, v));
-        
-            return view.getFloat64(0);
-        }
-        function deserializeString(de) {
-            const sz = deserializeU64(de);
-        
-            let bytes = de.try_take_n(Number(sz));
-        
-            const decoder = new TextDecoder('utf-8');
-        
-            return decoder.decode(bytes);
-        }
-        function deserializeBytes(de) {
-            const sz = deserializeU64(de);
-        
-            let bytes = de.try_take_n(Number(sz));
-        
-            const decoder = new TextDecoder('utf-8');
-        
-            return decoder.decode(bytes);
-        }
-        function deserializeOption(de, inner) {
-            const disc = de.pop()
-        
-            switch (disc) {
-                case 0:
-                    return null
-                case 1: 
-                    return inner(de)
-                default:
-                    throw new Error('Deserialize bad option')
-            }
-        } 
-        function function deserializeResult(de, ok, err) {
-            const disc = de.pop()
-        
-            switch (disc) {
-                case 0:
-                    return ok(de)
-                case 1: 
-                    return err(de)
-                default:
-                    throw new Error('Deserialize bad result')
-            }
-        } 
-        function deserializeE1(de) {
+    const buf = new ArrayBuffer(4);
+    const view = new DataView(buf);
+
+    bytes.reverse().forEach((v, i) => view.setUint8(i, v));
+
+    return view.getFloat32(0);
+}function deserializeF64(de) {
+    const bytes = de.try_take_n(8);
+
+    const buf = new ArrayBuffer(8);
+    const view = new DataView(buf);
+
+    bytes.reverse().forEach((v, i) => view.setUint8(i, v));
+
+    return view.getFloat64(0);
+}function deserializeString(de) {
+    const sz = deserializeU64(de);
+
+    let bytes = de.try_take_n(Number(sz));
+
+    const decoder = new TextDecoder('utf-8');
+
+    return decoder.decode(bytes);
+}function deserializeBytes(de) {
+    const sz = deserializeU64(de);
+
+    let bytes = de.try_take_n(Number(sz));
+
+    const decoder = new TextDecoder('utf-8');
+
+    return decoder.decode(bytes);
+}function deserializeOption(de, inner) {
+    const disc = de.pop()
+
+    switch (disc) {
+        case 0:
+            return null
+        case 1: 
+            return inner(de)
+        default:
+            throw new Error('Deserialize bad option')
+    }
+}function deserializeResult(de, ok, err) {
+    const disc = de.pop()
+
+    switch (disc) {
+        case 0:
+            return ok(de)
+        case 1: 
+            return err(de)
+        default:
+            throw new Error('Deserialize bad result')
+    }
+}function deserializeE1(de) {
                 const disc = deserializeU32(de)
 
                 switch (disc) {
@@ -285,7 +277,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/e1_result', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeE1(de)
                 })
@@ -305,7 +297,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/u1_result', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeU1(de)
                 })
@@ -325,7 +317,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/v1_result', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeV1(de)
                 })
@@ -345,7 +337,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/bool_result', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeBoolean(de)
                 })
@@ -371,7 +363,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/option_result', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return [deserializeOption(de, (de) => deserializeBoolean(de)), deserializeOption(de, (de) => []), deserializeOption(de, (de) => deserializeU32(de)), deserializeOption(de, (de) => deserializeE1(de)), deserializeOption(de, (de) => deserializeF32(de)), deserializeOption(de, (de) => deserializeU1(de)), deserializeOption(de, (de) => deserializeOption(de, (de) => deserializeBoolean(de)))]
                 })
@@ -390,7 +382,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/casts', { method: "POST", body: JSON.stringify([a, b, c, d, e, f]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return [deserializeCasts1(de), deserializeCasts2(de), deserializeCasts3(de), deserializeCasts4(de), deserializeCasts5(de), deserializeCasts6(de)]
                 })
@@ -415,7 +407,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/result_result', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return [deserializeResult(de, () => {}, () => {}), deserializeResult(de, () => {}, deserializeE1(de)), deserializeResult(de, deserializeE1(de), () => {}), deserializeResult(de, [], []), deserializeResult(de, deserializeU32(de), deserializeV1(de)), deserializeResult(de, deserializeString(de), deserializeBytes(de))]
                 })
@@ -428,7 +420,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/return_result_sugar', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeResult(de, deserializeS32(de), deserializeMyErrno(de))
                 })
@@ -441,7 +433,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/return_result_sugar2', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeResult(de, () => {}, deserializeMyErrno(de))
                 })
@@ -454,7 +446,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/return_result_sugar3', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeResult(de, deserializeMyErrno(de), deserializeMyErrno(de))
                 })
@@ -467,7 +459,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/return_result_sugar4', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeResult(de, [deserializeS32(de), deserializeU32(de)], deserializeMyErrno(de))
                 })
@@ -480,7 +472,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/return_option_sugar', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeOption(de, (de) => deserializeS32(de))
                 })
@@ -493,7 +485,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/return_option_sugar2', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeOption(de, (de) => deserializeMyErrno(de))
                 })
@@ -506,7 +498,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/result_simple', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeResult(de, deserializeU32(de), deserializeS32(de))
                 })
@@ -526,7 +518,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/is_clone_return', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeIsClone(de)
                 })
@@ -539,7 +531,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/return_named_option', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeOption(de, (de) => deserializeU8(de))
                 })
@@ -552,7 +544,7 @@ export class Deserializer {
                 return fetch('ipc://localhost/variants/return_named_result', { method: "POST", body: JSON.stringify([]) })
                 .then(r => r.arrayBuffer())
                 .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                    const de = new Deserializer(new Uint8Array(bytes))
 
                     return deserializeResult(de, deserializeU8(de), deserializeMyErrno(de))
                 })
