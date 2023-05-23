@@ -131,12 +131,12 @@ fn run() -> Result<()> {
         Command::Guest(GuestGenerator::Javascript { builder, world, .. }) => {
             let (path, contents) = gen_interface(builder, world)?;
 
-            write_file(&out_dir, &path, &contents)?;
+            write_file(out_dir, &path, &contents)?;
         }
         Command::Guest(GuestGenerator::Typescript { builder, world, .. }) => {
             let (path, contents) = gen_interface(builder, world)?;
 
-            write_file(&out_dir, &path, &contents)?;
+            write_file(out_dir, &path, &contents)?;
         }
         #[cfg(feature = "unstable")]
         Command::Markdown { builder, world } => {
