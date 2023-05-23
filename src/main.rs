@@ -65,7 +65,6 @@ enum GuestGenerator {
         #[clap(flatten)]
         world: WorldOpt,
     },
-    #[cfg(feature = "unstable")]
     /// Generates bindings for JavaScript guest modules.
     Javascript {
         #[clap(flatten)]
@@ -73,7 +72,6 @@ enum GuestGenerator {
         #[clap(flatten)]
         world: WorldOpt,
     },
-    #[cfg(feature = "unstable")]
     /// Generates bindings for TypeScript guest modules.
     Typescript {
         #[clap(flatten)]
@@ -130,13 +128,11 @@ fn run() -> Result<()> {
 
             write_file(out_dir, &path, &contents)?;
         }
-        #[cfg(feature = "unstable")]
         Command::Guest(GuestGenerator::Javascript { builder, world, .. }) => {
             let (path, contents) = gen_interface(builder, world)?;
 
             write_file(&out_dir, &path, &contents)?;
         }
-        #[cfg(feature = "unstable")]
         Command::Guest(GuestGenerator::Typescript { builder, world, .. }) => {
             let (path, contents) = gen_interface(builder, world)?;
 
