@@ -266,6 +266,7 @@ r#"function deserialize{ident}(de) {{
             Type::Float64 => format!("serializeF64(out, {ident})"),
             Type::Char => format!("serializeChar(out, {ident})"),
             Type::String => format!("serializeString(out, {ident})"),
+            Type::List(ty) if **ty == Type::U8 => format!("serializeBytes(out, {ident})"),
             Type::List(ty) => {
                 let inner = self.print_serialize_ty("v", ty);
 
