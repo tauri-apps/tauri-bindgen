@@ -1,3 +1,3 @@
-function deserializeU64(de) {
-    return de_varint(de, 64)
+function deU64(de) {
+    return deVarint(de, 64)
 }

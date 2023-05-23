@@ -1,4 +1,4 @@
-function serializeBytes(out, val) {
-    serializeU64(out, val.length);
-    out.push(...val)
+function serBytes(ser, val) {
+    serU64(ser, val.length);
+    ser.push(val)
 }

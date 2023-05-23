@@ -1,8 +1,5 @@
-function serializeF32(out, val) {
-    const buf = new ArrayBuffer(4);
-    const view = new DataView(buf);
-
+function serF32(ser, val) {
+    const view = new DataView(ser.bytes.buffer, ser.offset, 4);
+    ser.offset += 4;
     view.setFloat32(0, val, true);
-
-    out.push(...new Uint8Array(buf))
 }

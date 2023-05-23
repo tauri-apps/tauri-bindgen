@@ -4,7 +4,7 @@ pub use anyhow::Error;
 use anyhow::{bail, Result};
 use std::{
     collections::{hash_map::Entry, HashMap},
-    sync::{mpsc::Sender, Arc, Mutex},
+    sync::{mpsc::Sender, Arc, Mutex}, time::Instant,
 };
 use tauri::{AppHandle, Manager, Runtime};
 use url::Url;
@@ -207,9 +207,11 @@ impl<R: Runtime> BuilderExt for tauri::Builder<R> {
     fn ipc_router<U: Send + Sync + 'static>(self, router: Router<U>) -> Self {
         self.manage(Mutex::new(router))
             .register_uri_scheme_protocol("ipc", |app, req| {
+                let start = Instant::now();
+
                 let res = uri_scheme_handler_inner::<U, _>(app, req);
 
-                log::debug!("call result {:?}", res);
+                // log::debug!("call result {:?}", res);
 
                 let mut resp = match res {
                     Ok(val) => {
@@ -220,6 +222,7 @@ impl<R: Runtime> BuilderExt for tauri::Builder<R> {
                     }
                     Err(err) => {
                         let mut resp = tauri::http::Response::new(err.to_string().into_bytes());
+                        resp.set_mimetype(Some("text/plain".to_string()));
                         resp.set_status(tauri::http::status::StatusCode::BAD_REQUEST);
                         resp
                     }
@@ -230,7 +233,7 @@ impl<R: Runtime> BuilderExt for tauri::Builder<R> {
                     tauri::http::header::HeaderValue::from_static("*"),
                 );
 
-                log::trace!("sending response {:?}", resp);
+                log::debug!("handling request took {:?}", Instant::now().duration_since(start));
 
                 Ok(resp)
             })

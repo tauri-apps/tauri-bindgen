@@ -1,17 +1,16 @@
-function ser_varint(out, type, val) {
-    let buf = []
-    for (let i = 0; i < varint_max(type); i++) {
-        const buffer = new ArrayBuffer(type / 8);
+function serVarint(ser, bits, val) {
+    for (let i = 0; i < varintMax[bits]; i++) {
+        const buffer = new ArrayBuffer(bits / 8);
         const view = new DataView(buffer);
         view.setInt16(0, val, true);
-        buf[i] = view.getUint8(0);
+        ser.bytes[ser.offset] = view.getUint8(0);
         if (val < 128) {
-            out.push(...buf)
+            ser.offset += 1
             return;
         }
 
-        buf[i] |= 0x80;
+        ser.bytes[ser.offset] |= 0x80;
         val >>= 7;
+        ser.offset += 1
     }
-    out.push(...buf)
 }

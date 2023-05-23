@@ -65,14 +65,23 @@ impl JavaScript {
             .collect::<Vec<_>>()
             .join(";\n");
 
+        let size_hint = func
+            .params
+            .iter()
+            .map(|(ident, ty)| {
+                self.size_hint_for_type(ident, ty)
+            })
+            .collect::<Vec<_>>()
+            .join("+");
+
         format!(
             r#"
 {docs}
 export async function {ident} ({params}) {{
-    const out = []
+    const ser = new Serializer({size_hint})
     {serialize_params}
 
-    return fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: Uint8Array.from(out), headers: {{ 'Content-Type': 'application/octet-stream' }} }}){deserialize_result}
+    return fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: ser.filled(), headers: {{ 'Content-Type': 'application/octet-stream' }} }}){deserialize_result}
 }}
 "#
         )

@@ -1,3 +1,3 @@
-function serializeBool(out, val) {
-    out.push(val === true ? 1 : 0)
+function serBool(out, val) {
+    out.pushU8(val === true ? 1 : 0)
 }

@@ -1,5 +1,5 @@
-function deserializeChar(de) {
-    const sz = deserializeU64(de);
+function deChar(de) {
+    const sz = deU64(de);
     if (sz > 4) {
         throw new Error("Deserialize bad char");
     }

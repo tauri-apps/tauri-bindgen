@@ -1,6 +1,6 @@
-function serializeList(out, inner, val) {
-    serializeU64(out, val.length)
+function serList(ser, inner, val) {
+    serU64(ser, val.length)
     for (const el of val) {
-        inner(out, el)
+        inner(ser, el)
     }
 }

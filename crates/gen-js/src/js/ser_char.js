@@ -1,9 +1,9 @@
-function serializeChar(out, val) {
+function serChar(ser, val) {
     if (val.len > 1) {
         throw new Error("Serialize bad char");
     }
 
-    serializeU64(out, val.length);
+    serU64(ser, val.length);
 
-    out.push(...__text_encoder.encode(val))
+    ser.push(__text_encoder.encode(val))
 }

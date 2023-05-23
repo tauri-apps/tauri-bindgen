@@ -1,5 +1,4 @@
-function serializeString(out, val) {
-    serializeU64(out, val.length);
-
-    out.push(...__text_encoder.encode(val))
+function serString(ser, val) {
+    serVarint(ser, 64, val.length)
+    ser.push(__text_encoder.encode(val))
 }

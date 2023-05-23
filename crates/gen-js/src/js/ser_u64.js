@@ -1,3 +1,3 @@
-function serializeU64(out, val) {
-    return ser_varint(out, 64, val)
+function serU64(ser, val) {
+    return serVarint(ser, 64, val)
 }

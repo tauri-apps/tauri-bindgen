@@ -1,3 +1,4 @@
 interface greet {
   func greet(my_name: string) -> string
+  func echo(str: string) -> string
 }

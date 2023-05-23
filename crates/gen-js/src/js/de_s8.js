@@ -1,8 +1,5 @@
-function deserializeS8(de) {
-    const buf = new ArrayBuffer(1);
-    const view = new DataView(buf);
-
-    buf[0] = view.setUint8(0, de.pop());
-
+function deS8(de) {
+    const view = new DataView(de.source.buffer, de.offset, 1);
+    de.offset += 1;
     return view.getInt8(0);
 }

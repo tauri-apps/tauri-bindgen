@@ -1,3 +1,3 @@
-function serializeU16(out, val) {
-    return ser_varint(out, 16, val)
+function serU16(ser, val) {
+    return serVarint(ser, 16, val)
 }

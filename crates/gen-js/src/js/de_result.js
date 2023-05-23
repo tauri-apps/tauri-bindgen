@@ -1,4 +1,4 @@
-function deserializeResult(de, ok, err) {
+function deResult(de, ok, err) {
     const tag = de.pop()
 
     switch (tag) {

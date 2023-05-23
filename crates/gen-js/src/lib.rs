@@ -47,19 +47,19 @@ pub trait JavaScriptGenerator {
 
     fn print_deserialize_ty(&self, ty: &Type) -> String {
         match ty {
-            Type::Bool => "deserializeBool(de)".to_string(),
-            Type::U8 => "deserializeU8(de)".to_string(),
-            Type::U16 => "deserializeU16(de)".to_string(),
-            Type::U32 => "deserializeU32(de)".to_string(),
-            Type::U64 => "deserializeU64(de)".to_string(),
-            Type::S8 => "deserializeS8(de)".to_string(),
-            Type::S16 => "deserializeS16(de)".to_string(),
-            Type::S32 => "deserializeS32(de)".to_string(),
-            Type::S64 => "deserializeS64(de)".to_string(),
-            Type::Float32 => "deserializeF32(de)".to_string(),
-            Type::Float64 => "deserializeF64(de)".to_string(),
-            Type::Char => "deserializeChar(de)".to_string(),
-            Type::String => "deserializeString(de)".to_string(),
+            Type::Bool => "deBool(de)".to_string(),
+            Type::U8 => "deU8(de)".to_string(),
+            Type::U16 => "deU16(de)".to_string(),
+            Type::U32 => "deU32(de)".to_string(),
+            Type::U64 => "deU64(de)".to_string(),
+            Type::S8 => "deS8(de)".to_string(),
+            Type::S16 => "deS16(de)".to_string(),
+            Type::S32 => "deS32(de)".to_string(),
+            Type::S64 => "deS64(de)".to_string(),
+            Type::Float32 => "deF32(de)".to_string(),
+            Type::Float64 => "deF64(de)".to_string(),
+            Type::Char => "deChar(de)".to_string(),
+            Type::String => "deString(de)".to_string(),
             Type::Tuple(types) => {
                 let types = types
                     .iter()
@@ -69,14 +69,14 @@ pub trait JavaScriptGenerator {
 
                 format!("[{types}]")
             }
-            Type::List(ty) if **ty == Type::U8 => "deserializeBytes(de)".to_string(),
+            Type::List(ty) if **ty == Type::U8 => "deBytes(de)".to_string(),
             Type::List(ty) => {
                 let inner = self.print_deserialize_ty(ty);
-                format!("deserializeList(de, (de) => {inner})")
+                format!("deList(de, (de) => {inner})")
             }
             Type::Option(ty) => {
                 let ty = self.print_deserialize_ty(ty);
-                format!("deserializeOption(de, (de) => {ty})")
+                format!("deOption(de, (de) => {ty})")
             }
             Type::Result { ok, err } => {
                 let ok = ok
@@ -86,17 +86,17 @@ pub trait JavaScriptGenerator {
                     .as_ref()
                     .map_or("() => {}".to_string(), |ty| self.print_deserialize_ty(ty));
 
-                format!("deserializeResult(de, {ok}, {err})")
+                format!("deResult(de, {ok}, {err})")
             }
             Type::Id(id) => {
                 if let TypeDefKind::Resource(_) = self.interface().typedefs[*id].kind {
                     format!(
-                        "{}.deserialize(de)",
+                        "{}.de(de)",
                         self.interface().typedefs[*id].ident.to_upper_camel_case()
                     )
                 } else {
                     format!(
-                        "deserialize{}(de)",
+                        "de{}(de)",
                         self.interface().typedefs[*id].ident.to_upper_camel_case()
                     )
                 }
@@ -123,7 +123,7 @@ pub trait JavaScriptGenerator {
         let inner = self.print_deserialize_ty(ty);
 
         format!(
-            r#"function deserialize{ident}(de) {{
+            r#"function de{ident}(de) {{
     return {inner}
 }}"#
         )
@@ -141,7 +141,7 @@ pub trait JavaScriptGenerator {
             .join(",\n");
 
         format!(
-            r#"function deserialize{ident}(de) {{
+            r#"function de{ident}(de) {{
     return {{
         {fields}
     }}
@@ -158,8 +158,8 @@ pub trait JavaScriptGenerator {
         };
 
         format!(
-            r#"function deserialize{ident}(de) {{
-    return deserialize{inner}(de)
+            r#"function de{ident}(de) {{
+    return de{inner}(de)
 }}"#
         )
     }
@@ -185,8 +185,8 @@ pub trait JavaScriptGenerator {
             .collect::<String>();
 
         format!(
-            r#"function deserialize{ident}(de) {{
-    const tag = deserializeU32(de)
+            r#"function de{ident}(de) {{
+    const tag = deU32(de)
 
     switch (tag) {{
         {cases}
@@ -212,8 +212,8 @@ pub trait JavaScriptGenerator {
             .collect::<String>();
 
         format!(
-            r#"function deserialize{ident}(de) {{
-    const tag = deserializeU32(de)
+            r#"function de{ident}(de) {{
+    const tag = deU32(de)
 
     switch (tag) {{
         {cases}
@@ -241,8 +241,8 @@ pub trait JavaScriptGenerator {
             .collect();
 
         format!(
-            r#"function deserialize{ident}(de) {{
-    const tag = deserializeU32(de)
+            r#"function de{ident}(de) {{
+    const tag = deU32(de)
 
     switch (tag) {{
         {cases}
@@ -255,24 +255,24 @@ pub trait JavaScriptGenerator {
 
     fn print_serialize_ty(&self, ident: &str, ty: &Type) -> String {
         match ty {
-            Type::Bool => format!("serializeBool(out, {ident})"),
-            Type::U8 => format!("serializeU8(out, {ident})"),
-            Type::U16 => format!("serializeU16(out, {ident})"),
-            Type::U32 => format!("serializeU32(out, {ident})"),
-            Type::U64 => format!("serializeU64(out, {ident})"),
-            Type::S8 => format!("serializeS8(out, {ident})"),
-            Type::S16 => format!("serializeS16(out, {ident})"),
-            Type::S32 => format!("serializeS32(out, {ident})"),
-            Type::S64 => format!("serializeS64(out, {ident})"),
-            Type::Float32 => format!("serializeF32(out, {ident})"),
-            Type::Float64 => format!("serializeF64(out, {ident})"),
-            Type::Char => format!("serializeChar(out, {ident})"),
-            Type::String => format!("serializeString(out, {ident})"),
-            Type::List(ty) if **ty == Type::U8 => format!("serializeBytes(out, {ident})"),
+            Type::Bool => format!("serBool(ser, {ident})"),
+            Type::U8 => format!("serU8(ser, {ident})"),
+            Type::U16 => format!("serU16(ser, {ident})"),
+            Type::U32 => format!("serU32(ser, {ident})"),
+            Type::U64 => format!("serU64(ser, {ident})"),
+            Type::S8 => format!("serS8(ser, {ident})"),
+            Type::S16 => format!("serS16(ser, {ident})"),
+            Type::S32 => format!("serS32(ser, {ident})"),
+            Type::S64 => format!("serS64(ser, {ident})"),
+            Type::Float32 => format!("serF32(ser, {ident})"),
+            Type::Float64 => format!("serF64(ser, {ident})"),
+            Type::Char => format!("serChar(ser, {ident})"),
+            Type::String => format!("serString(ser, {ident})"),
+            Type::List(ty) if **ty == Type::U8 => format!("serBytes(ser, {ident})"),
             Type::List(ty) => {
                 let inner = self.print_serialize_ty("v", ty);
 
-                format!("serializeList(out, (out, v) => {inner}, {ident})")
+                format!("serList(ser, (ser, v) => {inner}, {ident})")
             }
             Type::Tuple(tys) if tys.is_empty() => "{}".to_string(),
             Type::Tuple(tys) => {
@@ -288,7 +288,7 @@ pub trait JavaScriptGenerator {
             Type::Option(ty) => {
                 let inner = self.print_serialize_ty("v", ty);
 
-                format!("serializeOption(out, (out, v) => {inner}, {ident})")
+                format!("serOption(ser, (ser, v) => {inner}, {ident})")
             }
             Type::Result { ok, err } => {
                 let ok = ok
@@ -298,14 +298,14 @@ pub trait JavaScriptGenerator {
                     .as_ref()
                     .map_or("{}".to_string(), |ty| self.print_serialize_ty("v", ty));
 
-                format!("serializeResult(out, (out, v) => {ok}, (out, v) => {err}, {ident})")
+                format!("serResult(ser, (ser, v) => {ok}, (ser, v) => {err}, {ident})")
             }
             Type::Id(id) => {
                 if let TypeDefKind::Resource(_) = self.interface().typedefs[*id].kind {
-                    format!("{ident}.serialize(out)")
+                    format!("{ident}.ser(ser)")
                 } else {
                     format!(
-                        "serialize{}(out, {ident})",
+                        "ser{}(ser, {ident})",
                         self.interface().typedefs[*id].ident.to_upper_camel_case()
                     )
                 }
@@ -332,7 +332,7 @@ pub trait JavaScriptGenerator {
         let inner = self.print_serialize_ty("val", ty);
 
         format!(
-            "function serialize{ident}(out, val) {{
+            "function ser{ident}(ser, val) {{
     {inner}
 }}"
         )
@@ -346,7 +346,7 @@ pub trait JavaScriptGenerator {
             .join(",\n");
 
         format!(
-            "function serialize{ident}(out, val) {{
+            "function ser{ident}(ser, val) {{
     {inner}
 }}"
         )
@@ -361,8 +361,8 @@ pub trait JavaScriptGenerator {
         };
 
         format!(
-            r#"function serialize{ident}(out, val) {{
-    return serialize{inner}(out, val)
+            r#"function ser{ident}(ser, val) {{
+    return ser{inner}(ser, val)
 }}"#
         )
     }
@@ -380,7 +380,7 @@ pub trait JavaScriptGenerator {
 
                 format!(
                     "if ({prop_access}) {{
-    serializeU32(out, {tag});
+    serU32(ser, {tag});
     return {inner}
 }}
 "
@@ -389,7 +389,7 @@ pub trait JavaScriptGenerator {
             .collect::<String>();
 
         format!(
-            r#"function serialize{ident}(out, val) {{
+            r#"function ser{ident}(ser, val) {{
     {cases}
 
     throw new Error("unknown variant case")
@@ -405,7 +405,7 @@ pub trait JavaScriptGenerator {
                 let ident = case.ident.to_upper_camel_case();
                 format!(
                     "case \"{ident}\":
-    serializeU32(out, {tag})
+    serU32(ser, {tag})
     return
 "
                 )
@@ -413,7 +413,7 @@ pub trait JavaScriptGenerator {
             .collect::<String>();
 
         format!(
-            r#"function serialize{ident}(out, val) {{
+            r#"function ser{ident}(ser, val) {{
     switch (val) {{
         {cases}
         default:
@@ -434,7 +434,7 @@ pub trait JavaScriptGenerator {
 
                 format!(
                     "if ({prop_access}) {{
-    serializeU32(out, {tag});
+    serU32(ser, {tag});
     return {inner}
 }}
                 "
@@ -443,12 +443,115 @@ pub trait JavaScriptGenerator {
             .collect();
 
         format!(
-            r#"function serialize{ident}(out, val) {{
+            r#"function ser{ident}(ser, val) {{
     {cases}
 
     throw new Error("unknown union case")
 }}"#
         )
+    }
+
+    fn size_hint_for_type(&self, ident: &str, ty: &Type) -> String {
+        match ty {
+            Type::Bool | Type::U8 | Type::S8 => "1".to_string(),
+            Type::U16 | Type::S16 => "3".to_string(),
+            Type::U32 | Type::S32 => "5".to_string(),
+            Type::U64 | Type::S64 => "10".to_string(),
+            Type::Float32 => "4".to_string(),
+            Type::Float64 => "8".to_string(),
+            Type::Char => "4".to_string(),
+            Type::String => format!("{ident}.length * 4 + 10"),
+            Type::List(ty) if matches!(**ty, Type::Bool | Type::U8 | Type::S8) => {
+                format!("{ident}.length + 10")
+            }
+            Type::List(inner) => {
+                let inner = self.size_hint_for_type("cur", &inner);
+
+                format!("{ident}.reduce((acc, cur) => acc + {inner}, 0) + 10")
+            }
+            Type::Tuple(tys) if tys.is_empty() => "0".to_string(),
+            Type::Tuple(tys) => tys
+                .iter()
+                .enumerate()
+                .map(|(idx, ty)| self.size_hint_for_type(&format!("{ident}[{idx}]"), ty))
+                .collect::<Vec<_>>()
+                .join("+"),
+            Type::Option(inner) => {
+                let inner = self.size_hint_for_type(ident, &inner);
+                format!("{inner} + 1")
+            }
+            Type::Result { ok, err } => {
+                let ok = ok.as_ref().map_or("0".to_string(), |ty| {
+                    self.size_hint_for_type(&format!("{ident}.Ok"), ty)
+                });
+                let err = err.as_ref().map_or("0".to_string(), |ty| {
+                    self.size_hint_for_type(&format!("{ident}.Err"), ty)
+                });
+
+                format!("{ok} + {err} + 1")
+            }
+            Type::Id(id) => self.size_hint_for_typedef(ident, *id),
+        }
+    }
+
+    fn size_hint_for_typedef(&self, ident: &str, id: TypeDefId) -> String {
+        let typedef = &self.interface().typedefs[id];
+
+        match &typedef.kind {
+            TypeDefKind::Alias(ty) => self.size_hint_for_type(ident, ty),
+            TypeDefKind::Record(fields) if fields.is_empty() => "0".to_string(),
+            TypeDefKind::Record(fields) => fields
+                .iter()
+                .map(|field| {
+                    self.size_hint_for_type(&format!("{ident}.{}", field.ident), &field.ty)
+                })
+                .collect::<Vec<_>>()
+                .join("+"),
+            TypeDefKind::Flags(fields) => match flags_repr(fields) {
+                wit_parser::Int::U8 => "1".to_string(),
+                wit_parser::Int::U16 => "3".to_string(),
+                wit_parser::Int::U32 => "5".to_string(),
+                wit_parser::Int::U64 => "10".to_string(),
+            },
+            TypeDefKind::Variant(cases) if cases.is_empty() => "0".to_string(),
+            TypeDefKind::Variant(cases) => {
+                let inner = cases
+                    .into_iter()
+                    .filter_map(|case| {
+                        if let Some(ty) = &case.ty {
+                            let ident = format!("{ident}.{}", case.ident);
+                            let inner = self.size_hint_for_type(&ident, ty);
+
+                            Some(format!("{ident} ? {inner} : 0"))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect::<Vec<_>>()
+                    .join(",");
+
+                format!("Math.max({inner}) + 5")
+            }
+            TypeDefKind::Enum(cases) if cases.is_empty() => "0".to_string(),
+            TypeDefKind::Enum(_) => "5".to_string(),
+            TypeDefKind::Union(cases) if cases.is_empty() => "0".to_string(),
+            TypeDefKind::Union(cases) => {
+                let inner = union_case_names(&self.interface().typedefs, cases)
+                    .into_iter()
+                    .zip(cases)
+                    .map(|(name, case)| {
+                        let ident = format!("{ident}.{name}");
+                        let inner = self.size_hint_for_type(&ident, &case.ty);
+                    
+                        format!("{ident} ? {inner} : 0")
+                    })
+                    .collect::<Vec<_>>()
+                    .join(",");
+
+                format!("Math.max({inner}) + 5")
+            }
+            TypeDefKind::Resource(_) => "10".to_string(),
+        }
     }
 }
 
@@ -472,8 +575,8 @@ bitflags::bitflags! {
         const _CHAR             = 1 << 14;
         const _STRING           = 1 << 15;
         const _BYTES            = 1 << 16;
-        const _OPTION           = 1 << 17;
-        const _RESULT           = 1 << 18;
+        const OPTION           = 1 << 17;
+        const RESULT           = 1 << 18;
         const _LIST             = 1 << 19;
         const DE                = 1 << 20;
         const SER               = 1 << 21;
@@ -489,8 +592,6 @@ bitflags::bitflags! {
         const CHAR              = Self::_CHAR.bits() | Self::U64.bits() | Self::STR_UTIL.bits();
         const STRING            = Self::_STRING.bits() | Self::U64.bits() | Self::STR_UTIL.bits();
         const BYTES             = Self::_BYTES.bits() | Self::U64.bits();
-        const OPTION            = Self::_OPTION.bits() | Self::U32.bits();
-        const RESULT            = Self::_RESULT.bits() | Self::U32.bits();
         const LIST              = Self::_LIST.bits() | Self::U64.bits();
     }
 }
@@ -498,10 +599,14 @@ bitflags::bitflags! {
 impl std::fmt::Display for SerdeUtils {
     #[allow(clippy::too_many_lines)]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(include_str!("./js/deserializer.js"))?;
+        // f.write_str(include_str!("./js/deserializer.js"))?;
 
         if self.contains(SerdeUtils::VARINT_MAX) {
             f.write_str(include_str!("./js/varint_max.js"))?;
+        }
+
+        if self.contains(SerdeUtils::DE) {
+            f.write_str(include_str!("./js/deserializer.js"))?;
         }
 
         if self.contains(SerdeUtils::VARINT | SerdeUtils::DE) {
@@ -564,16 +669,20 @@ impl std::fmt::Display for SerdeUtils {
             f.write_str(include_str!("./js/de_bytes.js"))?;
         }
 
-        if self.contains(SerdeUtils::_OPTION | SerdeUtils::DE) {
+        if self.contains(SerdeUtils::OPTION | SerdeUtils::DE) {
             f.write_str(include_str!("./js/de_option.js"))?;
         }
 
-        if self.contains(SerdeUtils::_RESULT | SerdeUtils::DE) {
+        if self.contains(SerdeUtils::RESULT | SerdeUtils::DE) {
             f.write_str(include_str!("./js/de_result.js"))?;
         }
 
         if self.contains(SerdeUtils::_LIST | SerdeUtils::DE) {
             f.write_str(include_str!("./js/de_list.js"))?;
+        }
+
+        if self.contains(SerdeUtils::SER) {
+            f.write_str(include_str!("./js/serializer.js"))?;
         }
 
         if self.contains(SerdeUtils::VARINT | SerdeUtils::SER) {
@@ -636,11 +745,11 @@ impl std::fmt::Display for SerdeUtils {
             f.write_str(include_str!("./js/ser_bytes.js"))?;
         }
 
-        if self.contains(SerdeUtils::_OPTION | SerdeUtils::SER) {
+        if self.contains(SerdeUtils::OPTION | SerdeUtils::SER) {
             f.write_str(include_str!("./js/ser_option.js"))?;
         }
 
-        if self.contains(SerdeUtils::_RESULT | SerdeUtils::SER) {
+        if self.contains(SerdeUtils::RESULT | SerdeUtils::SER) {
             f.write_str(include_str!("./js/ser_result.js"))?;
         }
 

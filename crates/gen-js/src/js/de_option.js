@@ -1,4 +1,4 @@
-function deserializeOption(de, inner) {
+function deOption(de, inner) {
     const tag = de.pop()
 
     switch (tag) {

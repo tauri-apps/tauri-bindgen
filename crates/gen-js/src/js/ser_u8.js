@@ -1,3 +1,3 @@
-function serializeU8(out, val) {
-    return out.push(val)
+function serU8(ser, val) {
+    ser.pushU8(val)
 }

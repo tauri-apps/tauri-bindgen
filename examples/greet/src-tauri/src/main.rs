@@ -22,6 +22,9 @@ impl greet::Greet for GreetCtx {
             name
         )
     }
+    fn echo(&mut self, name: String) -> String {
+        name
+    }
 }
 
 fn main() {

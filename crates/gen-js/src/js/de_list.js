@@ -1,5 +1,5 @@
-function deserializeList(de, inner) {
-    const len = deserializeU64(de);
+function deList(de, inner) {
+    const len = deU64(de);
 
     let out = [];
 
