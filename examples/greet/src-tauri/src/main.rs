@@ -3,7 +3,7 @@
     windows_subsystem = "windows"
 )]
 
-use tauri_bindgen_host::ipc_router_wip::{BuilderExt, Caller, Router};
+use tauri_bindgen_host::ipc_router_wip::{BuilderExt, Router};
 use tracing_subscriber;
 
 tauri_bindgen_host::generate!({
