@@ -6,7 +6,7 @@ pub use {anyhow, async_trait::async_trait, bitflags, ipc_router_wip, serde, taur
 
 pub type ResourceId = u64;
 
-pub type Error = anyhow::Error;
+pub type Result<T> = anyhow::Result<T>;
 
 // #[derive(Debug)]
 // pub struct ResourceId<T> {
