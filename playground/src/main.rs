@@ -83,7 +83,7 @@ fn gen_interface<B>(builder: B, iface: Interface) -> String
 where
     B: GeneratorBuilder,
 {
-    let gen = builder.build(iface);
+    let mut gen = builder.build(iface);
 
     gen.to_file().1
 }

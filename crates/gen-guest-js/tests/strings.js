@@ -1,4 +1,4 @@
-export class Deserializer {
+class Deserializer {
     source
     offset
     
@@ -27,19 +27,18 @@ function varint_max(type) {
 
     return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
 }
-
 function max_of_last_byte(type) {
     let extra_bits = type % 7;
     return (1 << extra_bits) - 1;
 }
 
-function try_take_varint(de, type) {
-    let out = 0n;
+function de_varint(de, type) {
+    let out = 0;
 
     for (let i = 0; i < varint_max(type); i++) {
         const val = de.pop();
-        const carry = BigInt(val & 0x7F);
-        out |= carry << (7n * BigInt(i));
+        const carry = val & 0x7F;
+        out |= carry << (7 * i);
 
         if ((val & 0x80) === 0) {
             if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
@@ -51,9 +50,11 @@ function try_take_varint(de, type) {
     }
 
     throw new Error('deserialize bad variant')
-}function deserializeU64(de) {
-    return try_take_varint(de, 64)
-}function deserializeString(de) {
+}
+function deserializeU64(de) {
+    return de_varint(de, 64)
+}
+function deserializeString(de) {
     const sz = deserializeU64(de);
 
     let bytes = de.try_take_n(Number(sz));
@@ -62,39 +63,77 @@ function try_take_varint(de, type) {
 
     return decoder.decode(bytes);
 }
+function ser_varint(out, type, val) {
+    let buf = []
+    for (let i = 0; i < varint_max(type); i++) {
+        const buffer = new ArrayBuffer(type / 8);
+        const view = new DataView(buffer);
+        view.setInt16(0, val, true);
+        buf[i] = view.getUint8(0);
+        if (val < 128) {
+            out.push(...buf)
+            return;
+        }
 
-            /**
+        buf[i] |= 0x80;
+        val >>= 7;
+    }
+    out.push(...buf)
+}
+function serializeU64(out, val) {
+    return ser_varint(out, 64, val)
+}
+function serializeString(out, val) {
+    serializeU64(out, val.length);
+
+    const encoder = new TextEncoder();
+
+    out.push(...encoder.encode(val))
+}
+
+
+/**
 * @param {string} x 
 */
-            export async function a (x) {
-                return fetch('ipc://localhost/strings/a', { method: "POST", body: JSON.stringify([x]) })
-            }
-        
-            /**
+export async function a (x) {
+    const out = []
+    serializeString(out, x)
+
+    return fetch('ipc://localhost/strings/a', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 * @returns {Promise<string>} 
 */
-            export async function b () {
-                return fetch('ipc://localhost/strings/b', { method: "POST", body: JSON.stringify([]) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+export async function b () {
+    const out = []
+    
 
-                    return deserializeString(de)
-                })
-            }
-        
-            /**
+    return fetch('ipc://localhost/strings/b', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return deserializeString(de)
+        })
+}
+
+/**
 * @param {string} a 
 * @param {string} b 
 * @returns {Promise<string>} 
 */
-            export async function c (a, b) {
-                return fetch('ipc://localhost/strings/c', { method: "POST", body: JSON.stringify([a, b]) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+export async function c (a, b) {
+    const out = []
+    serializeString(out, a);
+serializeString(out, b)
 
-                    return deserializeString(de)
-                })
-            }
-        
+    return fetch('ipc://localhost/strings/c', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return deserializeString(de)
+        })
+}
+

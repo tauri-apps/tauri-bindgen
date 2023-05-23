@@ -1,4 +1,4 @@
-export class Deserializer {
+class Deserializer {
     source
     offset
     
@@ -19,86 +19,92 @@ export class Deserializer {
 }
 
 
-            /**
+/**
 * @returns {Promise<A>} 
 */
-            export async function constructorA () {
-                return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: JSON.stringify([]) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+export async function constructorA () {
+    const out = []
+    
 
-                    return A.deserialize(de)
-                })
-            }
-        
-            /**
+    return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return A.deserialize(de)
+        })
+}
+
+/**
 * @returns {Promise<B>} 
 */
-            export async function constructorB () {
-                return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: JSON.stringify([]) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+export async function constructorB () {
+    const out = []
+    
 
-                    return B.deserialize(de)
-                })
-            }
-        
+    return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return B.deserialize(de)
+        })
+}
+
 
 class A {
             #id;
             
-                /**
+/**
 */
-                async f1 () {
-                }
-            
-                /**
+async f1 () {
+}
+
+/**
 * @param {number} a 
 */
-                async f2 (a) {
-                }
-            
-                /**
+async f2 (a) {
+}
+
+/**
 * @param {number} a 
 * @param {number} b 
 */
-                async f3 (a, b) {
-                }
-            
+async f3 (a, b) {
+}
+
             deserialize(de) {
-                            const self = new A();
-                            self.#id = deserializeU64(de);
-                            return self
-                        }
+    const self = new A();
+    self.#id = deserializeU64(de);
+    return self
+}
         }
 class B {
             #id;
             
-                /**
+/**
 * @returns {Promise<A>} 
 */
-                async f1 () {
-                }
-            
-                /**
+async f1 () {
+}
+
+/**
 * @param {A} x 
 * @returns {Promise<Result<number, _>>} 
 */
-                async f2 (x) {
-                }
-            
-                /**
+async f2 (x) {
+}
+
+/**
 * @param {A[] | null} x 
 * @returns {Promise<Result<A, _>>} 
 */
-                async f3 (x) {
-                }
-            
+async f3 (x) {
+}
+
             deserialize(de) {
-                            const self = new B();
-                            self.#id = deserializeU64(de);
-                            return self
-                        }
+    const self = new B();
+    self.#id = deserializeU64(de);
+    return self
+}
         }

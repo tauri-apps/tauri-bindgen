@@ -1,4 +1,5 @@
 mod roundtrip;
+mod roundtrip_js;
 
 extern crate console_error_panic_hook;
 use std::future::Future;
@@ -108,6 +109,10 @@ fn main() {
         view! { cx,
             table {
                 tbody {
+                    tr {
+                        h2 { "Rust" }
+                    }
+
                     Test(name="empty",test=roundtrip::empty())
                     Test(name="record_scalars",test=roundtrip::record_scalars())
                     Test(name="record_really_flags",test=roundtrip::record_really_flags())
@@ -146,6 +151,49 @@ fn main() {
 
                     Test(name="options",test=roundtrip::options())
                     Test(name="results",test=roundtrip::results())
+
+                    tr {
+                        h2 { "JavaScript" }
+                    }
+
+                    Test(name="empty",test=roundtrip_js::empty())
+                    Test(name="record_scalars",test=roundtrip_js::record_scalars())
+                    Test(name="record_really_flags",test=roundtrip_js::record_really_flags())
+                    Test(name="record_aggregates",test=roundtrip_js::record_aggregates())
+
+                    Test(name="float32",test=roundtrip_js::float32())
+                    Test(name="float64",test=roundtrip_js::float64())
+                    Test(name="u8",test=roundtrip_js::u8())
+                    Test(name="s8",test=roundtrip_js::s8())
+                    Test(name="u16",test=roundtrip_js::u16())
+                    Test(name="s16",test=roundtrip_js::s16())
+                    Test(name="u32",test=roundtrip_js::u32())
+                    Test(name="s32",test=roundtrip_js::s32())
+                    Test(name="u64",test=roundtrip_js::u64())
+                    Test(name="s64",test=roundtrip_js::s64())
+
+                    Test(name="list_u8",test=roundtrip_js::list_u8())
+                    Test(name="list_u16",test=roundtrip_js::list_u16())
+                    Test(name="list_u32",test=roundtrip_js::list_u32())
+                    Test(name="list_u64",test=roundtrip_js::list_u64())
+
+                    Test(name="list_s8",test=roundtrip_js::list_s8())
+                    Test(name="list_s16",test=roundtrip_js::list_s16())
+                    Test(name="list_s32",test=roundtrip_js::list_s32())
+                    Test(name="list_s64",test=roundtrip_js::list_s64())
+
+                    Test(name="list_float32",test=roundtrip_js::list_float32())
+                    Test(name="list_float64",test=roundtrip_js::list_float64())
+                    Test(name="tuple_list",test=roundtrip_js::tuple_list())
+                    Test(name="string_list",test=roundtrip_js::string_list())
+                    Test(name="tuple_string_list",test=roundtrip_js::tuple_string_list())
+
+                    Test(name="all_integers",test=roundtrip_js::all_integers())
+                    Test(name="all_floats",test=roundtrip_js::all_floats())
+                    Test(name="all_text",test=roundtrip_js::all_text())
+
+                    Test(name="options",test=roundtrip_js::options())
+                    // Test(name="results",test=roundtrip_js::results())
 
                     Terminate
                 }

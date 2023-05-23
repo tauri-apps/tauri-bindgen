@@ -1,12 +1,12 @@
 function deserializeResult(de, ok, err) {
-    const disc = de.pop()
+    const tag = de.pop()
 
-    switch (disc) {
+    switch (tag) {
         case 0:
-            return ok(de)
+            return { Ok: ok(de) }
         case 1: 
-            return err(de)
+            return { Err: err(de) }
         default:
-            throw new Error('Deserialize bad result')
+            throw new Error(`Deserialize bad result ${tag}`)
     }
 }

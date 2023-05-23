@@ -1,5 +1,5 @@
 export type Result<T, E> = { tag: 'ok', val: T } | { tag: 'err', val: E };
-export class Deserializer {
+class Deserializer {
     source
     offset
     
@@ -28,19 +28,18 @@ function varint_max(type) {
 
     return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
 }
-
 function max_of_last_byte(type) {
     let extra_bits = type % 7;
     return (1 << extra_bits) - 1;
 }
 
-function try_take_varint(de, type) {
-    let out = 0n;
+function de_varint(de, type) {
+    let out = 0;
 
     for (let i = 0; i < varint_max(type); i++) {
         const val = de.pop();
-        const carry = BigInt(val & 0x7F);
-        out |= carry << (7n * BigInt(i));
+        const carry = val & 0x7F;
+        out |= carry << (7 * i);
 
         if ((val & 0x80) === 0) {
             if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
@@ -52,9 +51,14 @@ function try_take_varint(de, type) {
     }
 
     throw new Error('deserialize bad variant')
-}function deserializeU64(de) {
-    return try_take_varint(de, 64)
-}function deserializeString(de) {
+}
+function deserializeU32(de) {
+    return de_varint(de, 32)
+}
+function deserializeU64(de) {
+    return de_varint(de, 64)
+}
+function deserializeString(de) {
     const sz = deserializeU64(de);
 
     let bytes = de.try_take_n(Number(sz));
@@ -62,41 +66,44 @@ function try_take_varint(de, type) {
     const decoder = new TextDecoder('utf-8');
 
     return decoder.decode(bytes);
-}function deserializeOption(de, inner) {
-    const disc = de.pop()
+}
+function deserializeOption(de, inner) {
+    const tag = de.pop()
 
-    switch (disc) {
+    switch (tag) {
         case 0:
             return null
         case 1: 
             return inner(de)
         default:
-            throw new Error('Deserialize bad option')
+            throw new Error(`Deserialize bad option ${tag}`)
     }
-}function deserializeResult(de, ok, err) {
-    const disc = de.pop()
+}
+function deserializeResult(de, ok, err) {
+    const tag = de.pop()
 
-    switch (disc) {
+    switch (tag) {
         case 0:
-            return ok(de)
+            return { Ok: ok(de) }
         case 1: 
-            return err(de)
+            return { Err: err(de) }
         default:
-            throw new Error('Deserialize bad result')
+            throw new Error(`Deserialize bad result ${tag}`)
     }
-}function deserializeError(de) {
-                const disc = deserializeU32(de)
+}
+function deserializeError(de) {
+    const tag = deserializeU32(de)
 
-                switch (disc) {
-                    case 0:
-                return "Success"
-            case 1:
-                return "Failure"
-            
-                    default:
-                        throw new Error("unknown enum case")
-                }
-        }
+    switch (tag) {
+        case 0:
+    return "Success"
+case 1:
+    return "Failure"
+
+        default:
+            throw new Error(`unknown enum case ${tag}`)
+    }
+}
 
 export enum Error { 
 Success,
@@ -105,14 +112,17 @@ Failure,
  }
 
 
-            
-            export async function optionTest () : Promise<Result<string | null, Error>> {
-                return fetch('ipc://localhost/small_anonymous/option_test', { method: "POST", body: JSON.stringify([]) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeResult(de, deserializeOption(de, (de) => deserializeString(de)), deserializeError(de))
-                })
-            }
+export async function optionTest () : Promise<Result<string | null, Error>> {
+    const out = []
+    
+    
+    return fetch('ipc://localhost/small_anonymous/option_test', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return deserializeResult(de, deserializeOption(de, (de) => deserializeString(de)), deserializeError(de))
+        }) as Promise<Result<string | null, Error>>
+}
         

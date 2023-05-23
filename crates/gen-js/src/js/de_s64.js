@@ -1,5 +1,5 @@
 function deserializeS64(de) {
-    const n = try_take_varint(de, u64)
+    const n = de_varint(de, 64)
 
-    return Number(((n >> 1n) & 0xFFFFFFFFFFFFFFFFn) ^ (-((n & 0b1n) & 0xFFFFFFFFFFFFFFFFn)))
+    return Number(((n >> 1) & 0xFFFFFFFFFFFFFFFF) ^ (-((n & 0b1) & 0xFFFFFFFFFFFFFFFF)))
 }
