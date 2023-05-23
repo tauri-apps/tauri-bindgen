@@ -15,7 +15,8 @@ pub trait JavaScriptGenerator {
             1 => {
                 let inner = self.print_deserialize_ty(result.types().next().unwrap());
 
-                format!("
+                format!(
+                    "
         .then(r => r.arrayBuffer())
         .then(bytes => {{
             const de = new Deserializer(new Uint8Array(bytes))
@@ -31,7 +32,8 @@ pub trait JavaScriptGenerator {
                     .collect::<Vec<_>>()
                     .join(", ");
 
-                format!("
+                format!(
+                    "
         .then(r => r.arrayBuffer())
         .then(bytes => {{
             const de = new Deserializer(Uint8Array.from(bytes))
@@ -121,7 +123,7 @@ pub trait JavaScriptGenerator {
         let inner = self.print_deserialize_ty(ty);
 
         format!(
-r#"function deserialize{ident}(de) {{
+            r#"function deserialize{ident}(de) {{
     return {inner}
 }}"#
         )
@@ -139,7 +141,7 @@ r#"function deserialize{ident}(de) {{
             .join(",\n");
 
         format!(
-r#"function deserialize{ident}(de) {{
+            r#"function deserialize{ident}(de) {{
     return {{
         {fields}
     }}
@@ -156,7 +158,7 @@ r#"function deserialize{ident}(de) {{
         };
 
         format!(
-r#"function deserialize{ident}(de) {{
+            r#"function deserialize{ident}(de) {{
     return deserialize{inner}(de)
 }}"#
         )
@@ -175,7 +177,7 @@ r#"function deserialize{ident}(de) {{
                 let ident = case.ident.to_upper_camel_case();
 
                 format!(
-"case {tag}:
+                    "case {tag}:
     return {{ {ident}: {inner} }}
 "
                 )
@@ -183,7 +185,7 @@ r#"function deserialize{ident}(de) {{
             .collect::<String>();
 
         format!(
-r#"function deserialize{ident}(de) {{
+            r#"function deserialize{ident}(de) {{
     const tag = deserializeU32(de)
 
     switch (tag) {{
@@ -202,7 +204,7 @@ r#"function deserialize{ident}(de) {{
             .map(|(tag, case)| {
                 let ident = case.ident.to_upper_camel_case();
                 format!(
-"case {tag}:
+                    "case {tag}:
     return \"{ident}\"
 "
                 )
@@ -210,7 +212,7 @@ r#"function deserialize{ident}(de) {{
             .collect::<String>();
 
         format!(
-r#"function deserialize{ident}(de) {{
+            r#"function deserialize{ident}(de) {{
     const tag = deserializeU32(de)
 
     switch (tag) {{
@@ -231,7 +233,7 @@ r#"function deserialize{ident}(de) {{
                 let inner = self.print_deserialize_ty(&case.ty);
 
                 format!(
-"case {tag}:
+                    "case {tag}:
     return {{ {name}: {inner} }}
 "
                 )
@@ -239,7 +241,7 @@ r#"function deserialize{ident}(de) {{
             .collect();
 
         format!(
-r#"function deserialize{ident}(de) {{
+            r#"function deserialize{ident}(de) {{
     const tag = deserializeU32(de)
 
     switch (tag) {{
@@ -330,7 +332,7 @@ r#"function deserialize{ident}(de) {{
         let inner = self.print_serialize_ty("val", ty);
 
         format!(
-"function serialize{ident}(out, val) {{
+            "function serialize{ident}(out, val) {{
     {inner}
 }}"
         )
@@ -344,7 +346,7 @@ r#"function deserialize{ident}(de) {{
             .join(",\n");
 
         format!(
-"function serialize{ident}(out, val) {{
+            "function serialize{ident}(out, val) {{
     {inner}
 }}"
         )
@@ -359,7 +361,7 @@ r#"function deserialize{ident}(de) {{
         };
 
         format!(
-r#"function serialize{ident}(out, val) {{
+            r#"function serialize{ident}(out, val) {{
     return serialize{inner}(out, val)
 }}"#
         )
@@ -377,7 +379,7 @@ r#"function serialize{ident}(out, val) {{
                 });
 
                 format!(
-"if ({prop_access}) {{
+                    "if ({prop_access}) {{
     serializeU32(out, {tag});
     return {inner}
 }}
@@ -387,7 +389,7 @@ r#"function serialize{ident}(out, val) {{
             .collect::<String>();
 
         format!(
-r#"function serialize{ident}(out, val) {{
+            r#"function serialize{ident}(out, val) {{
     {cases}
 
     throw new Error("unknown variant case")
@@ -402,7 +404,7 @@ r#"function serialize{ident}(out, val) {{
             .map(|(tag, case)| {
                 let ident = case.ident.to_upper_camel_case();
                 format!(
-"case \"{ident}\":
+                    "case \"{ident}\":
     serializeU32(out, {tag})
     return
 "
@@ -411,7 +413,7 @@ r#"function serialize{ident}(out, val) {{
             .collect::<String>();
 
         format!(
-r#"function serialize{ident}(out, val) {{
+            r#"function serialize{ident}(out, val) {{
     switch (val) {{
         {cases}
         default:
@@ -431,7 +433,7 @@ r#"function serialize{ident}(out, val) {{
                 let inner = self.print_serialize_ty(&prop_access, &case.ty);
 
                 format!(
-"if ({prop_access}) {{
+                    "if ({prop_access}) {{
     serializeU32(out, {tag});
     return {inner}
 }}
@@ -441,7 +443,7 @@ r#"function serialize{ident}(out, val) {{
             .collect();
 
         format!(
-r#"function serialize{ident}(out, val) {{
+            r#"function serialize{ident}(out, val) {{
     {cases}
 
     throw new Error("unknown union case")

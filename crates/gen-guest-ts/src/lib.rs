@@ -319,7 +319,7 @@ async {ident} ({params}) {result} {{
             .collect();
 
         format!(
-"{docs}\nclass {ident} {{
+            "{docs}\nclass {ident} {{
     #id: number;
 
     {functions}
