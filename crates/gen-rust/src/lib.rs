@@ -5,7 +5,7 @@ use proc_macro2::{Ident, Literal, TokenStream};
 use quote::{format_ident, quote};
 use std::collections::HashMap;
 use syn::Lifetime;
-use tauri_bindgen_core::{flags_repr, TypeInfo, TypeInfos};
+use tauri_bindgen_core::{flags_repr, TypeInfo, TypeInfos, union_case_names};
 
 use wit_parser::{
     EnumCase, FlagsField, Function, FunctionResult, Int, Interface, RecordField, Type, TypeDefId,
@@ -349,8 +349,7 @@ pub trait RustGenerator {
         let additional_attrs = self.additional_attrs(&ident.to_string(), info);
         let generics = print_generics(info, mode);
 
-        let cases = self
-            .union_case_names(cases)
+        let cases = union_case_names(&self.interface().typedefs, cases)
             .into_iter()
             .zip(cases)
             .map(|(name, case)| {
@@ -451,86 +450,6 @@ pub trait RustGenerator {
             Int::U32 => quote! { u32 },
             Int::U64 => quote! { u64 },
         }
-    }
-
-    fn type_ident(&self, ty: &Type) -> String {
-        match ty {
-            Type::Bool => "Bool".to_string(),
-            Type::U8 => "U8".to_string(),
-            Type::U16 => "U16".to_string(),
-            Type::U32 => "U32".to_string(),
-            Type::U64 => "U64".to_string(),
-            Type::S8 => "I8".to_string(),
-            Type::S16 => "I16".to_string(),
-            Type::S32 => "S32".to_string(),
-            Type::S64 => "S64".to_string(),
-            Type::Float32 => "F32".to_string(),
-            Type::Float64 => "F64".to_string(),
-            Type::Char => "Char".to_string(),
-            Type::String => "String".to_string(),
-            Type::List(ty) => format!("{}List", self.type_ident(ty)),
-            Type::Tuple(_) => "Tuple".to_string(),
-            Type::Option(ty) => format!("Optional{}", self.type_ident(ty)),
-            Type::Result { .. } => "Result".to_string(),
-            Type::Id(id) => match &self.interface().typedefs[*id].kind {
-                TypeDefKind::Alias(ty) => self.type_ident(ty),
-                TypeDefKind::Record(_) => "Record".to_string(),
-                TypeDefKind::Flags(_) => "Flags".to_string(),
-                TypeDefKind::Variant(_) => "Variant".to_string(),
-                TypeDefKind::Enum(_) => "Enum".to_string(),
-                TypeDefKind::Union(_) => "Union".to_string(),
-                TypeDefKind::Resource(_) => "Resource".to_string(),
-            },
-        }
-    }
-
-    fn union_case_names(&self, cases: &[UnionCase]) -> Vec<String> {
-        enum UsedState<'a> {
-            /// This name has been used once before.
-            ///
-            /// Contains a reference to the name given to the first usage so that a suffix can be added to it.
-            Once(&'a mut String),
-            /// This name has already been used multiple times.
-            ///
-            /// Contains the number of times this has already been used.
-            Multiple(usize),
-        }
-
-        // A `Vec` of the names we're assigning each of the union's cases in order.
-        let mut case_names = vec![String::new(); cases.len()];
-        // A map from case names to their `UsedState`.
-        let mut used = HashMap::new();
-        for (case, name) in cases.iter().zip(case_names.iter_mut()) {
-            name.push_str(&self.type_ident(&case.ty));
-
-            match used.get_mut(name.as_str()) {
-                None => {
-                    // Initialise this name's `UsedState`, with a mutable reference to this name
-                    // in case we have to add a suffix to it later.
-                    used.insert(name.clone(), UsedState::Once(name));
-                    // Since this is the first (and potentially only) usage of this name,
-                    // we don't need to add a suffix here.
-                }
-                Some(state) => match state {
-                    UsedState::Multiple(n) => {
-                        // Add a suffix of the index of this usage.
-                        name.push_str(&n.to_string());
-                        // Add one to the number of times this type has been used.
-                        *n += 1;
-                    }
-                    UsedState::Once(first) => {
-                        // Add a suffix of 0 to the first usage.
-                        first.push('0');
-                        // We now get a suffix of 1.
-                        name.push('1');
-                        // Then update the state.
-                        *state = UsedState::Multiple(2);
-                    }
-                },
-            }
-        }
-
-        case_names
     }
 
     fn uses_two_names(&self, info: TypeInfo) -> bool {

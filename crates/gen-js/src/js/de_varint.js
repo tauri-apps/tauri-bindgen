@@ -4,12 +4,12 @@ function max_of_last_byte(type) {
 }
 
 function de_varint(de, type) {
-    let out = 0n;
+    let out = 0;
 
     for (let i = 0; i < varint_max(type); i++) {
         const val = de.pop();
-        const carry = BigInt(val & 0x7F);
-        out |= carry << (7n * BigInt(i));
+        const carry = val & 0x7F;
+        out |= carry << (7 * i);
 
         if ((val & 0x80) === 0) {
             if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {

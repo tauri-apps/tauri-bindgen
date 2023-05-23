@@ -1,5 +1,5 @@
 use heck::{ToLowerCamelCase, ToUpperCamelCase};
-use tauri_bindgen_core::{flags_repr, TypeInfos};
+use tauri_bindgen_core::{flags_repr, union_case_names, TypeInfos};
 use wit_parser::{
     EnumCase, FlagsField, Function, FunctionResult, Interface, RecordField, Type, TypeDefArena,
     TypeDefId, TypeDefKind, UnionCase, VariantCase,
@@ -174,22 +174,24 @@ pub trait JavaScriptGenerator {
                     .as_ref()
                     .map_or("null".to_string(), |ty| self.print_deserialize_ty(ty));
 
+                let ident = case.ident.to_upper_camel_case();
+
                 format!(
-                    "case {tag}n:
-                return {{ tag: {tag}, value: {inner} }}
-            "
+                    "case {tag}:
+            return {{ {ident}: {inner} }}
+        "
                 )
             })
             .collect::<String>();
 
         format!(
             r#"function deserialize{ident}(de) {{
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {{
+                switch (tag) {{
                     {cases}
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown variant case ${{tag}}`)
                 }}
         }}"#
         )
@@ -202,7 +204,7 @@ pub trait JavaScriptGenerator {
             .map(|(tag, case)| {
                 let ident = case.ident.to_upper_camel_case();
                 format!(
-                    "case {tag}n:
+                    "case {tag}:
                 return \"{ident}\"
             "
                 )
@@ -211,40 +213,41 @@ pub trait JavaScriptGenerator {
 
         format!(
             r#"function deserialize{ident}(de) {{
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {{
+                switch (tag) {{
                     {cases}
                     default:
-                        throw new Error("unknown enum case")
+                        throw new Error(`unknown enum case ${{tag}}`)
                 }}
         }}"#
         )
     }
 
     fn print_deserialize_union(&self, ident: &str, cases: &[UnionCase]) -> String {
-        let cases = cases
-            .iter()
+        let cases: String = union_case_names(&self.interface().typedefs, cases)
+            .into_iter()
+            .zip(cases)
             .enumerate()
-            .map(|(tag, case)| {
+            .map(|(tag, (name, case))| {
                 let inner = self.print_deserialize_ty(&case.ty);
 
                 format!(
-                    "case {tag}n:
-                return {{ tag: {tag}, value: {inner} }}
+                    "case {tag}:
+                return {{ {name}: {inner} }}
             "
                 )
             })
-            .collect::<String>();
+            .collect();
 
         format!(
             r#"function deserialize{ident}(de) {{
-                const disc = deserializeU32(de)
+                const tag = deserializeU32(de)
 
-                switch (disc) {{
+                switch (tag) {{
                     {cases}
                     default:
-                        throw new Error("unknown variant case")
+                        throw new Error(`unknown union case ${{tag}}`)
                 }}
         }}"#
         )
@@ -268,7 +271,7 @@ pub trait JavaScriptGenerator {
             Type::List(ty) => {
                 let inner = self.print_serialize_ty("v", ty);
 
-                format!("serializeList(out, (v) => {inner}, {ident})")
+                format!("serializeList(out, (out, v) => {inner}, {ident})")
             }
             Type::Tuple(tys) if tys.is_empty() => "{}".to_string(),
             Type::Tuple(tys) => {
@@ -284,7 +287,7 @@ pub trait JavaScriptGenerator {
             Type::Option(ty) => {
                 let inner = self.print_serialize_ty("v", ty);
 
-                format!("serializeOption(out, (v) => {inner}, {ident})")
+                format!("serializeOption(out, (out, v) => {inner}, {ident})")
             }
             Type::Result { ok, err } => {
                 let ok = ok
@@ -294,7 +297,7 @@ pub trait JavaScriptGenerator {
                     .as_ref()
                     .map_or("{}".to_string(), |ty| self.print_serialize_ty("v", ty));
 
-                format!("serializeResult(out, (v) => {ok}, (v) => {err}, {ident})")
+                format!("serializeResult(out, (out, v) => {ok}, (out, v) => {err}, {ident})")
             }
             Type::Id(id) => {
                 if let TypeDefKind::Resource(_) = self.interface().typedefs[*id].kind {
@@ -368,15 +371,17 @@ pub trait JavaScriptGenerator {
             .iter()
             .enumerate()
             .map(|(tag, case)| {
-                let inner = case
-                    .ty
-                    .as_ref()
-                    .map_or("".to_string(), |ty| self.print_serialize_ty("val.val", ty));
+                let prop_access = format!("val.{}", case.ident.to_upper_camel_case());
+
+                let inner = case.ty.as_ref().map_or("".to_string(), |ty| {
+                    self.print_serialize_ty(&prop_access, ty)
+                });
 
                 format!(
-                    "case {tag}:
-                    {inner}
-                    return
+                    "if ({prop_access}) {{
+                    serializeU32(out, {tag});
+                    return {inner}
+                }}
                 "
                 )
             })
@@ -384,13 +389,9 @@ pub trait JavaScriptGenerator {
 
         format!(
             r#"function serialize{ident}(out, val) {{
-                serializeU32(out, val.tag)
+                {cases}
 
-                switch (val.tag) {{
-                    {cases}
-                    default:
-                        throw new Error("unknown variant case")
-                }}
+                throw new Error("unknown variant case")
         }}"#
         )
     }
@@ -422,32 +423,43 @@ pub trait JavaScriptGenerator {
     }
 
     fn print_serialize_union(&self, ident: &str, cases: &[UnionCase]) -> String {
-        let cases = cases
-            .iter()
+        let cases: String = union_case_names(&self.interface().typedefs, cases)
+            .into_iter()
+            .zip(cases)
             .enumerate()
-            .map(|(tag, case)| {
-                let inner = self.print_serialize_ty("val.val", &case.ty);
+            .map(|(tag, (name, case))| {
+                let prop_access = format!("val.{name}");
+                let inner = self.print_serialize_ty(&prop_access, &case.ty);
 
                 format!(
-                    "case {tag}:
-                    {inner}
-                    return
+                    "if ({prop_access}) {{
+                    serializeU32(out, {tag});
+                    return {inner}
+                }}
                 "
                 )
             })
-            .collect::<String>();
+            .collect();
 
         format!(
             r#"function serialize{ident}(out, val) {{
-                serializeU32(out, val.tag)
+                {cases}
 
-                switch (val.tag) {{
-                    {cases}
-                    default:
-                        throw new Error("unknown union case")
-                }}
+                throw new Error("unknown union case")
         }}"#
         )
+
+        // if (val.Ok) {
+        //     serializeU8(out, 0);
+        //     return ok(out, val.Ok);
+        // }
+
+        // if (val.Err) {
+        //     serializeU8(out, 1);
+        //     return err(out, val.Err);
+        // }
+
+        // throw new Error('Serialize bad result');
     }
 }
 

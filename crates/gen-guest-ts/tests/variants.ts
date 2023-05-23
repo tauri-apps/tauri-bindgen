@@ -125,7 +125,7 @@ function de_varint(de, type) {
     }
 }function ser_varint(out, type, val) {
     for (let i = 0; i < varint_max(type); i++) {
-        const buffer = new ArrayBuffer(type / 8);
+        const buffer = new Uint8Array(type / 8);
         const view = new DataView(buffer);
         view.setInt16(0, Number(val), true);
         out[i] = view.getUint8(0);

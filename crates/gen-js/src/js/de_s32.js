@@ -1,5 +1,5 @@
 function deserializeS32(de) {
     const n = de_varint(de, 32)
 
-    return Number(((n >> 1n) & 0xFFFFFFFFn) ^ (-((n & 0b1n) & 0xFFFFFFFFn)))
+    return Number(((n >> 1) & 0xFFFFFFFF) ^ (-((n & 0b1) & 0xFFFFFFFF)))
 }

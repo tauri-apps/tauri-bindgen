@@ -74,7 +74,7 @@ impl JavaScript {
                 const out = []
                 {serialize_params}
 
-                return fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: Uint8Array.from(out) }}){deserialize_result}
+                return fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: Uint8Array.from(out), headers: {{ 'Content-Type': 'application/octet-stream' }} }}){deserialize_result}
             }}
         "#
         )
