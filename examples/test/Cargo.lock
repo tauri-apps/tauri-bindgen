@@ -3126,6 +3126,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde-wasm-bindgen"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f3b143e2833c57ab9ad3ea280d21fd34e285a42837aeb0ee301f4f41890fa00e"
+dependencies = [
+ "js-sys",
+ "serde",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "serde_derive"
 version = "1.0.163"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3149,13 +3160,13 @@ dependencies = [
 
 [[package]]
 name = "serde_repr"
-version = "0.1.11"
+version = "0.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "395627de918015623b32e7669714206363a7fc00382bf477e72c1f7533e8eafc"
+checksum = "bcec881020c684085e55a25f7fd888954d56609ef363479dc5a1305eb0d40cab"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn 2.0.16",
 ]
 
 [[package]]
@@ -3796,6 +3807,7 @@ dependencies = [
  "postcard",
  "serde",
  "tauri-bindgen-guest-rust-macro",
+ "thiserror",
  "tracing",
  "wasm-bindgen",
  "wasm-bindgen-futures",
@@ -3957,7 +3969,7 @@ dependencies = [
  "js-sys",
  "log",
  "serde",
- "serde-wasm-bindgen",
+ "serde-wasm-bindgen 0.4.5",
  "thiserror",
  "url",
  "wasm-bindgen",
@@ -3982,11 +3994,14 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "console_error_panic_hook",
+ "js-sys",
  "log",
  "serde",
+ "serde-wasm-bindgen 0.5.0",
  "sycamore",
  "tauri-bindgen-guest-rust",
  "tauri-sys",
+ "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-logger",
 ]

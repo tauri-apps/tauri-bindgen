@@ -7,7 +7,8 @@
 
 use heck::{ToKebabCase, ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
 use std::path::PathBuf;
-use tauri_bindgen_core::{postprocess, Generate, GeneratorBuilder};
+use tauri_bindgen_core::{postprocess, Generate, GeneratorBuilder, TypeInfo, TypeInfos};
+use tauri_bindgen_gen_js::{JavaScriptGenerator, SerdeUtils};
 use wit_parser::{
     EnumCase, FlagsField, Function, FunctionResult, Interface, RecordField, Type, TypeDefId,
     TypeDefKind, UnionCase, VariantCase,
@@ -30,9 +31,16 @@ pub struct Builder {
 
 impl GeneratorBuilder for Builder {
     fn build(self, interface: Interface) -> Box<dyn Generate> {
+        let infos = TypeInfos::collect_from_functions(&interface.typedefs, &interface.functions);
+
+        let serde_utils =
+            SerdeUtils::collect_from_functions(&interface.typedefs, &interface.functions);
+
         Box::new(TypeScript {
             opts: self,
             interface,
+            infos,
+            serde_utils,
         })
     }
 }
@@ -41,6 +49,8 @@ impl GeneratorBuilder for Builder {
 pub struct TypeScript {
     opts: Builder,
     interface: Interface,
+    infos: TypeInfos,
+    serde_utils: SerdeUtils,
 }
 
 impl TypeScript {
@@ -52,25 +62,41 @@ impl TypeScript {
 
         let params = self.print_function_params(&func.params);
 
-        let param_idents = func
-            .params
-            .iter()
-            .map(|(ident, _)| ident.to_lower_camel_case())
-            .collect::<Vec<_>>()
-            .join(", ");
-
         let result = func
             .result
             .as_ref()
-            .map(|result| self.print_function_result(result))
+            .map_or("Promise<void>".to_string(), |result| {
+                self.print_function_result(result)
+            });
+
+        let deserialize_result = func
+            .result
+            .as_ref()
+            .map(|res| self.print_deserialize_function_result(res))
             .unwrap_or_default();
+
+        let serialize_params = func
+            .params
+            .iter()
+            .map(|(ident, ty)| self.print_serialize_ty(&ident.to_lower_camel_case(), ty))
+            .collect::<Vec<_>>()
+            .join(";\n");
+
+        let (ret, as_ret) = if func.result.is_some() {
+            ("return".to_string(), format!("as {result}"))
+        } else {
+            (String::new(), String::new())
+        };
 
         format!(
             r#"
-            {docs}
-            export async function {ident} ({params}) {result} {{
-                return fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: JSON.stringify([{param_idents}]) }}).then(r => r.json())
-            }}
+{docs}
+export async function {ident} ({params}) : {result} {{
+    const out = []
+    {serialize_params}
+    
+    {ret} fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: Uint8Array.from(out) }}){deserialize_result} {as_ret}
+}}
         "#
         )
     }
@@ -90,10 +116,10 @@ impl TypeScript {
 
     fn print_function_result(&self, result: &FunctionResult) -> String {
         match result.len() {
-            0 => String::new(),
+            0 => "Promise<void>".to_string(),
             1 => {
                 let ty = self.print_type(result.types().next().unwrap());
-                format!(": Promise<{ty}>")
+                format!("Promise<{ty}>")
             }
             _ => {
                 let tys = result
@@ -101,7 +127,7 @@ impl TypeScript {
                     .map(|ty| self.print_type(ty))
                     .collect::<Vec<_>>()
                     .join(", ");
-                format!(": Promise<[{tys}]>")
+                format!("Promise<[{tys}]>")
             }
         }
     }
@@ -140,10 +166,10 @@ impl TypeScript {
             Type::Result { ok, err } => {
                 let ok = ok
                     .as_ref()
-                    .map_or("_".to_string(), |ty| self.print_type(ty));
+                    .map_or("null".to_string(), |ty| self.print_type(ty));
                 let err = err
                     .as_ref()
-                    .map_or("_".to_string(), |ty| self.print_type(ty));
+                    .map_or("null".to_string(), |ty| self.print_type(ty));
 
                 format!("Result<{ok}, {err}>")
             }
@@ -284,20 +310,20 @@ impl TypeScript {
 
                 format!(
                     r#"
-                        {docs}
-                        async {ident} ({params}) {result} {{
-                        }}
-                    "#
+{docs}
+async {ident} ({params}) {result} {{
+}}
+"#
                 )
             })
             .collect();
 
         format!(
             "{docs}\nclass {ident} {{
-                    #id: number;
+    #id: number;
 
-                    {functions}
-                }}"
+    {functions}
+}}"
         )
     }
 
@@ -341,6 +367,16 @@ fn print_docs(docs: &str) -> String {
     format!("/**\n{docs}*/")
 }
 
+impl JavaScriptGenerator for TypeScript {
+    fn interface(&self) -> &Interface {
+        &self.interface
+    }
+
+    fn infos(&self) -> &TypeInfos {
+        &self.infos
+    }
+}
+
 impl Generate for TypeScript {
     fn to_file(&mut self) -> (std::path::PathBuf, String) {
         let result_ty = self
@@ -352,6 +388,38 @@ impl Generate for TypeScript {
                 "export type Result<T, E> = { tag: 'ok', val: T } | { tag: 'err', val: E };\n",
             )
             .unwrap_or_default();
+
+        let serde_utils = self.serde_utils.to_string();
+
+        let deserializers: String = self
+            .interface
+            .typedefs
+            .iter()
+            .filter_map(|(id, _)| {
+                let info = self.infos[id];
+
+                if info.contains(TypeInfo::RESULT) {
+                    Some(self.print_deserialize_typedef(id))
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        let serializers: String = self
+            .interface
+            .typedefs
+            .iter()
+            .filter_map(|(id, _)| {
+                let info = self.infos[id];
+
+                if info.contains(TypeInfo::PARAM) {
+                    Some(self.print_serialize_typedef(id))
+                } else {
+                    None
+                }
+            })
+            .collect();
 
         let typedefs: String = self
             .interface
@@ -367,7 +435,9 @@ impl Generate for TypeScript {
             .map(|func| self.print_function(&self.interface.ident.to_snake_case(), func))
             .collect();
 
-        let mut contents = format!("{result_ty}\n{typedefs}\n{functions}");
+        let mut contents = format!(
+            "{result_ty}{serde_utils}{deserializers}{serializers}\n{typedefs}\n{functions}"
+        );
 
         if self.opts.prettier {
             postprocess(&mut contents, "prettier", ["--parser=typescript"])

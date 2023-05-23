@@ -1,0 +1,11 @@
+function deserializeChar(de) {
+    const sz = deserializeU64(de);
+    if (sz > 4) {
+        throw new Error("Deserialize bad char");
+    }
+    const bytes = de.try_take_n(Number(sz));
+
+    const decoder = new TextDecoder('utf-8');
+
+    return decoder.decode(bytes);
+}
