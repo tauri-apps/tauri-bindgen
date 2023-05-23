@@ -3,7 +3,31 @@
   <head>
     <meta charset="utf-8" />
     <title>Tauri + Yew App</title>
-    <link data-trunk rel="css" href="./styles.css">
-    <link data-trunk rel="copy-file" href="./src/roundtrip.js">
+    <style>
+      :root {
+        font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
+      }
+
+      td {
+        padding-bottom: .3em;
+      }
+
+      .loader {
+        transform-origin: baseline;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 1.3s linear infinite;
+      }
+
+      @keyframes rotation {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+    <link data-trunk rel="copy-file" href="./src/roundtrip.js" />
   </head>
 </html>
