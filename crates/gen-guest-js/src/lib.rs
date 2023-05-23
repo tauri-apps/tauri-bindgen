@@ -28,8 +28,6 @@ impl GeneratorBuilder for Builder {
         let serde_utils =
             SerdeUtils::collect_from_functions(&interface.typedefs, &interface.functions);
 
-        println!("{serde_utils:?}");
-
         Box::new(JavaScript {
             opts: self,
             interface,
