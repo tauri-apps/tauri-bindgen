@@ -31,7 +31,6 @@ fn main() {
 
     roundtrip::add_to_router(&mut router, |cx| cx).unwrap();
 
-
     tauri::Builder::default()
         .plugin(log_plugin)
         .ipc_router(router)

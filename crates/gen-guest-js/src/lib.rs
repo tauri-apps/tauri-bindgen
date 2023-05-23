@@ -78,10 +78,15 @@ impl JavaScript {
             r#"
 {docs}
 export async function {ident} ({params}) {{
+    let start = performance.now()
     const ser = new Serializer({size_hint})
     {serialize_params}
 
-    return fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: ser.filled(), headers: {{ 'Content-Type': 'application/octet-stream' }} }}){deserialize_result}
+    const out = await fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: ser.filled(), headers: {{ 'Content-Type': 'application/octet-stream' }} }}){deserialize_result}
+
+    let end = performance.now();
+    console.log(`{intf_name}/{name} took ${{end - start}}ms`)
+    return out
 }}
 "#
         )

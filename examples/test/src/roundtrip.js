@@ -585,16 +585,21 @@ if (val.G) {
 * @returns {Promise<Empty>} 
 */
 export async function empty (x) {
+    let start = performance.now()
     const ser = new Serializer(0)
     serEmpty(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/empty', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/empty', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deEmpty(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/empty took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -602,16 +607,21 @@ export async function empty (x) {
 * @returns {Promise<Scalars>} 
 */
 export async function recordScalars (val) {
+    let start = performance.now()
     const ser = new Serializer(5+5)
     serScalars(ser, val)
 
-    return fetch('ipc://localhost/roundtrip/record_scalars', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/record_scalars', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deScalars(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/record_scalars took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -619,16 +629,21 @@ export async function recordScalars (val) {
 * @returns {Promise<ReallyFlags>} 
 */
 export async function recordReallyFlags (val) {
+    let start = performance.now()
     const ser = new Serializer(1+1+1+1+1+1+1+1+1)
     serReallyFlags(ser, val)
 
-    return fetch('ipc://localhost/roundtrip/record_really_flags', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/record_really_flags', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deReallyFlags(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/record_really_flags took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -636,16 +651,21 @@ export async function recordReallyFlags (val) {
 * @returns {Promise<Aggregates>} 
 */
 export async function recordAggregates (val) {
+    let start = performance.now()
     const ser = new Serializer(5+5+5+0+val.d.length * 4 + 10+1+1+1+1+1+1+1+1+1)
     serAggregates(ser, val)
 
-    return fetch('ipc://localhost/roundtrip/record_aggregates', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/record_aggregates', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deAggregates(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/record_aggregates took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -653,16 +673,21 @@ export async function recordAggregates (val) {
 * @returns {Promise<Flag1>} 
 */
 export async function flag1 (x) {
+    let start = performance.now()
     const ser = new Serializer(1)
     serFlag1(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/flag1', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/flag1', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deFlag1(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/flag1 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -670,16 +695,21 @@ export async function flag1 (x) {
 * @returns {Promise<Flag2>} 
 */
 export async function flag2 (x) {
+    let start = performance.now()
     const ser = new Serializer(1)
     serFlag2(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/flag2', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/flag2', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deFlag2(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/flag2 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -687,16 +717,21 @@ export async function flag2 (x) {
 * @returns {Promise<Flag4>} 
 */
 export async function flag4 (x) {
+    let start = performance.now()
     const ser = new Serializer(1)
     serFlag4(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/flag4', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/flag4', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deFlag4(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/flag4 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -704,16 +739,21 @@ export async function flag4 (x) {
 * @returns {Promise<Flag8>} 
 */
 export async function flag8 (x) {
+    let start = performance.now()
     const ser = new Serializer(1)
     serFlag8(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/flag8', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/flag8', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deFlag8(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/flag8 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -721,16 +761,21 @@ export async function flag8 (x) {
 * @returns {Promise<Flag16>} 
 */
 export async function flag16 (x) {
+    let start = performance.now()
     const ser = new Serializer(3)
     serFlag16(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/flag16', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/flag16', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deFlag16(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/flag16 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -738,16 +783,21 @@ export async function flag16 (x) {
 * @returns {Promise<Flag32>} 
 */
 export async function flag32 (x) {
+    let start = performance.now()
     const ser = new Serializer(5)
     serFlag32(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/flag32', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/flag32', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deFlag32(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/flag32 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -755,16 +805,21 @@ export async function flag32 (x) {
 * @returns {Promise<Flag64>} 
 */
 export async function flag64 (x) {
+    let start = performance.now()
     const ser = new Serializer(10)
     serFlag64(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/flag64', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/flag64', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deFlag64(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/flag64 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -772,16 +827,21 @@ export async function flag64 (x) {
 * @returns {Promise<number>} 
 */
 export async function float32 (x) {
+    let start = performance.now()
     const ser = new Serializer(4)
     serF32(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/float32', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/float32', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deF32(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/float32 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -789,16 +849,21 @@ export async function float32 (x) {
 * @returns {Promise<number>} 
 */
 export async function float64 (x) {
+    let start = performance.now()
     const ser = new Serializer(8)
     serF64(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/float64', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/float64', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deF64(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/float64 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -806,16 +871,21 @@ export async function float64 (x) {
 * @returns {Promise<number>} 
 */
 export async function u8 (x) {
+    let start = performance.now()
     const ser = new Serializer(1)
     serU8(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/u8', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/u8', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deU8(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/u8 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -823,16 +893,21 @@ export async function u8 (x) {
 * @returns {Promise<number>} 
 */
 export async function s8 (x) {
+    let start = performance.now()
     const ser = new Serializer(1)
     serS8(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/s8', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/s8', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deS8(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/s8 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -840,16 +915,21 @@ export async function s8 (x) {
 * @returns {Promise<number>} 
 */
 export async function u16 (x) {
+    let start = performance.now()
     const ser = new Serializer(3)
     serU16(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/u16', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/u16', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deU16(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/u16 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -857,16 +937,21 @@ export async function u16 (x) {
 * @returns {Promise<number>} 
 */
 export async function s16 (x) {
+    let start = performance.now()
     const ser = new Serializer(3)
     serS16(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/s16', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/s16', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deS16(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/s16 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -874,16 +959,21 @@ export async function s16 (x) {
 * @returns {Promise<number>} 
 */
 export async function u32 (x) {
+    let start = performance.now()
     const ser = new Serializer(5)
     serU32(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/u32', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/u32', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deU32(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/u32 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -891,16 +981,21 @@ export async function u32 (x) {
 * @returns {Promise<number>} 
 */
 export async function s32 (x) {
+    let start = performance.now()
     const ser = new Serializer(5)
     serS32(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/s32', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/s32', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deS32(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/s32 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -908,16 +1003,21 @@ export async function s32 (x) {
 * @returns {Promise<bigint>} 
 */
 export async function u64 (x) {
+    let start = performance.now()
     const ser = new Serializer(10)
     serU64(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/u64', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/u64', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deU64(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/u64 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -925,16 +1025,21 @@ export async function u64 (x) {
 * @returns {Promise<bigint>} 
 */
 export async function s64 (x) {
+    let start = performance.now()
     const ser = new Serializer(10)
     serS64(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/s64', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/s64', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deS64(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/s64 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -942,16 +1047,21 @@ export async function s64 (x) {
 * @returns {Promise<Uint8Array[]>} 
 */
 export async function listU8 (x) {
+    let start = performance.now()
     const ser = new Serializer(x.length + 10)
     serBytes(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/list_u8', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/list_u8', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deBytes(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/list_u8 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -959,16 +1069,21 @@ export async function listU8 (x) {
 * @returns {Promise<Uint16Array[]>} 
 */
 export async function listU16 (x) {
+    let start = performance.now()
     const ser = new Serializer(x.reduce((acc, cur) => acc + 3, 0) + 10)
     serList(ser, (ser, v) => serU16(ser, v), x)
 
-    return fetch('ipc://localhost/roundtrip/list_u16', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/list_u16', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deList(de, (de) => deU16(de))
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/list_u16 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -976,16 +1091,21 @@ export async function listU16 (x) {
 * @returns {Promise<Uint32Array[]>} 
 */
 export async function listU32 (x) {
+    let start = performance.now()
     const ser = new Serializer(x.reduce((acc, cur) => acc + 5, 0) + 10)
     serList(ser, (ser, v) => serU32(ser, v), x)
 
-    return fetch('ipc://localhost/roundtrip/list_u32', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/list_u32', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deList(de, (de) => deU32(de))
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/list_u32 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -993,16 +1113,21 @@ export async function listU32 (x) {
 * @returns {Promise<BigUint64Array[]>} 
 */
 export async function listU64 (x) {
+    let start = performance.now()
     const ser = new Serializer(x.reduce((acc, cur) => acc + 10, 0) + 10)
     serList(ser, (ser, v) => serU64(ser, v), x)
 
-    return fetch('ipc://localhost/roundtrip/list_u64', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/list_u64', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deList(de, (de) => deU64(de))
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/list_u64 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1010,16 +1135,21 @@ export async function listU64 (x) {
 * @returns {Promise<Int8Array[]>} 
 */
 export async function listS8 (x) {
+    let start = performance.now()
     const ser = new Serializer(x.length + 10)
     serList(ser, (ser, v) => serS8(ser, v), x)
 
-    return fetch('ipc://localhost/roundtrip/list_s8', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/list_s8', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deList(de, (de) => deS8(de))
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/list_s8 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1027,16 +1157,21 @@ export async function listS8 (x) {
 * @returns {Promise<Int16Array[]>} 
 */
 export async function listS16 (x) {
+    let start = performance.now()
     const ser = new Serializer(x.reduce((acc, cur) => acc + 3, 0) + 10)
     serList(ser, (ser, v) => serS16(ser, v), x)
 
-    return fetch('ipc://localhost/roundtrip/list_s16', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/list_s16', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deList(de, (de) => deS16(de))
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/list_s16 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1044,16 +1179,21 @@ export async function listS16 (x) {
 * @returns {Promise<Int32Array[]>} 
 */
 export async function listS32 (x) {
+    let start = performance.now()
     const ser = new Serializer(x.reduce((acc, cur) => acc + 5, 0) + 10)
     serList(ser, (ser, v) => serS32(ser, v), x)
 
-    return fetch('ipc://localhost/roundtrip/list_s32', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/list_s32', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deList(de, (de) => deS32(de))
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/list_s32 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1061,16 +1201,21 @@ export async function listS32 (x) {
 * @returns {Promise<BigInt64Array[]>} 
 */
 export async function listS64 (x) {
+    let start = performance.now()
     const ser = new Serializer(x.reduce((acc, cur) => acc + 10, 0) + 10)
     serList(ser, (ser, v) => serS64(ser, v), x)
 
-    return fetch('ipc://localhost/roundtrip/list_s64', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/list_s64', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deList(de, (de) => deS64(de))
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/list_s64 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1078,16 +1223,21 @@ export async function listS64 (x) {
 * @returns {Promise<Float32Array[]>} 
 */
 export async function listFloat32 (x) {
+    let start = performance.now()
     const ser = new Serializer(x.reduce((acc, cur) => acc + 4, 0) + 10)
     serList(ser, (ser, v) => serF32(ser, v), x)
 
-    return fetch('ipc://localhost/roundtrip/list_float32', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/list_float32', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deList(de, (de) => deF32(de))
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/list_float32 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1095,16 +1245,21 @@ export async function listFloat32 (x) {
 * @returns {Promise<Float64Array[]>} 
 */
 export async function listFloat64 (x) {
+    let start = performance.now()
     const ser = new Serializer(x.reduce((acc, cur) => acc + 8, 0) + 10)
     serList(ser, (ser, v) => serF64(ser, v), x)
 
-    return fetch('ipc://localhost/roundtrip/list_float64', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/list_float64', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deList(de, (de) => deF64(de))
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/list_float64 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1112,16 +1267,21 @@ export async function listFloat64 (x) {
 * @returns {Promise<[number, number][]>} 
 */
 export async function tupleList (x) {
+    let start = performance.now()
     const ser = new Serializer(x.reduce((acc, cur) => acc + 1+1, 0) + 10)
     serList(ser, (ser, v) => {serU8(ser, v[0]);serS8(ser, v[1])}, x)
 
-    return fetch('ipc://localhost/roundtrip/tuple_list', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/tuple_list', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deList(de, (de) => [deU8(de), deS8(de)])
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/tuple_list took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1129,16 +1289,21 @@ export async function tupleList (x) {
 * @returns {Promise<string[]>} 
 */
 export async function stringList (a) {
+    let start = performance.now()
     const ser = new Serializer(a.reduce((acc, cur) => acc + cur.length * 4 + 10, 0) + 10)
     serList(ser, (ser, v) => serString(ser, v), a)
 
-    return fetch('ipc://localhost/roundtrip/string_list', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/string_list', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deList(de, (de) => deString(de))
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/string_list took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1146,16 +1311,21 @@ export async function stringList (a) {
 * @returns {Promise<[number, string][]>} 
 */
 export async function tupleStringList (x) {
+    let start = performance.now()
     const ser = new Serializer(x.reduce((acc, cur) => acc + 1+cur[1].length * 4 + 10, 0) + 10)
     serList(ser, (ser, v) => {serU8(ser, v[0]);serString(ser, v[1])}, x)
 
-    return fetch('ipc://localhost/roundtrip/tuple_string_list', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/tuple_string_list', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deList(de, (de) => [deU8(de), deString(de)])
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/tuple_string_list took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1163,16 +1333,21 @@ export async function tupleStringList (x) {
 * @returns {Promise<OtherRecord[]>} 
 */
 export async function recordList (x) {
+    let start = performance.now()
     const ser = new Serializer(x.reduce((acc, cur) => acc + cur.x.length * 4 + 10+5+10+5+10+cur.y.b.length * 4 + 10+cur.y.c.length + 10+cur.z.reduce((acc, cur) => acc + 5+10+5+10+cur.b.length * 4 + 10+cur.c.length + 10, 0) + 10+5+10+5+10, 0) + 10)
     serList(ser, (ser, v) => serSomeRecord(ser, v), x)
 
-    return fetch('ipc://localhost/roundtrip/record_list', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/record_list', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deList(de, (de) => deOtherRecord(de))
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/record_list took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1180,16 +1355,21 @@ export async function recordList (x) {
 * @returns {Promise<AllIntegers>} 
 */
 export async function allIntegers (x) {
+    let start = performance.now()
     const ser = new Serializer(Math.max(x.Bool ? 1 : 0,x.U8 ? 1 : 0,x.U16 ? 3 : 0,x.U32 ? 5 : 0,x.U64 ? 10 : 0,x.I8 ? 1 : 0,x.I16 ? 3 : 0,x.S32 ? 5 : 0,x.S64 ? 10 : 0) + 5)
     serAllIntegers(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/all_integers', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/all_integers', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deAllIntegers(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/all_integers took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1197,16 +1377,21 @@ export async function allIntegers (x) {
 * @returns {Promise<AllFloats>} 
 */
 export async function allFloats (x) {
+    let start = performance.now()
     const ser = new Serializer(Math.max(x.F32 ? 4 : 0,x.F64 ? 8 : 0) + 5)
     serAllFloats(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/all_floats', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/all_floats', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deAllFloats(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/all_floats took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1214,16 +1399,21 @@ export async function allFloats (x) {
 * @returns {Promise<AllText>} 
 */
 export async function allText (x) {
+    let start = performance.now()
     const ser = new Serializer(Math.max(x.Char ? 4 : 0,x.String ? x.String.length * 4 + 10 : 0) + 5)
     serAllText(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/all_text', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/all_text', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deAllText(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/all_text took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1231,16 +1421,21 @@ export async function allText (x) {
 * @returns {Promise<E1>} 
 */
 export async function e1 (x) {
+    let start = performance.now()
     const ser = new Serializer(5)
     serE1(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/e1', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/e1', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deE1(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/e1 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1248,16 +1443,21 @@ export async function e1 (x) {
 * @returns {Promise<V1>} 
 */
 export async function v1 (x) {
+    let start = performance.now()
     const ser = new Serializer(Math.max(x.b ? Math.max(x.b.U32 ? 5 : 0,x.b.F32 ? 4 : 0) + 5 : 0,x.c ? 5 : 0,x.d ? x.d.length * 4 + 10 : 0,x.e ? 0 : 0,x.g ? 5 : 0) + 5)
     serV1(ser, x)
 
-    return fetch('ipc://localhost/roundtrip/v1', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/v1', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return deV1(de)
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/v1 took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1271,6 +1471,7 @@ export async function v1 (x) {
 * @returns {Promise<[boolean | null, [] | null, number | null, E1 | null, number | null, U1 | null, boolean | null | null]>} 
 */
 export async function options (a, b, c, d, e, f, g) {
+    let start = performance.now()
     const ser = new Serializer(1 + 1+0 + 1+5 + 1+5 + 1+4 + 1+Math.max(f.U32 ? 5 : 0,f.F32 ? 4 : 0) + 5 + 1+1 + 1 + 1)
     serOption(ser, (ser, v) => serBool(ser, v), a);
 serOption(ser, (ser, v) => {}, b);
@@ -1280,13 +1481,17 @@ serOption(ser, (ser, v) => serF32(ser, v), e);
 serOption(ser, (ser, v) => serU1(ser, v), f);
 serOption(ser, (ser, v) => serOption(ser, (ser, v) => serBool(ser, v), v), g)
 
-    return fetch('ipc://localhost/roundtrip/options', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/options', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return [deOption(de, (de) => deBool(de)), deOption(de, (de) => []), deOption(de, (de) => deU32(de)), deOption(de, (de) => deE1(de)), deOption(de, (de) => deF32(de)), deOption(de, (de) => deU1(de)), deOption(de, (de) => deOption(de, (de) => deBool(de)))]
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/options took ${end - start}ms`)
+    return out
 }
 
 /**
@@ -1299,6 +1504,7 @@ serOption(ser, (ser, v) => serOption(ser, (ser, v) => serBool(ser, v), v), g)
 * @returns {Promise<[Result<_, _>, Result<_, E1>, Result<E1, _>, Result<[], []>, Result<number, V1>, Result<string, Uint8Array[]>]>} 
 */
 export async function results (a, b, c, d, e, f) {
+    let start = performance.now()
     const ser = new Serializer(0 + 0 + 1+0 + 5 + 1+5 + 0 + 1+0 + 0 + 1+5 + Math.max(e.Err.b ? Math.max(e.Err.b.U32 ? 5 : 0,e.Err.b.F32 ? 4 : 0) + 5 : 0,e.Err.c ? 5 : 0,e.Err.d ? e.Err.d.length * 4 + 10 : 0,e.Err.e ? 0 : 0,e.Err.g ? 5 : 0) + 5 + 1+f.Ok.length * 4 + 10 + f.Err.length + 10 + 1)
     serResult(ser, (ser, v) => {}, (ser, v) => {}, a);
 serResult(ser, (ser, v) => {}, (ser, v) => serE1(ser, v), b);
@@ -1307,12 +1513,16 @@ serResult(ser, (ser, v) => {}, (ser, v) => {}, d);
 serResult(ser, (ser, v) => serU32(ser, v), (ser, v) => serV1(ser, v), e);
 serResult(ser, (ser, v) => serString(ser, v), (ser, v) => serBytes(ser, v), f)
 
-    return fetch('ipc://localhost/roundtrip/results', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
+    const out = await fetch('ipc://localhost/roundtrip/results', { method: "POST", body: ser.filled(), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
             return [deResult(de, () => {}, () => {}), deResult(de, () => {}, deE1(de)), deResult(de, deE1(de), () => {}), deResult(de, [], []), deResult(de, deU32(de), deV1(de)), deResult(de, deString(de), deBytes(de))]
         })
+
+    let end = performance.now();
+    console.log(`roundtrip/results took ${end - start}ms`)
+    return out
 }
 
