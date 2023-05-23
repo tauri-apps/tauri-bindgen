@@ -229,6 +229,7 @@ fn type_ident(typedefs: &TypeDefArena, ty: &Type) -> String {
     }
 }
 
+#[must_use]
 pub fn union_case_names(typedefs: &TypeDefArena, cases: &[UnionCase]) -> Vec<String> {
     enum UsedState<'a> {
         /// This name has been used once before.

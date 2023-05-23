@@ -40,7 +40,8 @@ pub mod conventions {
                     mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.kebab_case())
+                    ctx.kebab_case();
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -53,7 +54,8 @@ pub mod conventions {
                     x: LudicrousSpeed,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.foo(x))
+                    ctx.foo(x);
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -65,7 +67,8 @@ pub mod conventions {
                     mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.function_with_underscores())
+                    ctx.function_with_underscores();
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -77,7 +80,8 @@ pub mod conventions {
                     mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.function_with_no_weird_characters())
+                    ctx.function_with_no_weird_characters();
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -89,7 +93,8 @@ pub mod conventions {
                     mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.apple())
+                    ctx.apple();
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -101,7 +106,8 @@ pub mod conventions {
                     mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.apple_pear())
+                    ctx.apple_pear();
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -113,7 +119,8 @@ pub mod conventions {
                     mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.apple_pear_grape())
+                    ctx.apple_pear_grape();
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -125,7 +132,8 @@ pub mod conventions {
                     mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.a0())
+                    ctx.a0();
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -137,7 +145,8 @@ pub mod conventions {
                     mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.is_xml())
+                    ctx.is_xml();
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -149,7 +158,8 @@ pub mod conventions {
                     mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.explicit())
+                    ctx.explicit();
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -161,7 +171,8 @@ pub mod conventions {
                     mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.explicit_snake())
+                    ctx.explicit_snake();
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -173,7 +184,8 @@ pub mod conventions {
                     mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.bool())
+                    ctx.bool();
+                    Ok(())
                 },
             )?;
         Ok(())

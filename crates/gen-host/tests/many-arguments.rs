@@ -82,26 +82,27 @@ pub mod many_arguments {
                     a16: u64,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
+                    ctx
+                    .many_args(
+                        a1,
+                        a2,
+                        a3,
+                        a4,
+                        a5,
+                        a6,
+                        a7,
+                        a8,
+                        a9,
+                        a10,
+                        a11,
+                        a12,
+                        a13,
+                        a14,
+                        a15,
+                        a16,
+                    );
                     Ok(
-                        ctx
-                            .many_args(
-                                a1,
-                                a2,
-                                a3,
-                                a4,
-                                a5,
-                                a6,
-                                a7,
-                                a8,
-                                a9,
-                                a10,
-                                a11,
-                                a12,
-                                a13,
-                                a14,
-                                a15,
-                                a16,
-                            ),
+                        (),
                     )
                 },
             )?;
@@ -115,7 +116,8 @@ pub mod many_arguments {
                     x: BigStruct,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.big_argument(x))
+                    ctx.big_argument(x);
+                    Ok(())
                 },
             )?;
         Ok(())

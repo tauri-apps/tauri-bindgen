@@ -28,7 +28,7 @@ impl GeneratorBuilder for Builder {
         let serde_utils =
             SerdeUtils::collect_from_functions(&interface.typedefs, &interface.functions);
 
-        println!("{:?}", serde_utils);
+        println!("{serde_utils:?}");
 
         Box::new(JavaScript {
             opts: self,
@@ -301,7 +301,8 @@ impl Generate for JavaScript {
 
         let serde_utils = self.serde_utils.to_string();
 
-        let mut contents = format!("{serde_utils}{deserializers}{serializers}\n{functions}\n{resources}");
+        let mut contents =
+            format!("{serde_utils}{deserializers}{serializers}\n{functions}\n{resources}");
 
         if self.opts.prettier {
             postprocess(&mut contents, "prettier", ["--parser=babel"])

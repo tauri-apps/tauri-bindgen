@@ -3,9 +3,9 @@
 use heck::{ToShoutySnekCase, ToSnakeCase, ToUpperCamelCase};
 use proc_macro2::{Ident, Literal, TokenStream};
 use quote::{format_ident, quote};
-use std::collections::HashMap;
+
 use syn::Lifetime;
-use tauri_bindgen_core::{flags_repr, TypeInfo, TypeInfos, union_case_names};
+use tauri_bindgen_core::{flags_repr, union_case_names, TypeInfo, TypeInfos};
 
 use wit_parser::{
     EnumCase, FlagsField, Function, FunctionResult, Int, Interface, RecordField, Type, TypeDefId,

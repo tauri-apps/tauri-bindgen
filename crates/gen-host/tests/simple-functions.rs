@@ -28,7 +28,8 @@ pub mod simple_functions {
                     mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.f1())
+                    ctx.f1();
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -41,7 +42,8 @@ pub mod simple_functions {
                     a: u32,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.f2(a))
+                    ctx.f2(a);
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -55,7 +57,8 @@ pub mod simple_functions {
                     b: u32,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.f3(a, b))
+                    ctx.f3(a, b);
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);

@@ -301,7 +301,7 @@ pub trait JavaScriptGenerator {
             }
             Type::Id(id) => {
                 if let TypeDefKind::Resource(_) = self.interface().typedefs[*id].kind {
-                    format!("{}.serialize(out)", ident)
+                    format!("{ident}.serialize(out)")
                 } else {
                     format!(
                         "serialize{}(out, {ident})",
@@ -373,7 +373,7 @@ pub trait JavaScriptGenerator {
             .map(|(tag, case)| {
                 let prop_access = format!("val.{}", case.ident.to_upper_camel_case());
 
-                let inner = case.ty.as_ref().map_or("".to_string(), |ty| {
+                let inner = case.ty.as_ref().map_or(String::new(), |ty| {
                     self.print_serialize_ty(&prop_access, ty)
                 });
 
@@ -506,6 +506,7 @@ bitflags::bitflags! {
 }
 
 impl std::fmt::Display for SerdeUtils {
+    #[allow(clippy::too_many_lines)]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(include_str!("./js/deserializer.js"))?;
 
@@ -726,7 +727,7 @@ impl SerdeUtils {
                     wit_parser::Int::U64 => SerdeUtils::U64,
                 };
             }
-            _ => {}
+            TypeDefKind::Resource(_) => {}
         }
 
         log::debug!("collected info for {:?}: {:?}", typedefs[id].ident, info,);

@@ -65,8 +65,9 @@ impl TypeScript {
         let result = func
             .result
             .as_ref()
-            .map(|result| self.print_function_result(result))
-            .unwrap_or("Promise<void>".to_string());
+            .map_or("Promise<void>".to_string(), |result| {
+                self.print_function_result(result)
+            });
 
         let deserialize_result = func
             .result
@@ -80,11 +81,11 @@ impl TypeScript {
             .map(|(ident, ty)| self.print_serialize_ty(&ident.to_lower_camel_case(), ty))
             .collect::<Vec<_>>()
             .join(";\n");
-        
+
         let (ret, as_ret) = if func.result.is_some() {
             ("return".to_string(), format!("as {result}"))
         } else {
-            ("".to_string(), "".to_string())
+            (String::new(), String::new())
         };
 
         format!(
@@ -434,8 +435,9 @@ impl Generate for TypeScript {
             .map(|func| self.print_function(&self.interface.ident.to_snake_case(), func))
             .collect();
 
-        let mut contents =
-            format!("{result_ty}{serde_utils}{deserializers}{serializers}\n{typedefs}\n{functions}");
+        let mut contents = format!(
+            "{result_ty}{serde_utils}{deserializers}{serializers}\n{typedefs}\n{functions}"
+        );
 
         if self.opts.prettier {
             postprocess(&mut contents, "prettier", ["--parser=typescript"])

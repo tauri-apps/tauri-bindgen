@@ -163,7 +163,8 @@ pub mod variants {
                     x: E1,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.e1_arg(x))
+                    ctx.e1_arg(x);
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -188,7 +189,8 @@ pub mod variants {
                     x: U1,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.u1_arg(x))
+                    ctx.u1_arg(x);
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -213,7 +215,8 @@ pub mod variants {
                     x: V1,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.v1_arg(x))
+                    ctx.v1_arg(x);
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -238,7 +241,8 @@ pub mod variants {
                     x: bool,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.bool_arg(x))
+                    ctx.bool_arg(x);
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -269,7 +273,8 @@ pub mod variants {
                     g: Option<Option<bool>>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.option_arg(a, b, c, d, e, f, g))
+                    ctx.option_arg(a, b, c, d, e, f, g);
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -329,7 +334,8 @@ pub mod variants {
                     f: Result<String, Vec<u8>>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.result_arg(a, b, c, d, e, f))
+                    ctx.result_arg(a, b, c, d, e, f);
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -447,7 +453,8 @@ pub mod variants {
                     a: IsClone,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data_mut());
-                    Ok(ctx.is_clone_arg(a))
+                    ctx.is_clone_arg(a);
+                    Ok(())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
