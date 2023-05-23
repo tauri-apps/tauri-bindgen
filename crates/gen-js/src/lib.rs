@@ -477,6 +477,7 @@ bitflags::bitflags! {
         const _LIST             = 1 << 19;
         const DE                = 1 << 20;
         const SER               = 1 << 21;
+        const STR_UTIL          = 1 << 22;
 
         const VARINT            = Self::_VARINT.bits() | Self::VARINT_MAX.bits();
         const U16               = Self::_U16.bits() | Self::VARINT.bits();
@@ -485,8 +486,8 @@ bitflags::bitflags! {
         const S16               = Self::_S16.bits() | Self::VARINT.bits();
         const S32               = Self::_S32.bits() | Self::VARINT.bits();
         const S64               = Self::_S64.bits() | Self::VARINT.bits();
-        const CHAR              = Self::_CHAR.bits() | Self::U64.bits();
-        const STRING            = Self::_STRING.bits() | Self::U64.bits();
+        const CHAR              = Self::_CHAR.bits() | Self::U64.bits() | Self::STR_UTIL.bits();
+        const STRING            = Self::_STRING.bits() | Self::U64.bits() | Self::STR_UTIL.bits();
         const BYTES             = Self::_BYTES.bits() | Self::U64.bits();
         const OPTION            = Self::_OPTION.bits() | Self::U32.bits();
         const RESULT            = Self::_RESULT.bits() | Self::U32.bits();
@@ -645,6 +646,14 @@ impl std::fmt::Display for SerdeUtils {
 
         if self.contains(SerdeUtils::_LIST | SerdeUtils::SER) {
             f.write_str(include_str!("./js/ser_list.js"))?;
+        }
+
+        if self.contains(SerdeUtils::STR_UTIL | SerdeUtils::DE) {
+            f.write_str("const __text_decoder = new TextDecoder('utf-8');\n")?;
+        }
+
+        if self.contains(SerdeUtils::STR_UTIL | SerdeUtils::SER) {
+            f.write_str("const __text_encoder = new TextEncoder();\n")?;
         }
 
         Ok(())

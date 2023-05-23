@@ -5,7 +5,5 @@ function serializeChar(out, val) {
 
     serializeU64(out, val.length);
 
-    const encoder = new TextEncoder();
-
-    out.push(...encoder.encode(val))
+    out.push(...__text_encoder.encode(val))
 }
