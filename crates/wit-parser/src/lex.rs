@@ -1,13 +1,23 @@
 use logos::{FilterResult, Lexer, Logos, Source};
+use miette::Diagnostic;
 
-fn block_comment(lex: &mut Lexer<Token>) -> FilterResult<()> {
+#[derive(Debug, Clone, thiserror::Error, Diagnostic, PartialEq, Default)]
+pub enum Error {
+    #[error("unexpected character")]
+    #[default]
+    UnexpectedCharacter,
+    #[error("unexpected end of file")]
+    UnexpectedEof,
+}
+
+fn block_comment(lex: &mut Lexer<Token>) -> FilterResult<(), Error> {
     let mut depth = 1;
     while depth > 0 {
         let remainder = lex.remainder();
         match remainder.slice(0..2) {
             Some("/*") => depth += 1,
             Some("*/") => depth -= 1,
-            None => return FilterResult::Error,
+            None => return FilterResult::Error(Error::UnexpectedEof),
             _ => {}
         }
 
@@ -26,6 +36,7 @@ fn block_comment(lex: &mut Lexer<Token>) -> FilterResult<()> {
 }
 
 #[derive(Logos, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[logos(error = Error)]
 pub enum Token {
     #[regex(r"[ \t\n\f]+", logos::skip)]
     Whitespace,
@@ -132,9 +143,6 @@ pub enum Token {
     From,
     #[token("static")]
     Static,
-
-    #[error]
-    UnexpectedCharacter,
 }
 
 impl Token {
@@ -216,7 +224,6 @@ impl Token {
             Token::As => "'as'",
             Token::From => "'from'",
             Token::Static => "'static'",
-            Token::UnexpectedCharacter => "an unexpected character error",
         }
     }
 }
@@ -243,24 +250,24 @@ mod test {
     #[test]
     fn doc_comment() {
         let mut lex = Token::lexer("/// this is a comment");
-        assert_eq!(lex.next(), Some(Token::DocComment));
+        assert_eq!(lex.next(), Some(Ok(Token::DocComment)));
 
         let mut lex = Token::lexer("/** this is a comment */");
-        assert_eq!(lex.next(), Some(Token::BlockDocComment));
+        assert_eq!(lex.next(), Some(Ok(Token::BlockDocComment)));
     }
 
     #[test]
     fn ident() {
         let mut lex = Token::lexer("foo");
-        assert_eq!(lex.next(), Some(Token::Ident));
+        assert_eq!(lex.next(), Some(Ok(Token::Ident)));
 
         let mut lex = Token::lexer("foo_bar");
-        assert_eq!(lex.next(), Some(Token::Ident));
+        assert_eq!(lex.next(), Some(Ok(Token::Ident)));
 
         let mut lex = Token::lexer("%foo");
-        assert_eq!(lex.next(), Some(Token::Ident));
+        assert_eq!(lex.next(), Some(Ok(Token::Ident)));
 
         let mut lex = Token::lexer("%foo_bar");
-        assert_eq!(lex.next(), Some(Token::Ident));
+        assert_eq!(lex.next(), Some(Ok(Token::Ident)));
     }
 }

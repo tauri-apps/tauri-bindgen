@@ -7,7 +7,7 @@ rust-version.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-logos = "0.12.1"
+logos = "0.13.0"
 thiserror.workspace = true
 id-arena = "2.2.1"
 miette.workspace = true
