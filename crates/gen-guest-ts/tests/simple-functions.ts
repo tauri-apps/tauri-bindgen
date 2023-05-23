@@ -50,9 +50,11 @@ function de_varint(de, type) {
     }
 
     throw new Error('deserialize bad variant')
-}function deserializeU32(de) {
+}
+function deserializeU32(de) {
     return de_varint(de, 32)
-}function ser_varint(out, type, val) {
+}
+function ser_varint(out, type, val) {
     let buf = []
     for (let i = 0; i < varint_max(type); i++) {
         const buffer = new ArrayBuffer(type / 8);
@@ -74,72 +76,73 @@ function serializeU32(out, val) {
 }
 
 
-            
-            export async function f1 () : Promise<void> {
-                const out = []
-                
-                
-                 fetch('ipc://localhost/simple_functions/f1', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+
+export async function f1 () : Promise<void> {
+    const out = []
+    
+    
+     fetch('ipc://localhost/simple_functions/f1', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function f2 (a: number) : Promise<void> {
-                const out = []
-                serializeU32(out, a)
-                
-                 fetch('ipc://localhost/simple_functions/f2', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+export async function f2 (a: number) : Promise<void> {
+    const out = []
+    serializeU32(out, a)
+    
+     fetch('ipc://localhost/simple_functions/f2', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function f3 (a: number, b: number) : Promise<void> {
-                const out = []
-                serializeU32(out, a);
+
+export async function f3 (a: number, b: number) : Promise<void> {
+    const out = []
+    serializeU32(out, a);
 serializeU32(out, b)
-                
-                 fetch('ipc://localhost/simple_functions/f3', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+    
+     fetch('ipc://localhost/simple_functions/f3', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function f4 () : Promise<number> {
-                const out = []
-                
-                
-                return fetch('ipc://localhost/simple_functions/f4', { method: "POST", body: Uint8Array.from(out) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeU32(de)
-                }) as Promise<number>
-            }
-        
-            
-            export async function f5 () : Promise<[number, number]> {
-                const out = []
-                
-                
-                return fetch('ipc://localhost/simple_functions/f5', { method: "POST", body: Uint8Array.from(out) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+export async function f4 () : Promise<number> {
+    const out = []
+    
+    
+    return fetch('ipc://localhost/simple_functions/f4', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return [deserializeU32(de), deserializeU32(de)]
-                }) as Promise<[number, number]>
-            }
+            return deserializeU32(de)
+        }) as Promise<number>
+}
         
-            
-            export async function f6 (a: number, b: number, c: number) : Promise<[number, number, number]> {
-                const out = []
-                serializeU32(out, a);
+
+export async function f5 () : Promise<[number, number]> {
+    const out = []
+    
+    
+    return fetch('ipc://localhost/simple_functions/f5', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return [deserializeU32(de), deserializeU32(de)]
+        }) as Promise<[number, number]>
+}
+        
+
+export async function f6 (a: number, b: number, c: number) : Promise<[number, number, number]> {
+    const out = []
+    serializeU32(out, a);
 serializeU32(out, b);
 serializeU32(out, c)
-                
-                return fetch('ipc://localhost/simple_functions/f6', { method: "POST", body: Uint8Array.from(out) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    
+    return fetch('ipc://localhost/simple_functions/f6', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return [deserializeU32(de), deserializeU32(de), deserializeU32(de)]
-                }) as Promise<[number, number, number]>
-            }
+            return [deserializeU32(de), deserializeU32(de), deserializeU32(de)]
+        }) as Promise<[number, number, number]>
+}
         

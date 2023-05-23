@@ -67,14 +67,14 @@ impl JavaScript {
 
         format!(
             r#"
-            {docs}
-            export async function {ident} ({params}) {{
-                const out = []
-                {serialize_params}
+{docs}
+export async function {ident} ({params}) {{
+    const out = []
+    {serialize_params}
 
-                return fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: Uint8Array.from(out), headers: {{ 'Content-Type': 'application/octet-stream' }} }}){deserialize_result}
-            }}
-        "#
+    return fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: Uint8Array.from(out), headers: {{ 'Content-Type': 'application/octet-stream' }} }}){deserialize_result}
+}}
+"#
         )
     }
 
@@ -96,10 +96,10 @@ impl JavaScript {
 
                 format!(
                     r#"
-                {docs}
-                async {ident} ({params}) {{
-                }}
-            "#
+{docs}
+async {ident} ({params}) {{
+}}
+"#
                 )
             })
             .collect();
@@ -107,10 +107,10 @@ impl JavaScript {
         let deserialize = if info.contains(TypeInfo::RESULT) {
             format!(
                 "deserialize(de) {{
-                            const self = new {ident}();
-                            self.#id = deserializeU64(de);
-                            return self
-                        }}"
+    const self = new {ident}();
+    self.#id = deserializeU64(de);
+    return self
+}}"
             )
         } else {
             String::new()

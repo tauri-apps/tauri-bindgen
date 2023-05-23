@@ -20,65 +20,65 @@ class Deserializer {
 
 
 class A {
-                    #id: number;
+    #id: number;
 
-                    
-                        
-                        async f1 ()  {
-                        }
-                    
-                        
-                        async f2 (a: number)  {
-                        }
-                    
-                        
-                        async f3 (a: number, b: number)  {
-                        }
-                    
-                }
+    
+
+async f1 ()  {
+}
+
+
+async f2 (a: number)  {
+}
+
+
+async f3 (a: number, b: number)  {
+}
+
+}
 class B {
-                    #id: number;
+    #id: number;
 
-                    
-                        
-                        async f1 () Promise<A> {
-                        }
-                    
-                        
-                        async f2 (x: A) Promise<Result<number, null>> {
-                        }
-                    
-                        
-                        async f3 (x: A[] | null) Promise<Result<A, null>> {
-                        }
-                    
-                }
+    
 
-            
-            export async function constructorA () : Promise<A> {
-                const out = []
-                
-                
-                return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: Uint8Array.from(out) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+async f1 () Promise<A> {
+}
 
-                    return A.deserialize(de)
-                }) as Promise<A>
-            }
+
+async f2 (x: A) Promise<Result<number, null>> {
+}
+
+
+async f3 (x: A[] | null) Promise<Result<A, null>> {
+}
+
+}
+
+
+export async function constructorA () : Promise<A> {
+    const out = []
+    
+    
+    return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return A.deserialize(de)
+        }) as Promise<A>
+}
         
-            
-            export async function constructorB () : Promise<B> {
-                const out = []
-                
-                
-                return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: Uint8Array.from(out) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
 
-                    return B.deserialize(de)
-                }) as Promise<B>
-            }
+export async function constructorB () : Promise<B> {
+    const out = []
+    
+    
+    return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return B.deserialize(de)
+        }) as Promise<B>
+}
         

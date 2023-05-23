@@ -51,11 +51,14 @@ function de_varint(de, type) {
     }
 
     throw new Error('deserialize bad variant')
-}function deserializeU32(de) {
+}
+function deserializeU32(de) {
     return de_varint(de, 32)
-}function deserializeU64(de) {
+}
+function deserializeU64(de) {
     return de_varint(de, 64)
-}function deserializeString(de) {
+}
+function deserializeString(de) {
     const sz = deserializeU64(de);
 
     let bytes = de.try_take_n(Number(sz));
@@ -63,7 +66,8 @@ function de_varint(de, type) {
     const decoder = new TextDecoder('utf-8');
 
     return decoder.decode(bytes);
-}function deserializeOption(de, inner) {
+}
+function deserializeOption(de, inner) {
     const tag = de.pop()
 
     switch (tag) {
@@ -74,7 +78,8 @@ function de_varint(de, type) {
         default:
             throw new Error(`Deserialize bad option ${tag}`)
     }
-}function deserializeResult(de, ok, err) {
+}
+function deserializeResult(de, ok, err) {
     const tag = de.pop()
 
     switch (tag) {
@@ -85,19 +90,20 @@ function de_varint(de, type) {
         default:
             throw new Error(`Deserialize bad result ${tag}`)
     }
-}function deserializeError(de) {
-                const tag = deserializeU32(de)
+}
+function deserializeError(de) {
+    const tag = deserializeU32(de)
 
-                switch (tag) {
-                    case 0:
-                return "Success"
-            case 1:
-                return "Failure"
-            
-                    default:
-                        throw new Error(`unknown enum case ${tag}`)
-                }
-        }
+    switch (tag) {
+        case 0:
+    return "Success"
+case 1:
+    return "Failure"
+
+        default:
+            throw new Error(`unknown enum case ${tag}`)
+    }
+}
 
 export enum Error { 
 Success,
@@ -106,17 +112,17 @@ Failure,
  }
 
 
-            
-            export async function optionTest () : Promise<Result<string | null, Error>> {
-                const out = []
-                
-                
-                return fetch('ipc://localhost/small_anonymous/option_test', { method: "POST", body: Uint8Array.from(out) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeResult(de, deserializeOption(de, (de) => deserializeString(de)), deserializeError(de))
-                }) as Promise<Result<string | null, Error>>
-            }
+export async function optionTest () : Promise<Result<string | null, Error>> {
+    const out = []
+    
+    
+    return fetch('ipc://localhost/small_anonymous/option_test', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return deserializeResult(de, deserializeOption(de, (de) => deserializeString(de)), deserializeError(de))
+        }) as Promise<Result<string | null, Error>>
+}
         

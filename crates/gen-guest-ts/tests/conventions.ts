@@ -46,12 +46,14 @@ function ser_varint(out, type, val) {
 }
 function serializeU32(out, val) {
     return ser_varint(out, 32, val)
-}function serializeU64(out, val) {
+}
+function serializeU64(out, val) {
     return ser_varint(out, 64, val)
-}function serializeLudicrousSpeed(out, val) {
-                serializeU32(out, val.how_fast_are_you_going),
+}
+function serializeLudicrousSpeed(out, val) {
+    serializeU32(out, val.how_fast_are_you_going),
 serializeU64(out, val.i_am_going_extremely_slow)
-            }
+}
 
 export interface LudicrousSpeed { 
 howFastAreYouGoing: number,
@@ -60,99 +62,99 @@ iAmGoingExtremelySlow: bigint,
  }
 
 
-            
-            export async function kebabCase () : Promise<void> {
-                const out = []
-                
-                
-                 fetch('ipc://localhost/conventions/kebab_case', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+export async function kebabCase () : Promise<void> {
+    const out = []
+    
+    
+     fetch('ipc://localhost/conventions/kebab_case', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function foo (x: LudicrousSpeed) : Promise<void> {
-                const out = []
-                serializeLudicrousSpeed(out, x)
-                
-                 fetch('ipc://localhost/conventions/foo', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+export async function foo (x: LudicrousSpeed) : Promise<void> {
+    const out = []
+    serializeLudicrousSpeed(out, x)
+    
+     fetch('ipc://localhost/conventions/foo', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function functionWithUnderscores () : Promise<void> {
-                const out = []
-                
-                
-                 fetch('ipc://localhost/conventions/function_with_underscores', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+export async function functionWithUnderscores () : Promise<void> {
+    const out = []
+    
+    
+     fetch('ipc://localhost/conventions/function_with_underscores', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function functionWithNoWeirdCharacters () : Promise<void> {
-                const out = []
-                
-                
-                 fetch('ipc://localhost/conventions/function_with_no_weird_characters', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+export async function functionWithNoWeirdCharacters () : Promise<void> {
+    const out = []
+    
+    
+     fetch('ipc://localhost/conventions/function_with_no_weird_characters', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function apple () : Promise<void> {
-                const out = []
-                
-                
-                 fetch('ipc://localhost/conventions/apple', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+export async function apple () : Promise<void> {
+    const out = []
+    
+    
+     fetch('ipc://localhost/conventions/apple', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function applePear () : Promise<void> {
-                const out = []
-                
-                
-                 fetch('ipc://localhost/conventions/apple_pear', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+export async function applePear () : Promise<void> {
+    const out = []
+    
+    
+     fetch('ipc://localhost/conventions/apple_pear', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function applePearGrape () : Promise<void> {
-                const out = []
-                
-                
-                 fetch('ipc://localhost/conventions/apple_pear_grape', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+export async function applePearGrape () : Promise<void> {
+    const out = []
+    
+    
+     fetch('ipc://localhost/conventions/apple_pear_grape', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function a0 () : Promise<void> {
-                const out = []
-                
-                
-                 fetch('ipc://localhost/conventions/a0', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+export async function a0 () : Promise<void> {
+    const out = []
+    
+    
+     fetch('ipc://localhost/conventions/a0', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function isXml () : Promise<void> {
-                const out = []
-                
-                
-                 fetch('ipc://localhost/conventions/is_xml', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+export async function isXml () : Promise<void> {
+    const out = []
+    
+    
+     fetch('ipc://localhost/conventions/is_xml', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function explicit () : Promise<void> {
-                const out = []
-                
-                
-                 fetch('ipc://localhost/conventions/explicit', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+export async function explicit () : Promise<void> {
+    const out = []
+    
+    
+     fetch('ipc://localhost/conventions/explicit', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function explicitSnake () : Promise<void> {
-                const out = []
-                
-                
-                 fetch('ipc://localhost/conventions/explicit_snake', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+export async function explicitSnake () : Promise<void> {
+    const out = []
+    
+    
+     fetch('ipc://localhost/conventions/explicit_snake', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function bool () : Promise<void> {
-                const out = []
-                
-                
-                 fetch('ipc://localhost/conventions/bool', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+export async function bool () : Promise<void> {
+    const out = []
+    
+    
+     fetch('ipc://localhost/conventions/bool', { method: "POST", body: Uint8Array.from(out) }) 
+}
         

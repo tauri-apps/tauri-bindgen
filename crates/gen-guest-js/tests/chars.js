@@ -50,9 +50,11 @@ function de_varint(de, type) {
     }
 
     throw new Error('deserialize bad variant')
-}function deserializeU64(de) {
+}
+function deserializeU64(de) {
     return de_varint(de, 64)
-}function deserializeChar(de) {
+}
+function deserializeChar(de) {
     const sz = deserializeU64(de);
     if (sz > 4) {
         throw new Error("Deserialize bad char");
@@ -62,7 +64,8 @@ function de_varint(de, type) {
     const decoder = new TextDecoder('utf-8');
 
     return decoder.decode(bytes);
-}function ser_varint(out, type, val) {
+}
+function ser_varint(out, type, val) {
     let buf = []
     for (let i = 0; i < varint_max(type); i++) {
         const buffer = new ArrayBuffer(type / 8);
@@ -81,7 +84,8 @@ function de_varint(de, type) {
 }
 function serializeU64(out, val) {
     return ser_varint(out, 64, val)
-}function serializeChar(out, val) {
+}
+function serializeChar(out, val) {
     if (val.len > 1) {
         throw new Error("Serialize bad char");
     }
@@ -93,31 +97,32 @@ function serializeU64(out, val) {
     out.push(...encoder.encode(val))
 }
 
-            /**
+
+/**
  * A function that accepts a character 
 * @param {string} x 
 */
-            export async function takeChar (x) {
-                const out = []
-                serializeChar(out, x)
+export async function takeChar (x) {
+    const out = []
+    serializeChar(out, x)
 
-                return fetch('ipc://localhost/chars/take_char', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+    return fetch('ipc://localhost/chars/take_char', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
  * A function that returns a character 
 * @returns {Promise<string>} 
 */
-            export async function returnChar () {
-                const out = []
-                
+export async function returnChar () {
+    const out = []
+    
 
-                return fetch('ipc://localhost/chars/return_char', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    return fetch('ipc://localhost/chars/return_char', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeChar(de)
-                })
-            }
-        
+            return deserializeChar(de)
+        })
+}
+

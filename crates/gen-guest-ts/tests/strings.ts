@@ -50,9 +50,11 @@ function de_varint(de, type) {
     }
 
     throw new Error('deserialize bad variant')
-}function deserializeU64(de) {
+}
+function deserializeU64(de) {
     return de_varint(de, 64)
-}function deserializeString(de) {
+}
+function deserializeString(de) {
     const sz = deserializeU64(de);
 
     let bytes = de.try_take_n(Number(sz));
@@ -60,7 +62,8 @@ function de_varint(de, type) {
     const decoder = new TextDecoder('utf-8');
 
     return decoder.decode(bytes);
-}function ser_varint(out, type, val) {
+}
+function ser_varint(out, type, val) {
     let buf = []
     for (let i = 0; i < varint_max(type); i++) {
         const buffer = new ArrayBuffer(type / 8);
@@ -79,7 +82,8 @@ function de_varint(de, type) {
 }
 function serializeU64(out, val) {
     return ser_varint(out, 64, val)
-}function serializeString(out, val) {
+}
+function serializeString(out, val) {
     serializeU64(out, val.length);
 
     const encoder = new TextEncoder();
@@ -88,40 +92,41 @@ function serializeU64(out, val) {
 }
 
 
-            
-            export async function a (x: string) : Promise<void> {
-                const out = []
-                serializeString(out, x)
-                
-                 fetch('ipc://localhost/strings/a', { method: "POST", body: Uint8Array.from(out) }) 
-            }
-        
-            
-            export async function b () : Promise<string> {
-                const out = []
-                
-                
-                return fetch('ipc://localhost/strings/b', { method: "POST", body: Uint8Array.from(out) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeString(de)
-                }) as Promise<string>
-            }
+
+export async function a (x: string) : Promise<void> {
+    const out = []
+    serializeString(out, x)
+    
+     fetch('ipc://localhost/strings/a', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function c (a: string, b: string) : Promise<string> {
-                const out = []
-                serializeString(out, a);
+
+export async function b () : Promise<string> {
+    const out = []
+    
+    
+    return fetch('ipc://localhost/strings/b', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return deserializeString(de)
+        }) as Promise<string>
+}
+        
+
+export async function c (a: string, b: string) : Promise<string> {
+    const out = []
+    serializeString(out, a);
 serializeString(out, b)
-                
-                return fetch('ipc://localhost/strings/c', { method: "POST", body: Uint8Array.from(out) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    
+    return fetch('ipc://localhost/strings/c', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeString(de)
-                }) as Promise<string>
-            }
+            return deserializeString(de)
+        }) as Promise<string>
+}
         

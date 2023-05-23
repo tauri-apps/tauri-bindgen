@@ -46,119 +46,121 @@ function ser_varint(out, type, val) {
 }
 function serializeU32(out, val) {
     return ser_varint(out, 32, val)
-}function serializeU64(out, val) {
+}
+function serializeU64(out, val) {
     return ser_varint(out, 64, val)
-}function serializeLudicrousSpeed(out, val) {
-                serializeU32(out, val.how_fast_are_you_going),
+}
+function serializeLudicrousSpeed(out, val) {
+    serializeU32(out, val.how_fast_are_you_going),
 serializeU64(out, val.i_am_going_extremely_slow)
-            }
+}
 
-            /**
+/**
 */
-            export async function kebabCase () {
-                const out = []
-                
+export async function kebabCase () {
+    const out = []
+    
 
-                return fetch('ipc://localhost/conventions/kebab_case', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+    return fetch('ipc://localhost/conventions/kebab_case', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 * @param {LudicrousSpeed} x 
 */
-            export async function foo (x) {
-                const out = []
-                serializeLudicrousSpeed(out, x)
+export async function foo (x) {
+    const out = []
+    serializeLudicrousSpeed(out, x)
 
-                return fetch('ipc://localhost/conventions/foo', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+    return fetch('ipc://localhost/conventions/foo', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 */
-            export async function functionWithUnderscores () {
-                const out = []
-                
+export async function functionWithUnderscores () {
+    const out = []
+    
 
-                return fetch('ipc://localhost/conventions/function_with_underscores', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+    return fetch('ipc://localhost/conventions/function_with_underscores', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 */
-            export async function functionWithNoWeirdCharacters () {
-                const out = []
-                
+export async function functionWithNoWeirdCharacters () {
+    const out = []
+    
 
-                return fetch('ipc://localhost/conventions/function_with_no_weird_characters', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+    return fetch('ipc://localhost/conventions/function_with_no_weird_characters', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 */
-            export async function apple () {
-                const out = []
-                
+export async function apple () {
+    const out = []
+    
 
-                return fetch('ipc://localhost/conventions/apple', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+    return fetch('ipc://localhost/conventions/apple', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 */
-            export async function applePear () {
-                const out = []
-                
+export async function applePear () {
+    const out = []
+    
 
-                return fetch('ipc://localhost/conventions/apple_pear', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+    return fetch('ipc://localhost/conventions/apple_pear', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 */
-            export async function applePearGrape () {
-                const out = []
-                
+export async function applePearGrape () {
+    const out = []
+    
 
-                return fetch('ipc://localhost/conventions/apple_pear_grape', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+    return fetch('ipc://localhost/conventions/apple_pear_grape', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 */
-            export async function a0 () {
-                const out = []
-                
+export async function a0 () {
+    const out = []
+    
 
-                return fetch('ipc://localhost/conventions/a0', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+    return fetch('ipc://localhost/conventions/a0', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 */
-            export async function isXml () {
-                const out = []
-                
+export async function isXml () {
+    const out = []
+    
 
-                return fetch('ipc://localhost/conventions/is_xml', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+    return fetch('ipc://localhost/conventions/is_xml', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 */
-            export async function explicit () {
-                const out = []
-                
+export async function explicit () {
+    const out = []
+    
 
-                return fetch('ipc://localhost/conventions/explicit', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+    return fetch('ipc://localhost/conventions/explicit', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 */
-            export async function explicitSnake () {
-                const out = []
-                
+export async function explicitSnake () {
+    const out = []
+    
 
-                return fetch('ipc://localhost/conventions/explicit_snake', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+    return fetch('ipc://localhost/conventions/explicit_snake', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 */
-            export async function bool () {
-                const out = []
-                
+export async function bool () {
+    const out = []
+    
 
-                return fetch('ipc://localhost/conventions/bool', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
+    return fetch('ipc://localhost/conventions/bool', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+

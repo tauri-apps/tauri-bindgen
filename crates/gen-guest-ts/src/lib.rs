@@ -90,13 +90,13 @@ impl TypeScript {
 
         format!(
             r#"
-            {docs}
-            export async function {ident} ({params}) : {result} {{
-                const out = []
-                {serialize_params}
-                
-                {ret} fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: Uint8Array.from(out) }}){deserialize_result} {as_ret}
-            }}
+{docs}
+export async function {ident} ({params}) : {result} {{
+    const out = []
+    {serialize_params}
+    
+    {ret} fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: Uint8Array.from(out) }}){deserialize_result} {as_ret}
+}}
         "#
         )
     }
@@ -310,20 +310,20 @@ impl TypeScript {
 
                 format!(
                     r#"
-                        {docs}
-                        async {ident} ({params}) {result} {{
-                        }}
-                    "#
+{docs}
+async {ident} ({params}) {result} {{
+}}
+"#
                 )
             })
             .collect();
 
         format!(
-            "{docs}\nclass {ident} {{
-                    #id: number;
+"{docs}\nclass {ident} {{
+    #id: number;
 
-                    {functions}
-                }}"
+    {functions}
+}}"
         )
     }
 

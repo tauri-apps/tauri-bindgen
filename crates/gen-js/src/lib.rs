@@ -15,14 +15,13 @@ pub trait JavaScriptGenerator {
             1 => {
                 let inner = self.print_deserialize_ty(result.types().next().unwrap());
 
-                format!(
-                    "
-                .then(r => r.arrayBuffer())
-                .then(bytes => {{
-                    const de = new Deserializer(new Uint8Array(bytes))
+                format!("
+        .then(r => r.arrayBuffer())
+        .then(bytes => {{
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return {inner}
-                }})"
+            return {inner}
+        }})"
                 )
             }
             _ => {
@@ -32,14 +31,13 @@ pub trait JavaScriptGenerator {
                     .collect::<Vec<_>>()
                     .join(", ");
 
-                format!(
-                    "
-                .then(r => r.arrayBuffer())
-                .then(bytes => {{
-                    const de = new Deserializer(Uint8Array.from(bytes))
+                format!("
+        .then(r => r.arrayBuffer())
+        .then(bytes => {{
+            const de = new Deserializer(Uint8Array.from(bytes))
 
-                    return [{tys}]
-                }})"
+            return [{tys}]
+        }})"
                 )
             }
         }
@@ -123,9 +121,9 @@ pub trait JavaScriptGenerator {
         let inner = self.print_deserialize_ty(ty);
 
         format!(
-            r#"function deserialize{ident}(de) {{
-            return {inner}
-        }}"#
+r#"function deserialize{ident}(de) {{
+    return {inner}
+}}"#
         )
     }
 
@@ -141,11 +139,11 @@ pub trait JavaScriptGenerator {
             .join(",\n");
 
         format!(
-            r#"function deserialize{ident}(de) {{
-            return {{
-                {fields}
-            }}
-        }}"#
+r#"function deserialize{ident}(de) {{
+    return {{
+        {fields}
+    }}
+}}"#
         )
     }
 
@@ -158,9 +156,9 @@ pub trait JavaScriptGenerator {
         };
 
         format!(
-            r#"function deserialize{ident}(de) {{
-                return deserialize{inner}(de)
-        }}"#
+r#"function deserialize{ident}(de) {{
+    return deserialize{inner}(de)
+}}"#
         )
     }
 
@@ -177,23 +175,23 @@ pub trait JavaScriptGenerator {
                 let ident = case.ident.to_upper_camel_case();
 
                 format!(
-                    "case {tag}:
-            return {{ {ident}: {inner} }}
-        "
+"case {tag}:
+    return {{ {ident}: {inner} }}
+"
                 )
             })
             .collect::<String>();
 
         format!(
-            r#"function deserialize{ident}(de) {{
-                const tag = deserializeU32(de)
+r#"function deserialize{ident}(de) {{
+    const tag = deserializeU32(de)
 
-                switch (tag) {{
-                    {cases}
-                    default:
-                        throw new Error(`unknown variant case ${{tag}}`)
-                }}
-        }}"#
+    switch (tag) {{
+        {cases}
+        default:
+            throw new Error(`unknown variant case ${{tag}}`)
+    }}
+}}"#
         )
     }
 
@@ -204,23 +202,23 @@ pub trait JavaScriptGenerator {
             .map(|(tag, case)| {
                 let ident = case.ident.to_upper_camel_case();
                 format!(
-                    "case {tag}:
-                return \"{ident}\"
-            "
+"case {tag}:
+    return \"{ident}\"
+"
                 )
             })
             .collect::<String>();
 
         format!(
-            r#"function deserialize{ident}(de) {{
-                const tag = deserializeU32(de)
+r#"function deserialize{ident}(de) {{
+    const tag = deserializeU32(de)
 
-                switch (tag) {{
-                    {cases}
-                    default:
-                        throw new Error(`unknown enum case ${{tag}}`)
-                }}
-        }}"#
+    switch (tag) {{
+        {cases}
+        default:
+            throw new Error(`unknown enum case ${{tag}}`)
+    }}
+}}"#
         )
     }
 
@@ -233,23 +231,23 @@ pub trait JavaScriptGenerator {
                 let inner = self.print_deserialize_ty(&case.ty);
 
                 format!(
-                    "case {tag}:
-                return {{ {name}: {inner} }}
-            "
+"case {tag}:
+    return {{ {name}: {inner} }}
+"
                 )
             })
             .collect();
 
         format!(
-            r#"function deserialize{ident}(de) {{
-                const tag = deserializeU32(de)
+r#"function deserialize{ident}(de) {{
+    const tag = deserializeU32(de)
 
-                switch (tag) {{
-                    {cases}
-                    default:
-                        throw new Error(`unknown union case ${{tag}}`)
-                }}
-        }}"#
+    switch (tag) {{
+        {cases}
+        default:
+            throw new Error(`unknown union case ${{tag}}`)
+    }}
+}}"#
         )
     }
 
@@ -331,9 +329,9 @@ pub trait JavaScriptGenerator {
         let inner = self.print_serialize_ty("val", ty);
 
         format!(
-            "function serialize{ident}(out, val) {{
-            {inner}
-        }}"
+"function serialize{ident}(out, val) {{
+    {inner}
+}}"
         )
     }
 
@@ -345,9 +343,9 @@ pub trait JavaScriptGenerator {
             .join(",\n");
 
         format!(
-            "function serialize{ident}(out, val) {{
-                {inner}
-            }}"
+"function serialize{ident}(out, val) {{
+    {inner}
+}}"
         )
     }
 
@@ -360,9 +358,9 @@ pub trait JavaScriptGenerator {
         };
 
         format!(
-            r#"function serialize{ident}(out, val) {{
-                return serialize{inner}(out, val)
-        }}"#
+r#"function serialize{ident}(out, val) {{
+    return serialize{inner}(out, val)
+}}"#
         )
     }
 
@@ -378,21 +376,21 @@ pub trait JavaScriptGenerator {
                 });
 
                 format!(
-                    "if ({prop_access}) {{
-                    serializeU32(out, {tag});
-                    return {inner}
-                }}
-                "
+"if ({prop_access}) {{
+    serializeU32(out, {tag});
+    return {inner}
+}}
+"
                 )
             })
             .collect::<String>();
 
         format!(
-            r#"function serialize{ident}(out, val) {{
-                {cases}
+r#"function serialize{ident}(out, val) {{
+    {cases}
 
-                throw new Error("unknown variant case")
-        }}"#
+    throw new Error("unknown variant case")
+}}"#
         )
     }
 
@@ -403,22 +401,22 @@ pub trait JavaScriptGenerator {
             .map(|(tag, case)| {
                 let ident = case.ident.to_upper_camel_case();
                 format!(
-                    "case \"{ident}\":
-                    serializeU32(out, {tag})
-                    return
-            "
+"case \"{ident}\":
+    serializeU32(out, {tag})
+    return
+"
                 )
             })
             .collect::<String>();
 
         format!(
-            r#"function serialize{ident}(out, val) {{
-                switch (val) {{
-                    {cases}
-                    default:
-                        throw new Error("unknown enum case")
-                }}
-        }}"#
+r#"function serialize{ident}(out, val) {{
+    switch (val) {{
+        {cases}
+        default:
+            throw new Error("unknown enum case")
+    }}
+}}"#
         )
     }
 
@@ -432,34 +430,22 @@ pub trait JavaScriptGenerator {
                 let inner = self.print_serialize_ty(&prop_access, &case.ty);
 
                 format!(
-                    "if ({prop_access}) {{
-                    serializeU32(out, {tag});
-                    return {inner}
-                }}
+"if ({prop_access}) {{
+    serializeU32(out, {tag});
+    return {inner}
+}}
                 "
                 )
             })
             .collect();
 
         format!(
-            r#"function serialize{ident}(out, val) {{
-                {cases}
+r#"function serialize{ident}(out, val) {{
+    {cases}
 
-                throw new Error("unknown union case")
-        }}"#
+    throw new Error("unknown union case")
+}}"#
         )
-
-        // if (val.Ok) {
-        //     serializeU8(out, 0);
-        //     return ok(out, val.Ok);
-        // }
-
-        // if (val.Err) {
-        //     serializeU8(out, 1);
-        //     return err(out, val.Err);
-        // }
-
-        // throw new Error('Serialize bad result');
     }
 }
 

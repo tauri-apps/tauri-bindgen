@@ -50,11 +50,14 @@ function de_varint(de, type) {
     }
 
     throw new Error('deserialize bad variant')
-}function deserializeU32(de) {
+}
+function deserializeU32(de) {
     return de_varint(de, 32)
-}function deserializeU64(de) {
+}
+function deserializeU64(de) {
     return de_varint(de, 64)
-}function deserializeList(de, inner) {
+}
+function deserializeList(de, inner) {
     const len = deserializeU64(de);
 
     let out = [];
@@ -64,7 +67,8 @@ function de_varint(de, type) {
     }
 
     return out;
-}function ser_varint(out, type, val) {
+}
+function ser_varint(out, type, val) {
     let buf = []
     for (let i = 0; i < varint_max(type); i++) {
         const buffer = new ArrayBuffer(type / 8);
@@ -83,9 +87,11 @@ function de_varint(de, type) {
 }
 function serializeU32(out, val) {
     return ser_varint(out, 32, val)
-}function serializeU64(out, val) {
+}
+function serializeU64(out, val) {
     return ser_varint(out, 64, val)
-}function serializeList(out, inner, val) {
+}
+function serializeList(out, inner, val) {
     serializeU64(out, val.length)
     for (const el of val) {
         inner(out, el)
@@ -93,54 +99,55 @@ function serializeU32(out, val) {
 }
 
 
-            
-            export async function simpleList1 (l: Uint32Array[]) : Promise<void> {
-                const out = []
-                serializeList(out, (out, v) => serializeU32(out, v), l)
-                
-                 fetch('ipc://localhost/simple_lists/simple_list1', { method: "POST", body: Uint8Array.from(out) }) 
-            }
-        
-            
-            export async function simpleList2 () : Promise<Uint32Array[]> {
-                const out = []
-                
-                
-                return fetch('ipc://localhost/simple_lists/simple_list2', { method: "POST", body: Uint8Array.from(out) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeList(de, (de) => deserializeU32(de))
-                }) as Promise<Uint32Array[]>
-            }
+
+export async function simpleList1 (l: Uint32Array[]) : Promise<void> {
+    const out = []
+    serializeList(out, (out, v) => serializeU32(out, v), l)
+    
+     fetch('ipc://localhost/simple_lists/simple_list1', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function simpleList3 (a: Uint32Array[], b: Uint32Array[]) : Promise<[Uint32Array[], Uint32Array[]]> {
-                const out = []
-                serializeList(out, (out, v) => serializeU32(out, v), a);
+
+export async function simpleList2 () : Promise<Uint32Array[]> {
+    const out = []
+    
+    
+    return fetch('ipc://localhost/simple_lists/simple_list2', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return deserializeList(de, (de) => deserializeU32(de))
+        }) as Promise<Uint32Array[]>
+}
+        
+
+export async function simpleList3 (a: Uint32Array[], b: Uint32Array[]) : Promise<[Uint32Array[], Uint32Array[]]> {
+    const out = []
+    serializeList(out, (out, v) => serializeU32(out, v), a);
 serializeList(out, (out, v) => serializeU32(out, v), b)
-                
-                return fetch('ipc://localhost/simple_lists/simple_list3', { method: "POST", body: Uint8Array.from(out) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    
+    return fetch('ipc://localhost/simple_lists/simple_list3', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return [deserializeList(de, (de) => deserializeU32(de)), deserializeList(de, (de) => deserializeU32(de))]
-                }) as Promise<[Uint32Array[], Uint32Array[]]>
-            }
+            return [deserializeList(de, (de) => deserializeU32(de)), deserializeList(de, (de) => deserializeU32(de))]
+        }) as Promise<[Uint32Array[], Uint32Array[]]>
+}
         
-            
-            export async function simpleList4 (l: Uint32Array[][]) : Promise<Uint32Array[][]> {
-                const out = []
-                serializeList(out, (out, v) => serializeList(out, (out, v) => serializeU32(out, v), v), l)
-                
-                return fetch('ipc://localhost/simple_lists/simple_list4', { method: "POST", body: Uint8Array.from(out) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeList(de, (de) => deserializeList(de, (de) => deserializeU32(de)))
-                }) as Promise<Uint32Array[][]>
-            }
+export async function simpleList4 (l: Uint32Array[][]) : Promise<Uint32Array[][]> {
+    const out = []
+    serializeList(out, (out, v) => serializeList(out, (out, v) => serializeU32(out, v), v), l)
+    
+    return fetch('ipc://localhost/simple_lists/simple_list4', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return deserializeList(de, (de) => deserializeList(de, (de) => deserializeU32(de)))
+        }) as Promise<Uint32Array[][]>
+}
         

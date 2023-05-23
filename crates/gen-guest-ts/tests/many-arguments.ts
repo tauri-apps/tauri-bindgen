@@ -46,14 +46,16 @@ function ser_varint(out, type, val) {
 }
 function serializeU64(out, val) {
     return ser_varint(out, 64, val)
-}function serializeString(out, val) {
+}
+function serializeString(out, val) {
     serializeU64(out, val.length);
 
     const encoder = new TextEncoder();
 
     out.push(...encoder.encode(val))
-}function serializeBigStruct(out, val) {
-                serializeString(out, val.a1),
+}
+function serializeBigStruct(out, val) {
+    serializeString(out, val.a1),
 serializeString(out, val.a2),
 serializeString(out, val.a3),
 serializeString(out, val.a4),
@@ -73,7 +75,7 @@ serializeString(out, val.a17),
 serializeString(out, val.a18),
 serializeString(out, val.a19),
 serializeString(out, val.a20)
-            }
+}
 
 export interface BigStruct { 
 a1: string,
@@ -118,10 +120,10 @@ a20: string,
  }
 
 
-            
-            export async function manyArgs (a1: bigint, a2: bigint, a3: bigint, a4: bigint, a5: bigint, a6: bigint, a7: bigint, a8: bigint, a9: bigint, a10: bigint, a11: bigint, a12: bigint, a13: bigint, a14: bigint, a15: bigint, a16: bigint) : Promise<void> {
-                const out = []
-                serializeU64(out, a1);
+
+export async function manyArgs (a1: bigint, a2: bigint, a3: bigint, a4: bigint, a5: bigint, a6: bigint, a7: bigint, a8: bigint, a9: bigint, a10: bigint, a11: bigint, a12: bigint, a13: bigint, a14: bigint, a15: bigint, a16: bigint) : Promise<void> {
+    const out = []
+    serializeU64(out, a1);
 serializeU64(out, a2);
 serializeU64(out, a3);
 serializeU64(out, a4);
@@ -137,15 +139,15 @@ serializeU64(out, a13);
 serializeU64(out, a14);
 serializeU64(out, a15);
 serializeU64(out, a16)
-                
-                 fetch('ipc://localhost/many_arguments/many_args', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+    
+     fetch('ipc://localhost/many_arguments/many_args', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function bigArgument (x: BigStruct) : Promise<void> {
-                const out = []
-                serializeBigStruct(out, x)
-                
-                 fetch('ipc://localhost/many_arguments/big_argument', { method: "POST", body: Uint8Array.from(out) }) 
-            }
+
+export async function bigArgument (x: BigStruct) : Promise<void> {
+    const out = []
+    serializeBigStruct(out, x)
+    
+     fetch('ipc://localhost/many_arguments/big_argument', { method: "POST", body: Uint8Array.from(out) }) 
+}
         

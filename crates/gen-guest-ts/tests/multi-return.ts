@@ -50,9 +50,11 @@ function de_varint(de, type) {
     }
 
     throw new Error('deserialize bad variant')
-}function deserializeU32(de) {
+}
+function deserializeU32(de) {
     return de_varint(de, 32)
-}function deserializeF32(de) {
+}
+function deserializeF32(de) {
     const bytes = de.try_take_n(4);
 
     const buf = new ArrayBuffer(4);
@@ -64,61 +66,62 @@ function de_varint(de, type) {
 }
 
 
-            
-            export async function mra () : Promise<void> {
-                const out = []
-                
-                
-                 fetch('ipc://localhost/multi_return/mra', { method: "POST", body: Uint8Array.from(out) }) 
-            }
-        
-            
-            export async function mrb () : Promise<void> {
-                const out = []
-                
-                
-                return fetch('ipc://localhost/multi_return/mrb', { method: "POST", body: Uint8Array.from(out) }) as Promise<void>
-            }
-        
-            
-            export async function mrc () : Promise<number> {
-                const out = []
-                
-                
-                return fetch('ipc://localhost/multi_return/mrc', { method: "POST", body: Uint8Array.from(out) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeU32(de)
-                }) as Promise<number>
-            }
-        
-            
-            export async function mrd () : Promise<number> {
-                const out = []
-                
-                
-                return fetch('ipc://localhost/multi_return/mrd', { method: "POST", body: Uint8Array.from(out) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeU32(de)
-                }) as Promise<number>
-            }
+export async function mra () : Promise<void> {
+    const out = []
+    
+    
+     fetch('ipc://localhost/multi_return/mra', { method: "POST", body: Uint8Array.from(out) }) 
+}
         
-            
-            export async function mre () : Promise<[number, number]> {
-                const out = []
-                
-                
-                return fetch('ipc://localhost/multi_return/mre', { method: "POST", body: Uint8Array.from(out) })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(Uint8Array.from(bytes))
 
-                    return [deserializeU32(de), deserializeF32(de)]
-                }) as Promise<[number, number]>
-            }
+export async function mrb () : Promise<void> {
+    const out = []
+    
+    
+    return fetch('ipc://localhost/multi_return/mrb', { method: "POST", body: Uint8Array.from(out) }) as Promise<void>
+}
+        
+
+export async function mrc () : Promise<number> {
+    const out = []
+    
+    
+    return fetch('ipc://localhost/multi_return/mrc', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return deserializeU32(de)
+        }) as Promise<number>
+}
+        
+
+export async function mrd () : Promise<number> {
+    const out = []
+    
+    
+    return fetch('ipc://localhost/multi_return/mrd', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return deserializeU32(de)
+        }) as Promise<number>
+}
+        
+
+export async function mre () : Promise<[number, number]> {
+    const out = []
+    
+    
+    return fetch('ipc://localhost/multi_return/mre', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(Uint8Array.from(bytes))
+
+            return [deserializeU32(de), deserializeF32(de)]
+        }) as Promise<[number, number]>
+}
         

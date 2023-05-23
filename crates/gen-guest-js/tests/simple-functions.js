@@ -50,9 +50,11 @@ function de_varint(de, type) {
     }
 
     throw new Error('deserialize bad variant')
-}function deserializeU32(de) {
+}
+function deserializeU32(de) {
     return de_varint(de, 32)
-}function ser_varint(out, type, val) {
+}
+function ser_varint(out, type, val) {
     let buf = []
     for (let i = 0; i < varint_max(type); i++) {
         const buffer = new ArrayBuffer(type / 8);
@@ -73,87 +75,88 @@ function serializeU32(out, val) {
     return ser_varint(out, 32, val)
 }
 
-            /**
-*/
-            export async function f1 () {
-                const out = []
-                
 
-                return fetch('ipc://localhost/simple_functions/f1', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+/**
+*/
+export async function f1 () {
+    const out = []
+    
+
+    return fetch('ipc://localhost/simple_functions/f1', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 * @param {number} a 
 */
-            export async function f2 (a) {
-                const out = []
-                serializeU32(out, a)
+export async function f2 (a) {
+    const out = []
+    serializeU32(out, a)
 
-                return fetch('ipc://localhost/simple_functions/f2', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+    return fetch('ipc://localhost/simple_functions/f2', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 * @param {number} a 
 * @param {number} b 
 */
-            export async function f3 (a, b) {
-                const out = []
-                serializeU32(out, a);
+export async function f3 (a, b) {
+    const out = []
+    serializeU32(out, a);
 serializeU32(out, b)
 
-                return fetch('ipc://localhost/simple_functions/f3', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-            }
-        
-            /**
+    return fetch('ipc://localhost/simple_functions/f3', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+}
+
+/**
 * @returns {Promise<number>} 
 */
-            export async function f4 () {
-                const out = []
-                
+export async function f4 () {
+    const out = []
+    
 
-                return fetch('ipc://localhost/simple_functions/f4', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    return fetch('ipc://localhost/simple_functions/f4', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeU32(de)
-                })
-            }
-        
-            /**
+            return deserializeU32(de)
+        })
+}
+
+/**
 * @returns {Promise<[number, number]>} 
 */
-            export async function f5 () {
-                const out = []
-                
+export async function f5 () {
+    const out = []
+    
 
-                return fetch('ipc://localhost/simple_functions/f5', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    return fetch('ipc://localhost/simple_functions/f5', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return [deserializeU32(de), deserializeU32(de)]
-                })
-            }
-        
-            /**
+            return [deserializeU32(de), deserializeU32(de)]
+        })
+}
+
+/**
 * @param {number} a 
 * @param {number} b 
 * @param {number} c 
 * @returns {Promise<[number, number, number]>} 
 */
-            export async function f6 (a, b, c) {
-                const out = []
-                serializeU32(out, a);
+export async function f6 (a, b, c) {
+    const out = []
+    serializeU32(out, a);
 serializeU32(out, b);
 serializeU32(out, c)
 
-                return fetch('ipc://localhost/simple_functions/f6', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    return fetch('ipc://localhost/simple_functions/f6', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return [deserializeU32(de), deserializeU32(de), deserializeU32(de)]
-                })
-            }
-        
+            return [deserializeU32(de), deserializeU32(de), deserializeU32(de)]
+        })
+}
+

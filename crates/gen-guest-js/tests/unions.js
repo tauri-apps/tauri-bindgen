@@ -50,38 +50,48 @@ function de_varint(de, type) {
     }
 
     throw new Error('deserialize bad variant')
-}function deserializeBool(de) {
+}
+function deserializeBool(de) {
     const val = de.pop();
 
     return val != 0
-}function deserializeU8(de) {
+}
+function deserializeU8(de) {
     return de.pop()
-}function deserializeU16(de) {
+}
+function deserializeU16(de) {
     return de_varint(de, 16)
-}function deserializeU32(de) {
+}
+function deserializeU32(de) {
     return de_varint(de, 32)
-}function deserializeU64(de) {
+}
+function deserializeU64(de) {
     return de_varint(de, 64)
-}function deserializeS8(de) {
+}
+function deserializeS8(de) {
     const buf = new ArrayBuffer(1);
     const view = new DataView(buf);
 
     buf[0] = view.setUint8(0, de.pop());
 
     return view.getInt8(0);
-}function deserializeS16(de) {
+}
+function deserializeS16(de) {
     const n = de_varint(de, 16)
 
     return Number(((n >> 1) & 0xFFFF) ^ (-((n & 0b1) & 0xFFFF)))
-}function deserializeS32(de) {
+}
+function deserializeS32(de) {
     const n = de_varint(de, 32)
 
     return Number(((n >> 1) & 0xFFFFFFFF) ^ (-((n & 0b1) & 0xFFFFFFFF)))
-}function deserializeS64(de) {
+}
+function deserializeS64(de) {
     const n = de_varint(de, 64)
 
     return Number(((n >> 1) & 0xFFFFFFFFFFFFFFFF) ^ (-((n & 0b1) & 0xFFFFFFFFFFFFFFFF)))
-}function deserializeF32(de) {
+}
+function deserializeF32(de) {
     const bytes = de.try_take_n(4);
 
     const buf = new ArrayBuffer(4);
@@ -90,7 +100,8 @@ function de_varint(de, type) {
     bytes.forEach((v, i) => view.setUint8(i, v));
 
     return view.getFloat32(0, true);
-}function deserializeF64(de) {
+}
+function deserializeF64(de) {
     const bytes = de.try_take_n(8);
 
     const buf = new ArrayBuffer(8);
@@ -99,7 +110,8 @@ function de_varint(de, type) {
     bytes.forEach((v, i) => view.setUint8(i, v));
 
     return view.getFloat64(0, true);
-}function deserializeChar(de) {
+}
+function deserializeChar(de) {
     const sz = deserializeU64(de);
     if (sz > 4) {
         throw new Error("Deserialize bad char");
@@ -109,7 +121,8 @@ function de_varint(de, type) {
     const decoder = new TextDecoder('utf-8');
 
     return decoder.decode(bytes);
-}function deserializeString(de) {
+}
+function deserializeString(de) {
     const sz = deserializeU64(de);
 
     let bytes = de.try_take_n(Number(sz));
@@ -117,7 +130,8 @@ function de_varint(de, type) {
     const decoder = new TextDecoder('utf-8');
 
     return decoder.decode(bytes);
-}function ser_varint(out, type, val) {
+}
+function ser_varint(out, type, val) {
     let buf = []
     for (let i = 0; i < varint_max(type); i++) {
         const buffer = new ArrayBuffer(type / 8);
@@ -136,37 +150,48 @@ function de_varint(de, type) {
 }
 function serializeBool(out, val) {
     out.push(val === true ? 1 : 0)
-}function serializeU8(out, val) {
+}
+function serializeU8(out, val) {
     return out.push(val)
-}function serializeU16(out, val) {
+}
+function serializeU16(out, val) {
     return ser_varint(out, 16, val)
-}function serializeU32(out, val) {
+}
+function serializeU32(out, val) {
     return ser_varint(out, 32, val)
-}function serializeU64(out, val) {
+}
+function serializeU64(out, val) {
     return ser_varint(out, 64, val)
-}function serializeS8(out, val) {
+}
+function serializeS8(out, val) {
     out.push(val)
-}function serializeS16(out, val) {
+}
+function serializeS16(out, val) {
     ser_varint(out, 16, (val << 1) ^ (val >> 15))
-}function serializeS32(out, val) {
+}
+function serializeS32(out, val) {
     ser_varint(out, 32, (val << 1) ^ (val >> 31))
-}function serializeS64(out, val) {
+}
+function serializeS64(out, val) {
     ser_varint(out, 64, (val << 1) ^ (val >> 63))
-}function serializeF32(out, val) {
+}
+function serializeF32(out, val) {
     const buf = new ArrayBuffer(4);
     const view = new DataView(buf);
 
     view.setFloat32(0, val, true);
 
     out.push(...new Uint8Array(buf))
-}function serializeF64(out, val) {
+}
+function serializeF64(out, val) {
     const buf = new ArrayBuffer(8);
     const view = new DataView(buf);
 
     view.setFloat64(0, val, true);
 
     out.push(...new Uint8Array(buf))
-}function serializeChar(out, val) {
+}
+function serializeChar(out, val) {
     if (val.len > 1) {
         throw new Error("Serialize bad char");
     }
@@ -176,351 +201,353 @@ function serializeBool(out, val) {
     const encoder = new TextEncoder();
 
     out.push(...encoder.encode(val))
-}function serializeString(out, val) {
+}
+function serializeString(out, val) {
     serializeU64(out, val.length);
 
     const encoder = new TextEncoder();
 
     out.push(...encoder.encode(val))
-}function deserializeAllIntegers(de) {
-                const tag = deserializeU32(de)
+}
+function deserializeAllIntegers(de) {
+    const tag = deserializeU32(de)
 
-                switch (tag) {
-                    case 0:
-                return { Bool: deserializeBool(de) }
-            case 1:
-                return { U8: deserializeU8(de) }
-            case 2:
-                return { U16: deserializeU16(de) }
-            case 3:
-                return { U32: deserializeU32(de) }
-            case 4:
-                return { U64: deserializeU64(de) }
-            case 5:
-                return { I8: deserializeS8(de) }
-            case 6:
-                return { I16: deserializeS16(de) }
-            case 7:
-                return { S32: deserializeS32(de) }
-            case 8:
-                return { S64: deserializeS64(de) }
-            
-                    default:
-                        throw new Error(`unknown union case ${tag}`)
-                }
-        }function deserializeAllFloats(de) {
-                const tag = deserializeU32(de)
+    switch (tag) {
+        case 0:
+    return { Bool: deserializeBool(de) }
+case 1:
+    return { U8: deserializeU8(de) }
+case 2:
+    return { U16: deserializeU16(de) }
+case 3:
+    return { U32: deserializeU32(de) }
+case 4:
+    return { U64: deserializeU64(de) }
+case 5:
+    return { I8: deserializeS8(de) }
+case 6:
+    return { I16: deserializeS16(de) }
+case 7:
+    return { S32: deserializeS32(de) }
+case 8:
+    return { S64: deserializeS64(de) }
 
-                switch (tag) {
-                    case 0:
-                return { F32: deserializeF32(de) }
-            case 1:
-                return { F64: deserializeF64(de) }
-            
-                    default:
-                        throw new Error(`unknown union case ${tag}`)
-                }
-        }function deserializeAllText(de) {
-                const tag = deserializeU32(de)
+        default:
+            throw new Error(`unknown union case ${tag}`)
+    }
+}function deserializeAllFloats(de) {
+    const tag = deserializeU32(de)
 
-                switch (tag) {
-                    case 0:
-                return { Char: deserializeChar(de) }
-            case 1:
-                return { String: deserializeString(de) }
-            
-                    default:
-                        throw new Error(`unknown union case ${tag}`)
-                }
-        }function deserializeDuplicatedS32(de) {
-                const tag = deserializeU32(de)
+    switch (tag) {
+        case 0:
+    return { F32: deserializeF32(de) }
+case 1:
+    return { F64: deserializeF64(de) }
 
-                switch (tag) {
-                    case 0:
-                return { S320: deserializeS32(de) }
-            case 1:
-                return { S321: deserializeS32(de) }
-            case 2:
-                return { S322: deserializeS32(de) }
-            
-                    default:
-                        throw new Error(`unknown union case ${tag}`)
-                }
-        }function deserializeDistinguishableNum(de) {
-                const tag = deserializeU32(de)
+        default:
+            throw new Error(`unknown union case ${tag}`)
+    }
+}function deserializeAllText(de) {
+    const tag = deserializeU32(de)
 
-                switch (tag) {
-                    case 0:
-                return { F64: deserializeF64(de) }
-            case 1:
-                return { S64: deserializeS64(de) }
-            
-                    default:
-                        throw new Error(`unknown union case ${tag}`)
-                }
-        }function serializeAllIntegers(out, val) {
-                if (val.Bool) {
-                    serializeU32(out, 0);
-                    return serializeBool(out, val.Bool)
-                }
+    switch (tag) {
+        case 0:
+    return { Char: deserializeChar(de) }
+case 1:
+    return { String: deserializeString(de) }
+
+        default:
+            throw new Error(`unknown union case ${tag}`)
+    }
+}function deserializeDuplicatedS32(de) {
+    const tag = deserializeU32(de)
+
+    switch (tag) {
+        case 0:
+    return { S320: deserializeS32(de) }
+case 1:
+    return { S321: deserializeS32(de) }
+case 2:
+    return { S322: deserializeS32(de) }
+
+        default:
+            throw new Error(`unknown union case ${tag}`)
+    }
+}function deserializeDistinguishableNum(de) {
+    const tag = deserializeU32(de)
+
+    switch (tag) {
+        case 0:
+    return { F64: deserializeF64(de) }
+case 1:
+    return { S64: deserializeS64(de) }
+
+        default:
+            throw new Error(`unknown union case ${tag}`)
+    }
+}function serializeAllIntegers(out, val) {
+    if (val.Bool) {
+    serializeU32(out, 0);
+    return serializeBool(out, val.Bool)
+}
                 if (val.U8) {
-                    serializeU32(out, 1);
-                    return serializeU8(out, val.U8)
-                }
+    serializeU32(out, 1);
+    return serializeU8(out, val.U8)
+}
                 if (val.U16) {
-                    serializeU32(out, 2);
-                    return serializeU16(out, val.U16)
-                }
+    serializeU32(out, 2);
+    return serializeU16(out, val.U16)
+}
                 if (val.U32) {
-                    serializeU32(out, 3);
-                    return serializeU32(out, val.U32)
-                }
+    serializeU32(out, 3);
+    return serializeU32(out, val.U32)
+}
                 if (val.U64) {
-                    serializeU32(out, 4);
-                    return serializeU64(out, val.U64)
-                }
+    serializeU32(out, 4);
+    return serializeU64(out, val.U64)
+}
                 if (val.I8) {
-                    serializeU32(out, 5);
-                    return serializeS8(out, val.I8)
-                }
+    serializeU32(out, 5);
+    return serializeS8(out, val.I8)
+}
                 if (val.I16) {
-                    serializeU32(out, 6);
-                    return serializeS16(out, val.I16)
-                }
+    serializeU32(out, 6);
+    return serializeS16(out, val.I16)
+}
                 if (val.S32) {
-                    serializeU32(out, 7);
-                    return serializeS32(out, val.S32)
-                }
+    serializeU32(out, 7);
+    return serializeS32(out, val.S32)
+}
                 if (val.S64) {
-                    serializeU32(out, 8);
-                    return serializeS64(out, val.S64)
-                }
+    serializeU32(out, 8);
+    return serializeS64(out, val.S64)
+}
                 
 
-                throw new Error("unknown union case")
-        }function serializeAllFloats(out, val) {
-                if (val.F32) {
-                    serializeU32(out, 0);
-                    return serializeF32(out, val.F32)
-                }
+    throw new Error("unknown union case")
+}function serializeAllFloats(out, val) {
+    if (val.F32) {
+    serializeU32(out, 0);
+    return serializeF32(out, val.F32)
+}
                 if (val.F64) {
-                    serializeU32(out, 1);
-                    return serializeF64(out, val.F64)
-                }
+    serializeU32(out, 1);
+    return serializeF64(out, val.F64)
+}
                 
 
-                throw new Error("unknown union case")
-        }function serializeAllText(out, val) {
-                if (val.Char) {
-                    serializeU32(out, 0);
-                    return serializeChar(out, val.Char)
-                }
+    throw new Error("unknown union case")
+}function serializeAllText(out, val) {
+    if (val.Char) {
+    serializeU32(out, 0);
+    return serializeChar(out, val.Char)
+}
                 if (val.String) {
-                    serializeU32(out, 1);
-                    return serializeString(out, val.String)
-                }
+    serializeU32(out, 1);
+    return serializeString(out, val.String)
+}
                 
 
-                throw new Error("unknown union case")
-        }function serializeDuplicatedS32(out, val) {
-                if (val.S320) {
-                    serializeU32(out, 0);
-                    return serializeS32(out, val.S320)
-                }
+    throw new Error("unknown union case")
+}function serializeDuplicatedS32(out, val) {
+    if (val.S320) {
+    serializeU32(out, 0);
+    return serializeS32(out, val.S320)
+}
                 if (val.S321) {
-                    serializeU32(out, 1);
-                    return serializeS32(out, val.S321)
-                }
+    serializeU32(out, 1);
+    return serializeS32(out, val.S321)
+}
                 if (val.S322) {
-                    serializeU32(out, 2);
-                    return serializeS32(out, val.S322)
-                }
+    serializeU32(out, 2);
+    return serializeS32(out, val.S322)
+}
                 
 
-                throw new Error("unknown union case")
-        }function serializeDistinguishableNum(out, val) {
-                if (val.F64) {
-                    serializeU32(out, 0);
-                    return serializeF64(out, val.F64)
-                }
+    throw new Error("unknown union case")
+}function serializeDistinguishableNum(out, val) {
+    if (val.F64) {
+    serializeU32(out, 0);
+    return serializeF64(out, val.F64)
+}
                 if (val.S64) {
-                    serializeU32(out, 1);
-                    return serializeS64(out, val.S64)
-                }
+    serializeU32(out, 1);
+    return serializeS64(out, val.S64)
+}
                 
 
-                throw new Error("unknown union case")
-        }
+    throw new Error("unknown union case")
+}
 
-            /**
+/**
 * @param {AllIntegers} num 
 * @returns {Promise<AllIntegers>} 
 */
-            export async function addOneInteger (num) {
-                const out = []
-                serializeAllIntegers(out, num)
+export async function addOneInteger (num) {
+    const out = []
+    serializeAllIntegers(out, num)
 
-                return fetch('ipc://localhost/unions/add_one_integer', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    return fetch('ipc://localhost/unions/add_one_integer', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeAllIntegers(de)
-                })
-            }
-        
-            /**
+            return deserializeAllIntegers(de)
+        })
+}
+
+/**
 * @param {AllFloats} num 
 * @returns {Promise<AllFloats>} 
 */
-            export async function addOneFloat (num) {
-                const out = []
-                serializeAllFloats(out, num)
+export async function addOneFloat (num) {
+    const out = []
+    serializeAllFloats(out, num)
 
-                return fetch('ipc://localhost/unions/add_one_float', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    return fetch('ipc://localhost/unions/add_one_float', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeAllFloats(de)
-                })
-            }
-        
-            /**
+            return deserializeAllFloats(de)
+        })
+}
+
+/**
 * @param {AllText} text 
 * @param {string} letter 
 * @returns {Promise<AllText>} 
 */
-            export async function replaceFirstChar (text, letter) {
-                const out = []
-                serializeAllText(out, text);
+export async function replaceFirstChar (text, letter) {
+    const out = []
+    serializeAllText(out, text);
 serializeChar(out, letter)
 
-                return fetch('ipc://localhost/unions/replace_first_char', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    return fetch('ipc://localhost/unions/replace_first_char', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeAllText(de)
-                })
-            }
-        
-            /**
+            return deserializeAllText(de)
+        })
+}
+
+/**
 * @param {AllIntegers} num 
 * @returns {Promise<number>} 
 */
-            export async function identifyInteger (num) {
-                const out = []
-                serializeAllIntegers(out, num)
+export async function identifyInteger (num) {
+    const out = []
+    serializeAllIntegers(out, num)
 
-                return fetch('ipc://localhost/unions/identify_integer', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    return fetch('ipc://localhost/unions/identify_integer', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeU8(de)
-                })
-            }
-        
-            /**
+            return deserializeU8(de)
+        })
+}
+
+/**
 * @param {AllFloats} num 
 * @returns {Promise<number>} 
 */
-            export async function identifyFloat (num) {
-                const out = []
-                serializeAllFloats(out, num)
+export async function identifyFloat (num) {
+    const out = []
+    serializeAllFloats(out, num)
 
-                return fetch('ipc://localhost/unions/identify_float', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    return fetch('ipc://localhost/unions/identify_float', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeU8(de)
-                })
-            }
-        
-            /**
+            return deserializeU8(de)
+        })
+}
+
+/**
 * @param {AllText} text 
 * @returns {Promise<number>} 
 */
-            export async function identifyText (text) {
-                const out = []
-                serializeAllText(out, text)
+export async function identifyText (text) {
+    const out = []
+    serializeAllText(out, text)
 
-                return fetch('ipc://localhost/unions/identify_text', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    return fetch('ipc://localhost/unions/identify_text', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeU8(de)
-                })
-            }
-        
-            /**
+            return deserializeU8(de)
+        })
+}
+
+/**
 * @param {DuplicatedS32} num 
 * @returns {Promise<DuplicatedS32>} 
 */
-            export async function addOneDuplicated (num) {
-                const out = []
-                serializeDuplicatedS32(out, num)
+export async function addOneDuplicated (num) {
+    const out = []
+    serializeDuplicatedS32(out, num)
 
-                return fetch('ipc://localhost/unions/add_one_duplicated', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    return fetch('ipc://localhost/unions/add_one_duplicated', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeDuplicatedS32(de)
-                })
-            }
-        
-            /**
+            return deserializeDuplicatedS32(de)
+        })
+}
+
+/**
 * @param {DuplicatedS32} num 
 * @returns {Promise<number>} 
 */
-            export async function identifyDuplicated (num) {
-                const out = []
-                serializeDuplicatedS32(out, num)
+export async function identifyDuplicated (num) {
+    const out = []
+    serializeDuplicatedS32(out, num)
 
-                return fetch('ipc://localhost/unions/identify_duplicated', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    return fetch('ipc://localhost/unions/identify_duplicated', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeU8(de)
-                })
-            }
-        
-            /**
+            return deserializeU8(de)
+        })
+}
+
+/**
 * @param {DistinguishableNum} num 
 * @returns {Promise<DistinguishableNum>} 
 */
-            export async function addOneDistinguishableNum (num) {
-                const out = []
-                serializeDistinguishableNum(out, num)
+export async function addOneDistinguishableNum (num) {
+    const out = []
+    serializeDistinguishableNum(out, num)
 
-                return fetch('ipc://localhost/unions/add_one_distinguishable_num', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    return fetch('ipc://localhost/unions/add_one_distinguishable_num', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeDistinguishableNum(de)
-                })
-            }
-        
-            /**
+            return deserializeDistinguishableNum(de)
+        })
+}
+
+/**
 * @param {DistinguishableNum} num 
 * @returns {Promise<number>} 
 */
-            export async function identifyDistinguishableNum (num) {
-                const out = []
-                serializeDistinguishableNum(out, num)
+export async function identifyDistinguishableNum (num) {
+    const out = []
+    serializeDistinguishableNum(out, num)
 
-                return fetch('ipc://localhost/unions/identify_distinguishable_num', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
-                .then(r => r.arrayBuffer())
-                .then(bytes => {
-                    const de = new Deserializer(new Uint8Array(bytes))
+    return fetch('ipc://localhost/unions/identify_distinguishable_num', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
 
-                    return deserializeU8(de)
-                })
-            }
-        
+            return deserializeU8(de)
+        })
+}
+
