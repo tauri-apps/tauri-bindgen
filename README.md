@@ -5,20 +5,24 @@
   <p>
     <strong>Typesafe language bindings generator for the Tauri IPC bridge</strong>
   </p>
-  <p><a href="https://bindgen.tauri.tech/">Online playground</a></p>
+  <p>
+  <a href="https://bindgen.tauri.tech/">Online playground</a>
+  
+[![MIT or Apache 2.0 licensed][mit-or-apache-badge]][mit-or-apache-url]
+  
+  </p>
 </div>
 
-[![MIT or Apache 2.0 licensed][mit-or-apache-badge]][mit-or-apache-url]
 
 [mit-or-apache-badge]: https://img.shields.io/badge/license-MIT%20or%20Apache%202.0-blue.svg
 [mit-or-apache-url]: LICENSE
 
+
+> **Note**: **This project is still under heavy development and may not support all features yet. Feel free to try it out though, create issues, and open PRs!**
+
 ## About
 
-
 Generate type-safe bindings for Tauri's IPC bridge. Currently supports Rust [Host](#host) **and** Webview frontends (called [Guests](#guest)) in JavaScript, TypeScript, and Rust. Bindings are declared using [`*.wit`](docs/WIT.md) files that describe exposed functions and shared types.
-
-> **Note**: This project is still under heavy development and may not support all features yet. Feel free to try it out though, create issues, and open PRs!
 
 ### Rationale
 
