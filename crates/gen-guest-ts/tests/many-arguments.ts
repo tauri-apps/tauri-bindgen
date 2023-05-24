@@ -50,10 +50,9 @@ function serializeU64(out, val) {
 function serializeString(out, val) {
     serializeU64(out, val.length);
 
-    const encoder = new TextEncoder();
-
-    out.push(...encoder.encode(val))
+    out.push(...__text_encoder.encode(val))
 }
+const __text_encoder = new TextEncoder();
 function serializeBigStruct(out, val) {
     serializeString(out, val.a1),
 serializeString(out, val.a2),

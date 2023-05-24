@@ -113,18 +113,14 @@ function deserializeChar(de) {
     }
     const bytes = de.try_take_n(Number(sz));
 
-    const decoder = new TextDecoder('utf-8');
-
-    return decoder.decode(bytes);
+    return __text_decoder.decode(bytes);
 }
 function deserializeString(de) {
     const sz = deserializeU64(de);
 
     let bytes = de.try_take_n(Number(sz));
 
-    const decoder = new TextDecoder('utf-8');
-
-    return decoder.decode(bytes);
+    return __text_decoder.decode(bytes);
 }
 function deserializeBytes(de) {
     const sz = deserializeU64(de);
@@ -208,16 +204,12 @@ function serializeChar(out, val) {
 
     serializeU64(out, val.length);
 
-    const encoder = new TextEncoder();
-
-    out.push(...encoder.encode(val))
+    out.push(...__text_encoder.encode(val))
 }
 function serializeString(out, val) {
     serializeU64(out, val.length);
 
-    const encoder = new TextEncoder();
-
-    out.push(...encoder.encode(val))
+    out.push(...__text_encoder.encode(val))
 }
 function serializeBytes(out, val) {
     serializeU64(out, val.length);
@@ -229,6 +221,8 @@ function serializeList(out, inner, val) {
         inner(out, el)
     }
 }
+const __text_decoder = new TextDecoder('utf-8');
+const __text_encoder = new TextEncoder();
 function deserializeOtherRecord(de) {
     return {
         a1: deserializeU32(de),
