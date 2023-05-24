@@ -62,9 +62,7 @@ function deserializeString(de) {
 
     let bytes = de.try_take_n(Number(sz));
 
-    const decoder = new TextDecoder('utf-8');
-
-    return decoder.decode(bytes);
+    return __text_decoder.decode(bytes);
 }
 function deserializeOption(de, inner) {
     const tag = de.pop()
@@ -90,6 +88,7 @@ function deserializeResult(de, ok, err) {
             throw new Error(`Deserialize bad result ${tag}`)
     }
 }
+const __text_decoder = new TextDecoder('utf-8');
 function deserializeError(de) {
     const tag = deserializeU32(de)
 

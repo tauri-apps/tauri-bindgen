@@ -74,18 +74,14 @@ function deserializeChar(de) {
     }
     const bytes = de.try_take_n(Number(sz));
 
-    const decoder = new TextDecoder('utf-8');
-
-    return decoder.decode(bytes);
+    return __text_decoder.decode(bytes);
 }
 function deserializeString(de) {
     const sz = deserializeU64(de);
 
     let bytes = de.try_take_n(Number(sz));
 
-    const decoder = new TextDecoder('utf-8');
-
-    return decoder.decode(bytes);
+    return __text_decoder.decode(bytes);
 }
 function ser_varint(out, type, val) {
     let buf = []
@@ -123,17 +119,15 @@ function serializeChar(out, val) {
 
     serializeU64(out, val.length);
 
-    const encoder = new TextEncoder();
-
-    out.push(...encoder.encode(val))
+    out.push(...__text_encoder.encode(val))
 }
 function serializeString(out, val) {
     serializeU64(out, val.length);
 
-    const encoder = new TextEncoder();
-
-    out.push(...encoder.encode(val))
+    out.push(...__text_encoder.encode(val))
 }
+const __text_decoder = new TextDecoder('utf-8');
+const __text_encoder = new TextEncoder();
 function deserializeEmpty(de) {
     return {
         
