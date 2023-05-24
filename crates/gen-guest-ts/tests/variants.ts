@@ -101,9 +101,7 @@ function deserializeString(de) {
 
     let bytes = de.try_take_n(Number(sz));
 
-    const decoder = new TextDecoder('utf-8');
-
-    return decoder.decode(bytes);
+    return __text_decoder.decode(bytes);
 }
 function deserializeBytes(de) {
     const sz = deserializeU64(de);
@@ -190,9 +188,7 @@ function serializeF64(out, val) {
 function serializeString(out, val) {
     serializeU64(out, val.length);
 
-    const encoder = new TextEncoder();
-
-    out.push(...encoder.encode(val))
+    out.push(...__text_encoder.encode(val))
 }
 function serializeBytes(out, val) {
     serializeU64(out, val.length);
@@ -217,6 +213,8 @@ function serializeResult(out, ok, err, val) {
 
     throw new Error(`Serialize bad result ${val}`);
 }
+const __text_decoder = new TextDecoder('utf-8');
+const __text_encoder = new TextEncoder();
 function deserializeE1(de) {
     const tag = deserializeU32(de)
 
