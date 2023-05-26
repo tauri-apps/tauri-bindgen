@@ -5,8 +5,8 @@
 
 mod roundtrip;
 
-use tauri_bindgen_host::ipc_router_wip::{Router, BuilderExt};
-use tauri_plugin_log::{LogTarget, Builder as LoggerBuilder};
+use tauri_bindgen_host::ipc_router_wip::{BuilderExt, Router};
+use tauri_plugin_log::{Builder as LoggerBuilder, LogTarget};
 
 #[tauri::command]
 fn exit_with_error(e: &str) -> bool {
@@ -30,7 +30,6 @@ fn main() {
     let mut router = Router::new(roundtrip::Ctx);
 
     roundtrip::add_to_router(&mut router, |cx| cx).unwrap();
-
 
     tauri::Builder::default()
         .plugin(log_plugin)

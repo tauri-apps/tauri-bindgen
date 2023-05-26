@@ -43,39 +43,39 @@ pub mod lists {
         (String, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, char),
     >;
     pub trait Lists: Sized {
-        fn list_u8_param(&mut self, x: Vec<u8>);
-        fn list_u16_param(&mut self, x: Vec<u16>);
-        fn list_u32_param(&mut self, x: Vec<u32>);
-        fn list_u64_param(&mut self, x: Vec<u64>);
-        fn list_s8_param(&mut self, x: Vec<i8>);
-        fn list_s16_param(&mut self, x: Vec<i16>);
-        fn list_s32_param(&mut self, x: Vec<i32>);
-        fn list_s64_param(&mut self, x: Vec<i64>);
-        fn list_float32_param(&mut self, x: Vec<f32>);
-        fn list_float64_param(&mut self, x: Vec<f64>);
-        fn list_u8_ret(&mut self) -> Vec<u8>;
-        fn list_u16_ret(&mut self) -> Vec<u16>;
-        fn list_u32_ret(&mut self) -> Vec<u32>;
-        fn list_u64_ret(&mut self) -> Vec<u64>;
-        fn list_s8_ret(&mut self) -> Vec<i8>;
-        fn list_s16_ret(&mut self) -> Vec<i16>;
-        fn list_s32_ret(&mut self) -> Vec<i32>;
-        fn list_s64_ret(&mut self) -> Vec<i64>;
-        fn list_float32_ret(&mut self) -> Vec<f32>;
-        fn list_float64_ret(&mut self) -> Vec<f64>;
-        fn tuple_list(&mut self, x: Vec<(u8, i8)>) -> Vec<(i64, u32)>;
-        fn string_list_arg(&mut self, a: Vec<String>);
-        fn string_list_ret(&mut self) -> Vec<String>;
-        fn tuple_string_list(&mut self, x: Vec<(u8, String)>) -> Vec<(String, u8)>;
-        fn string_list(&mut self, x: Vec<String>) -> Vec<String>;
-        fn record_list(&mut self, x: Vec<SomeRecord>) -> Vec<OtherRecord>;
-        fn record_list_reverse(&mut self, x: Vec<OtherRecord>) -> Vec<SomeRecord>;
-        fn variant_list(&mut self, x: Vec<SomeVariant>) -> Vec<OtherVariant>;
-        fn load_store_everything(&mut self, a: LoadStoreAllSizes) -> LoadStoreAllSizes;
+        fn list_u8_param(&self, x: Vec<u8>);
+        fn list_u16_param(&self, x: Vec<u16>);
+        fn list_u32_param(&self, x: Vec<u32>);
+        fn list_u64_param(&self, x: Vec<u64>);
+        fn list_s8_param(&self, x: Vec<i8>);
+        fn list_s16_param(&self, x: Vec<i16>);
+        fn list_s32_param(&self, x: Vec<i32>);
+        fn list_s64_param(&self, x: Vec<i64>);
+        fn list_float32_param(&self, x: Vec<f32>);
+        fn list_float64_param(&self, x: Vec<f64>);
+        fn list_u8_ret(&self) -> Vec<u8>;
+        fn list_u16_ret(&self) -> Vec<u16>;
+        fn list_u32_ret(&self) -> Vec<u32>;
+        fn list_u64_ret(&self) -> Vec<u64>;
+        fn list_s8_ret(&self) -> Vec<i8>;
+        fn list_s16_ret(&self) -> Vec<i16>;
+        fn list_s32_ret(&self) -> Vec<i32>;
+        fn list_s64_ret(&self) -> Vec<i64>;
+        fn list_float32_ret(&self) -> Vec<f32>;
+        fn list_float64_ret(&self) -> Vec<f64>;
+        fn tuple_list(&self, x: Vec<(u8, i8)>) -> Vec<(i64, u32)>;
+        fn string_list_arg(&self, a: Vec<String>);
+        fn string_list_ret(&self) -> Vec<String>;
+        fn tuple_string_list(&self, x: Vec<(u8, String)>) -> Vec<(String, u8)>;
+        fn string_list(&self, x: Vec<String>) -> Vec<String>;
+        fn record_list(&self, x: Vec<SomeRecord>) -> Vec<OtherRecord>;
+        fn record_list_reverse(&self, x: Vec<OtherRecord>) -> Vec<SomeRecord>;
+        fn variant_list(&self, x: Vec<SomeVariant>) -> Vec<OtherVariant>;
+        fn load_store_everything(&self, a: LoadStoreAllSizes) -> LoadStoreAllSizes;
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
-        get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + 'static,
+        get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
         U: Lists + Send + Sync + 'static,
@@ -87,10 +87,10 @@ pub mod lists {
                 "lists",
                 "list_u8_param",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<u8>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_u8_param(x))
                 },
             )?;
@@ -100,10 +100,10 @@ pub mod lists {
                 "lists",
                 "list_u16_param",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<u16>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_u16_param(x))
                 },
             )?;
@@ -113,10 +113,10 @@ pub mod lists {
                 "lists",
                 "list_u32_param",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<u32>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_u32_param(x))
                 },
             )?;
@@ -126,10 +126,10 @@ pub mod lists {
                 "lists",
                 "list_u64_param",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<u64>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_u64_param(x))
                 },
             )?;
@@ -139,10 +139,10 @@ pub mod lists {
                 "lists",
                 "list_s8_param",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<i8>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_s8_param(x))
                 },
             )?;
@@ -152,10 +152,10 @@ pub mod lists {
                 "lists",
                 "list_s16_param",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<i16>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_s16_param(x))
                 },
             )?;
@@ -165,10 +165,10 @@ pub mod lists {
                 "lists",
                 "list_s32_param",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<i32>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_s32_param(x))
                 },
             )?;
@@ -178,10 +178,10 @@ pub mod lists {
                 "lists",
                 "list_s64_param",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<i64>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_s64_param(x))
                 },
             )?;
@@ -191,10 +191,10 @@ pub mod lists {
                 "lists",
                 "list_float32_param",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<f32>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_float32_param(x))
                 },
             )?;
@@ -204,10 +204,10 @@ pub mod lists {
                 "lists",
                 "list_float64_param",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<f64>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_float64_param(x))
                 },
             )?;
@@ -217,9 +217,9 @@ pub mod lists {
                 "lists",
                 "list_u8_ret",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<u8>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_u8_ret())
                 },
             )?;
@@ -229,9 +229,9 @@ pub mod lists {
                 "lists",
                 "list_u16_ret",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<u16>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_u16_ret())
                 },
             )?;
@@ -241,9 +241,9 @@ pub mod lists {
                 "lists",
                 "list_u32_ret",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<u32>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_u32_ret())
                 },
             )?;
@@ -253,9 +253,9 @@ pub mod lists {
                 "lists",
                 "list_u64_ret",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<u64>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_u64_ret())
                 },
             )?;
@@ -265,9 +265,9 @@ pub mod lists {
                 "lists",
                 "list_s8_ret",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<i8>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_s8_ret())
                 },
             )?;
@@ -277,9 +277,9 @@ pub mod lists {
                 "lists",
                 "list_s16_ret",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<i16>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_s16_ret())
                 },
             )?;
@@ -289,9 +289,9 @@ pub mod lists {
                 "lists",
                 "list_s32_ret",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<i32>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_s32_ret())
                 },
             )?;
@@ -301,9 +301,9 @@ pub mod lists {
                 "lists",
                 "list_s64_ret",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<i64>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_s64_ret())
                 },
             )?;
@@ -313,9 +313,9 @@ pub mod lists {
                 "lists",
                 "list_float32_ret",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<f32>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_float32_ret())
                 },
             )?;
@@ -325,9 +325,9 @@ pub mod lists {
                 "lists",
                 "list_float64_ret",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<f64>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.list_float64_ret())
                 },
             )?;
@@ -337,10 +337,10 @@ pub mod lists {
                 "lists",
                 "tuple_list",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<(u8, i8)>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<(i64, u32)>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.tuple_list(x))
                 },
             )?;
@@ -350,10 +350,10 @@ pub mod lists {
                 "lists",
                 "string_list_arg",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     a: Vec<String>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.string_list_arg(a))
                 },
             )?;
@@ -363,9 +363,9 @@ pub mod lists {
                 "lists",
                 "string_list_ret",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<String>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.string_list_ret())
                 },
             )?;
@@ -375,10 +375,10 @@ pub mod lists {
                 "lists",
                 "tuple_string_list",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<(u8, String)>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<(String, u8)>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.tuple_string_list(x))
                 },
             )?;
@@ -388,10 +388,10 @@ pub mod lists {
                 "lists",
                 "string_list",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<String>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<String>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.string_list(x))
                 },
             )?;
@@ -401,10 +401,10 @@ pub mod lists {
                 "lists",
                 "record_list",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<SomeRecord>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<OtherRecord>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.record_list(x))
                 },
             )?;
@@ -414,10 +414,10 @@ pub mod lists {
                 "lists",
                 "record_list_reverse",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<OtherRecord>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<SomeRecord>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.record_list_reverse(x))
                 },
             )?;
@@ -427,10 +427,10 @@ pub mod lists {
                 "lists",
                 "variant_list",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: Vec<SomeVariant>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<OtherVariant>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.variant_list(x))
                 },
             )?;
@@ -440,10 +440,10 @@ pub mod lists {
                 "lists",
                 "load_store_everything",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     a: LoadStoreAllSizes,
                 | -> ::tauri_bindgen_host::anyhow::Result<LoadStoreAllSizes> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.load_store_everything(a))
                 },
             )?;

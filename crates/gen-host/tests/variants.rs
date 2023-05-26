@@ -76,16 +76,16 @@ pub mod variants {
         pub v1: V1,
     }
     pub trait Variants: Sized {
-        fn e1_arg(&mut self, x: E1);
-        fn e1_result(&mut self) -> E1;
-        fn u1_arg(&mut self, x: U1);
-        fn u1_result(&mut self) -> U1;
-        fn v1_arg(&mut self, x: V1);
-        fn v1_result(&mut self) -> V1;
-        fn bool_arg(&mut self, x: bool);
-        fn bool_result(&mut self) -> bool;
+        fn e1_arg(&self, x: E1);
+        fn e1_result(&self) -> E1;
+        fn u1_arg(&self, x: U1);
+        fn u1_result(&self) -> U1;
+        fn v1_arg(&self, x: V1);
+        fn v1_result(&self) -> V1;
+        fn bool_arg(&self, x: bool);
+        fn bool_result(&self) -> bool;
         fn option_arg(
-            &mut self,
+            &self,
             a: Option<bool>,
             b: Option<()>,
             c: Option<u32>,
@@ -95,7 +95,7 @@ pub mod variants {
             g: Option<Option<bool>>,
         );
         fn option_result(
-            &mut self,
+            &self,
         ) -> (
             Option<bool>,
             Option<()>,
@@ -106,7 +106,7 @@ pub mod variants {
             Option<Option<bool>>,
         );
         fn casts(
-            &mut self,
+            &self,
             a: Casts1,
             b: Casts2,
             c: Casts3,
@@ -115,7 +115,7 @@ pub mod variants {
             f: Casts6,
         ) -> (Casts1, Casts2, Casts3, Casts4, Casts5, Casts6);
         fn result_arg(
-            &mut self,
+            &self,
             a: Result<(), ()>,
             b: Result<(), E1>,
             c: Result<E1, ()>,
@@ -124,7 +124,7 @@ pub mod variants {
             f: Result<String, Vec<u8>>,
         );
         fn result_result(
-            &mut self,
+            &self,
         ) -> (
             Result<(), ()>,
             Result<(), E1>,
@@ -133,21 +133,21 @@ pub mod variants {
             Result<u32, V1>,
             Result<String, Vec<u8>>,
         );
-        fn return_result_sugar(&mut self) -> Result<i32, MyErrno>;
-        fn return_result_sugar2(&mut self) -> Result<(), MyErrno>;
-        fn return_result_sugar3(&mut self) -> Result<MyErrno, MyErrno>;
-        fn return_result_sugar4(&mut self) -> Result<(i32, u32), MyErrno>;
-        fn return_option_sugar(&mut self) -> Option<i32>;
-        fn return_option_sugar2(&mut self) -> Option<MyErrno>;
-        fn result_simple(&mut self) -> Result<u32, i32>;
-        fn is_clone_arg(&mut self, a: IsClone);
-        fn is_clone_return(&mut self) -> IsClone;
-        fn return_named_option(&mut self) -> Option<u8>;
-        fn return_named_result(&mut self) -> Result<u8, MyErrno>;
+        fn return_result_sugar(&self) -> Result<i32, MyErrno>;
+        fn return_result_sugar2(&self) -> Result<(), MyErrno>;
+        fn return_result_sugar3(&self) -> Result<MyErrno, MyErrno>;
+        fn return_result_sugar4(&self) -> Result<(i32, u32), MyErrno>;
+        fn return_option_sugar(&self) -> Option<i32>;
+        fn return_option_sugar2(&self) -> Option<MyErrno>;
+        fn result_simple(&self) -> Result<u32, i32>;
+        fn is_clone_arg(&self, a: IsClone);
+        fn is_clone_return(&self) -> IsClone;
+        fn return_named_option(&self) -> Option<u8>;
+        fn return_named_result(&self) -> Result<u8, MyErrno>;
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
-        get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + 'static,
+        get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
         U: Variants + Send + Sync + 'static,
@@ -159,10 +159,10 @@ pub mod variants {
                 "variants",
                 "e1_arg",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: E1,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.e1_arg(x))
                 },
             )?;
@@ -172,9 +172,9 @@ pub mod variants {
                 "variants",
                 "e1_result",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<E1> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.e1_result())
                 },
             )?;
@@ -184,10 +184,10 @@ pub mod variants {
                 "variants",
                 "u1_arg",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: U1,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.u1_arg(x))
                 },
             )?;
@@ -197,9 +197,9 @@ pub mod variants {
                 "variants",
                 "u1_result",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<U1> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.u1_result())
                 },
             )?;
@@ -209,10 +209,10 @@ pub mod variants {
                 "variants",
                 "v1_arg",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: V1,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.v1_arg(x))
                 },
             )?;
@@ -222,9 +222,9 @@ pub mod variants {
                 "variants",
                 "v1_result",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<V1> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.v1_result())
                 },
             )?;
@@ -234,10 +234,10 @@ pub mod variants {
                 "variants",
                 "bool_arg",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: bool,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.bool_arg(x))
                 },
             )?;
@@ -247,9 +247,9 @@ pub mod variants {
                 "variants",
                 "bool_result",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<bool> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.bool_result())
                 },
             )?;
@@ -259,7 +259,7 @@ pub mod variants {
                 "variants",
                 "option_arg",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     a: Option<bool>,
                     b: Option<()>,
                     c: Option<u32>,
@@ -268,7 +268,7 @@ pub mod variants {
                     f: Option<U1>,
                     g: Option<Option<bool>>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.option_arg(a, b, c, d, e, f, g))
                 },
             )?;
@@ -278,7 +278,7 @@ pub mod variants {
                 "variants",
                 "option_result",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<
                     (
                         Option<bool>,
@@ -290,7 +290,7 @@ pub mod variants {
                         Option<Option<bool>>,
                     ),
                 > {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.option_result())
                 },
             )?;
@@ -300,7 +300,7 @@ pub mod variants {
                 "variants",
                 "casts",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     a: Casts1,
                     b: Casts2,
                     c: Casts3,
@@ -310,7 +310,7 @@ pub mod variants {
                 | -> ::tauri_bindgen_host::anyhow::Result<
                     (Casts1, Casts2, Casts3, Casts4, Casts5, Casts6),
                 > {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.casts(a, b, c, d, e, f))
                 },
             )?;
@@ -320,7 +320,7 @@ pub mod variants {
                 "variants",
                 "result_arg",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     a: Result<(), ()>,
                     b: Result<(), E1>,
                     c: Result<E1, ()>,
@@ -328,7 +328,7 @@ pub mod variants {
                     e: Result<u32, V1>,
                     f: Result<String, Vec<u8>>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.result_arg(a, b, c, d, e, f))
                 },
             )?;
@@ -338,7 +338,7 @@ pub mod variants {
                 "variants",
                 "result_result",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<
                     (
                         Result<(), ()>,
@@ -349,7 +349,7 @@ pub mod variants {
                         Result<String, Vec<u8>>,
                     ),
                 > {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.result_result())
                 },
             )?;
@@ -359,9 +359,9 @@ pub mod variants {
                 "variants",
                 "return_result_sugar",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Result<i32, MyErrno>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.return_result_sugar())
                 },
             )?;
@@ -371,9 +371,9 @@ pub mod variants {
                 "variants",
                 "return_result_sugar2",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Result<(), MyErrno>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.return_result_sugar2())
                 },
             )?;
@@ -383,9 +383,9 @@ pub mod variants {
                 "variants",
                 "return_result_sugar3",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Result<MyErrno, MyErrno>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.return_result_sugar3())
                 },
             )?;
@@ -395,9 +395,9 @@ pub mod variants {
                 "variants",
                 "return_result_sugar4",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Result<(i32, u32), MyErrno>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.return_result_sugar4())
                 },
             )?;
@@ -407,9 +407,9 @@ pub mod variants {
                 "variants",
                 "return_option_sugar",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Option<i32>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.return_option_sugar())
                 },
             )?;
@@ -419,9 +419,9 @@ pub mod variants {
                 "variants",
                 "return_option_sugar2",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Option<MyErrno>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.return_option_sugar2())
                 },
             )?;
@@ -431,9 +431,9 @@ pub mod variants {
                 "variants",
                 "result_simple",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Result<u32, i32>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.result_simple())
                 },
             )?;
@@ -443,10 +443,10 @@ pub mod variants {
                 "variants",
                 "is_clone_arg",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     a: IsClone,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.is_clone_arg(a))
                 },
             )?;
@@ -456,9 +456,9 @@ pub mod variants {
                 "variants",
                 "is_clone_return",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<IsClone> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.is_clone_return())
                 },
             )?;
@@ -468,9 +468,9 @@ pub mod variants {
                 "variants",
                 "return_named_option",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Option<u8>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.return_named_option())
                 },
             )?;
@@ -480,9 +480,9 @@ pub mod variants {
                 "variants",
                 "return_named_result",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Result<u8, MyErrno>> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.return_named_result())
                 },
             )?;

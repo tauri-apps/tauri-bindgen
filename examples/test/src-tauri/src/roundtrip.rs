@@ -9,143 +9,143 @@ tauri_bindgen_host::generate!({
 pub struct Ctx;
 
 impl roundtrip::Roundtrip for Ctx {
-    fn empty(&mut self, x: roundtrip::Empty) -> roundtrip::Empty {
+    fn empty(&self, x: roundtrip::Empty) -> roundtrip::Empty {
         x
     }
 
-    fn record_scalars(&mut self, val: roundtrip::Scalars) -> roundtrip::Scalars {
+    fn record_scalars(&self, val: roundtrip::Scalars) -> roundtrip::Scalars {
         val
     }
 
-    fn record_really_flags(&mut self, val: roundtrip::ReallyFlags) -> roundtrip::ReallyFlags {
+    fn record_really_flags(&self, val: roundtrip::ReallyFlags) -> roundtrip::ReallyFlags {
         val
     }
 
-    fn record_aggregates(&mut self, val: roundtrip::Aggregates) -> roundtrip::Aggregates {
+    fn record_aggregates(&self, val: roundtrip::Aggregates) -> roundtrip::Aggregates {
         val
     }
 
-    fn flag1(&mut self, x: roundtrip::Flag1) -> roundtrip::Flag1 {
+    fn flag1(&self, x: roundtrip::Flag1) -> roundtrip::Flag1 {
         x
     }
 
-    fn flag2(&mut self, x: roundtrip::Flag2) -> roundtrip::Flag2 {
+    fn flag2(&self, x: roundtrip::Flag2) -> roundtrip::Flag2 {
         x
     }
 
-    fn flag4(&mut self, x: roundtrip::Flag4) -> roundtrip::Flag4 {
+    fn flag4(&self, x: roundtrip::Flag4) -> roundtrip::Flag4 {
         x
     }
 
-    fn flag8(&mut self, x: roundtrip::Flag8) -> roundtrip::Flag8 {
+    fn flag8(&self, x: roundtrip::Flag8) -> roundtrip::Flag8 {
         x
     }
 
-    fn flag16(&mut self, x: roundtrip::Flag16) -> roundtrip::Flag16 {
+    fn flag16(&self, x: roundtrip::Flag16) -> roundtrip::Flag16 {
         x
     }
 
-    fn flag32(&mut self, x: roundtrip::Flag32) -> roundtrip::Flag32 {
+    fn flag32(&self, x: roundtrip::Flag32) -> roundtrip::Flag32 {
         x
     }
 
-    fn flag64(&mut self, x: roundtrip::Flag64) -> roundtrip::Flag64 {
+    fn flag64(&self, x: roundtrip::Flag64) -> roundtrip::Flag64 {
         x
     }
 
-    fn float32(&mut self, x: f32) -> f32 {
+    fn float32(&self, x: f32) -> f32 {
         x
     }
 
-    fn float64(&mut self, x: f64) -> f64 {
+    fn float64(&self, x: f64) -> f64 {
         x
     }
 
-    fn u8(&mut self, x: u8) -> u8 {
+    fn u8(&self, x: u8) -> u8 {
         x
     }
 
-    fn s8(&mut self, x: i8) -> i8 {
+    fn s8(&self, x: i8) -> i8 {
         x
     }
 
-    fn u16(&mut self, x: u16) -> u16 {
+    fn u16(&self, x: u16) -> u16 {
         x
     }
 
-    fn s16(&mut self, x: i16) -> i16 {
+    fn s16(&self, x: i16) -> i16 {
         x
     }
 
-    fn u32(&mut self, x: u32) -> u32 {
+    fn u32(&self, x: u32) -> u32 {
         x
     }
 
-    fn s32(&mut self, x: i32) -> i32 {
+    fn s32(&self, x: i32) -> i32 {
         x
     }
 
-    fn u64(&mut self, x: u64) -> u64 {
+    fn u64(&self, x: u64) -> u64 {
         x
     }
 
-    fn s64(&mut self, x: i64) -> i64 {
+    fn s64(&self, x: i64) -> i64 {
         x
     }
 
-    fn list_u8(&mut self, x: Vec<u8>) -> Vec<u8> {
+    fn list_u8(&self, x: Vec<u8>) -> Vec<u8> {
         x
     }
 
-    fn list_u16(&mut self, x: Vec<u16>) -> Vec<u16> {
+    fn list_u16(&self, x: Vec<u16>) -> Vec<u16> {
         x
     }
 
-    fn list_u32(&mut self, x: Vec<u32>) -> Vec<u32> {
+    fn list_u32(&self, x: Vec<u32>) -> Vec<u32> {
         x
     }
 
-    fn list_u64(&mut self, x: Vec<u64>) -> Vec<u64> {
+    fn list_u64(&self, x: Vec<u64>) -> Vec<u64> {
         x
     }
 
-    fn list_s8(&mut self, x: Vec<i8>) -> Vec<i8> {
+    fn list_s8(&self, x: Vec<i8>) -> Vec<i8> {
         x
     }
 
-    fn list_s16(&mut self, x: Vec<i16>) -> Vec<i16> {
+    fn list_s16(&self, x: Vec<i16>) -> Vec<i16> {
         x
     }
 
-    fn list_s32(&mut self, x: Vec<i32>) -> Vec<i32> {
+    fn list_s32(&self, x: Vec<i32>) -> Vec<i32> {
         x
     }
 
-    fn list_s64(&mut self, x: Vec<i64>) -> Vec<i64> {
+    fn list_s64(&self, x: Vec<i64>) -> Vec<i64> {
         x
     }
 
-    fn list_float32(&mut self, x: Vec<f32>) -> Vec<f32> {
+    fn list_float32(&self, x: Vec<f32>) -> Vec<f32> {
         x
     }
 
-    fn list_float64(&mut self, x: Vec<f64>) -> Vec<f64> {
+    fn list_float64(&self, x: Vec<f64>) -> Vec<f64> {
         x
     }
 
-    fn tuple_list(&mut self, x: Vec<(u8, i8)>) -> Vec<(u8, i8)> {
+    fn tuple_list(&self, x: Vec<(u8, i8)>) -> Vec<(u8, i8)> {
         x
     }
 
-    fn string_list(&mut self, a: Vec<String>) -> Vec<String> {
+    fn string_list(&self, a: Vec<String>) -> Vec<String> {
         a
     }
 
-    fn tuple_string_list(&mut self, x: Vec<(u8, String)>) -> Vec<(u8, String)> {
+    fn tuple_string_list(&self, x: Vec<(u8, String)>) -> Vec<(u8, String)> {
         x
     }
 
-    fn record_list(&mut self, x: Vec<roundtrip::SomeRecord>) -> Vec<roundtrip::OtherRecord> {
+    fn record_list(&self, x: Vec<roundtrip::SomeRecord>) -> Vec<roundtrip::OtherRecord> {
         x.into_iter()
             .map(|r| roundtrip::OtherRecord {
                 a1: r.c1,
@@ -158,28 +158,28 @@ impl roundtrip::Roundtrip for Ctx {
             .collect()
     }
 
-    fn all_integers(&mut self, x: roundtrip::AllIntegers) -> roundtrip::AllIntegers {
+    fn all_integers(&self, x: roundtrip::AllIntegers) -> roundtrip::AllIntegers {
         x
     }
 
-    fn all_floats(&mut self, x: roundtrip::AllFloats) -> roundtrip::AllFloats {
+    fn all_floats(&self, x: roundtrip::AllFloats) -> roundtrip::AllFloats {
         x
     }
 
-    fn all_text(&mut self, x: roundtrip::AllText) -> roundtrip::AllText {
+    fn all_text(&self, x: roundtrip::AllText) -> roundtrip::AllText {
         x
     }
 
-    fn e1(&mut self, x: roundtrip::E1) -> roundtrip::E1 {
+    fn e1(&self, x: roundtrip::E1) -> roundtrip::E1 {
         x
     }
 
-    fn v1(&mut self, x: roundtrip::V1) -> roundtrip::V1 {
+    fn v1(&self, x: roundtrip::V1) -> roundtrip::V1 {
         x
     }
 
     fn options(
-        &mut self,
+        &self,
         a: Option<bool>,
         b: Option<()>,
         c: Option<u32>,
@@ -200,7 +200,7 @@ impl roundtrip::Roundtrip for Ctx {
     }
 
     fn results(
-        &mut self,
+        &self,
         a: Result<(), ()>,
         b: Result<(), roundtrip::E1>,
         c: Result<roundtrip::E1, ()>,

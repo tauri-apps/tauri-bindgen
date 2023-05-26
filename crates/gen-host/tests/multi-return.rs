@@ -4,15 +4,15 @@ pub mod multi_return {
     use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
     pub trait MultiReturn: Sized {
-        fn mra(&mut self);
-        fn mrb(&mut self);
-        fn mrc(&mut self) -> u32;
-        fn mrd(&mut self) -> u32;
-        fn mre(&mut self) -> (u32, f32);
+        fn mra(&self);
+        fn mrb(&self);
+        fn mrc(&self) -> u32;
+        fn mrd(&self) -> u32;
+        fn mre(&self) -> (u32, f32);
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
-        get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + 'static,
+        get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
         U: MultiReturn + Send + Sync + 'static,
@@ -24,9 +24,9 @@ pub mod multi_return {
                 "multi_return",
                 "mra",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.mra())
                 },
             )?;
@@ -36,9 +36,9 @@ pub mod multi_return {
                 "multi_return",
                 "mrb",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.mrb())
                 },
             )?;
@@ -48,9 +48,9 @@ pub mod multi_return {
                 "multi_return",
                 "mrc",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<u32> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.mrc())
                 },
             )?;
@@ -60,9 +60,9 @@ pub mod multi_return {
                 "multi_return",
                 "mrd",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<u32> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.mrd())
                 },
             )?;
@@ -72,9 +72,9 @@ pub mod multi_return {
                 "multi_return",
                 "mre",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<(u32, f32)> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.mre())
                 },
             )?;
