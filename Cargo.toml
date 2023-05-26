@@ -31,7 +31,7 @@ miette = { version = "5.9.0", features = ["fancy"] }
 log = { version = "0.4.17", features = [ "kv_unstable", "kv_unstable_std" ] }
 serde = "1.0.163"
 quote = "1.0.28"
-proc-macro2 = "1.0.58"
+proc-macro2 = "1.0.59"
 syn = "2.0.18"
 
 [dependencies]
