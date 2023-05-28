@@ -12,7 +12,7 @@ wasm-bindgen = "0.2"
 web-sys = { version = "0.3", features = ["Window", "Document", "HtmlElement", "Node", "Text"] }
 wasm-logger = "0.2.0"
 miette = { version = "5.9.0", features = ["fancy"] }
-log = { version = "0.4.17", features = [ "kv_unstable", "kv_unstable_std" ] }
+log = { version = "0.4.18", features = [ "kv_unstable", "kv_unstable_std" ] }
 tauri-bindgen-core = { path = "../crates/core" }
 tauri-bindgen-gen-host = { path = "../crates/gen-host" }
 tauri-bindgen-gen-markdown = { path = "../crates/gen-markdown" }
