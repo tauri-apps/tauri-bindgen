@@ -29,7 +29,7 @@ pub mod many_arguments {
     }
     pub trait ManyArguments: Sized {
         fn many_args(
-            &mut self,
+            &self,
             a1: u64,
             a2: u64,
             a3: u64,
@@ -47,11 +47,11 @@ pub mod many_arguments {
             a15: u64,
             a16: u64,
         );
-        fn big_argument(&mut self, x: BigStruct);
+        fn big_argument(&self, x: BigStruct);
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
-        get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + 'static,
+        get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
         U: ManyArguments + Send + Sync + 'static,
@@ -63,7 +63,7 @@ pub mod many_arguments {
                 "many_arguments",
                 "many_args",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     a1: u64,
                     a2: u64,
                     a3: u64,
@@ -81,7 +81,7 @@ pub mod many_arguments {
                     a15: u64,
                     a16: u64,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(
                         ctx
                             .many_args(
@@ -111,10 +111,10 @@ pub mod many_arguments {
                 "many_arguments",
                 "big_argument",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: BigStruct,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.big_argument(x))
                 },
             )?;

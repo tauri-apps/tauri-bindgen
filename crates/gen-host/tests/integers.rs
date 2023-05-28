@@ -4,16 +4,16 @@ pub mod integers {
     use ::tauri_bindgen_host::serde;
     use ::tauri_bindgen_host::bitflags;
     pub trait Integers: Sized {
-        fn a1(&mut self, x: u8);
-        fn a2(&mut self, x: i8);
-        fn a3(&mut self, x: u16);
-        fn a4(&mut self, x: i16);
-        fn a5(&mut self, x: u32);
-        fn a6(&mut self, x: i32);
-        fn a7(&mut self, x: u64);
-        fn a8(&mut self, x: i64);
+        fn a1(&self, x: u8);
+        fn a2(&self, x: i8);
+        fn a3(&self, x: u16);
+        fn a4(&self, x: i16);
+        fn a5(&self, x: u32);
+        fn a6(&self, x: i32);
+        fn a7(&self, x: u64);
+        fn a8(&self, x: i64);
         fn a9(
-            &mut self,
+            &self,
             p1: u8,
             p2: i8,
             p3: u16,
@@ -23,19 +23,19 @@ pub mod integers {
             p7: u64,
             p8: i64,
         );
-        fn r1(&mut self) -> u8;
-        fn r2(&mut self) -> i8;
-        fn r3(&mut self) -> u16;
-        fn r4(&mut self) -> i16;
-        fn r5(&mut self) -> u32;
-        fn r6(&mut self) -> i32;
-        fn r7(&mut self) -> u64;
-        fn r8(&mut self) -> i64;
-        fn pair_ret(&mut self) -> (i64, u8);
+        fn r1(&self) -> u8;
+        fn r2(&self) -> i8;
+        fn r3(&self) -> u16;
+        fn r4(&self) -> i16;
+        fn r5(&self) -> u32;
+        fn r6(&self) -> i32;
+        fn r7(&self) -> u64;
+        fn r8(&self) -> i64;
+        fn pair_ret(&self) -> (i64, u8);
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
-        get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + 'static,
+        get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
         U: Integers + Send + Sync + 'static,
@@ -47,10 +47,10 @@ pub mod integers {
                 "integers",
                 "a1",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: u8,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.a1(x))
                 },
             )?;
@@ -60,10 +60,10 @@ pub mod integers {
                 "integers",
                 "a2",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: i8,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.a2(x))
                 },
             )?;
@@ -73,10 +73,10 @@ pub mod integers {
                 "integers",
                 "a3",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: u16,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.a3(x))
                 },
             )?;
@@ -86,10 +86,10 @@ pub mod integers {
                 "integers",
                 "a4",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: i16,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.a4(x))
                 },
             )?;
@@ -99,10 +99,10 @@ pub mod integers {
                 "integers",
                 "a5",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: u32,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.a5(x))
                 },
             )?;
@@ -112,10 +112,10 @@ pub mod integers {
                 "integers",
                 "a6",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: i32,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.a6(x))
                 },
             )?;
@@ -125,10 +125,10 @@ pub mod integers {
                 "integers",
                 "a7",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: u64,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.a7(x))
                 },
             )?;
@@ -138,10 +138,10 @@ pub mod integers {
                 "integers",
                 "a8",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: i64,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.a8(x))
                 },
             )?;
@@ -151,7 +151,7 @@ pub mod integers {
                 "integers",
                 "a9",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     p1: u8,
                     p2: i8,
                     p3: u16,
@@ -161,7 +161,7 @@ pub mod integers {
                     p7: u64,
                     p8: i64,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.a9(p1, p2, p3, p4, p5, p6, p7, p8))
                 },
             )?;
@@ -171,9 +171,9 @@ pub mod integers {
                 "integers",
                 "r1",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<u8> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.r1())
                 },
             )?;
@@ -183,9 +183,9 @@ pub mod integers {
                 "integers",
                 "r2",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<i8> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.r2())
                 },
             )?;
@@ -195,9 +195,9 @@ pub mod integers {
                 "integers",
                 "r3",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<u16> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.r3())
                 },
             )?;
@@ -207,9 +207,9 @@ pub mod integers {
                 "integers",
                 "r4",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<i16> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.r4())
                 },
             )?;
@@ -219,9 +219,9 @@ pub mod integers {
                 "integers",
                 "r5",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<u32> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.r5())
                 },
             )?;
@@ -231,9 +231,9 @@ pub mod integers {
                 "integers",
                 "r6",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<i32> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.r6())
                 },
             )?;
@@ -243,9 +243,9 @@ pub mod integers {
                 "integers",
                 "r7",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<u64> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.r7())
                 },
             )?;
@@ -255,9 +255,9 @@ pub mod integers {
                 "integers",
                 "r8",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<i64> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.r8())
                 },
             )?;
@@ -267,9 +267,9 @@ pub mod integers {
                 "integers",
                 "pair_ret",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<(i64, u8)> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.pair_ret())
                 },
             )?;

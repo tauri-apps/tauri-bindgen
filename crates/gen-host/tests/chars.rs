@@ -5,13 +5,13 @@ pub mod chars {
     use ::tauri_bindgen_host::bitflags;
     pub trait Chars: Sized {
         ///A function that accepts a character
-        fn take_char(&mut self, x: char);
+        fn take_char(&self, x: char);
         ///A function that returns a character
-        fn return_char(&mut self) -> char;
+        fn return_char(&self) -> char;
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
-        get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + 'static,
+        get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
         U: Chars + Send + Sync + 'static,
@@ -23,10 +23,10 @@ pub mod chars {
                 "chars",
                 "take_char",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     x: char,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.take_char(x))
                 },
             )?;
@@ -36,9 +36,9 @@ pub mod chars {
                 "chars",
                 "return_char",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                 | -> ::tauri_bindgen_host::anyhow::Result<char> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.return_char())
                 },
             )?;

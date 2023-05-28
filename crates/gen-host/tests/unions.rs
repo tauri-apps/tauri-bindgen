@@ -51,23 +51,23 @@ and is treated that way in some languages*/
         S64(i64),
     }
     pub trait Unions: Sized {
-        fn add_one_integer(&mut self, num: AllIntegers) -> AllIntegers;
-        fn add_one_float(&mut self, num: AllFloats) -> AllFloats;
-        fn replace_first_char(&mut self, text: AllText, letter: char) -> AllText;
-        fn identify_integer(&mut self, num: AllIntegers) -> u8;
-        fn identify_float(&mut self, num: AllFloats) -> u8;
-        fn identify_text(&mut self, text: AllText) -> u8;
-        fn add_one_duplicated(&mut self, num: DuplicatedS32) -> DuplicatedS32;
-        fn identify_duplicated(&mut self, num: DuplicatedS32) -> u8;
+        fn add_one_integer(&self, num: AllIntegers) -> AllIntegers;
+        fn add_one_float(&self, num: AllFloats) -> AllFloats;
+        fn replace_first_char(&self, text: AllText, letter: char) -> AllText;
+        fn identify_integer(&self, num: AllIntegers) -> u8;
+        fn identify_float(&self, num: AllFloats) -> u8;
+        fn identify_text(&self, text: AllText) -> u8;
+        fn add_one_duplicated(&self, num: DuplicatedS32) -> DuplicatedS32;
+        fn identify_duplicated(&self, num: DuplicatedS32) -> u8;
         fn add_one_distinguishable_num(
-            &mut self,
+            &self,
             num: DistinguishableNum,
         ) -> DistinguishableNum;
-        fn identify_distinguishable_num(&mut self, num: DistinguishableNum) -> u8;
+        fn identify_distinguishable_num(&self, num: DistinguishableNum) -> u8;
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
-        get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + 'static,
+        get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
         U: Unions + Send + Sync + 'static,
@@ -79,10 +79,10 @@ and is treated that way in some languages*/
                 "unions",
                 "add_one_integer",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     num: AllIntegers,
                 | -> ::tauri_bindgen_host::anyhow::Result<AllIntegers> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.add_one_integer(num))
                 },
             )?;
@@ -92,10 +92,10 @@ and is treated that way in some languages*/
                 "unions",
                 "add_one_float",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     num: AllFloats,
                 | -> ::tauri_bindgen_host::anyhow::Result<AllFloats> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.add_one_float(num))
                 },
             )?;
@@ -105,11 +105,11 @@ and is treated that way in some languages*/
                 "unions",
                 "replace_first_char",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     text: AllText,
                     letter: char,
                 | -> ::tauri_bindgen_host::anyhow::Result<AllText> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.replace_first_char(text, letter))
                 },
             )?;
@@ -119,10 +119,10 @@ and is treated that way in some languages*/
                 "unions",
                 "identify_integer",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     num: AllIntegers,
                 | -> ::tauri_bindgen_host::anyhow::Result<u8> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.identify_integer(num))
                 },
             )?;
@@ -132,10 +132,10 @@ and is treated that way in some languages*/
                 "unions",
                 "identify_float",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     num: AllFloats,
                 | -> ::tauri_bindgen_host::anyhow::Result<u8> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.identify_float(num))
                 },
             )?;
@@ -145,10 +145,10 @@ and is treated that way in some languages*/
                 "unions",
                 "identify_text",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     text: AllText,
                 | -> ::tauri_bindgen_host::anyhow::Result<u8> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.identify_text(text))
                 },
             )?;
@@ -158,10 +158,10 @@ and is treated that way in some languages*/
                 "unions",
                 "add_one_duplicated",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     num: DuplicatedS32,
                 | -> ::tauri_bindgen_host::anyhow::Result<DuplicatedS32> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.add_one_duplicated(num))
                 },
             )?;
@@ -171,10 +171,10 @@ and is treated that way in some languages*/
                 "unions",
                 "identify_duplicated",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     num: DuplicatedS32,
                 | -> ::tauri_bindgen_host::anyhow::Result<u8> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.identify_duplicated(num))
                 },
             )?;
@@ -184,10 +184,10 @@ and is treated that way in some languages*/
                 "unions",
                 "add_one_distinguishable_num",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     num: DistinguishableNum,
                 | -> ::tauri_bindgen_host::anyhow::Result<DistinguishableNum> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.add_one_distinguishable_num(num))
                 },
             )?;
@@ -197,10 +197,10 @@ and is treated that way in some languages*/
                 "unions",
                 "identify_distinguishable_num",
                 move |
-                    mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     num: DistinguishableNum,
                 | -> ::tauri_bindgen_host::anyhow::Result<u8> {
-                    let ctx = get_cx(ctx.data_mut());
+                    let ctx = get_cx(ctx.data());
                     Ok(ctx.identify_distinguishable_num(num))
                 },
             )?;

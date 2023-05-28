@@ -11,7 +11,7 @@ use url::Url;
 
 #[derive(Default)]
 pub struct Router<T> {
-    data: Arc<Mutex<T>>,
+    data: Arc<T>,
     string2idx: HashMap<Arc<str>, usize>,
     strings: Vec<Arc<str>>,
     map: HashMap<ImportKey, Definition<T>>,
@@ -21,12 +21,12 @@ pub type Definition<T> =
     Box<dyn Fn(Caller<T>, &[u8], Sender<Vec<u8>>) -> anyhow::Result<()> + Send + Sync>;
 
 pub struct Caller<'a, T> {
-    data: &'a mut T,
+    data: &'a T,
 }
 
 impl<'a, T> Caller<'a, T> {
     #[must_use]
-    pub fn data_mut(&mut self) -> &mut T {
+    pub fn data(&self) -> &T {
         self.data
     }
 }
@@ -44,7 +44,7 @@ impl<U> Router<U> {
             string2idx: HashMap::new(),
             strings: Vec::new(),
             map: HashMap::new(),
-            data: Arc::new(Mutex::new(data)),
+            data: Arc::new(data),
         }
     }
 
@@ -76,9 +76,7 @@ impl<U> Router<U> {
             .get(&key)
             .ok_or(anyhow::anyhow!("method not found"))?;
 
-        let mut data = self.data.lock().unwrap();
-
-        let caller = Caller { data: &mut *data };
+        let caller = Caller { data: &*self.data };
 
         handler(caller, params, res_tx)?;
 

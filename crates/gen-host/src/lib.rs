@@ -223,74 +223,6 @@ impl RustGenerator for Host {
     }
 }
 
-impl Generate for Host {
-    fn to_tokens(&mut self) -> TokenStream {
-        let docs = self.print_docs(&self.interface.docs);
-
-        let ident = format_ident!("{}", self.interface.ident.to_snake_case());
-
-        let typedefs = self.print_typedefs(
-            self.interface.typedefs.iter().map(|(id, _)| id),
-            &BorrowMode::Owned,
-        );
-
-        let resources = self.interface.typedefs.iter().filter_map(|(_, typedef)| {
-            if let TypeDefKind::Resource(_) = &typedef.kind {
-                let ident = format_ident!("{}", typedef.ident.to_upper_camel_case());
-                let func_ident = format_ident!("get_{}_mut", typedef.ident.to_snake_case());
-
-                Some(quote! {
-                    type #ident: #ident;
-
-                    fn #func_ident(&mut self, id: ::tauri_bindgen_host::ResourceId) -> &mut Self::#ident;
-                })
-            } else {
-                None
-            }
-        });
-
-        let trait_ = self.print_trait(
-            &self.interface.ident,
-            self.interface.functions.iter(),
-            resources,
-            true,
-        );
-
-        let add_to_router =
-            self.print_add_to_router(&self.interface.ident, self.interface.functions.iter());
-
-        quote! {
-            #docs
-            #[allow(unused_imports, unused_variables, dead_code)]
-            #[rustfmt::skip]
-            pub mod #ident {
-                use ::tauri_bindgen_host::serde;
-                use ::tauri_bindgen_host::bitflags;
-
-                #typedefs
-
-                #trait_
-
-                #add_to_router
-            }
-        }
-    }
-
-    fn to_file(&mut self) -> (PathBuf, String) {
-        let mut filename = PathBuf::from(self.interface.ident.to_kebab_case());
-        filename.set_extension("rs");
-
-        let tokens = self.to_tokens();
-
-        if self.opts.fmt {
-            let syntax_tree = syn::parse2(tokens).unwrap();
-            (filename, prettyplease::unparse(&syntax_tree))
-        } else {
-            (filename, tokens.to_string())
-        }
-    }
-}
-
 impl Host {
     fn print_trait<'a>(
         &self,
@@ -306,7 +238,7 @@ impl Host {
                 async_: false,
                 unsafe_: false,
                 private: true,
-                self_arg: Some(quote!(&mut self)),
+                self_arg: Some(quote!(&self)),
                 func,
             };
 
@@ -400,8 +332,8 @@ impl Host {
                 router.func_wrap(
                     #mod_name,
                     #func_name,
-                    move |mut ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, #params| -> ::tauri_bindgen_host::anyhow::Result<#result> {
-                        let ctx = get_cx(ctx.data_mut());
+                    move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, #params| -> ::tauri_bindgen_host::anyhow::Result<#result> {
+                        let ctx = get_cx(ctx.data());
 
                         Ok(ctx.#func_ident(#(#param_idents),*))
                     },
@@ -409,34 +341,88 @@ impl Host {
             }
         });
 
-        // quote! {
-        //     pub fn add_to_router<T, U>(
-        //         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
-        //         get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + Copy + 'static,
-        //     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
-        //     where
-        //         U:
-        //     {
-        //         #( #functions )*
-
-        //         Ok(())
-        //     }
-        // }
         quote! {
             pub fn add_to_router<T, U>(
                 router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
-                get_cx: impl Fn(&mut T) -> &mut U + Send + Sync + 'static,
+                get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
             ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
             where
                 U: #trait_ident + Send + Sync + 'static,
             {
                 let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
 
-
                 #( #functions )*
 
                 Ok(())
             }
+        }
+    }
+}
+
+impl Generate for Host {
+    fn to_tokens(&mut self) -> TokenStream {
+        let docs = self.print_docs(&self.interface.docs);
+
+        let ident = format_ident!("{}", self.interface.ident.to_snake_case());
+
+        let typedefs = self.print_typedefs(
+            self.interface.typedefs.iter().map(|(id, _)| id),
+            &BorrowMode::Owned,
+        );
+
+        let resources = self.interface.typedefs.iter().filter_map(|(_, typedef)| {
+            if let TypeDefKind::Resource(_) = &typedef.kind {
+                let ident = format_ident!("{}", typedef.ident.to_upper_camel_case());
+                let func_ident = format_ident!("get_{}_mut", typedef.ident.to_snake_case());
+
+                Some(quote! {
+                    type #ident: #ident;
+
+                    fn #func_ident(&mut self, id: ::tauri_bindgen_host::ResourceId) -> &mut Self::#ident;
+                })
+            } else {
+                None
+            }
+        });
+
+        let trait_ = self.print_trait(
+            &self.interface.ident,
+            self.interface.functions.iter(),
+            resources,
+            true,
+        );
+
+        let add_to_router =
+            self.print_add_to_router(&self.interface.ident, self.interface.functions.iter());
+
+        quote! {
+            #docs
+            #[allow(unused_imports, unused_variables, dead_code)]
+            #[rustfmt::skip]
+            pub mod #ident {
+                use ::tauri_bindgen_host::serde;
+                use ::tauri_bindgen_host::bitflags;
+
+                #typedefs
+
+                #trait_
+
+                #add_to_router
+            }
+        }
+    }
+
+    fn to_file(&mut self) -> (PathBuf, String) {
+        let mut filename = PathBuf::from(self.interface.ident.to_kebab_case());
+        filename.set_extension("rs");
+
+        let tokens = self.to_tokens();
+
+        if self.opts.fmt {
+            let syntax_tree = syn::parse2(tokens).unwrap();
+            (filename, prettyplease::unparse(&syntax_tree))
+        } else {
+            (filename, tokens.to_string())
         }
     }
 }
