@@ -49,7 +49,7 @@ where
         .map_err(Error::JsError)?;
 
     // `resp_value` is a `Response` object.
-    // assert!(resp_value.is_instance_of::<Response>());
+    assert!(resp_value.is_instance_of::<Response>());
     let resp: Response = resp_value.dyn_into().map_err(Error::JsError)?;
 
     let body = JsFuture::from(resp.array_buffer().map_err(Error::JsError)?)

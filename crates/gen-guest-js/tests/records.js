@@ -28,28 +28,48 @@ function varint_max(type) {
     return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
 }
 function max_of_last_byte(type) {
-    let extra_bits = type % 7;
-    return (1 << extra_bits) - 1;
+  let extra_bits = type % 7;
+  return (1 << extra_bits) - 1;
 }
 
 function de_varint(de, type) {
-    let out = 0;
+  let out = 0;
 
-    for (let i = 0; i < varint_max(type); i++) {
-        const val = de.pop();
-        const carry = val & 0x7F;
-        out |= carry << (7 * i);
+  for (let i = 0; i < varint_max(type); i++) {
+    const val = de.pop();
+    const carry = val & 0x7F;
+    out |= carry << (7 * i);
 
-        if ((val & 0x80) === 0) {
-            if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
-                throw new Error('deserialize bad variant')
-            } else {
-                return out
-            }
-        }
+    if ((val & 0x80) === 0) {
+      if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
+        throw new Error('deserialize bad variant')
+      } else {
+        return out
+      }
     }
+  }
 
-    throw new Error('deserialize bad variant')
+  throw new Error('deserialize bad variant')
+}
+
+function de_varint_big(de, type) {
+  let out = 0n;
+
+  for (let i = 0; i < varint_max(type); i++) {
+    const val = de.pop();
+    const carry = BigInt(val) & 0x7Fn;
+    out |= carry << (7n * BigInt(i));
+
+    if ((val & 0x80) === 0) {
+      if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
+        throw new Error('deserialize bad variant')
+      } else {
+        return out
+      }
+    }
+  }
+
+  throw new Error('deserialize bad variant')
 }
 function deserializeBool(de) {
     const val = de.pop();
@@ -60,7 +80,7 @@ function deserializeU32(de) {
     return de_varint(de, 32)
 }
 function deserializeU64(de) {
-    return de_varint(de, 64)
+  return de_varint_big(de, 64)
 }
 function deserializeS32(de) {
     const n = de_varint(de, 32)
@@ -84,21 +104,39 @@ function deserializeString(de) {
     return __text_decoder.decode(bytes);
 }
 function ser_varint(out, type, val) {
-    let buf = []
-    for (let i = 0; i < varint_max(type); i++) {
-        const buffer = new ArrayBuffer(type / 8);
-        const view = new DataView(buffer);
-        view.setInt16(0, val, true);
-        buf[i] = view.getUint8(0);
-        if (val < 128) {
-            out.push(...buf)
-            return;
-        }
-
-        buf[i] |= 0x80;
-        val >>= 7;
+  let buf = []
+  for (let i = 0; i < varint_max(type); i++) {
+    const buffer = new ArrayBuffer(type / 8);
+    const view = new DataView(buffer);
+    view.setInt16(0, val, true);
+    buf[i] = view.getUint8(0);
+    if (val < 128) {
+      out.push(...buf)
+      return;
     }
-    out.push(...buf)
+
+    buf[i] |= 0x80;
+    val >>= 7;
+  }
+  out.push(...buf)
+}
+
+function ser_varint_big(out, type, val) {
+  let buf = []
+  for (let i = 0; i < varint_max(type); i++) {
+    const buffer = new ArrayBuffer(type / 8);
+    const view = new DataView(buffer);
+    view.setInt16(0, Number(val), true);
+    buf[i] = view.getUint8(0);
+    if (val < 128) {
+      out.push(...buf)
+      return;
+    }
+
+    buf[i] |= 0x80;
+    val >>= 7n;
+  }
+  out.push(...buf)
 }
 function serializeBool(out, val) {
     out.push(val === true ? 1 : 0)
@@ -107,7 +145,7 @@ function serializeU32(out, val) {
     return ser_varint(out, 32, val)
 }
 function serializeU64(out, val) {
-    return ser_varint(out, 64, val)
+  return ser_varint_big(out, 64, BigInt(val))
 }
 function serializeS32(out, val) {
     ser_varint(out, 32, (val << 1) ^ (val >> 31))
