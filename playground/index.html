@@ -19,6 +19,7 @@
         <input id="iguest-rust" type="radio" name="tabs" />
         <input id="iguest-js" type="radio" name="tabs" />
         <input id="iguest-ts" type="radio" name="tabs" />
+        <input id="imarkdown" type="radio" name="tabs" />
 
         <nav>
             <label for="iinfo">Info</label>
@@ -27,16 +28,19 @@
             <label for="iguest-rust">Guest Rust</label>
             <label for="iguest-js">Guest JavaScript</label>
             <label for="iguest-ts">Guest TypeScript</label>
+            <label for="imarkdown">Markdown</label>
         </nav>
 
         <figure>
             <section id="info">
                 <h1>Welcome</h1>
 
-                <p>This is the tauri-bindgen playground. You can enter any .wit interface definition file and inspect the generated code.</p>
+                <p>This is the tauri-bindgen playground. You can enter any .wit interface definition file and inspect
+                    the generated code.</p>
                 <p>For more info see <a href="https://github.com/tauri-apps/tauri-bindgen">the repo</a>. </p>
             </section>
             <section id="errors"></section>
+            <section id="markdown"></section>
             <section id="host"></section>
             <section id="guest_rust"></section>
             <section id="guest_js"></section>
@@ -55,6 +59,7 @@
         grid-template-rows: 50vh 50vh;
         font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
     }
+
     main {
         width: 100%;
         height: 100%;
@@ -62,6 +67,7 @@
         padding: 5px;
         box-sizing: border-box;
     }
+
     aside figure {
         display: block;
         margin-left: 0;
@@ -86,6 +92,7 @@
 
     #iinfo:checked~figure #info,
     #ierrors:checked~figure #errors,
+    #imarkdown:checked~figure #markdown,
     #ihost:checked~figure #host,
     #iguest-rust:checked~figure #guest_rust,
     #iguest-js:checked~figure #guest_js,
@@ -116,6 +123,7 @@
 
     #iinfo:checked~nav label[for="iinfo"],
     #ierrors:checked~nav label[for="ierrors"],
+    #imarkdown:checked~nav label[for="imarkdown"],
     #ihost:checked~nav label[for="ihost"],
     #iguest-rust:checked~nav label[for="iguest-rust"],
     #iguest-js:checked~nav label[for="iguest-js"],
@@ -128,6 +136,7 @@
 
     #iinfo:checked~nav label[for="iinfo"]::after,
     #ierrors:checked~nav label[for="ierrors"]::after,
+    #imarkdown:checked~nav label[for="imarkdown"]::after,
     #ihost:checked~nav label[for="ihost"]::after,
     #iguest-rust:checked~nav label[for="iguest-rust"]::after,
     #iguest-js:checked~nav label[for="iguest-js"]::after,
