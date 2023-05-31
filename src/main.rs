@@ -1,5 +1,6 @@
 #![allow(dead_code, unused_variables)]
 
+mod completions;
 mod logger;
 
 use clap::{ArgAction, Parser};
@@ -38,6 +39,8 @@ enum Command {
     /// Generators for webview libraries.
     #[clap(subcommand)]
     Guest(GuestGenerator),
+    /// Print shell completions to stdout
+    Completions(completions::Completions),
     /// This generator outputs a Markdown file describing an interface.
     #[cfg(feature = "unstable")]
     Markdown {
@@ -137,6 +140,9 @@ fn run() -> Result<()> {
             let (path, contents) = gen_interface(builder, world)?;
 
             write_file(out_dir, &path, &contents)?;
+        }
+        Command::Completions(opts) => {
+            completions::run(&opts)?;
         }
         #[cfg(feature = "unstable")]
         Command::Markdown { builder, world } => {
