@@ -12,7 +12,7 @@ pub struct Completions {
 pub fn run(opts: &Completions) -> Result<()> {
     let shell = opts
         .shell
-        .or_else(|| Shell::from_env())
+        .or_else(Shell::from_env)
         .ok_or_else(|| miette::miette!("failed to infer shell"))?;
 
     let mut cmd = crate::Cli::command();
