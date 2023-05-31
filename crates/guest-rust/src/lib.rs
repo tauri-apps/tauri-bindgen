@@ -21,6 +21,10 @@ pub enum Error {
 /// # Errors
 ///
 /// Everything here is fallible (TODO improve this)
+///
+/// # Panics
+///
+/// Panics when the response returned by JavaScript is not a `ResponseObject`
 pub async fn invoke<P, R>(module: &str, method: &str, val: &P) -> Result<R, Error>
 where
     P: Serialize,
@@ -49,7 +53,7 @@ where
         .map_err(Error::JsError)?;
 
     // `resp_value` is a `Response` object.
-    // assert!(resp_value.is_instance_of::<Response>());
+    assert!(resp_value.is_instance_of::<Response>());
     let resp: Response = resp_value.dyn_into().map_err(Error::JsError)?;
 
     let body = JsFuture::from(resp.array_buffer().map_err(Error::JsError)?)

@@ -1,3 +1,3 @@
 function deserializeU64(de) {
-    return de_varint(de, 64)
+  return de_varint_big(de, 64)
 }
