@@ -27,7 +27,13 @@ pub mod integers {
     pub async fn a8(x: i64) {
         ::tauri_bindgen_guest_rust::invoke("integers", "a8", &(x)).await.unwrap()
     }
-    pub async fn a9(
+    pub async fn a9(x: u128) {
+        ::tauri_bindgen_guest_rust::invoke("integers", "a9", &(x)).await.unwrap()
+    }
+    pub async fn a10(x: i128) {
+        ::tauri_bindgen_guest_rust::invoke("integers", "a10", &(x)).await.unwrap()
+    }
+    pub async fn a11(
         p1: u8,
         p2: i8,
         p3: u16,
@@ -36,11 +42,13 @@ pub mod integers {
         p6: i32,
         p7: u64,
         p8: i64,
+        p9: u128,
+        p10: i128,
     ) {
         ::tauri_bindgen_guest_rust::invoke(
                 "integers",
-                "a9",
-                &(p1, p2, p3, p4, p5, p6, p7, p8),
+                "a11",
+                &(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10),
             )
             .await
             .unwrap()
@@ -68,6 +76,12 @@ pub mod integers {
     }
     pub async fn r8() -> i64 {
         ::tauri_bindgen_guest_rust::invoke("integers", "r8", &()).await.unwrap()
+    }
+    pub async fn r9() -> u128 {
+        ::tauri_bindgen_guest_rust::invoke("integers", "r9", &()).await.unwrap()
+    }
+    pub async fn r10() -> i128 {
+        ::tauri_bindgen_guest_rust::invoke("integers", "r10", &()).await.unwrap()
     }
     pub async fn pair_ret() -> (i64, u8) {
         ::tauri_bindgen_guest_rust::invoke("integers", "pair_ret", &()).await.unwrap()

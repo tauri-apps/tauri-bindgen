@@ -17,20 +17,25 @@ class Deserializer {
         return out
     }
 }
-function varint_max(type) {
-    const BITS_PER_BYTE = 8;
-    const BITS_PER_VARINT_BYTE = 7;
+// function varint_max(bits) {
+//   const BITS_PER_BYTE = 8;
+//   const BITS_PER_VARINT_BYTE = 7;
 
-    const bits = type * BITS_PER_BYTE;
+//   const roundup_bits = bits + (BITS_PER_BYTE - 1);
 
-    const roundup_bits = bits + (BITS_PER_BYTE - 1);
+//   return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
+// }
 
-    return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
+const varint_max = {
+  16: 3,
+  32: 5,
+  64: 10,
+  128: 19
 }
-function ser_varint(out, type, val) {
+function ser_varint(out, bits, val) {
   let buf = []
-  for (let i = 0; i < varint_max(type); i++) {
-    const buffer = new ArrayBuffer(type / 8);
+  for (let i = 0; i < varint_max[bits]; i++) {
+    const buffer = new ArrayBuffer(bits / 8);
     const view = new DataView(buffer);
     view.setInt16(0, val, true);
     buf[i] = view.getUint8(0);
@@ -45,10 +50,10 @@ function ser_varint(out, type, val) {
   out.push(...buf)
 }
 
-function ser_varint_big(out, type, val) {
+function ser_varint_big(out, bits, val) {
   let buf = []
-  for (let i = 0; i < varint_max(type); i++) {
-    const buffer = new ArrayBuffer(type / 8);
+  for (let i = 0; i < varint_max[bits]; i++) {
+    const buffer = new ArrayBuffer(bits / 8);
     const view = new DataView(buffer);
     view.setInt16(0, Number(val), true);
     buf[i] = view.getUint8(0);
@@ -84,7 +89,7 @@ iAmGoingExtremelySlow: bigint,
 export async function kebabCase () : Promise<void> {
     const out = []
     
-    
+
      fetch('ipc://localhost/conventions/kebab_case', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -92,7 +97,7 @@ export async function kebabCase () : Promise<void> {
 export async function foo (x: LudicrousSpeed) : Promise<void> {
     const out = []
     serializeLudicrousSpeed(out, x)
-    
+
      fetch('ipc://localhost/conventions/foo', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -100,7 +105,7 @@ export async function foo (x: LudicrousSpeed) : Promise<void> {
 export async function functionWithUnderscores () : Promise<void> {
     const out = []
     
-    
+
      fetch('ipc://localhost/conventions/function_with_underscores', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -108,7 +113,7 @@ export async function functionWithUnderscores () : Promise<void> {
 export async function functionWithNoWeirdCharacters () : Promise<void> {
     const out = []
     
-    
+
      fetch('ipc://localhost/conventions/function_with_no_weird_characters', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -116,7 +121,7 @@ export async function functionWithNoWeirdCharacters () : Promise<void> {
 export async function apple () : Promise<void> {
     const out = []
     
-    
+
      fetch('ipc://localhost/conventions/apple', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -124,7 +129,7 @@ export async function apple () : Promise<void> {
 export async function applePear () : Promise<void> {
     const out = []
     
-    
+
      fetch('ipc://localhost/conventions/apple_pear', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -132,7 +137,7 @@ export async function applePear () : Promise<void> {
 export async function applePearGrape () : Promise<void> {
     const out = []
     
-    
+
      fetch('ipc://localhost/conventions/apple_pear_grape', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -140,7 +145,7 @@ export async function applePearGrape () : Promise<void> {
 export async function a0 () : Promise<void> {
     const out = []
     
-    
+
      fetch('ipc://localhost/conventions/a0', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -148,7 +153,7 @@ export async function a0 () : Promise<void> {
 export async function isXml () : Promise<void> {
     const out = []
     
-    
+
      fetch('ipc://localhost/conventions/is_xml', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -156,7 +161,7 @@ export async function isXml () : Promise<void> {
 export async function explicit () : Promise<void> {
     const out = []
     
-    
+
      fetch('ipc://localhost/conventions/explicit', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -164,7 +169,7 @@ export async function explicit () : Promise<void> {
 export async function explicitSnake () : Promise<void> {
     const out = []
     
-    
+
      fetch('ipc://localhost/conventions/explicit_snake', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -172,7 +177,7 @@ export async function explicitSnake () : Promise<void> {
 export async function bool () : Promise<void> {
     const out = []
     
-    
+
      fetch('ipc://localhost/conventions/bool', { method: "POST", body: Uint8Array.from(out) }) 
 }
         

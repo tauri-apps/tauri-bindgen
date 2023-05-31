@@ -81,10 +81,12 @@ pub trait RustGenerator {
             Type::U16 => quote! { u16 },
             Type::U32 => quote! { u32 },
             Type::U64 => quote! { u64 },
+            Type::U128 => quote! { u128 },
             Type::S8 => quote! { i8 },
             Type::S16 => quote! { i16 },
             Type::S32 => quote! { i32 },
             Type::S64 => quote! { i64 },
+            Type::S128 => quote! { i128 },
             Type::Float32 => quote! { f32 },
             Type::Float64 => quote! { f64 },
             Type::Char => quote! { char },
@@ -449,6 +451,7 @@ pub trait RustGenerator {
             Int::U16 => quote! { u16 },
             Int::U32 => quote! { u32 },
             Int::U64 => quote! { u64 },
+            Int::U128 => quote! { u128 },
         }
     }
 

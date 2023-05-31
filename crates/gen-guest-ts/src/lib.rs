@@ -94,7 +94,7 @@ impl TypeScript {
 export async function {ident} ({params}) : {result} {{
     const out = []
     {serialize_params}
-    
+
     {ret} fetch('ipc://localhost/{intf_name}/{name}', {{ method: "POST", body: Uint8Array.from(out) }}){deserialize_result} {as_ret}
 }}
         "#
@@ -143,7 +143,7 @@ export async function {ident} ({params}) : {result} {{
             | Type::S32
             | Type::Float32
             | Type::Float64 => "number".to_string(),
-            Type::U64 | Type::S64 => "bigint".to_string(),
+            Type::U64 | Type::S64 | Type::U128 | Type::S128 => "bigint".to_string(),
             Type::Char | Type::String => "string".to_string(),
             Type::Tuple(types) => {
                 let types = types
@@ -343,7 +343,9 @@ async {ident} ({params}) {result} {{
                 TypeDefKind::Alias(t) => self.array_ty(t),
                 _ => None,
             },
-            Type::Bool
+            Type::U128
+            | Type::S128
+            | Type::Bool
             | Type::Tuple(_)
             | Type::List(_)
             | Type::Option(_)

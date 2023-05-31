@@ -58,7 +58,7 @@ async f3 (x: A[] | null) Promise<Result<A, null>> {
 export async function constructorA () : Promise<A> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/resources/constructor_a', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -72,7 +72,7 @@ export async function constructorA () : Promise<A> {
 export async function constructorB () : Promise<B> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/resources/constructor_b', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {

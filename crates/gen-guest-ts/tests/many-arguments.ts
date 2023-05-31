@@ -17,20 +17,25 @@ class Deserializer {
         return out
     }
 }
-function varint_max(type) {
-    const BITS_PER_BYTE = 8;
-    const BITS_PER_VARINT_BYTE = 7;
+// function varint_max(bits) {
+//   const BITS_PER_BYTE = 8;
+//   const BITS_PER_VARINT_BYTE = 7;
 
-    const bits = type * BITS_PER_BYTE;
+//   const roundup_bits = bits + (BITS_PER_BYTE - 1);
 
-    const roundup_bits = bits + (BITS_PER_BYTE - 1);
+//   return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
+// }
 
-    return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
+const varint_max = {
+  16: 3,
+  32: 5,
+  64: 10,
+  128: 19
 }
-function ser_varint(out, type, val) {
+function ser_varint(out, bits, val) {
   let buf = []
-  for (let i = 0; i < varint_max(type); i++) {
-    const buffer = new ArrayBuffer(type / 8);
+  for (let i = 0; i < varint_max[bits]; i++) {
+    const buffer = new ArrayBuffer(bits / 8);
     const view = new DataView(buffer);
     view.setInt16(0, val, true);
     buf[i] = view.getUint8(0);
@@ -45,10 +50,10 @@ function ser_varint(out, type, val) {
   out.push(...buf)
 }
 
-function ser_varint_big(out, type, val) {
+function ser_varint_big(out, bits, val) {
   let buf = []
-  for (let i = 0; i < varint_max(type); i++) {
-    const buffer = new ArrayBuffer(type / 8);
+  for (let i = 0; i < varint_max[bits]; i++) {
+    const buffer = new ArrayBuffer(bits / 8);
     const view = new DataView(buffer);
     view.setInt16(0, Number(val), true);
     buf[i] = view.getUint8(0);
@@ -156,7 +161,7 @@ serializeU64(out, a13);
 serializeU64(out, a14);
 serializeU64(out, a15);
 serializeU64(out, a16)
-    
+
      fetch('ipc://localhost/many_arguments/many_args', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -164,7 +169,7 @@ serializeU64(out, a16)
 export async function bigArgument (x: BigStruct) : Promise<void> {
     const out = []
     serializeBigStruct(out, x)
-    
+
      fetch('ipc://localhost/many_arguments/big_argument', { method: "POST", body: Uint8Array.from(out) }) 
 }
         

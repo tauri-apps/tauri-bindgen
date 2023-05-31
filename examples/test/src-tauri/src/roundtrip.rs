@@ -93,6 +93,14 @@ impl roundtrip::Roundtrip for Ctx {
         x
     }
 
+    fn u128(&self, x: u128) -> u128 {
+        x
+    }
+
+    fn s128(&self, x: i128) -> i128 {
+        x
+    }
+
     fn list_u8(&self, x: Vec<u8>) -> Vec<u8> {
         x
     }
@@ -109,6 +117,10 @@ impl roundtrip::Roundtrip for Ctx {
         x
     }
 
+    fn list_u128(&self, x: Vec<u128>) -> Vec<u128> {
+        x
+    }
+
     fn list_s8(&self, x: Vec<i8>) -> Vec<i8> {
         x
     }
@@ -122,6 +134,10 @@ impl roundtrip::Roundtrip for Ctx {
     }
 
     fn list_s64(&self, x: Vec<i64>) -> Vec<i64> {
+        x
+    }
+
+    fn list_s128(&self, x: Vec<i128>) -> Vec<i128> {
         x
     }
 

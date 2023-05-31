@@ -104,6 +104,11 @@ pub mod lists {
             .await
             .unwrap()
     }
+    pub async fn list_u128_param(x: &'_ [u128]) {
+        ::tauri_bindgen_guest_rust::invoke("lists", "list_u128_param", &(x))
+            .await
+            .unwrap()
+    }
     pub async fn list_s8_param(x: &'_ [i8]) {
         ::tauri_bindgen_guest_rust::invoke("lists", "list_s8_param", &(x)).await.unwrap()
     }
@@ -119,6 +124,11 @@ pub mod lists {
     }
     pub async fn list_s64_param(x: &'_ [i64]) {
         ::tauri_bindgen_guest_rust::invoke("lists", "list_s64_param", &(x))
+            .await
+            .unwrap()
+    }
+    pub async fn list_s128_param(x: &'_ [i128]) {
+        ::tauri_bindgen_guest_rust::invoke("lists", "list_s128_param", &(x))
             .await
             .unwrap()
     }
@@ -144,6 +154,9 @@ pub mod lists {
     pub async fn list_u64_ret() -> Vec<u64> {
         ::tauri_bindgen_guest_rust::invoke("lists", "list_u64_ret", &()).await.unwrap()
     }
+    pub async fn list_u128_ret() -> Vec<u128> {
+        ::tauri_bindgen_guest_rust::invoke("lists", "list_u128_ret", &()).await.unwrap()
+    }
     pub async fn list_s8_ret() -> Vec<i8> {
         ::tauri_bindgen_guest_rust::invoke("lists", "list_s8_ret", &()).await.unwrap()
     }
@@ -155,6 +168,9 @@ pub mod lists {
     }
     pub async fn list_s64_ret() -> Vec<i64> {
         ::tauri_bindgen_guest_rust::invoke("lists", "list_s64_ret", &()).await.unwrap()
+    }
+    pub async fn list_s128_ret() -> Vec<i128> {
+        ::tauri_bindgen_guest_rust::invoke("lists", "list_s128_ret", &()).await.unwrap()
     }
     pub async fn list_float32_ret() -> Vec<f32> {
         ::tauri_bindgen_guest_rust::invoke("lists", "list_float32_ret", &())

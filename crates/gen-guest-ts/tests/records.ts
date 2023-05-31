@@ -17,31 +17,36 @@ class Deserializer {
         return out
     }
 }
-function varint_max(type) {
-    const BITS_PER_BYTE = 8;
-    const BITS_PER_VARINT_BYTE = 7;
+// function varint_max(bits) {
+//   const BITS_PER_BYTE = 8;
+//   const BITS_PER_VARINT_BYTE = 7;
 
-    const bits = type * BITS_PER_BYTE;
+//   const roundup_bits = bits + (BITS_PER_BYTE - 1);
 
-    const roundup_bits = bits + (BITS_PER_BYTE - 1);
+//   return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
+// }
 
-    return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
+const varint_max = {
+  16: 3,
+  32: 5,
+  64: 10,
+  128: 19
 }
 function max_of_last_byte(type) {
   let extra_bits = type % 7;
   return (1 << extra_bits) - 1;
 }
 
-function de_varint(de, type) {
+function de_varint(de, bits) {
   let out = 0;
 
-  for (let i = 0; i < varint_max(type); i++) {
+  for (let i = 0; i < varint_max[bits]; i++) {
     const val = de.pop();
     const carry = val & 0x7F;
     out |= carry << (7 * i);
 
     if ((val & 0x80) === 0) {
-      if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
+      if (i === varint_max[bits] - 1 && val > max_of_last_byte(bits)) {
         throw new Error('deserialize bad variant')
       } else {
         return out
@@ -52,16 +57,16 @@ function de_varint(de, type) {
   throw new Error('deserialize bad variant')
 }
 
-function de_varint_big(de, type) {
+function de_varint_big(de, bits) {
   let out = 0n;
 
-  for (let i = 0; i < varint_max(type); i++) {
+  for (let i = 0; i < varint_max[bits]; i++) {
     const val = de.pop();
     const carry = BigInt(val) & 0x7Fn;
     out |= carry << (7n * BigInt(i));
 
     if ((val & 0x80) === 0) {
-      if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
+      if (i === varint_max[bits] - 1 && val > max_of_last_byte(bits)) {
         throw new Error('deserialize bad variant')
       } else {
         return out
@@ -87,6 +92,11 @@ function deserializeS32(de) {
 
     return Number(((n >> 1) & 0xFFFFFFFF) ^ (-((n & 0b1) & 0xFFFFFFFF)))
 }
+function deserializeS64(de) {
+  const n = de_varint_big(de, 64)
+
+  return ((n >> 1n) & 0xFFFFFFFFFFFFFFFFn) ^ (-((n & 0b1n) & 0xFFFFFFFFFFFFFFFFn))
+}
 function deserializeChar(de) {
     const sz = deserializeU64(de);
     if (sz > 4) {
@@ -103,10 +113,10 @@ function deserializeString(de) {
 
     return __text_decoder.decode(bytes);
 }
-function ser_varint(out, type, val) {
+function ser_varint(out, bits, val) {
   let buf = []
-  for (let i = 0; i < varint_max(type); i++) {
-    const buffer = new ArrayBuffer(type / 8);
+  for (let i = 0; i < varint_max[bits]; i++) {
+    const buffer = new ArrayBuffer(bits / 8);
     const view = new DataView(buffer);
     view.setInt16(0, val, true);
     buf[i] = view.getUint8(0);
@@ -121,10 +131,10 @@ function ser_varint(out, type, val) {
   out.push(...buf)
 }
 
-function ser_varint_big(out, type, val) {
+function ser_varint_big(out, bits, val) {
   let buf = []
-  for (let i = 0; i < varint_max(type); i++) {
-    const buffer = new ArrayBuffer(type / 8);
+  for (let i = 0; i < varint_max[bits]; i++) {
+    const buffer = new ArrayBuffer(bits / 8);
     const view = new DataView(buffer);
     view.setInt16(0, Number(val), true);
     buf[i] = view.getUint8(0);
@@ -149,6 +159,10 @@ function serializeU64(out, val) {
 }
 function serializeS32(out, val) {
     ser_varint(out, 32, (val << 1) ^ (val >> 31))
+}
+function serializeS64(out, val) {
+  val = BigInt(val)
+  ser_varint_big(out, 64, (val << 1n) ^ (val >> 63n))
 }
 function serializeChar(out, val) {
     if (val.len > 1) {
@@ -281,7 +295,7 @@ export type TupleTypedef2 = [IntTypedef];
 export async function tupleArg (x: [string, number]) : Promise<void> {
     const out = []
     {serializeChar(out, x[0]);serializeU32(out, x[1])}
-    
+
      fetch('ipc://localhost/records/tuple_arg', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -289,7 +303,7 @@ export async function tupleArg (x: [string, number]) : Promise<void> {
 export async function tupleResult () : Promise<[string, number]> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/records/tuple_result', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -303,7 +317,7 @@ export async function tupleResult () : Promise<[string, number]> {
 export async function emptyArg (x: Empty) : Promise<void> {
     const out = []
     serializeEmpty(out, x)
-    
+
      fetch('ipc://localhost/records/empty_arg', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -311,7 +325,7 @@ export async function emptyArg (x: Empty) : Promise<void> {
 export async function emptyResult () : Promise<Empty> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/records/empty_result', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -325,7 +339,7 @@ export async function emptyResult () : Promise<Empty> {
 export async function scalarArg (x: Scalars) : Promise<void> {
     const out = []
     serializeScalars(out, x)
-    
+
      fetch('ipc://localhost/records/scalar_arg', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -333,7 +347,7 @@ export async function scalarArg (x: Scalars) : Promise<void> {
 export async function scalarResult () : Promise<Scalars> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/records/scalar_result', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -347,7 +361,7 @@ export async function scalarResult () : Promise<Scalars> {
 export async function flagsArg (x: ReallyFlags) : Promise<void> {
     const out = []
     serializeReallyFlags(out, x)
-    
+
      fetch('ipc://localhost/records/flags_arg', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -355,7 +369,7 @@ export async function flagsArg (x: ReallyFlags) : Promise<void> {
 export async function flagsResult () : Promise<ReallyFlags> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/records/flags_result', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -369,7 +383,7 @@ export async function flagsResult () : Promise<ReallyFlags> {
 export async function aggregateArg (x: Aggregates) : Promise<void> {
     const out = []
     serializeAggregates(out, x)
-    
+
      fetch('ipc://localhost/records/aggregate_arg', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -377,7 +391,7 @@ export async function aggregateArg (x: Aggregates) : Promise<void> {
 export async function aggregateResult () : Promise<Aggregates> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/records/aggregate_result', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -391,7 +405,7 @@ export async function aggregateResult () : Promise<Aggregates> {
 export async function typedefInout (e: TupleTypedef2) : Promise<number> {
     const out = []
     serializeTupleTypedef2(out, e)
-    
+
     return fetch('ipc://localhost/records/typedef_inout', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {

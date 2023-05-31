@@ -196,6 +196,20 @@ pub async fn s64() -> anyhow::Result<()> {
 
     Ok(())
 }
+pub async fn u128() -> anyhow::Result<()> {
+    let x = 1777777777267;
+
+    ensure!(roundtrip::u128(x).await == x);
+
+    Ok(())
+}
+pub async fn s128() -> anyhow::Result<()> {
+    let x = -1777777777267;
+
+    ensure!(roundtrip::s128(x).await == x);
+
+    Ok(())
+}
 pub async fn list_u8() -> anyhow::Result<()> {
     let x = [16, 32, 42];
 
@@ -224,6 +238,13 @@ pub async fn list_u64() -> anyhow::Result<()> {
 
     Ok(())
 }
+pub async fn list_u128() -> anyhow::Result<()> {
+    let x = [16, 32, 42, 17776276762];
+
+    ensure!(roundtrip::list_u128(&x).await == x);
+
+    Ok(())
+}
 pub async fn list_s8() -> anyhow::Result<()> {
     let x = [16, 32, 42, -24, -26];
 
@@ -249,6 +270,13 @@ pub async fn list_s64() -> anyhow::Result<()> {
     let x = [16, 32, 42, 187878787, -18787827];
 
     ensure!(roundtrip::list_s64(&x).await == x);
+
+    Ok(())
+}
+pub async fn list_s128() -> anyhow::Result<()> {
+    let x = [16, 32, 42, 187878787, -18787827];
+
+    ensure!(roundtrip::list_s128(&x).await == x);
 
     Ok(())
 }

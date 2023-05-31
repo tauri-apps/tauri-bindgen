@@ -7,8 +7,10 @@ interface integers {
   func a6(x: s32)
   func a7(x: u64)
   func a8(x: s64)
+  func a9(x: u128)
+  func a10(x: s128)
 
-  func a9(
+  func a11(
     p1: u8,
     p2: s8,
     p3: u16,
@@ -17,6 +19,8 @@ interface integers {
     p6: s32,
     p7: u64,
     p8: s64,
+    p9: u128,
+    p10: s128,
   )
 
 
@@ -28,6 +32,8 @@ interface integers {
   func r6() -> s32
   func r7() -> u64
   func r8() -> s64
+  func r9() -> u128
+  func r10() -> s128
 
   func pair_ret() -> tuple<s64, u8>
 }

@@ -128,16 +128,20 @@ fn main() {
                     Test(name="s32",test=roundtrip::s32())
                     Test(name="u64",test=roundtrip::u64())
                     Test(name="s64",test=roundtrip::s64())
+                    Test(name="u128",test=roundtrip::u128())
+                    Test(name="s128",test=roundtrip::s128())
 
                     Test(name="list_u8",test=roundtrip::list_u8())
                     Test(name="list_u16",test=roundtrip::list_u16())
                     Test(name="list_u32",test=roundtrip::list_u32())
                     Test(name="list_u64",test=roundtrip::list_u64())
+                    Test(name="list_u128",test=roundtrip::list_u128())
 
                     Test(name="list_s8",test=roundtrip::list_s8())
                     Test(name="list_s16",test=roundtrip::list_s16())
                     Test(name="list_s32",test=roundtrip::list_s32())
                     Test(name="list_s64",test=roundtrip::list_s64())
+                    Test(name="list_s128",test=roundtrip::list_s128())
 
                     Test(name="list_float32",test=roundtrip::list_float32())
                     Test(name="list_float64",test=roundtrip::list_float64())
@@ -171,16 +175,20 @@ fn main() {
                     Test(name="s32",test=roundtrip_js::s32())
                     Test(name="u64",test=roundtrip_js::u64())
                     Test(name="s64",test=roundtrip_js::s64())
+                    Test(name="u128",test=roundtrip_js::u128())
+                    Test(name="s128",test=roundtrip_js::s128())
 
                     Test(name="list_u8",test=roundtrip_js::list_u8())
                     Test(name="list_u16",test=roundtrip_js::list_u16())
                     Test(name="list_u32",test=roundtrip_js::list_u32())
                     Test(name="list_u64",test=roundtrip_js::list_u64())
+                    Test(name="list_u128",test=roundtrip_js::list_u128())
 
                     Test(name="list_s8",test=roundtrip_js::list_s8())
                     Test(name="list_s16",test=roundtrip_js::list_s16())
                     Test(name="list_s32",test=roundtrip_js::list_s32())
                     Test(name="list_s64",test=roundtrip_js::list_s64())
+                    Test(name="list_s128",test=roundtrip_js::list_s128())
 
                     Test(name="list_float32",test=roundtrip_js::list_float32())
                     Test(name="list_float64",test=roundtrip_js::list_float64())
