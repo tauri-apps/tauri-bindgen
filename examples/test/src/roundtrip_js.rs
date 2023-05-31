@@ -1,5 +1,5 @@
 use anyhow::ensure;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_wasm_bindgen::{from_value, to_value};
 use wasm_bindgen::JsValue;
 
@@ -24,14 +24,18 @@ mod roundtrip_js {
         pub async fn s32(x: JsValue) -> JsValue;
         pub async fn u64(x: JsValue) -> JsValue;
         pub async fn s64(x: JsValue) -> JsValue;
+        pub async fn u128(x: JsValue) -> JsValue;
+        pub async fn s128(x: JsValue) -> JsValue;
         pub async fn listU8(x: JsValue) -> JsValue;
         pub async fn listU16(x: JsValue) -> JsValue;
         pub async fn listU32(x: JsValue) -> JsValue;
         pub async fn listU64(x: JsValue) -> JsValue;
+        pub async fn listU128(x: JsValue) -> JsValue;
         pub async fn listS8(x: JsValue) -> JsValue;
         pub async fn listS16(x: JsValue) -> JsValue;
         pub async fn listS32(x: JsValue) -> JsValue;
         pub async fn listS64(x: JsValue) -> JsValue;
+        pub async fn listS128(x: JsValue) -> JsValue;
         pub async fn listFloat32(x: JsValue) -> JsValue;
         pub async fn listFloat64(x: JsValue) -> JsValue;
         pub async fn tupleList(x: JsValue) -> JsValue;
@@ -320,6 +324,30 @@ pub async fn s64() -> anyhow::Result<()> {
 
     Ok(())
 }
+pub async fn u128() -> anyhow::Result<()> {
+    let x = 1777777777267;
+
+    let jsval = to_value(&x).unwrap();
+    let jsval = roundtrip_js::u128(jsval).await;
+
+    let other: u128 = from_value(jsval).unwrap();
+
+    ensure!(other == x);
+
+    Ok(())
+}
+pub async fn s128() -> anyhow::Result<()> {
+    let x = -1777777777267;
+
+    let jsval = to_value(&x).unwrap();
+    let jsval = roundtrip_js::s128(jsval).await;
+
+    let other: i128 = from_value(jsval).unwrap();
+
+    ensure!(other == x);
+
+    Ok(())
+}
 pub async fn list_u8() -> anyhow::Result<()> {
     let x = [16, 32, 42];
 
@@ -368,6 +396,18 @@ pub async fn list_u64() -> anyhow::Result<()> {
 
     Ok(())
 }
+pub async fn list_u128() -> anyhow::Result<()> {
+    let x = [16, 32, 42, 17776276762];
+
+    let jsval = to_value(&x).unwrap();
+    let jsval = roundtrip_js::listU64(jsval).await;
+
+    let other: [u128; 4] = from_value(jsval).unwrap();
+
+    ensure!(other == x);
+
+    Ok(())
+}
 pub async fn list_s8() -> anyhow::Result<()> {
     let x = [16, 32, 42, -24, -26];
 
@@ -411,6 +451,18 @@ pub async fn list_s64() -> anyhow::Result<()> {
     let jsval = roundtrip_js::listS64(jsval).await;
 
     let other: [i64; 5] = from_value(jsval).unwrap();
+
+    ensure!(other == x);
+
+    Ok(())
+}
+pub async fn list_s128() -> anyhow::Result<()> {
+    let x = [16, 32, 42, 187878787, -18787827];
+
+    let jsval = to_value(&x).unwrap();
+    let jsval = roundtrip_js::listS64(jsval).await;
+
+    let other: [i128; 5] = from_value(jsval).unwrap();
 
     ensure!(other == x);
 
@@ -490,7 +542,7 @@ pub async fn all_integers() -> anyhow::Result<()> {
     #[derive(Debug, Serialize, Deserialize, PartialEq)]
     struct AllIntegers {
         tag: u32,
-        val: AllIntegersInner
+        val: AllIntegersInner,
     }
 
     #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -504,7 +556,7 @@ pub async fn all_integers() -> anyhow::Result<()> {
         S8(u8),
         S16(u16),
         S32(u32),
-        S64(u64)
+        S64(u64),
     }
 
     let x = roundtrip::AllIntegers::U8(7);
@@ -650,14 +702,14 @@ pub async fn results() -> anyhow::Result<()> {
 
 #[cfg(test)]
 mod test {
-    use serde::{Serialize, Deserialize};
+    use serde::{Deserialize, Serialize};
 
     #[test]
     fn feature() {
         #[derive(Debug, Serialize, Deserialize)]
         enum AllFloats {
             F32,
-            F64
+            F64,
         }
 
         println!("{:?}", serde_json::to_string(&AllFloats::F64))

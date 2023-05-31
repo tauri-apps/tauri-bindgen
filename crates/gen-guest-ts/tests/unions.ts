@@ -17,31 +17,36 @@ class Deserializer {
         return out
     }
 }
-function varint_max(type) {
-    const BITS_PER_BYTE = 8;
-    const BITS_PER_VARINT_BYTE = 7;
+// function varint_max(bits) {
+//   const BITS_PER_BYTE = 8;
+//   const BITS_PER_VARINT_BYTE = 7;
 
-    const bits = type * BITS_PER_BYTE;
+//   const roundup_bits = bits + (BITS_PER_BYTE - 1);
 
-    const roundup_bits = bits + (BITS_PER_BYTE - 1);
+//   return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
+// }
 
-    return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
+const varint_max = {
+  16: 3,
+  32: 5,
+  64: 10,
+  128: 19
 }
 function max_of_last_byte(type) {
   let extra_bits = type % 7;
   return (1 << extra_bits) - 1;
 }
 
-function de_varint(de, type) {
+function de_varint(de, bits) {
   let out = 0;
 
-  for (let i = 0; i < varint_max(type); i++) {
+  for (let i = 0; i < varint_max[bits]; i++) {
     const val = de.pop();
     const carry = val & 0x7F;
     out |= carry << (7 * i);
 
     if ((val & 0x80) === 0) {
-      if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
+      if (i === varint_max[bits] - 1 && val > max_of_last_byte(bits)) {
         throw new Error('deserialize bad variant')
       } else {
         return out
@@ -52,16 +57,16 @@ function de_varint(de, type) {
   throw new Error('deserialize bad variant')
 }
 
-function de_varint_big(de, type) {
+function de_varint_big(de, bits) {
   let out = 0n;
 
-  for (let i = 0; i < varint_max(type); i++) {
+  for (let i = 0; i < varint_max[bits]; i++) {
     const val = de.pop();
     const carry = BigInt(val) & 0x7Fn;
     out |= carry << (7n * BigInt(i));
 
     if ((val & 0x80) === 0) {
-      if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
+      if (i === varint_max[bits] - 1 && val > max_of_last_byte(bits)) {
         throw new Error('deserialize bad variant')
       } else {
         return out
@@ -147,10 +152,10 @@ function deserializeString(de) {
 
     return __text_decoder.decode(bytes);
 }
-function ser_varint(out, type, val) {
+function ser_varint(out, bits, val) {
   let buf = []
-  for (let i = 0; i < varint_max(type); i++) {
-    const buffer = new ArrayBuffer(type / 8);
+  for (let i = 0; i < varint_max[bits]; i++) {
+    const buffer = new ArrayBuffer(bits / 8);
     const view = new DataView(buffer);
     view.setInt16(0, val, true);
     buf[i] = view.getUint8(0);
@@ -165,10 +170,10 @@ function ser_varint(out, type, val) {
   out.push(...buf)
 }
 
-function ser_varint_big(out, type, val) {
+function ser_varint_big(out, bits, val) {
   let buf = []
-  for (let i = 0; i < varint_max(type); i++) {
-    const buffer = new ArrayBuffer(type / 8);
+  for (let i = 0; i < varint_max[bits]; i++) {
+    const buffer = new ArrayBuffer(bits / 8);
     const view = new DataView(buffer);
     view.setInt16(0, Number(val), true);
     buf[i] = view.getUint8(0);
@@ -480,7 +485,7 @@ bigint
 export async function addOneInteger (num: AllIntegers) : Promise<AllIntegers> {
     const out = []
     serializeAllIntegers(out, num)
-    
+
     return fetch('ipc://localhost/unions/add_one_integer', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -494,7 +499,7 @@ export async function addOneInteger (num: AllIntegers) : Promise<AllIntegers> {
 export async function addOneFloat (num: AllFloats) : Promise<AllFloats> {
     const out = []
     serializeAllFloats(out, num)
-    
+
     return fetch('ipc://localhost/unions/add_one_float', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -509,7 +514,7 @@ export async function replaceFirstChar (text: AllText, letter: string) : Promise
     const out = []
     serializeAllText(out, text);
 serializeChar(out, letter)
-    
+
     return fetch('ipc://localhost/unions/replace_first_char', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -523,7 +528,7 @@ serializeChar(out, letter)
 export async function identifyInteger (num: AllIntegers) : Promise<number> {
     const out = []
     serializeAllIntegers(out, num)
-    
+
     return fetch('ipc://localhost/unions/identify_integer', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -537,7 +542,7 @@ export async function identifyInteger (num: AllIntegers) : Promise<number> {
 export async function identifyFloat (num: AllFloats) : Promise<number> {
     const out = []
     serializeAllFloats(out, num)
-    
+
     return fetch('ipc://localhost/unions/identify_float', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -551,7 +556,7 @@ export async function identifyFloat (num: AllFloats) : Promise<number> {
 export async function identifyText (text: AllText) : Promise<number> {
     const out = []
     serializeAllText(out, text)
-    
+
     return fetch('ipc://localhost/unions/identify_text', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -565,7 +570,7 @@ export async function identifyText (text: AllText) : Promise<number> {
 export async function addOneDuplicated (num: DuplicatedS32) : Promise<DuplicatedS32> {
     const out = []
     serializeDuplicatedS32(out, num)
-    
+
     return fetch('ipc://localhost/unions/add_one_duplicated', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -579,7 +584,7 @@ export async function addOneDuplicated (num: DuplicatedS32) : Promise<Duplicated
 export async function identifyDuplicated (num: DuplicatedS32) : Promise<number> {
     const out = []
     serializeDuplicatedS32(out, num)
-    
+
     return fetch('ipc://localhost/unions/identify_duplicated', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -593,7 +598,7 @@ export async function identifyDuplicated (num: DuplicatedS32) : Promise<number> 
 export async function addOneDistinguishableNum (num: DistinguishableNum) : Promise<DistinguishableNum> {
     const out = []
     serializeDistinguishableNum(out, num)
-    
+
     return fetch('ipc://localhost/unions/add_one_distinguishable_num', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -607,7 +612,7 @@ export async function addOneDistinguishableNum (num: DistinguishableNum) : Promi
 export async function identifyDistinguishableNum (num: DistinguishableNum) : Promise<number> {
     const out = []
     serializeDistinguishableNum(out, num)
-    
+
     return fetch('ipc://localhost/unions/identify_distinguishable_num', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {

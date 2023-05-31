@@ -177,7 +177,7 @@ async {ident} ({params}) {{
             | Type::S32
             | Type::Float32
             | Type::Float64 => "number".to_string(),
-            Type::U64 | Type::S64 => "bigint".to_string(),
+            Type::U64 | Type::S64 | Type::U128 | Type::S128 => "bigint".to_string(),
             Type::Char | Type::String => "string".to_string(),
             Type::Tuple(types) => {
                 let types = types
@@ -223,7 +223,9 @@ async {ident} ({params}) {{
                 TypeDefKind::Alias(t) => self.array_ty(t),
                 _ => None,
             },
-            Type::Bool
+            Type::U128
+            | Type::S128
+            | Type::Bool
             | Type::Tuple(_)
             | Type::List(_)
             | Type::Option(_)

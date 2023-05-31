@@ -95,6 +95,8 @@ pub enum Token {
     U32,
     #[token("u64")]
     U64,
+    #[token("u128")]
+    U128,
     #[token("s8")]
     S8,
     #[token("s16")]
@@ -103,6 +105,8 @@ pub enum Token {
     S32,
     #[token("s64")]
     S64,
+    #[token("s128")]
+    S128,
     #[token("float32")]
     Float32,
     #[token("float64")]
@@ -156,15 +160,17 @@ impl Token {
         Token::Variant,
         Token::Resource,
     ];
-    pub const TYPE_KEYWORD: [Token; 18] = [
+    pub const TYPE_KEYWORD: [Token; 20] = [
         Token::U8,
         Token::U16,
         Token::U32,
         Token::U64,
+        Token::U128,
         Token::S8,
         Token::S16,
         Token::S32,
         Token::S64,
+        Token::S128,
         Token::Float32,
         Token::Float64,
         Token::Char,
@@ -201,10 +207,12 @@ impl Token {
             Token::U16 => "'u16'",
             Token::U32 => "'u32'",
             Token::U64 => "'u64'",
+            Token::U128 => "'u128'",
             Token::S8 => "'s8'",
             Token::S16 => "'s16'",
             Token::S32 => "'s32'",
             Token::S64 => "'s64'",
+            Token::S128 => "'s128'",
             Token::Float32 => "'float32'",
             Token::Float64 => "'float64'",
             Token::Char => "'char'",

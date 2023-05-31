@@ -18,31 +18,36 @@ class Deserializer {
         return out
     }
 }
-function varint_max(type) {
-    const BITS_PER_BYTE = 8;
-    const BITS_PER_VARINT_BYTE = 7;
+// function varint_max(bits) {
+//   const BITS_PER_BYTE = 8;
+//   const BITS_PER_VARINT_BYTE = 7;
 
-    const bits = type * BITS_PER_BYTE;
+//   const roundup_bits = bits + (BITS_PER_BYTE - 1);
 
-    const roundup_bits = bits + (BITS_PER_BYTE - 1);
+//   return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
+// }
 
-    return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
+const varint_max = {
+  16: 3,
+  32: 5,
+  64: 10,
+  128: 19
 }
 function max_of_last_byte(type) {
   let extra_bits = type % 7;
   return (1 << extra_bits) - 1;
 }
 
-function de_varint(de, type) {
+function de_varint(de, bits) {
   let out = 0;
 
-  for (let i = 0; i < varint_max(type); i++) {
+  for (let i = 0; i < varint_max[bits]; i++) {
     const val = de.pop();
     const carry = val & 0x7F;
     out |= carry << (7 * i);
 
     if ((val & 0x80) === 0) {
-      if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
+      if (i === varint_max[bits] - 1 && val > max_of_last_byte(bits)) {
         throw new Error('deserialize bad variant')
       } else {
         return out
@@ -53,16 +58,16 @@ function de_varint(de, type) {
   throw new Error('deserialize bad variant')
 }
 
-function de_varint_big(de, type) {
+function de_varint_big(de, bits) {
   let out = 0n;
 
-  for (let i = 0; i < varint_max(type); i++) {
+  for (let i = 0; i < varint_max[bits]; i++) {
     const val = de.pop();
     const carry = BigInt(val) & 0x7Fn;
     out |= carry << (7n * BigInt(i));
 
     if ((val & 0x80) === 0) {
-      if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
+      if (i === varint_max[bits] - 1 && val > max_of_last_byte(bits)) {
         throw new Error('deserialize bad variant')
       } else {
         return out
@@ -85,6 +90,14 @@ function deserializeU32(de) {
 }
 function deserializeU64(de) {
   return de_varint_big(de, 64)
+}
+function deserializeS8(de) {
+    const buf = new ArrayBuffer(1);
+    const view = new DataView(buf);
+
+    buf[0] = view.setUint8(0, de.pop());
+
+    return view.getInt8(0);
 }
 function deserializeS32(de) {
     const n = de_varint(de, 32)
@@ -154,10 +167,10 @@ function deserializeResult(de, ok, err) {
             throw new Error(`Deserialize bad result ${tag}`)
     }
 }
-function ser_varint(out, type, val) {
+function ser_varint(out, bits, val) {
   let buf = []
-  for (let i = 0; i < varint_max(type); i++) {
-    const buffer = new ArrayBuffer(type / 8);
+  for (let i = 0; i < varint_max[bits]; i++) {
+    const buffer = new ArrayBuffer(bits / 8);
     const view = new DataView(buffer);
     view.setInt16(0, val, true);
     buf[i] = view.getUint8(0);
@@ -172,10 +185,10 @@ function ser_varint(out, type, val) {
   out.push(...buf)
 }
 
-function ser_varint_big(out, type, val) {
+function ser_varint_big(out, bits, val) {
   let buf = []
-  for (let i = 0; i < varint_max(type); i++) {
-    const buffer = new ArrayBuffer(type / 8);
+  for (let i = 0; i < varint_max[bits]; i++) {
+    const buffer = new ArrayBuffer(bits / 8);
     const view = new DataView(buffer);
     view.setInt16(0, Number(val), true);
     buf[i] = view.getUint8(0);
@@ -200,6 +213,9 @@ function serializeU32(out, val) {
 }
 function serializeU64(out, val) {
   return ser_varint_big(out, 64, BigInt(val))
+}
+function serializeS8(out, val) {
+    out.push(val)
 }
 function serializeS32(out, val) {
     ser_varint(out, 32, (val << 1) ^ (val >> 31))
@@ -626,7 +642,7 @@ v1: V1,
 export async function e1Arg (x: E1) : Promise<void> {
     const out = []
     serializeE1(out, x)
-    
+
      fetch('ipc://localhost/variants/e1_arg', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -634,7 +650,7 @@ export async function e1Arg (x: E1) : Promise<void> {
 export async function e1Result () : Promise<E1> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/e1_result', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -648,7 +664,7 @@ export async function e1Result () : Promise<E1> {
 export async function u1Arg (x: U1) : Promise<void> {
     const out = []
     serializeU1(out, x)
-    
+
      fetch('ipc://localhost/variants/u1_arg', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -656,7 +672,7 @@ export async function u1Arg (x: U1) : Promise<void> {
 export async function u1Result () : Promise<U1> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/u1_result', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -670,7 +686,7 @@ export async function u1Result () : Promise<U1> {
 export async function v1Arg (x: V1) : Promise<void> {
     const out = []
     serializeV1(out, x)
-    
+
      fetch('ipc://localhost/variants/v1_arg', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -678,7 +694,7 @@ export async function v1Arg (x: V1) : Promise<void> {
 export async function v1Result () : Promise<V1> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/v1_result', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -692,7 +708,7 @@ export async function v1Result () : Promise<V1> {
 export async function boolArg (x: boolean) : Promise<void> {
     const out = []
     serializeBool(out, x)
-    
+
      fetch('ipc://localhost/variants/bool_arg', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -700,7 +716,7 @@ export async function boolArg (x: boolean) : Promise<void> {
 export async function boolResult () : Promise<boolean> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/bool_result', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -720,7 +736,7 @@ serializeOption(out, (out, v) => serializeE1(out, v), d);
 serializeOption(out, (out, v) => serializeF32(out, v), e);
 serializeOption(out, (out, v) => serializeU1(out, v), f);
 serializeOption(out, (out, v) => serializeOption(out, (out, v) => serializeBool(out, v), v), g)
-    
+
      fetch('ipc://localhost/variants/option_arg', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -728,7 +744,7 @@ serializeOption(out, (out, v) => serializeOption(out, (out, v) => serializeBool(
 export async function optionResult () : Promise<[boolean | null, [] | null, number | null, E1 | null, number | null, U1 | null, boolean | null | null]> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/option_result', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -747,7 +763,7 @@ serializeCasts3(out, c);
 serializeCasts4(out, d);
 serializeCasts5(out, e);
 serializeCasts6(out, f)
-    
+
     return fetch('ipc://localhost/variants/casts', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -766,7 +782,7 @@ serializeResult(out, (out, v) => serializeE1(out, v), (out, v) => {}, c);
 serializeResult(out, (out, v) => {}, (out, v) => {}, d);
 serializeResult(out, (out, v) => serializeU32(out, v), (out, v) => serializeV1(out, v), e);
 serializeResult(out, (out, v) => serializeString(out, v), (out, v) => serializeBytes(out, v), f)
-    
+
      fetch('ipc://localhost/variants/result_arg', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -774,7 +790,7 @@ serializeResult(out, (out, v) => serializeString(out, v), (out, v) => serializeB
 export async function resultResult () : Promise<[Result<null, null>, Result<null, E1>, Result<E1, null>, Result<[], []>, Result<number, V1>, Result<string, Uint8Array[]>]> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/result_result', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -788,7 +804,7 @@ export async function resultResult () : Promise<[Result<null, null>, Result<null
 export async function returnResultSugar () : Promise<Result<number, MyErrno>> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/return_result_sugar', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -802,7 +818,7 @@ export async function returnResultSugar () : Promise<Result<number, MyErrno>> {
 export async function returnResultSugar2 () : Promise<Result<null, MyErrno>> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/return_result_sugar2', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -816,7 +832,7 @@ export async function returnResultSugar2 () : Promise<Result<null, MyErrno>> {
 export async function returnResultSugar3 () : Promise<Result<MyErrno, MyErrno>> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/return_result_sugar3', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -830,7 +846,7 @@ export async function returnResultSugar3 () : Promise<Result<MyErrno, MyErrno>> 
 export async function returnResultSugar4 () : Promise<Result<[number, number], MyErrno>> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/return_result_sugar4', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -844,7 +860,7 @@ export async function returnResultSugar4 () : Promise<Result<[number, number], M
 export async function returnOptionSugar () : Promise<number | null> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/return_option_sugar', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -858,7 +874,7 @@ export async function returnOptionSugar () : Promise<number | null> {
 export async function returnOptionSugar2 () : Promise<MyErrno | null> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/return_option_sugar2', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -872,7 +888,7 @@ export async function returnOptionSugar2 () : Promise<MyErrno | null> {
 export async function resultSimple () : Promise<Result<number, number>> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/result_simple', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -886,7 +902,7 @@ export async function resultSimple () : Promise<Result<number, number>> {
 export async function isCloneArg (a: IsClone) : Promise<void> {
     const out = []
     serializeIsClone(out, a)
-    
+
      fetch('ipc://localhost/variants/is_clone_arg', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -894,7 +910,7 @@ export async function isCloneArg (a: IsClone) : Promise<void> {
 export async function isCloneReturn () : Promise<IsClone> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/is_clone_return', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -908,7 +924,7 @@ export async function isCloneReturn () : Promise<IsClone> {
 export async function returnNamedOption () : Promise<number | null> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/return_named_option', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -922,7 +938,7 @@ export async function returnNamedOption () : Promise<number | null> {
 export async function returnNamedResult () : Promise<Result<number, MyErrno>> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/variants/return_named_result', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {

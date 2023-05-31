@@ -47,20 +47,24 @@ pub mod lists {
         fn list_u16_param(&self, x: Vec<u16>);
         fn list_u32_param(&self, x: Vec<u32>);
         fn list_u64_param(&self, x: Vec<u64>);
+        fn list_u128_param(&self, x: Vec<u128>);
         fn list_s8_param(&self, x: Vec<i8>);
         fn list_s16_param(&self, x: Vec<i16>);
         fn list_s32_param(&self, x: Vec<i32>);
         fn list_s64_param(&self, x: Vec<i64>);
+        fn list_s128_param(&self, x: Vec<i128>);
         fn list_float32_param(&self, x: Vec<f32>);
         fn list_float64_param(&self, x: Vec<f64>);
         fn list_u8_ret(&self) -> Vec<u8>;
         fn list_u16_ret(&self) -> Vec<u16>;
         fn list_u32_ret(&self) -> Vec<u32>;
         fn list_u64_ret(&self) -> Vec<u64>;
+        fn list_u128_ret(&self) -> Vec<u128>;
         fn list_s8_ret(&self) -> Vec<i8>;
         fn list_s16_ret(&self) -> Vec<i16>;
         fn list_s32_ret(&self) -> Vec<i32>;
         fn list_s64_ret(&self) -> Vec<i64>;
+        fn list_s128_ret(&self) -> Vec<i128>;
         fn list_float32_ret(&self) -> Vec<f32>;
         fn list_float64_ret(&self) -> Vec<f64>;
         fn tuple_list(&self, x: Vec<(u8, i8)>) -> Vec<(i64, u32)>;
@@ -137,6 +141,19 @@ pub mod lists {
         router
             .func_wrap(
                 "lists",
+                "list_u128_param",
+                move |
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Vec<u128>,
+                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                    let ctx = get_cx(ctx.data());
+                    Ok(ctx.list_u128_param(x))
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "lists",
                 "list_s8_param",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
@@ -183,6 +200,19 @@ pub mod lists {
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.list_s64_param(x))
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "lists",
+                "list_s128_param",
+                move |
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: Vec<i128>,
+                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                    let ctx = get_cx(ctx.data());
+                    Ok(ctx.list_s128_param(x))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -263,6 +293,18 @@ pub mod lists {
         router
             .func_wrap(
                 "lists",
+                "list_u128_ret",
+                move |
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                | -> ::tauri_bindgen_host::anyhow::Result<Vec<u128>> {
+                    let ctx = get_cx(ctx.data());
+                    Ok(ctx.list_u128_ret())
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "lists",
                 "list_s8_ret",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
@@ -305,6 +347,18 @@ pub mod lists {
                 | -> ::tauri_bindgen_host::anyhow::Result<Vec<i64>> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.list_s64_ret())
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "lists",
+                "list_s128_ret",
+                move |
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                | -> ::tauri_bindgen_host::anyhow::Result<Vec<i128>> {
+                    let ctx = get_cx(ctx.data());
+                    Ok(ctx.list_s128_ret())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);

@@ -100,6 +100,11 @@
 `func list_u64_param (x: list<u64>)`
 
 
+### Function list_u128_param
+
+`func list_u128_param (x: list<u128>)`
+
+
 ### Function list_s8_param
 
 `func list_s8_param (x: list<s8>)`
@@ -118,6 +123,11 @@
 ### Function list_s64_param
 
 `func list_s64_param (x: list<s64>)`
+
+
+### Function list_s128_param
+
+`func list_s128_param (x: list<s128>)`
 
 
 ### Function list_float32_param
@@ -150,6 +160,11 @@
 `func list_u64_ret () -> list<u64>`
 
 
+### Function list_u128_ret
+
+`func list_u128_ret () -> list<u128>`
+
+
 ### Function list_s8_ret
 
 `func list_s8_ret () -> list<s8>`
@@ -168,6 +183,11 @@
 ### Function list_s64_ret
 
 `func list_s64_ret () -> list<s64>`
+
+
+### Function list_s128_ret
+
+`func list_s128_ret () -> list<s128>`
 
 
 ### Function list_float32_ret

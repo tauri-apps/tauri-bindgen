@@ -71,6 +71,7 @@ pub enum Int {
     U16,
     U32,
     U64,
+    U128,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -88,10 +89,12 @@ pub enum Type {
     U16,
     U32,
     U64,
+    U128,
     S8,
     S16,
     S32,
     S64,
+    S128,
     Float32,
     Float64,
     Char,

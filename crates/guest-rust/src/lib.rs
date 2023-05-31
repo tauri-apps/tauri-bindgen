@@ -21,6 +21,10 @@ pub enum Error {
 /// # Errors
 ///
 /// Everything here is fallible (TODO improve this)
+///
+/// # Panics
+///
+/// Panics when the response returned by JavaScript is not a `ResponseObject`
 pub async fn invoke<P, R>(module: &str, method: &str, val: &P) -> Result<R, Error>
 where
     P: Serialize,

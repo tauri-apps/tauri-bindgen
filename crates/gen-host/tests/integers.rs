@@ -12,7 +12,9 @@ pub mod integers {
         fn a6(&self, x: i32);
         fn a7(&self, x: u64);
         fn a8(&self, x: i64);
-        fn a9(
+        fn a9(&self, x: u128);
+        fn a10(&self, x: i128);
+        fn a11(
             &self,
             p1: u8,
             p2: i8,
@@ -22,6 +24,8 @@ pub mod integers {
             p6: i32,
             p7: u64,
             p8: i64,
+            p9: u128,
+            p10: i128,
         );
         fn r1(&self) -> u8;
         fn r2(&self) -> i8;
@@ -31,6 +35,8 @@ pub mod integers {
         fn r6(&self) -> i32;
         fn r7(&self) -> u64;
         fn r8(&self) -> i64;
+        fn r9(&self) -> u128;
+        fn r10(&self) -> i128;
         fn pair_ret(&self) -> (i64, u8);
     }
     pub fn add_to_router<T, U>(
@@ -152,6 +158,32 @@ pub mod integers {
                 "a9",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: u128,
+                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                    let ctx = get_cx(ctx.data());
+                    Ok(ctx.a9(x))
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "integers",
+                "a10",
+                move |
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    x: i128,
+                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                    let ctx = get_cx(ctx.data());
+                    Ok(ctx.a10(x))
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "integers",
+                "a11",
+                move |
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
                     p1: u8,
                     p2: i8,
                     p3: u16,
@@ -160,9 +192,11 @@ pub mod integers {
                     p6: i32,
                     p7: u64,
                     p8: i64,
+                    p9: u128,
+                    p10: i128,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.a9(p1, p2, p3, p4, p5, p6, p7, p8))
+                    Ok(ctx.a11(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
@@ -259,6 +293,30 @@ pub mod integers {
                 | -> ::tauri_bindgen_host::anyhow::Result<i64> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.r8())
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "integers",
+                "r9",
+                move |
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                | -> ::tauri_bindgen_host::anyhow::Result<u128> {
+                    let ctx = get_cx(ctx.data());
+                    Ok(ctx.r9())
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "integers",
+                "r10",
+                move |
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                | -> ::tauri_bindgen_host::anyhow::Result<i128> {
+                    let ctx = get_cx(ctx.data());
+                    Ok(ctx.r10())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);

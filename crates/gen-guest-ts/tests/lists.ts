@@ -17,31 +17,36 @@ class Deserializer {
         return out
     }
 }
-function varint_max(type) {
-    const BITS_PER_BYTE = 8;
-    const BITS_PER_VARINT_BYTE = 7;
+// function varint_max(bits) {
+//   const BITS_PER_BYTE = 8;
+//   const BITS_PER_VARINT_BYTE = 7;
 
-    const bits = type * BITS_PER_BYTE;
+//   const roundup_bits = bits + (BITS_PER_BYTE - 1);
 
-    const roundup_bits = bits + (BITS_PER_BYTE - 1);
+//   return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
+// }
 
-    return Math.floor(roundup_bits / BITS_PER_VARINT_BYTE);
+const varint_max = {
+  16: 3,
+  32: 5,
+  64: 10,
+  128: 19
 }
 function max_of_last_byte(type) {
   let extra_bits = type % 7;
   return (1 << extra_bits) - 1;
 }
 
-function de_varint(de, type) {
+function de_varint(de, bits) {
   let out = 0;
 
-  for (let i = 0; i < varint_max(type); i++) {
+  for (let i = 0; i < varint_max[bits]; i++) {
     const val = de.pop();
     const carry = val & 0x7F;
     out |= carry << (7 * i);
 
     if ((val & 0x80) === 0) {
-      if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
+      if (i === varint_max[bits] - 1 && val > max_of_last_byte(bits)) {
         throw new Error('deserialize bad variant')
       } else {
         return out
@@ -52,16 +57,16 @@ function de_varint(de, type) {
   throw new Error('deserialize bad variant')
 }
 
-function de_varint_big(de, type) {
+function de_varint_big(de, bits) {
   let out = 0n;
 
-  for (let i = 0; i < varint_max(type); i++) {
+  for (let i = 0; i < varint_max[bits]; i++) {
     const val = de.pop();
     const carry = BigInt(val) & 0x7Fn;
     out |= carry << (7n * BigInt(i));
 
     if ((val & 0x80) === 0) {
-      if (i === varint_max(type) - 1 && val > max_of_last_byte(type)) {
+      if (i === varint_max[bits] - 1 && val > max_of_last_byte(bits)) {
         throw new Error('deserialize bad variant')
       } else {
         return out
@@ -82,6 +87,9 @@ function deserializeU32(de) {
 }
 function deserializeU64(de) {
   return de_varint_big(de, 64)
+}
+function deserializeU128(de) {
+  return de_varint_big(de, 128)
 }
 function deserializeS8(de) {
     const buf = new ArrayBuffer(1);
@@ -105,6 +113,11 @@ function deserializeS64(de) {
   const n = de_varint_big(de, 64)
 
   return ((n >> 1n) & 0xFFFFFFFFFFFFFFFFn) ^ (-((n & 0b1n) & 0xFFFFFFFFFFFFFFFFn))
+}
+function deserializeS128(de) {
+  const n = de_varint_big(de, 128)
+
+  return ((n >> 1n) & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFn) ^ (-((n & 0b1n) & 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFn))
 }
 function deserializeF32(de) {
     const bytes = de.try_take_n(4);
@@ -160,10 +173,10 @@ function deserializeList(de, inner) {
 
     return out;
 }
-function ser_varint(out, type, val) {
+function ser_varint(out, bits, val) {
   let buf = []
-  for (let i = 0; i < varint_max(type); i++) {
-    const buffer = new ArrayBuffer(type / 8);
+  for (let i = 0; i < varint_max[bits]; i++) {
+    const buffer = new ArrayBuffer(bits / 8);
     const view = new DataView(buffer);
     view.setInt16(0, val, true);
     buf[i] = view.getUint8(0);
@@ -178,10 +191,10 @@ function ser_varint(out, type, val) {
   out.push(...buf)
 }
 
-function ser_varint_big(out, type, val) {
+function ser_varint_big(out, bits, val) {
   let buf = []
-  for (let i = 0; i < varint_max(type); i++) {
-    const buffer = new ArrayBuffer(type / 8);
+  for (let i = 0; i < varint_max[bits]; i++) {
+    const buffer = new ArrayBuffer(bits / 8);
     const view = new DataView(buffer);
     view.setInt16(0, Number(val), true);
     buf[i] = view.getUint8(0);
@@ -207,6 +220,9 @@ function serializeU32(out, val) {
 function serializeU64(out, val) {
   return ser_varint_big(out, 64, BigInt(val))
 }
+function serializeU128(out, val) {
+  return ser_varint_big(out, 128, BigInt(val))
+}
 function serializeS8(out, val) {
     out.push(val)
 }
@@ -219,6 +235,10 @@ function serializeS32(out, val) {
 function serializeS64(out, val) {
   val = BigInt(val)
   ser_varint_big(out, 64, (val << 1n) ^ (val >> 63n))
+}
+function serializeS128(out, val) {
+  val = BigInt(val)
+  ser_varint_big(out, 128, (val << 1n) ^ (val >> 127n))
 }
 function serializeF32(out, val) {
     const buf = new ArrayBuffer(4);
@@ -416,7 +436,7 @@ export type LoadStoreAllSizes = [string, number, number, number, number, number,
 export async function listU8Param (x: Uint8Array[]) : Promise<void> {
     const out = []
     serializeBytes(out, x)
-    
+
      fetch('ipc://localhost/lists/list_u8_param', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -424,7 +444,7 @@ export async function listU8Param (x: Uint8Array[]) : Promise<void> {
 export async function listU16Param (x: Uint16Array[]) : Promise<void> {
     const out = []
     serializeList(out, (out, v) => serializeU16(out, v), x)
-    
+
      fetch('ipc://localhost/lists/list_u16_param', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -432,7 +452,7 @@ export async function listU16Param (x: Uint16Array[]) : Promise<void> {
 export async function listU32Param (x: Uint32Array[]) : Promise<void> {
     const out = []
     serializeList(out, (out, v) => serializeU32(out, v), x)
-    
+
      fetch('ipc://localhost/lists/list_u32_param', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -440,15 +460,23 @@ export async function listU32Param (x: Uint32Array[]) : Promise<void> {
 export async function listU64Param (x: BigUint64Array[]) : Promise<void> {
     const out = []
     serializeList(out, (out, v) => serializeU64(out, v), x)
-    
+
      fetch('ipc://localhost/lists/list_u64_param', { method: "POST", body: Uint8Array.from(out) }) 
+}
+        
+
+export async function listU128Param (x: bigint[]) : Promise<void> {
+    const out = []
+    serializeList(out, (out, v) => serializeU128(out, v), x)
+
+     fetch('ipc://localhost/lists/list_u128_param', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
 
 export async function listS8Param (x: Int8Array[]) : Promise<void> {
     const out = []
     serializeList(out, (out, v) => serializeS8(out, v), x)
-    
+
      fetch('ipc://localhost/lists/list_s8_param', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -456,7 +484,7 @@ export async function listS8Param (x: Int8Array[]) : Promise<void> {
 export async function listS16Param (x: Int16Array[]) : Promise<void> {
     const out = []
     serializeList(out, (out, v) => serializeS16(out, v), x)
-    
+
      fetch('ipc://localhost/lists/list_s16_param', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -464,7 +492,7 @@ export async function listS16Param (x: Int16Array[]) : Promise<void> {
 export async function listS32Param (x: Int32Array[]) : Promise<void> {
     const out = []
     serializeList(out, (out, v) => serializeS32(out, v), x)
-    
+
      fetch('ipc://localhost/lists/list_s32_param', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -472,15 +500,23 @@ export async function listS32Param (x: Int32Array[]) : Promise<void> {
 export async function listS64Param (x: BigInt64Array[]) : Promise<void> {
     const out = []
     serializeList(out, (out, v) => serializeS64(out, v), x)
-    
+
      fetch('ipc://localhost/lists/list_s64_param', { method: "POST", body: Uint8Array.from(out) }) 
+}
+        
+
+export async function listS128Param (x: bigint[]) : Promise<void> {
+    const out = []
+    serializeList(out, (out, v) => serializeS128(out, v), x)
+
+     fetch('ipc://localhost/lists/list_s128_param', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
 
 export async function listFloat32Param (x: Float32Array[]) : Promise<void> {
     const out = []
     serializeList(out, (out, v) => serializeF32(out, v), x)
-    
+
      fetch('ipc://localhost/lists/list_float32_param', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -488,7 +524,7 @@ export async function listFloat32Param (x: Float32Array[]) : Promise<void> {
 export async function listFloat64Param (x: Float64Array[]) : Promise<void> {
     const out = []
     serializeList(out, (out, v) => serializeF64(out, v), x)
-    
+
      fetch('ipc://localhost/lists/list_float64_param', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -496,7 +532,7 @@ export async function listFloat64Param (x: Float64Array[]) : Promise<void> {
 export async function listU8Ret () : Promise<Uint8Array[]> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/lists/list_u8_ret', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -510,7 +546,7 @@ export async function listU8Ret () : Promise<Uint8Array[]> {
 export async function listU16Ret () : Promise<Uint16Array[]> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/lists/list_u16_ret', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -524,7 +560,7 @@ export async function listU16Ret () : Promise<Uint16Array[]> {
 export async function listU32Ret () : Promise<Uint32Array[]> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/lists/list_u32_ret', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -538,7 +574,7 @@ export async function listU32Ret () : Promise<Uint32Array[]> {
 export async function listU64Ret () : Promise<BigUint64Array[]> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/lists/list_u64_ret', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -549,10 +585,24 @@ export async function listU64Ret () : Promise<BigUint64Array[]> {
 }
         
 
+export async function listU128Ret () : Promise<bigint[]> {
+    const out = []
+    
+
+    return fetch('ipc://localhost/lists/list_u128_ret', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return deserializeList(de, (de) => deserializeU128(de))
+        }) as Promise<bigint[]>
+}
+        
+
 export async function listS8Ret () : Promise<Int8Array[]> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/lists/list_s8_ret', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -566,7 +616,7 @@ export async function listS8Ret () : Promise<Int8Array[]> {
 export async function listS16Ret () : Promise<Int16Array[]> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/lists/list_s16_ret', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -580,7 +630,7 @@ export async function listS16Ret () : Promise<Int16Array[]> {
 export async function listS32Ret () : Promise<Int32Array[]> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/lists/list_s32_ret', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -594,7 +644,7 @@ export async function listS32Ret () : Promise<Int32Array[]> {
 export async function listS64Ret () : Promise<BigInt64Array[]> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/lists/list_s64_ret', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -605,10 +655,24 @@ export async function listS64Ret () : Promise<BigInt64Array[]> {
 }
         
 
+export async function listS128Ret () : Promise<bigint[]> {
+    const out = []
+    
+
+    return fetch('ipc://localhost/lists/list_s128_ret', { method: "POST", body: Uint8Array.from(out) })
+        .then(r => r.arrayBuffer())
+        .then(bytes => {
+            const de = new Deserializer(new Uint8Array(bytes))
+
+            return deserializeList(de, (de) => deserializeS128(de))
+        }) as Promise<bigint[]>
+}
+        
+
 export async function listFloat32Ret () : Promise<Float32Array[]> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/lists/list_float32_ret', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -622,7 +686,7 @@ export async function listFloat32Ret () : Promise<Float32Array[]> {
 export async function listFloat64Ret () : Promise<Float64Array[]> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/lists/list_float64_ret', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -636,7 +700,7 @@ export async function listFloat64Ret () : Promise<Float64Array[]> {
 export async function tupleList (x: [number, number][]) : Promise<[bigint, number][]> {
     const out = []
     serializeList(out, (out, v) => {serializeU8(out, v[0]);serializeS8(out, v[1])}, x)
-    
+
     return fetch('ipc://localhost/lists/tuple_list', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -650,7 +714,7 @@ export async function tupleList (x: [number, number][]) : Promise<[bigint, numbe
 export async function stringListArg (a: string[]) : Promise<void> {
     const out = []
     serializeList(out, (out, v) => serializeString(out, v), a)
-    
+
      fetch('ipc://localhost/lists/string_list_arg', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -658,7 +722,7 @@ export async function stringListArg (a: string[]) : Promise<void> {
 export async function stringListRet () : Promise<string[]> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/lists/string_list_ret', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -672,7 +736,7 @@ export async function stringListRet () : Promise<string[]> {
 export async function tupleStringList (x: [number, string][]) : Promise<[string, number][]> {
     const out = []
     serializeList(out, (out, v) => {serializeU8(out, v[0]);serializeString(out, v[1])}, x)
-    
+
     return fetch('ipc://localhost/lists/tuple_string_list', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -686,7 +750,7 @@ export async function tupleStringList (x: [number, string][]) : Promise<[string,
 export async function stringList (x: string[]) : Promise<string[]> {
     const out = []
     serializeList(out, (out, v) => serializeString(out, v), x)
-    
+
     return fetch('ipc://localhost/lists/string_list', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -700,7 +764,7 @@ export async function stringList (x: string[]) : Promise<string[]> {
 export async function recordList (x: SomeRecord[]) : Promise<OtherRecord[]> {
     const out = []
     serializeList(out, (out, v) => serializeSomeRecord(out, v), x)
-    
+
     return fetch('ipc://localhost/lists/record_list', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -714,7 +778,7 @@ export async function recordList (x: SomeRecord[]) : Promise<OtherRecord[]> {
 export async function recordListReverse (x: OtherRecord[]) : Promise<SomeRecord[]> {
     const out = []
     serializeList(out, (out, v) => serializeOtherRecord(out, v), x)
-    
+
     return fetch('ipc://localhost/lists/record_list_reverse', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -728,7 +792,7 @@ export async function recordListReverse (x: OtherRecord[]) : Promise<SomeRecord[
 export async function variantList (x: SomeVariant[]) : Promise<OtherVariant[]> {
     const out = []
     serializeList(out, (out, v) => serializeSomeVariant(out, v), x)
-    
+
     return fetch('ipc://localhost/lists/variant_list', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -742,7 +806,7 @@ export async function variantList (x: SomeVariant[]) : Promise<OtherVariant[]> {
 export async function loadStoreEverything (a: LoadStoreAllSizes) : Promise<LoadStoreAllSizes> {
     const out = []
     serializeLoadStoreAllSizes(out, a)
-    
+
     return fetch('ipc://localhost/lists/load_store_everything', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {

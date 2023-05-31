@@ -52,10 +52,12 @@ pub trait JavaScriptGenerator {
             Type::U16 => "deserializeU16(de)".to_string(),
             Type::U32 => "deserializeU32(de)".to_string(),
             Type::U64 => "deserializeU64(de)".to_string(),
+            Type::U128 => "deserializeU128(de)".to_string(),
             Type::S8 => "deserializeS8(de)".to_string(),
             Type::S16 => "deserializeS16(de)".to_string(),
             Type::S32 => "deserializeS32(de)".to_string(),
             Type::S64 => "deserializeS64(de)".to_string(),
+            Type::S128 => "deserializeS128(de)".to_string(),
             Type::Float32 => "deserializeF32(de)".to_string(),
             Type::Float64 => "deserializeF64(de)".to_string(),
             Type::Char => "deserializeChar(de)".to_string(),
@@ -155,6 +157,7 @@ pub trait JavaScriptGenerator {
             wit_parser::Int::U16 => "U16",
             wit_parser::Int::U32 => "U32",
             wit_parser::Int::U64 => "U64",
+            wit_parser::Int::U128 => "U128",
         };
 
         format!(
@@ -260,10 +263,12 @@ pub trait JavaScriptGenerator {
             Type::U16 => format!("serializeU16(out, {ident})"),
             Type::U32 => format!("serializeU32(out, {ident})"),
             Type::U64 => format!("serializeU64(out, {ident})"),
+            Type::U128 => format!("serializeU128(out, {ident})"),
             Type::S8 => format!("serializeS8(out, {ident})"),
             Type::S16 => format!("serializeS16(out, {ident})"),
             Type::S32 => format!("serializeS32(out, {ident})"),
             Type::S64 => format!("serializeS64(out, {ident})"),
+            Type::S128 => format!("serializeS128(out, {ident})"),
             Type::Float32 => format!("serializeF32(out, {ident})"),
             Type::Float64 => format!("serializeF64(out, {ident})"),
             Type::Char => format!("serializeChar(out, {ident})"),
@@ -358,6 +363,7 @@ pub trait JavaScriptGenerator {
             wit_parser::Int::U16 => "U16",
             wit_parser::Int::U32 => "U32",
             wit_parser::Int::U64 => "U64",
+            wit_parser::Int::U128 => "U128",
         };
 
         format!(
@@ -459,14 +465,14 @@ bitflags::bitflags! {
         const _VARINT           = 1 << 2;
 
         const BOOl              = 1 << 3;
-        const U8                = 1 << 4;
-        const _U16              = 1 << 5;
-        const _U32              = 1 << 6;
-        const _U64              = 1 << 7;
-        const S8                = 1 << 8;
-        const _S16              = 1 << 9;
-        const _S32              = 1 << 10;
-        const _S64              = 1 << 11;
+        const BITS8             = 1 << 4;
+        const BITS16            = 1 << 5;
+        const BITS32            = 1 << 6;
+        const BITS64            = 1 << 7;
+        const BITS128           = 1 << 8;
+        const SIGNED            = 1 << 9;
+        const UNSIGNED          = 1 << 10;
+
         const F32               = 1 << 12;
         const F64               = 1 << 13;
         const _CHAR             = 1 << 14;
@@ -480,12 +486,16 @@ bitflags::bitflags! {
         const STR_UTIL          = 1 << 22;
 
         const VARINT            = Self::_VARINT.bits() | Self::VARINT_MAX.bits();
-        const U16               = Self::_U16.bits() | Self::VARINT.bits();
-        const U32               = Self::_U32.bits() | Self::VARINT.bits();
-        const U64               = Self::_U64.bits() | Self::VARINT.bits();
-        const S16               = Self::_S16.bits() | Self::VARINT.bits();
-        const S32               = Self::_S32.bits() | Self::VARINT.bits();
-        const S64               = Self::_S64.bits() | Self::VARINT.bits();
+        const U8               = Self::BITS8.bits() | Self::VARINT.bits() | Self::UNSIGNED.bits();
+        const U16               = Self::BITS16.bits() | Self::VARINT.bits() | Self::UNSIGNED.bits();
+        const U32               = Self::BITS32.bits() | Self::VARINT.bits() | Self::UNSIGNED.bits();
+        const U64               = Self::BITS64.bits() | Self::VARINT.bits() | Self::UNSIGNED.bits();
+        const U128              = Self::BITS128.bits() | Self::VARINT.bits() | Self::UNSIGNED.bits();
+        const S8                = Self::BITS8.bits() | Self::VARINT.bits() | Self::SIGNED.bits();
+        const S16               = Self::BITS16.bits() | Self::VARINT.bits() | Self::SIGNED.bits();
+        const S32               = Self::BITS32.bits() | Self::VARINT.bits() | Self::SIGNED.bits();
+        const S64               = Self::BITS64.bits() | Self::VARINT.bits() | Self::SIGNED.bits();
+        const S128              = Self::BITS128.bits() | Self::VARINT.bits() | Self::SIGNED.bits();
         const CHAR              = Self::_CHAR.bits() | Self::U64.bits() | Self::STR_UTIL.bits();
         const STRING            = Self::_STRING.bits() | Self::U64.bits() | Self::STR_UTIL.bits();
         const BYTES             = Self::_BYTES.bits() | Self::U64.bits();
@@ -512,36 +522,44 @@ impl std::fmt::Display for SerdeUtils {
             f.write_str(include_str!("./js/de_bool.js"))?;
         }
 
-        if self.contains(SerdeUtils::U8 | SerdeUtils::DE) {
+        if self.contains(SerdeUtils::BITS8 | SerdeUtils::UNSIGNED | SerdeUtils::DE) {
             f.write_str(include_str!("./js/de_u8.js"))?;
         }
 
-        if self.contains(SerdeUtils::_U16 | SerdeUtils::DE) {
+        if self.contains(SerdeUtils::BITS16 | SerdeUtils::UNSIGNED | SerdeUtils::DE) {
             f.write_str(include_str!("./js/de_u16.js"))?;
         }
 
-        if self.contains(SerdeUtils::_U32 | SerdeUtils::DE) {
+        if self.contains(SerdeUtils::BITS32 | SerdeUtils::UNSIGNED | SerdeUtils::DE) {
             f.write_str(include_str!("./js/de_u32.js"))?;
         }
 
-        if self.contains(SerdeUtils::_U64 | SerdeUtils::DE) {
+        if self.contains(SerdeUtils::BITS64 | SerdeUtils::UNSIGNED | SerdeUtils::DE) {
             f.write_str(include_str!("./js/de_u64.js"))?;
         }
 
-        if self.contains(SerdeUtils::S8 | SerdeUtils::DE) {
+        if self.contains(SerdeUtils::BITS128 | SerdeUtils::UNSIGNED | SerdeUtils::DE) {
+            f.write_str(include_str!("./js/de_u128.js"))?;
+        }
+
+        if self.contains(SerdeUtils::BITS8 | SerdeUtils::SIGNED | SerdeUtils::DE) {
             f.write_str(include_str!("./js/de_s8.js"))?;
         }
 
-        if self.contains(SerdeUtils::_S16 | SerdeUtils::DE) {
+        if self.contains(SerdeUtils::BITS16 | SerdeUtils::SIGNED | SerdeUtils::DE) {
             f.write_str(include_str!("./js/de_s16.js"))?;
         }
 
-        if self.contains(SerdeUtils::_S32 | SerdeUtils::DE) {
+        if self.contains(SerdeUtils::BITS32 | SerdeUtils::SIGNED | SerdeUtils::DE) {
             f.write_str(include_str!("./js/de_s32.js"))?;
         }
 
-        if self.contains(SerdeUtils::_S64 | SerdeUtils::DE) {
+        if self.contains(SerdeUtils::BITS64 | SerdeUtils::SIGNED | SerdeUtils::DE) {
             f.write_str(include_str!("./js/de_s64.js"))?;
+        }
+
+        if self.contains(SerdeUtils::BITS128 | SerdeUtils::SIGNED | SerdeUtils::DE) {
+            f.write_str(include_str!("./js/de_s128.js"))?;
         }
 
         if self.contains(SerdeUtils::F32 | SerdeUtils::DE) {
@@ -584,36 +602,44 @@ impl std::fmt::Display for SerdeUtils {
             f.write_str(include_str!("./js/ser_bool.js"))?;
         }
 
-        if self.contains(SerdeUtils::U8 | SerdeUtils::SER) {
+        if self.contains(SerdeUtils::BITS8 | SerdeUtils::UNSIGNED | SerdeUtils::SER) {
             f.write_str(include_str!("./js/ser_u8.js"))?;
         }
 
-        if self.contains(SerdeUtils::_U16 | SerdeUtils::SER) {
+        if self.contains(SerdeUtils::BITS16 | SerdeUtils::UNSIGNED | SerdeUtils::SER) {
             f.write_str(include_str!("./js/ser_u16.js"))?;
         }
 
-        if self.contains(SerdeUtils::_U32 | SerdeUtils::SER) {
+        if self.contains(SerdeUtils::BITS32 | SerdeUtils::UNSIGNED | SerdeUtils::SER) {
             f.write_str(include_str!("./js/ser_u32.js"))?;
         }
 
-        if self.contains(SerdeUtils::_U64 | SerdeUtils::SER) {
+        if self.contains(SerdeUtils::BITS64 | SerdeUtils::UNSIGNED | SerdeUtils::SER) {
             f.write_str(include_str!("./js/ser_u64.js"))?;
         }
 
-        if self.contains(SerdeUtils::S8 | SerdeUtils::SER) {
+        if self.contains(SerdeUtils::BITS128 | SerdeUtils::UNSIGNED | SerdeUtils::SER) {
+            f.write_str(include_str!("./js/ser_u128.js"))?;
+        }
+
+        if self.contains(SerdeUtils::BITS8 | SerdeUtils::SIGNED | SerdeUtils::SER) {
             f.write_str(include_str!("./js/ser_s8.js"))?;
         }
 
-        if self.contains(SerdeUtils::_S16 | SerdeUtils::SER) {
+        if self.contains(SerdeUtils::BITS16 | SerdeUtils::SIGNED | SerdeUtils::SER) {
             f.write_str(include_str!("./js/ser_s16.js"))?;
         }
 
-        if self.contains(SerdeUtils::_S32 | SerdeUtils::SER) {
+        if self.contains(SerdeUtils::BITS32 | SerdeUtils::SIGNED | SerdeUtils::SER) {
             f.write_str(include_str!("./js/ser_s32.js"))?;
         }
 
-        if self.contains(SerdeUtils::_S64 | SerdeUtils::SER) {
+        if self.contains(SerdeUtils::BITS64 | SerdeUtils::SIGNED | SerdeUtils::SER) {
             f.write_str(include_str!("./js/ser_s64.js"))?;
+        }
+
+        if self.contains(SerdeUtils::BITS128 | SerdeUtils::SIGNED | SerdeUtils::SER) {
+            f.write_str(include_str!("./js/ser_s128.js"))?;
         }
 
         if self.contains(SerdeUtils::F32 | SerdeUtils::SER) {
@@ -723,6 +749,7 @@ impl SerdeUtils {
                     wit_parser::Int::U16 => SerdeUtils::U16,
                     wit_parser::Int::U32 => SerdeUtils::U32,
                     wit_parser::Int::U64 => SerdeUtils::U64,
+                    wit_parser::Int::U128 => SerdeUtils::U128,
                 };
             }
             TypeDefKind::Resource(_) => {}
@@ -740,10 +767,12 @@ impl SerdeUtils {
             Type::U16 => SerdeUtils::U16,
             Type::U32 => SerdeUtils::U32,
             Type::U64 => SerdeUtils::U64,
+            Type::U128 => SerdeUtils::U128,
             Type::S8 => SerdeUtils::S8,
             Type::S16 => SerdeUtils::S16,
             Type::S32 => SerdeUtils::S32,
             Type::S64 => SerdeUtils::S64,
+            Type::S128 => SerdeUtils::S128,
             Type::Float32 => SerdeUtils::F32,
             Type::Float64 => SerdeUtils::F64,
             Type::Char => SerdeUtils::CHAR,

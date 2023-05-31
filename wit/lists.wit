@@ -3,10 +3,12 @@ interface lists {
   func list_u16_param(x: list<u16>)
   func list_u32_param(x: list<u32>)
   func list_u64_param(x: list<u64>)
+  func list_u128_param(x: list<u128>)
   func list_s8_param(x: list<s8>)
   func list_s16_param(x: list<s16>)
   func list_s32_param(x: list<s32>)
   func list_s64_param(x: list<s64>)
+  func list_s128_param(x: list<s128>)
   func list_float32_param(x: list<float32>)
   func list_float64_param(x: list<float64>)
 
@@ -14,10 +16,12 @@ interface lists {
   func list_u16_ret() -> list<u16>
   func list_u32_ret() -> list<u32>
   func list_u64_ret() -> list<u64>
+  func list_u128_ret() -> list<u128>
   func list_s8_ret() -> list<s8>
   func list_s16_ret() -> list<s16>
   func list_s32_ret() -> list<s32>
   func list_s64_ret() -> list<s64>
+  func list_s128_ret() -> list<s128>
   func list_float32_ret() -> list<float32>
   func list_float64_ret() -> list<float64>
 

@@ -60,7 +60,7 @@ function serializeF64(out, val) {
 export async function float32Param (x: number) : Promise<void> {
     const out = []
     serializeF32(out, x)
-    
+
      fetch('ipc://localhost/floats/float32_param', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -68,7 +68,7 @@ export async function float32Param (x: number) : Promise<void> {
 export async function float64Param (x: number) : Promise<void> {
     const out = []
     serializeF64(out, x)
-    
+
      fetch('ipc://localhost/floats/float64_param', { method: "POST", body: Uint8Array.from(out) }) 
 }
         
@@ -76,7 +76,7 @@ export async function float64Param (x: number) : Promise<void> {
 export async function float32Result () : Promise<number> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/floats/float32_result', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
@@ -90,7 +90,7 @@ export async function float32Result () : Promise<number> {
 export async function float64Result () : Promise<number> {
     const out = []
     
-    
+
     return fetch('ipc://localhost/floats/float64_result', { method: "POST", body: Uint8Array.from(out) })
         .then(r => r.arrayBuffer())
         .then(bytes => {
