@@ -16,6 +16,7 @@ use id_arena::{Arena, Id};
 use logos::Logos;
 use miette::{ErrReport, IntoDiagnostic, NamedSource};
 use parse::FromTokens;
+use serde::{ser::SerializeSeq, Serialize};
 use std::path::Path;
 use typecheck::Resolver;
 use util::detect_invalid_input;
@@ -74,15 +75,17 @@ pub enum Int {
     U128,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Interface {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
     pub ident: String,
+    #[serde(serialize_with = "serialize_typedefs")]
     pub typedefs: Arena<TypeDef>,
     pub functions: Vec<Function>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub enum Type {
     Bool,
     U8,
@@ -106,17 +109,39 @@ pub enum Type {
         ok: Option<Box<Type>>,
         err: Option<Box<Type>>,
     },
+    #[serde(serialize_with = "serialize_id")]
     Id(Id<TypeDef>),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+fn serialize_typedefs<S>(typedefs: &Arena<TypeDef>, s: S) -> std::result::Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    let mut s = s.serialize_seq(Some(typedefs.len()))?;
+
+    for (_, typedef) in typedefs {
+        s.serialize_element(typedef)?;
+    }
+
+    s.end()
+}
+
+fn serialize_id<S>(id: &Id<TypeDef>, serializer: S) -> std::result::Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    serializer.serialize_u32(id.index() as u32)
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct TypeDef {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
     pub ident: String,
     pub kind: TypeDefKind,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub enum TypeDefKind {
     Alias(Type),
     Record(Vec<RecordField>),
@@ -127,42 +152,49 @@ pub enum TypeDefKind {
     Resource(Vec<Function>),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct RecordField {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
     pub ident: String,
     pub ty: Type,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct FlagsField {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
     pub ident: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct VariantCase {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
     pub ident: String,
     pub ty: Option<Type>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct EnumCase {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
     pub ident: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct UnionCase {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
     pub ty: Type,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Function {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
     pub ident: String,
+    #[serde(serialize_with = "serialize_named_type_list")]
     pub params: NamedTypeList,
     pub result: Option<FunctionResult>,
 }
@@ -180,9 +212,32 @@ impl Function {
 
 pub type NamedTypeList = Vec<(String, Type)>;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+fn serialize_named_type_list<S>(
+    named_types: &Vec<(String, Type)>,
+    s: S,
+) -> std::result::Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    let mut s = s.serialize_seq(Some(named_types.len()))?;
+
+    #[derive(Serialize)]
+    struct NamedType<'a> {
+        ident: &'a str,
+        r#type: &'a Type,
+    }
+
+    for (ident, r#type) in named_types {
+        s.serialize_element(&NamedType { ident, r#type })?;
+    }
+
+    s.end()
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub enum FunctionResult {
     Anon(Type),
+    #[serde(serialize_with = "serialize_named_type_list")]
     Named(NamedTypeList),
 }
 
