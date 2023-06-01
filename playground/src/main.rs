@@ -1,5 +1,5 @@
 use miette::NamedSource;
-use pulldown_cmark::{html, Parser};
+use pulldown_cmark::{html, Options, Parser};
 use tauri_bindgen_core::GeneratorBuilder;
 use wasm_bindgen::prelude::*;
 use wit_parser::Interface;
@@ -69,7 +69,13 @@ fn main() {
                     ),
                 );
                 let markdown = gen_interface(tauri_bindgen_gen_markdown::Builder {}, iface);
-                let parser = Parser::new(&markdown);
+                let parser = Parser::new_ext(
+                    &markdown,
+                    Options::ENABLE_STRIKETHROUGH
+                        | Options::ENABLE_FOOTNOTES
+                        | Options::ENABLE_TABLES
+                        | Options::ENABLE_TASKLISTS,
+                );
                 let mut html_output = String::new();
                 html::push_html(&mut html_output, parser);
                 update_output("markdown", &html_output);

@@ -15,6 +15,7 @@ heck.workspace = true
 pulldown-cmark = { version = "0.9", default-features = false }
 clap = { workspace = true, optional = true }
 wit-parser.workspace = true
+log.workspace = true
 
 [features]
 cli = ["clap"]
