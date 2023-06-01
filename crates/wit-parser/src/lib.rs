@@ -130,7 +130,7 @@ fn serialize_id<S>(id: &Id<TypeDef>, serializer: S) -> std::result::Result<S::Ok
 where
     S: serde::Serializer,
 {
-    serializer.serialize_u32(id.index() as u32)
+    serializer.serialize_u32(u32::try_from(id.index()).unwrap())
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -219,13 +219,13 @@ fn serialize_named_type_list<S>(
 where
     S: serde::Serializer,
 {
-    let mut s = s.serialize_seq(Some(named_types.len()))?;
-
     #[derive(Serialize)]
     struct NamedType<'a> {
         ident: &'a str,
         r#type: &'a Type,
     }
+
+    let mut s = s.serialize_seq(Some(named_types.len()))?;
 
     for (ident, r#type) in named_types {
         s.serialize_element(&NamedType { ident, r#type })?;

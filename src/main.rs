@@ -173,7 +173,7 @@ fn run() -> Result<()> {
                 serde_json::to_writer(std::io::stdout(), &iface).into_diagnostic()?;
             }
 
-            println!("");
+            println!();
         }
     };
 
