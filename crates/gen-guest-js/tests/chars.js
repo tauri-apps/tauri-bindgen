@@ -88,13 +88,6 @@ function deserializeChar(de) {
 
     return __text_decoder.decode(bytes);
 }
-function deserializeString(de) {
-    const sz = deserializeU64(de);
-
-    let bytes = de.try_take_n(Number(sz));
-
-    return __text_decoder.decode(bytes);
-}
 function ser_varint(out, bits, val) {
   let buf = []
   for (let i = 0; i < varint_max[bits]; i++) {
@@ -142,16 +135,9 @@ function serializeChar(out, val) {
 
     out.push(...__text_encoder.encode(val))
 }
-function serializeString(out, val) {
-    serializeU64(out, val.length);
-
-    out.push(...__text_encoder.encode(val))
-}
 const __text_decoder = new TextDecoder('utf-8');
 const __text_encoder = new TextEncoder();
-function deserializeA(de) {
-    return deserializeString(de)
-}
+
 
 /**
  * A function that accepts a character 
@@ -166,7 +152,7 @@ export async function takeChar (x) {
 
 /**
  * A function that returns a character 
-* @returns {Promise<A>} 
+* @returns {Promise<string>} 
 */
 export async function returnChar () {
     const out = []
@@ -177,7 +163,7 @@ export async function returnChar () {
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return deserializeA(de)
+            return deserializeChar(de)
         })
 }
 
