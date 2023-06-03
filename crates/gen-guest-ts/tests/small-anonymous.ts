@@ -107,9 +107,9 @@ function deserializeResult(de, ok, err) {
 
     switch (tag) {
         case 0:
-            return { Ok: ok(de) }
+            return { tag: 'ok', val: ok(de) }
         case 1: 
-            return { Err: err(de) }
+            return { tag: 'err', val: err(de) }
         default:
             throw new Error(`Deserialize bad result ${tag}`)
     }
@@ -146,7 +146,7 @@ export async function optionTest () : Promise<Result<string | null, Error>> {
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return deserializeResult(de, deserializeOption(de, (de) => deserializeString(de)), deserializeError(de))
+            return deserializeResult(de, (de) => deserializeOption(de, (de) => deserializeString(de)), (de) => deserializeError(de))
         }) as Promise<Result<string | null, Error>>
 }
         
