@@ -48,8 +48,8 @@ pub struct JavaScript {
 impl JavaScript {
     fn print_function(&self, intf_name: &str, func: &Function) -> String {
         let docs = self.print_docs(func);
-        let ident = func.ident.to_lower_camel_case();
-        let name = func.ident.to_snake_case();
+        let ident = func.id.to_lower_camel_case();
+        let name = func.id.to_snake_case();
         let params = print_function_params(&func.params);
 
         let deserialize_result = func
@@ -91,7 +91,7 @@ export async function {ident} ({params}) {{
             .iter()
             .map(|func| {
                 let docs = self.print_docs(func);
-                let ident = func.ident.to_lower_camel_case();
+                let ident = func.id.to_lower_camel_case();
                 let params = print_function_params(&func.params);
 
                 format!(
@@ -203,7 +203,7 @@ async {ident} ({params}) {{
 
                 format!("Result<{ok}, {err}>")
             }
-            Type::Id(id) => self.interface.typedefs[*id].ident.to_upper_camel_case(),
+            Type::Id(id) => self.interface.typedefs[*id].id.to_upper_camel_case(),
         }
     }
 
@@ -282,7 +282,7 @@ impl Generate for JavaScript {
             .interface
             .functions
             .iter()
-            .map(|func| self.print_function(&self.interface.ident.to_snake_case(), func))
+            .map(|func| self.print_function(&self.interface.id.to_snake_case(), func))
             .collect();
 
         let resources: String = self
@@ -292,7 +292,7 @@ impl Generate for JavaScript {
             .filter_map(|(id, typedef)| {
                 let info = self.infos[id];
                 if let TypeDefKind::Resource(functions) = &typedef.kind {
-                    Some(self.print_resource(&typedef.docs, &typedef.ident, functions, info))
+                    Some(self.print_resource(&typedef.docs, &typedef.id, functions, info))
                 } else {
                     None
                 }
@@ -316,7 +316,7 @@ impl Generate for JavaScript {
             .expect("failed to run `rome format`");
         }
 
-        let mut filename = PathBuf::from(self.interface.ident.to_kebab_case());
+        let mut filename = PathBuf::from(self.interface.id.to_kebab_case());
         filename.set_extension("js");
 
         (filename, contents)

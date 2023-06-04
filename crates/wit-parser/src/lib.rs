@@ -79,13 +79,14 @@ pub enum Int {
 pub struct Interface {
     #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
-    pub ident: String,
+    pub id: String,
     #[serde(serialize_with = "serialize_typedefs")]
     pub typedefs: Arena<TypeDef>,
     pub functions: Vec<Function>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "lowercase", tag = "type", content = "value")]
 pub enum Type {
     Bool,
     U8,
@@ -113,35 +114,17 @@ pub enum Type {
     Id(Id<TypeDef>),
 }
 
-fn serialize_typedefs<S>(typedefs: &Arena<TypeDef>, s: S) -> std::result::Result<S::Ok, S::Error>
-where
-    S: serde::Serializer,
-{
-    let mut s = s.serialize_seq(Some(typedefs.len()))?;
-
-    for (_, typedef) in typedefs {
-        s.serialize_element(typedef)?;
-    }
-
-    s.end()
-}
-
-fn serialize_id<S>(id: &Id<TypeDef>, serializer: S) -> std::result::Result<S::Ok, S::Error>
-where
-    S: serde::Serializer,
-{
-    serializer.serialize_u32(u32::try_from(id.index()).unwrap())
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct TypeDef {
     #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
-    pub ident: String,
+    pub id: String,
+    #[serde(flatten)]
     pub kind: TypeDefKind,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "lowercase", tag = "type", content = "value")]
 pub enum TypeDefKind {
     Alias(Type),
     Record(Vec<RecordField>),
@@ -156,7 +139,7 @@ pub enum TypeDefKind {
 pub struct RecordField {
     #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
-    pub ident: String,
+    pub id: String,
     pub ty: Type,
 }
 
@@ -164,14 +147,14 @@ pub struct RecordField {
 pub struct FlagsField {
     #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
-    pub ident: String,
+    pub id: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct VariantCase {
     #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
-    pub ident: String,
+    pub id: String,
     pub ty: Option<Type>,
 }
 
@@ -179,7 +162,7 @@ pub struct VariantCase {
 pub struct EnumCase {
     #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
-    pub ident: String,
+    pub id: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -193,7 +176,7 @@ pub struct UnionCase {
 pub struct Function {
     #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
-    pub ident: String,
+    pub id: String,
     #[serde(serialize_with = "serialize_named_type_list")]
     pub params: NamedTypeList,
     pub result: Option<FunctionResult>,
@@ -212,29 +195,8 @@ impl Function {
 
 pub type NamedTypeList = Vec<(String, Type)>;
 
-fn serialize_named_type_list<S>(
-    named_types: &Vec<(String, Type)>,
-    s: S,
-) -> std::result::Result<S::Ok, S::Error>
-where
-    S: serde::Serializer,
-{
-    #[derive(Serialize)]
-    struct NamedType<'a> {
-        ident: &'a str,
-        r#type: &'a Type,
-    }
-
-    let mut s = s.serialize_seq(Some(named_types.len()))?;
-
-    for (ident, r#type) in named_types {
-        s.serialize_element(&NamedType { ident, r#type })?;
-    }
-
-    s.end()
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "lowercase", tag = "type", content = "value")]
 pub enum FunctionResult {
     Anon(Type),
     #[serde(serialize_with = "serialize_named_type_list")]
@@ -277,4 +239,46 @@ impl<'a> Iterator for ResultsTypeIter<'a> {
             ResultsTypeIter::Named(iter) => iter.next().map(|pair| &pair.1),
         }
     }
+}
+
+fn serialize_typedefs<S>(typedefs: &Arena<TypeDef>, s: S) -> std::result::Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    let mut s = s.serialize_seq(Some(typedefs.len()))?;
+
+    for (_, typedef) in typedefs {
+        s.serialize_element(typedef)?;
+    }
+
+    s.end()
+}
+
+fn serialize_id<S>(id: &Id<TypeDef>, serializer: S) -> std::result::Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    serializer.serialize_u32(u32::try_from(id.index()).unwrap())
+}
+
+fn serialize_named_type_list<S>(
+    named_types: &Vec<(String, Type)>,
+    s: S,
+) -> std::result::Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    #[derive(Serialize)]
+    struct NamedType<'a> {
+        ident: &'a str,
+        r#type: &'a Type,
+    }
+
+    let mut s = s.serialize_seq(Some(named_types.len()))?;
+
+    for (ident, r#type) in named_types {
+        s.serialize_element(&NamedType { ident, r#type })?;
+    }
+
+    s.end()
 }

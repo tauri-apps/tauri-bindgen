@@ -95,7 +95,7 @@ impl TypeInfos {
         }
 
         for (id, typedef) in typedefs {
-            log::debug!("type info: {} {:#?}", typedef.ident, this[id]);
+            log::debug!("type info: {} {:#?}", typedef.id, this[id]);
         }
 
         this
@@ -133,7 +133,7 @@ impl TypeInfos {
             _ => {}
         }
 
-        log::debug!("collected info for {:?}: {:?}", typedefs[id].ident, info,);
+        log::debug!("collected info for {:?}: {:?}", typedefs[id].id, info,);
 
         self.infos
             .entry(id)

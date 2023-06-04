@@ -94,12 +94,12 @@ pub trait JavaScriptGenerator {
                 if let TypeDefKind::Resource(_) = self.interface().typedefs[*id].kind {
                     format!(
                         "{}.deserialize(de)",
-                        self.interface().typedefs[*id].ident.to_upper_camel_case()
+                        self.interface().typedefs[*id].id.to_upper_camel_case()
                     )
                 } else {
                     format!(
                         "deserialize{}(de)",
-                        self.interface().typedefs[*id].ident.to_upper_camel_case()
+                        self.interface().typedefs[*id].id.to_upper_camel_case()
                     )
                 }
             }
@@ -108,7 +108,7 @@ pub trait JavaScriptGenerator {
 
     fn print_deserialize_typedef(&self, id: TypeDefId) -> String {
         let typedef = &self.interface().typedefs[id];
-        let ident = &typedef.ident.to_upper_camel_case();
+        let ident = &typedef.id.to_upper_camel_case();
 
         match &typedef.kind {
             TypeDefKind::Alias(ty) => self.print_deserialize_alias(ident, ty),
@@ -135,7 +135,7 @@ pub trait JavaScriptGenerator {
         let fields = fields
             .iter()
             .map(|field| {
-                let ident = field.ident.to_lower_camel_case();
+                let ident = field.id.to_lower_camel_case();
 
                 format!("{ident}: {}", self.print_deserialize_ty(&field.ty))
             })
@@ -177,7 +177,7 @@ pub trait JavaScriptGenerator {
                     .as_ref()
                     .map_or("null".to_string(), |ty| self.print_deserialize_ty(ty));
 
-                let ident = case.ident.to_upper_camel_case();
+                let ident = case.id.to_upper_camel_case();
 
                 format!(
                     "case {tag}:
@@ -205,7 +205,7 @@ pub trait JavaScriptGenerator {
             .iter()
             .enumerate()
             .map(|(tag, case)| {
-                let ident = case.ident.to_upper_camel_case();
+                let ident = case.id.to_upper_camel_case();
                 format!(
                     "case {tag}:
     return \"{ident}\"
@@ -311,7 +311,7 @@ pub trait JavaScriptGenerator {
                 } else {
                     format!(
                         "serialize{}(out, {ident})",
-                        self.interface().typedefs[*id].ident.to_upper_camel_case()
+                        self.interface().typedefs[*id].id.to_upper_camel_case()
                     )
                 }
             }
@@ -320,7 +320,7 @@ pub trait JavaScriptGenerator {
 
     fn print_serialize_typedef(&self, id: TypeDefId) -> String {
         let typedef = &self.interface().typedefs[id];
-        let ident = &typedef.ident.to_upper_camel_case();
+        let ident = &typedef.id.to_upper_camel_case();
 
         match &typedef.kind {
             TypeDefKind::Alias(ty) => self.print_serialize_alias(ident, ty),
@@ -346,7 +346,7 @@ pub trait JavaScriptGenerator {
     fn print_serialize_record(&self, ident: &str, fields: &[RecordField]) -> String {
         let inner = fields
             .iter()
-            .map(|field| self.print_serialize_ty(&format!("val.{}", field.ident), &field.ty))
+            .map(|field| self.print_serialize_ty(&format!("val.{}", field.id), &field.ty))
             .collect::<Vec<_>>()
             .join(",\n");
 
@@ -378,7 +378,7 @@ pub trait JavaScriptGenerator {
             .iter()
             .enumerate()
             .map(|(tag, case)| {
-                let prop_access = format!("val.{}", case.ident.to_upper_camel_case());
+                let prop_access = format!("val.{}", case.id.to_upper_camel_case());
 
                 let inner = case.ty.as_ref().map_or(String::new(), |ty| {
                     self.print_serialize_ty(&prop_access, ty)
@@ -408,7 +408,7 @@ pub trait JavaScriptGenerator {
             .iter()
             .enumerate()
             .map(|(tag, case)| {
-                let ident = case.ident.to_upper_camel_case();
+                let ident = case.id.to_upper_camel_case();
                 format!(
                     "case \"{ident}\":
     serializeU32(out, {tag})
@@ -755,7 +755,7 @@ impl SerdeUtils {
             TypeDefKind::Resource(_) => {}
         }
 
-        log::debug!("collected info for {:?}: {:?}", typedefs[id].ident, info,);
+        log::debug!("collected info for {:?}: {:?}", typedefs[id].id, info,);
 
         info
     }

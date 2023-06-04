@@ -67,7 +67,7 @@ impl RustWasm {
             &BorrowMode::Owned,
         );
 
-        let ident = func.ident.to_snake_case();
+        let ident = func.id.to_snake_case();
 
         let param_idents = func
             .params
@@ -164,7 +164,7 @@ impl tauri_bindgen_core::Generate for RustWasm {
     fn to_tokens(&mut self) -> TokenStream {
         let docs = self.print_docs(&self.interface.docs);
 
-        let ident = format_ident!("{}", self.interface.ident.to_snake_case());
+        let ident = format_ident!("{}", self.interface.id.to_snake_case());
 
         let typedefs = self.print_typedefs(
             self.interface.typedefs.iter().map(|(id, _)| id),
@@ -175,7 +175,7 @@ impl tauri_bindgen_core::Generate for RustWasm {
             .interface
             .functions
             .iter()
-            .map(|func| self.print_function(&self.interface.ident.to_snake_case(), func));
+            .map(|func| self.print_function(&self.interface.id.to_snake_case(), func));
 
         quote! {
             #docs
@@ -192,7 +192,7 @@ impl tauri_bindgen_core::Generate for RustWasm {
     }
 
     fn to_file(&mut self) -> (PathBuf, String) {
-        let mut filename = PathBuf::from(self.interface.ident.to_kebab_case());
+        let mut filename = PathBuf::from(self.interface.id.to_kebab_case());
         filename.set_extension("rs");
 
         let tokens = self.to_tokens();

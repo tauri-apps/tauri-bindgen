@@ -64,7 +64,7 @@ impl Markdown {
                 format!("result<{ok}, {err}>")
             }
             Type::Id(id) => {
-                let ident = &self.interface.typedefs[*id].ident;
+                let ident = &self.interface.typedefs[*id].id;
                 let lnk = ident.to_snake_case();
 
                 format!("[{ident}](#{lnk})")
@@ -74,7 +74,7 @@ impl Markdown {
 
     fn print_typedef(&self, id: TypeDefId) -> String {
         let typedef = &self.interface.typedefs[id];
-        let ident = &typedef.ident;
+        let ident = &typedef.id;
         let docs = print_docs(&typedef.docs);
 
         match &typedef.kind {
@@ -88,7 +88,7 @@ impl Markdown {
                     .map(|field| {
                         format!(
                             "#### {ident}: `{ty}`\n{docs}\n",
-                            ident = field.ident,
+                            ident = field.id,
                             ty = self.print_ty(&field.ty),
                             docs = field.docs
                         )
@@ -103,7 +103,7 @@ impl Markdown {
                     .map(|field| {
                         format!(
                             "#### {ident}\n{docs}\n",
-                            ident = field.ident,
+                            ident = field.id,
                             docs = field.docs
                         )
                     })
@@ -117,7 +117,7 @@ impl Markdown {
                     .map(|case| {
                         format!(
                             "#### {ident}{ty}\n{docs}\n",
-                            ident = case.ident,
+                            ident = case.id,
                             ty = case
                                 .ty
                                 .as_ref()
@@ -134,11 +134,7 @@ impl Markdown {
                 let cases = cases
                     .iter()
                     .map(|case| {
-                        format!(
-                            "#### {ident}\n{docs}\n",
-                            ident = case.ident,
-                            docs = case.docs
-                        )
+                        format!("#### {ident}\n{docs}\n", ident = case.id, docs = case.docs)
                     })
                     .collect::<String>();
 
@@ -164,7 +160,7 @@ impl Markdown {
                     .map(|func| {
                         format!(
                             "### Method {ident}\n\n`func {ident} ({params}){result}`\n\n{docs}",
-                            ident = func.ident,
+                            ident = func.id,
                             params = self.print_named_types(&func.params),
                             result = func
                                 .result
@@ -184,7 +180,7 @@ impl Markdown {
     fn print_function(&self, func: &Function) -> String {
         format!(
             "### Function {ident}\n\n`func {ident} ({params}){result}`\n\n{docs}",
-            ident = func.ident,
+            ident = func.id,
             params = self.print_named_types(&func.params),
             result = func
                 .result
@@ -225,7 +221,7 @@ fn print_docs(docs: &str) -> String {
 
 impl Generate for Markdown {
     fn to_file(&mut self) -> (std::path::PathBuf, String) {
-        let ident = &self.interface.ident;
+        let ident = &self.interface.id;
         let docs = print_docs(&self.interface.docs);
         let typedefs = self
             .interface
@@ -246,7 +242,7 @@ impl Generate for Markdown {
             "# {ident}\n\n{docs}\n\n## Type definitions\n\n{typedefs}\n\n## Functions\n\n{functions}",
         );
 
-        let mut filename = PathBuf::from(self.interface.ident.to_kebab_case());
+        let mut filename = PathBuf::from(self.interface.id.to_kebab_case());
         filename.set_extension("md");
 
         (filename, contents)

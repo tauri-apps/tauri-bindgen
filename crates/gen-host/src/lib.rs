@@ -207,14 +207,14 @@ impl RustGenerator for Host {
                 let ident = if self.uses_two_names(info) {
                     match mode {
                         BorrowMode::Owned => {
-                            format_ident!("{}Result", typedef.ident.to_upper_camel_case())
+                            format_ident!("{}Result", typedef.id.to_upper_camel_case())
                         }
                         BorrowMode::AllBorrowed(_) | BorrowMode::LeafBorrowed(_) => {
-                            format_ident!("{}Param", typedef.ident.to_upper_camel_case())
+                            format_ident!("{}Param", typedef.id.to_upper_camel_case())
                         }
                     }
                 } else {
-                    format_ident!("{}", typedef.ident.to_upper_camel_case())
+                    format_ident!("{}", typedef.id.to_upper_camel_case())
                 };
 
                 let generics = print_generics(info, mode);
@@ -282,7 +282,7 @@ impl Host {
                 let typedef = &self.interface().typedefs[*id];
 
                 if let TypeDefKind::Resource(_) = &typedef.kind {
-                    resources.insert(&typedef.ident);
+                    resources.insert(&typedef.id);
                 }
             }
             _ => {}
@@ -299,7 +299,7 @@ impl Host {
         let mod_name = mod_ident.to_snake_case();
 
         let functions = functions.map(|func| {
-            let func_name = func.ident.to_snake_case();
+            let func_name = func.id.to_snake_case();
             let func_ident = format_ident!("{}", func_name);
 
             let params = self.print_function_params(&func.params, &BorrowMode::Owned);
@@ -365,7 +365,7 @@ impl Generate for Host {
     fn to_tokens(&mut self) -> TokenStream {
         let docs = self.print_docs(&self.interface.docs);
 
-        let ident = format_ident!("{}", self.interface.ident.to_snake_case());
+        let ident = format_ident!("{}", self.interface.id.to_snake_case());
 
         let typedefs = self.print_typedefs(
             self.interface.typedefs.iter().map(|(id, _)| id),
@@ -374,8 +374,8 @@ impl Generate for Host {
 
         let resources = self.interface.typedefs.iter().filter_map(|(_, typedef)| {
             if let TypeDefKind::Resource(_) = &typedef.kind {
-                let ident = format_ident!("{}", typedef.ident.to_upper_camel_case());
-                let func_ident = format_ident!("get_{}_mut", typedef.ident.to_snake_case());
+                let ident = format_ident!("{}", typedef.id.to_upper_camel_case());
+                let func_ident = format_ident!("get_{}_mut", typedef.id.to_snake_case());
 
                 Some(quote! {
                     type #ident: #ident;
@@ -388,14 +388,14 @@ impl Generate for Host {
         });
 
         let trait_ = self.print_trait(
-            &self.interface.ident,
+            &self.interface.id,
             self.interface.functions.iter(),
             resources,
             true,
         );
 
         let add_to_router =
-            self.print_add_to_router(&self.interface.ident, self.interface.functions.iter());
+            self.print_add_to_router(&self.interface.id, self.interface.functions.iter());
 
         quote! {
             #docs
@@ -415,7 +415,7 @@ impl Generate for Host {
     }
 
     fn to_file(&mut self) -> (PathBuf, String) {
-        let mut filename = PathBuf::from(self.interface.ident.to_kebab_case());
+        let mut filename = PathBuf::from(self.interface.id.to_kebab_case());
         filename.set_extension("rs");
 
         let tokens = self.to_tokens();
