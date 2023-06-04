@@ -160,9 +160,9 @@ function deserializeResult(de, ok, err) {
 
     switch (tag) {
         case 0:
-            return { Ok: ok(de) }
+            return { tag: 'ok', val: ok(de) }
         case 1: 
-            return { Err: err(de) }
+            return { tag: 'err', val: err(de) }
         default:
             throw new Error(`Deserialize bad result ${tag}`)
     }
@@ -796,7 +796,7 @@ export async function resultResult () : Promise<[Result<null, null>, Result<null
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return [deserializeResult(de, () => {}, () => {}), deserializeResult(de, () => {}, deserializeE1(de)), deserializeResult(de, deserializeE1(de), () => {}), deserializeResult(de, [], []), deserializeResult(de, deserializeU32(de), deserializeV1(de)), deserializeResult(de, deserializeString(de), deserializeBytes(de))]
+            return [deserializeResult(de, () => {}, () => {}), deserializeResult(de, () => {}, (de) => deserializeE1(de)), deserializeResult(de, (de) => deserializeE1(de), () => {}), deserializeResult(de, (de) => [], (de) => []), deserializeResult(de, (de) => deserializeU32(de), (de) => deserializeV1(de)), deserializeResult(de, (de) => deserializeString(de), (de) => deserializeBytes(de))]
         }) as Promise<[Result<null, null>, Result<null, E1>, Result<E1, null>, Result<[], []>, Result<number, V1>, Result<string, Uint8Array[]>]>
 }
         
@@ -810,7 +810,7 @@ export async function returnResultSugar () : Promise<Result<number, MyErrno>> {
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return deserializeResult(de, deserializeS32(de), deserializeMyErrno(de))
+            return deserializeResult(de, (de) => deserializeS32(de), (de) => deserializeMyErrno(de))
         }) as Promise<Result<number, MyErrno>>
 }
         
@@ -824,7 +824,7 @@ export async function returnResultSugar2 () : Promise<Result<null, MyErrno>> {
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return deserializeResult(de, () => {}, deserializeMyErrno(de))
+            return deserializeResult(de, () => {}, (de) => deserializeMyErrno(de))
         }) as Promise<Result<null, MyErrno>>
 }
         
@@ -838,7 +838,7 @@ export async function returnResultSugar3 () : Promise<Result<MyErrno, MyErrno>> 
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return deserializeResult(de, deserializeMyErrno(de), deserializeMyErrno(de))
+            return deserializeResult(de, (de) => deserializeMyErrno(de), (de) => deserializeMyErrno(de))
         }) as Promise<Result<MyErrno, MyErrno>>
 }
         
@@ -852,7 +852,7 @@ export async function returnResultSugar4 () : Promise<Result<[number, number], M
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return deserializeResult(de, [deserializeS32(de), deserializeU32(de)], deserializeMyErrno(de))
+            return deserializeResult(de, (de) => [deserializeS32(de), deserializeU32(de)], (de) => deserializeMyErrno(de))
         }) as Promise<Result<[number, number], MyErrno>>
 }
         
@@ -894,7 +894,7 @@ export async function resultSimple () : Promise<Result<number, number>> {
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return deserializeResult(de, deserializeU32(de), deserializeS32(de))
+            return deserializeResult(de, (de) => deserializeU32(de), (de) => deserializeS32(de))
         }) as Promise<Result<number, number>>
 }
         
@@ -944,7 +944,7 @@ export async function returnNamedResult () : Promise<Result<number, MyErrno>> {
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return deserializeResult(de, deserializeU8(de), deserializeMyErrno(de))
+            return deserializeResult(de, (de) => deserializeU8(de), (de) => deserializeMyErrno(de))
         }) as Promise<Result<number, MyErrno>>
 }
         

@@ -83,10 +83,10 @@ pub trait JavaScriptGenerator {
             Type::Result { ok, err } => {
                 let ok = ok
                     .as_ref()
-                    .map_or("() => {}".to_string(), |ty| self.print_deserialize_ty(ty));
+                    .map_or("() => {}".to_string(), |ty| format!("(de) => {}", self.print_deserialize_ty(ty)));
                 let err = err
                     .as_ref()
-                    .map_or("() => {}".to_string(), |ty| self.print_deserialize_ty(ty));
+                    .map_or("() => {}".to_string(), |ty| format!("(de) => {}", self.print_deserialize_ty(ty)));
 
                 format!("deserializeResult(de, {ok}, {err})")
             }
