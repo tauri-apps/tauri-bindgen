@@ -86,7 +86,7 @@ pub trait JavaScriptGenerator {
                     .map_or("() => {}".to_string(), |ty| format!("(de) => {}", self.print_deserialize_ty(ty)));
                 let err = err
                     .as_ref()
-                    .map_or("() => {}".to_string(), |ty| "(de) => ".to_string() + &self.print_deserialize_ty(ty));
+                    .map_or("() => {}".to_string(), |ty| format!("(de) => {}", self.print_deserialize_ty(ty)));
 
                 format!("deserializeResult(de, {ok}, {err})")
             }
