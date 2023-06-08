@@ -81,12 +81,12 @@ pub trait JavaScriptGenerator {
                 format!("deserializeOption(de, (de) => {ty})")
             }
             Type::Result { ok, err } => {
-                let ok = ok
-                    .as_ref()
-                    .map_or("() => {}".to_string(), |ty| format!("(de) => {}", self.print_deserialize_ty(ty)));
-                let err = err
-                    .as_ref()
-                    .map_or("() => {}".to_string(), |ty| format!("(de) => {}", self.print_deserialize_ty(ty)));
+                let ok = ok.as_ref().map_or("() => {}".to_string(), |ty| {
+                    format!("(de) => {}", self.print_deserialize_ty(ty))
+                });
+                let err = err.as_ref().map_or("() => {}".to_string(), |ty| {
+                    format!("(de) => {}", self.print_deserialize_ty(ty))
+                });
 
                 format!("deserializeResult(de, {ok}, {err})")
             }
