@@ -17,7 +17,7 @@ rust-version = "1.64"
 
 [workspace.dependencies]
 thiserror = "1.0.40"
-bitflags = { version = "2.3.1", features = ["serde"] }
+bitflags = { version = "2.3.2", features = ["serde"] }
 heck =  { version = "0.4", features = ["unicode"] }
 clap = { version = "4.3.4", features = ["derive"] }
 tauri-bindgen-core = { path = "crates/core" }
