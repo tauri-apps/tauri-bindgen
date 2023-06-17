@@ -1,0 +1,1029 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Interface",
+  "type": "object",
+  "required": [
+    "docs",
+    "functions",
+    "id",
+    "typedefs"
+  ],
+  "properties": {
+    "docs": {
+      "type": "string"
+    },
+    "functions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Function"
+      }
+    },
+    "id": {
+      "type": "string"
+    },
+    "typedefs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TypeDef"
+      }
+    }
+  },
+  "definitions": {
+    "EnumCase": {
+      "type": "object",
+      "required": [
+        "docs",
+        "id"
+      ],
+      "properties": {
+        "docs": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "FlagsField": {
+      "type": "object",
+      "required": [
+        "docs",
+        "id"
+      ],
+      "properties": {
+        "docs": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "Function": {
+      "type": "object",
+      "required": [
+        "docs",
+        "id",
+        "params"
+      ],
+      "properties": {
+        "docs": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NamedType"
+          }
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/FunctionResult"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "FunctionResult": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "anon"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/Type"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "named"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/NamedType"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "NamedType": {
+      "type": "object",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "bool"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "u8"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "u16"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "u32"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "u64"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "u128"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "s8"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "s16"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "s32"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "s64"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "s128"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "float32"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "float64"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "char"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "string"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "list"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/Type"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "tuple"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Type"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "option"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/Type"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "result"
+              ]
+            },
+            "value": {
+              "type": "object",
+              "properties": {
+                "err": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/Type"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "ok": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/Type"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "id"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0.0
+            }
+          }
+        }
+      ],
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "RecordField": {
+      "type": "object",
+      "required": [
+        "docs",
+        "id",
+        "ty"
+      ],
+      "properties": {
+        "docs": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "ty": {
+          "$ref": "#/definitions/Type"
+        }
+      }
+    },
+    "Type": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "bool"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "u8"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "u16"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "u32"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "u64"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "u128"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "s8"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "s16"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "s32"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "s64"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "s128"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "float32"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "float64"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "char"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "string"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "list"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/Type"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "tuple"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Type"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "option"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/Type"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "result"
+              ]
+            },
+            "value": {
+              "type": "object",
+              "properties": {
+                "err": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/Type"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "ok": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/definitions/Type"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "id"
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0.0
+            }
+          }
+        }
+      ]
+    },
+    "TypeDef": {
+      "type": "object",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "alias"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/Type"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "record"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RecordField"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "flags"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/FlagsField"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "variant"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/VariantCase"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "enum"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/EnumCase"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "union"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/UnionCase"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "resource"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Function"
+              }
+            }
+          }
+        }
+      ],
+      "required": [
+        "docs",
+        "id"
+      ],
+      "properties": {
+        "docs": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "UnionCase": {
+      "type": "object",
+      "required": [
+        "docs",
+        "ty"
+      ],
+      "properties": {
+        "docs": {
+          "type": "string"
+        },
+        "ty": {
+          "$ref": "#/definitions/Type"
+        }
+      }
+    },
+    "VariantCase": {
+      "type": "object",
+      "required": [
+        "docs",
+        "id"
+      ],
+      "properties": {
+        "docs": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "ty": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Type"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

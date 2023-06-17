@@ -89,6 +89,21 @@ jobs:
           components: rustfmt
       - run: cargo fmt --all -- --check
 
+  generate_json_schema:
+    name: Generate JSON Schema
+    needs: pre_ci
+    if: needs.pre_ci.outputs.continue
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@master
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --test generate_json_schema
+      - name: Commit schema
+        run: |
+          git commit -am "Update JSON Schema"
+          git push
   # miri:
   #   name: Miri
   #   needs: pre_ci
