@@ -102,6 +102,8 @@ jobs:
       - run: cargo test --test generate_json_schema
       - name: Commit schema
         run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git commit -am "Update JSON Schema"
           git push
   # miri:
