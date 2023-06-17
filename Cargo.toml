@@ -17,9 +17,9 @@ rust-version = "1.64"
 
 [workspace.dependencies]
 thiserror = "1.0.40"
-bitflags = { version = "2.3.1", features = ["serde"] }
+bitflags = { version = "2.3.2", features = ["serde"] }
 heck =  { version = "0.4", features = ["unicode"] }
-clap = { version = "4.3.1", features = ["derive"] }
+clap = { version = "4.3.4", features = ["derive"] }
 tauri-bindgen-core = { path = "crates/core" }
 tauri-bindgen-gen-host = { path = "crates/gen-host", features = ['cli'] }
 tauri-bindgen-gen-markdown = { path = "crates/gen-markdown", features = ['cli'] }
@@ -28,10 +28,10 @@ tauri-bindgen-gen-guest-ts = { path = "crates/gen-guest-ts", features = ['cli'] 
 tauri-bindgen-gen-guest-js = { path = "crates/gen-guest-js", features = ['cli'] }
 wit-parser = { path = "crates/wit-parser" }
 miette = { version = "5.9.0", features = ["fancy"] }
-log = { version = "0.4.18", features = [ "kv_unstable", "kv_unstable_std" ] }
-serde = "1.0.163"
+log = { version = "0.4.19", features = [ "kv_unstable", "kv_unstable_std" ] }
+serde = "1.0.164"
 quote = "1.0.28"
-proc-macro2 = "1.0.59"
+proc-macro2 = "1.0.60"
 syn = "2.0.18"
 
 [dependencies]
