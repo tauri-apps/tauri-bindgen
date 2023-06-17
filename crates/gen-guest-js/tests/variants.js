@@ -159,9 +159,9 @@ function deserializeResult(de, ok, err) {
 
     switch (tag) {
         case 0:
-            return { Ok: ok(de) }
+            return { tag: 'ok', val: ok(de) }
         case 1: 
-            return { Err: err(de) }
+            return { tag: 'err', val: err(de) }
         default:
             throw new Error(`Deserialize bad result ${tag}`)
     }
@@ -737,7 +737,7 @@ export async function resultResult () {
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return [deserializeResult(de, () => {}, () => {}), deserializeResult(de, () => {}, deserializeE1(de)), deserializeResult(de, deserializeE1(de), () => {}), deserializeResult(de, [], []), deserializeResult(de, deserializeU32(de), deserializeV1(de)), deserializeResult(de, deserializeString(de), deserializeBytes(de))]
+            return [deserializeResult(de, () => {}, () => {}), deserializeResult(de, () => {}, (de) => deserializeE1(de)), deserializeResult(de, (de) => deserializeE1(de), () => {}), deserializeResult(de, (de) => [], (de) => []), deserializeResult(de, (de) => deserializeU32(de), (de) => deserializeV1(de)), deserializeResult(de, (de) => deserializeString(de), (de) => deserializeBytes(de))]
         })
 }
 
@@ -753,7 +753,7 @@ export async function returnResultSugar () {
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return deserializeResult(de, deserializeS32(de), deserializeMyErrno(de))
+            return deserializeResult(de, (de) => deserializeS32(de), (de) => deserializeMyErrno(de))
         })
 }
 
@@ -769,7 +769,7 @@ export async function returnResultSugar2 () {
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return deserializeResult(de, () => {}, deserializeMyErrno(de))
+            return deserializeResult(de, () => {}, (de) => deserializeMyErrno(de))
         })
 }
 
@@ -785,7 +785,7 @@ export async function returnResultSugar3 () {
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return deserializeResult(de, deserializeMyErrno(de), deserializeMyErrno(de))
+            return deserializeResult(de, (de) => deserializeMyErrno(de), (de) => deserializeMyErrno(de))
         })
 }
 
@@ -801,7 +801,7 @@ export async function returnResultSugar4 () {
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return deserializeResult(de, [deserializeS32(de), deserializeU32(de)], deserializeMyErrno(de))
+            return deserializeResult(de, (de) => [deserializeS32(de), deserializeU32(de)], (de) => deserializeMyErrno(de))
         })
 }
 
@@ -849,7 +849,7 @@ export async function resultSimple () {
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return deserializeResult(de, deserializeU32(de), deserializeS32(de))
+            return deserializeResult(de, (de) => deserializeU32(de), (de) => deserializeS32(de))
         })
 }
 
@@ -907,7 +907,7 @@ export async function returnNamedResult () {
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
 
-            return deserializeResult(de, deserializeU8(de), deserializeMyErrno(de))
+            return deserializeResult(de, (de) => deserializeU8(de), (de) => deserializeMyErrno(de))
         })
 }
 
