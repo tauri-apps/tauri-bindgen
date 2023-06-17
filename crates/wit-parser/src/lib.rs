@@ -270,14 +270,15 @@ where
 {
     #[derive(Serialize)]
     struct NamedType<'a> {
-        ident: &'a str,
+        id: &'a str,
+        #[serde(flatten)]
         r#type: &'a Type,
     }
 
     let mut s = s.serialize_seq(Some(named_types.len()))?;
 
-    for (ident, r#type) in named_types {
-        s.serialize_element(&NamedType { ident, r#type })?;
+    for (id, r#type) in named_types {
+        s.serialize_element(&NamedType { id, r#type })?;
     }
 
     s.end()
