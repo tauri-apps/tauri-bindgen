@@ -1,3 +1,4 @@
+// @ts-nocheck
 class Deserializer {
     source
     offset

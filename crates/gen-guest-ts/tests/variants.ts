@@ -1,3 +1,4 @@
+// @ts-nocheck
 export type Result<T, E> = { tag: 'ok', val: T } | { tag: 'err', val: E };
 class Deserializer {
     source
