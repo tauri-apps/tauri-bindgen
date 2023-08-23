@@ -13,7 +13,7 @@ clap = { workspace = true, optional = true }
 tauri-bindgen-gen-js = { path = "../gen-js" }
 
 [dev-dependencies]
-pretty_assertions = "1.3.0"
+pretty_assertions = "1.4.0"
 
 [features]
 cli = ["clap"]
