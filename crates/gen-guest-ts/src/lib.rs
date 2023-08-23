@@ -24,7 +24,7 @@ pub struct Builder {
     /// Run `prettier` to format the generated code. This requires a global installation of `prettier`.
     #[cfg_attr(feature = "clap", clap(long))]
     pub prettier: bool,
-    /// Run `rome format` to format the generated code. This formatter is much faster that `prettier`. Requires a global installation of `prettier`.
+    /// Run `rome format` to format the generated code. This formatter is much faster than `prettier`. Requires a global installation of `rome`.
     #[cfg_attr(feature = "clap", clap(long))]
     pub romefmt: bool,
 }
