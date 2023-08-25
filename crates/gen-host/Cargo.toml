@@ -13,7 +13,7 @@ heck.workspace = true
 quote.workspace = true
 proc-macro2.workspace = true
 syn.workspace = true
-prettyplease = "0.2.7"
+prettyplease = "0.2.12"
 clap = { workspace = true, optional = true }
 
 [dev-dependencies]
