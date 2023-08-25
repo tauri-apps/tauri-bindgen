@@ -391,7 +391,7 @@ impl Generate for TypeScript {
             .then_some(
                 "export type Result<T, E> = { tag: 'ok', val: T } | { tag: 'err', val: E };\n",
             )
-            .unwrap_or_default()
+            .unwrap_or_default();
 
         let serde_utils = self.serde_utils.to_string();
 
