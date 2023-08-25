@@ -381,7 +381,7 @@ impl JavaScriptGenerator for TypeScript {
 
 impl Generate for TypeScript {
     fn to_file(&mut self) -> (std::path::PathBuf, String) {
-        let ts_nocheck = format!("// @ts-nocheck\n");
+        let ts_nocheck = "// @ts-nocheck\n".to_string();
 
         let result_ty = self
             .interface
