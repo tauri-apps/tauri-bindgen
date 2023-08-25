@@ -92,7 +92,7 @@ tauri_bindgen_host::generate!({
 struct GreetCtx;
 
 impl greet::Greet for GreetCtx {
-    fn greet(&mut self, name: String) -> String {
+    fn greet(&self, name: String) -> String {
         format!(
             "Hello, {}! You've been greeted from code-generated Rust!",
             name
@@ -131,7 +131,7 @@ tauri_bindgen_guest_rust::generate!({
 let greeting = greet::greet("Jonas").await;
 ```
 
-see also [the example](./examples/basic/).
+see also [the example](./examples/).
 
 ## Contributing
 
