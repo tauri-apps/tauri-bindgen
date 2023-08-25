@@ -12,5 +12,5 @@ anyhow = "1.0.75"
 serde.workspace = true
 log.workspace = true
 postcard = { version = "1.0.4", features = ["alloc"] }
-tauri = "1.4.0"
+tauri = "1.4.1"
 url = "2.4.0"
