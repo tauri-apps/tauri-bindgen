@@ -24,7 +24,7 @@ pub struct Builder {
     /// Run `prettier` to format the generated code. This requires a global installation of `prettier`.
     #[cfg_attr(feature = "clap", clap(long))]
     pub prettier: bool,
-    /// Run `rome format` to format the generated code. This formatter is much faster that `prettier`. Requires a global installation of `prettier`.
+    /// Run `rome format` to format the generated code. This formatter is much faster than `prettier`. Requires a global installation of `rome`.
     #[cfg_attr(feature = "clap", clap(long))]
     pub romefmt: bool,
 }
@@ -381,6 +381,8 @@ impl JavaScriptGenerator for TypeScript {
 
 impl Generate for TypeScript {
     fn to_file(&mut self) -> (std::path::PathBuf, String) {
+        let ts_nocheck = format!("// @ts-nocheck\n");
+
         let result_ty = self
             .interface
             .functions
@@ -438,7 +440,7 @@ impl Generate for TypeScript {
             .collect();
 
         let mut contents = format!(
-            "{result_ty}{serde_utils}{deserializers}{serializers}\n{typedefs}\n{functions}"
+            "{ts_nocheck}{result_ty}{serde_utils}{deserializers}{serializers}\n{typedefs}\n{functions}"
         );
 
         if self.opts.prettier {
