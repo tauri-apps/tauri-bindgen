@@ -381,7 +381,7 @@ impl JavaScriptGenerator for TypeScript {
 
 impl Generate for TypeScript {
     fn to_file(&mut self) -> (std::path::PathBuf, String) {
-        let ts_nocheck = format!("// @ts-nocheck\n");
+        let ts_nocheck = "// @ts-nocheck\n".to_string();
 
         let result_ty = self
             .interface
@@ -391,7 +391,7 @@ impl Generate for TypeScript {
             .then_some(
                 "export type Result<T, E> = { tag: 'ok', val: T } | { tag: 'err', val: E };\n",
             )
-            .unwrap_or_default();
+            .unwrap_or_default()
 
         let serde_utils = self.serde_utils.to_string();
 
