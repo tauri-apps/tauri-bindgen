@@ -32,7 +32,7 @@ log = { version = "0.4.20", features = [ "kv_unstable", "kv_unstable_std" ] }
 serde = "1.0.188"
 quote = "1.0.33"
 proc-macro2 = "1.0.66"
-syn = "2.0.29"
+syn = "2.0.31"
 
 [dependencies]
 clap.workspace = true
