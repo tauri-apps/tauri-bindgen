@@ -5,16 +5,18 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-serde-wasm-bindgen = "0.4.3"
-js-sys = "0.3.59" 
-serde = { version = "1.0.140", features = ["derive"] }
-wasm-bindgen = { version = "0.2.82", features = ["serde-serialize"] }
-wasm-bindgen-futures = "0.4.32"
+serde-wasm-bindgen = "0.4.5"
+js-sys = "0.3.64"
+serde = { version = "1.0.188", features = ["derive"] }
+wasm-bindgen = { version = "0.2.87", features = ["serde-serialize"] }
+wasm-bindgen-futures = "0.4.37"
 sycamore = { git = "https://github.com/sycamore-rs/sycamore", rev = "abd556cbc02047042dad2ebd04405e455a9b11b2", features = ["suspense", "hydrate"] }
 tauri-bindgen-guest-rust = { path = "../../crates/guest-rust" }
-log = "0.4.17"
-tracing-wasm = "0.2.1"
+log = "0.4.20"
+wasm-logger = "0.2.0"
+# tracing-wasm = "0.2.1"
 console_error_panic_hook = "0.1.7"
+futures-util = "0.3.28"
 
 [features]
 ssg = ["sycamore/ssr"]

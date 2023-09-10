@@ -11,9 +11,10 @@ rust-version.workspace = true
 bitflags.workspace = true
 tauri-bindgen-host-macro = { path = "../host-macro" }
 async-trait = "0.1.73"
-tauri = "1.4.1"
+tauri.workspace = true
 tracing = { version = "0.1.37", features = ["log", "log-always"] }
 anyhow = "1.0.75"
 serde.workspace = true
 ipc-router-wip = { path = "../ipc-router-wip" }
 generational-arena = "0.2.9"
+futures = "0.3.28"

@@ -70,6 +70,7 @@ pub enum InterfaceItemInner {
 pub struct Func {
     pub params: NamedTypeList,
     pub result: Option<FuncResult>,
+    pub streaming: bool,
 }
 
 pub type NamedTypeList = Vec<(Span, Type)>;
@@ -268,14 +269,29 @@ impl<'a> FromTokens<'a> for InterfaceItem {
 impl<'a> FromTokens<'a> for Func {
     fn parse(tokens: &mut Tokens<'a>) -> Result<Self> {
         let params = NamedTypeList::parse(tokens)?;
+        let mut streaming = false;
 
         let result = if tokens.next_if_token(Token::RArrow)?.is_some() {
-            Some(FuncResult::parse(tokens)?)
+            if tokens.next_if_token(Token::Stream)?.is_some() {
+                tokens.expect(Token::LessThan)?;
+                let inner = FuncResult::parse(tokens)?;
+                tokens.expect(Token::GreaterThan)?;
+
+                streaming = true;
+
+                Some(inner)
+            } else {
+                Some(FuncResult::parse(tokens)?)
+            }
         } else {
             None
         };
 
-        Ok(Func { params, result })
+        Ok(Func {
+            params,
+            result,
+            streaming,
+        })
     }
 }
 

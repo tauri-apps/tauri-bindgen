@@ -74,9 +74,17 @@ impl RustWasm {
             .iter()
             .map(|(ident, _)| format_ident!("{}", ident));
 
-        quote! {
-            #sig {
-                ::tauri_bindgen_guest_rust::invoke(#mod_ident, #ident, &(#(#param_idents),*)).await.unwrap()
+        if func.streaming {
+            quote! {
+                #sig {
+                    ::tauri_bindgen_guest_rust::open_stream(#mod_ident, #ident, &(#(#param_idents),*)).await.unwrap()
+                }
+            }
+        } else {
+            quote! {
+                #sig {
+                    ::tauri_bindgen_guest_rust::invoke(#mod_ident, #ident, &(#(#param_idents),*)).await.unwrap()
+                }
             }
         }
     }
@@ -156,6 +164,12 @@ impl RustGenerator for RustWasm {
             impl #ident {
                 #(#functions)*
             }
+        }
+    }
+
+    fn print_streaming_result(&self, _: &Function, inner: TokenStream) -> TokenStream {
+        quote! {
+            ::tauri_bindgen_guest_rust::Streaming<#inner>
         }
     }
 }

@@ -6,8 +6,13 @@ use std::{
     collections::{hash_map::Entry, HashMap},
     sync::{mpsc::Sender, Arc, Mutex},
 };
-use tauri::{AppHandle, Manager, Runtime};
-use url::Url;
+use tauri::{
+    http::{
+        header::{ACCESS_CONTROL_ALLOW_ORIGIN, CONTENT_TYPE},
+        HeaderValue, Response, StatusCode,
+    },
+    AppHandle, Manager, Runtime,
+};
 
 #[derive(Default)]
 pub struct Router<T> {
@@ -204,44 +209,41 @@ pub trait BuilderExt {
 impl<R: Runtime> BuilderExt for tauri::Builder<R> {
     fn ipc_router<U: Send + Sync + 'static>(self, router: Router<U>) -> Self {
         self.manage(Mutex::new(router))
-            .register_uri_scheme_protocol("ipc", |app, req| {
                 let res = uri_scheme_handler_inner::<U, _>(app, req);
+            .register_asynchronous_uri_scheme_protocol("ipc", |app, req, responder| {
 
                 log::debug!("call result {:?}", res);
 
                 let mut resp = match res {
                     Ok(val) => {
-                        let mut resp = tauri::http::Response::new(val);
-                        resp.set_status(tauri::http::status::StatusCode::OK);
-                        resp.set_mimetype(Some("application/octet-stream".to_string()));
-                        resp
+                        let mut resp = Response::builder().status(StatusCode::OK);
+                        resp.headers_mut().unwrap().insert(
+                            CONTENT_TYPE,
+                            HeaderValue::from_static("application/octet-stream"),
+                        );
+                        resp.body(val).unwrap()
                     }
-                    Err(err) => {
-                        let mut resp = tauri::http::Response::new(err.to_string().into_bytes());
-                        resp.set_status(tauri::http::status::StatusCode::BAD_REQUEST);
-                        resp
-                    }
+                    Err(err) => Response::builder()
+                        .status(StatusCode::BAD_REQUEST)
+                        .body(err.to_string().into_bytes())
+                        .unwrap(),
                 };
 
-                resp.headers_mut().insert(
-                    tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN,
-                    tauri::http::header::HeaderValue::from_static("*"),
-                );
+                resp.headers_mut()
+                    .insert(ACCESS_CONTROL_ALLOW_ORIGIN, HeaderValue::from_static("*"));
 
                 log::trace!("sending response {:?}", resp);
 
-                Ok(resp)
+                responder.respond(resp);
             })
     }
 }
 
 fn uri_scheme_handler_inner<U: Send + Sync + 'static, R: Runtime>(
     app: &AppHandle<R>,
-    req: &tauri::http::Request,
+    req: &tauri::http::Request<Vec<u8>>,
 ) -> anyhow::Result<Vec<u8>> {
-    let url = Url::parse(req.uri())?;
-
-    let path = url.path().strip_prefix('/').unwrap();
+    let path = req.uri().path().strip_prefix('/').unwrap();
 
     let (module, method) = path
         .split_once('/')

@@ -63,7 +63,9 @@ Function {
 
 FunctionResult {
   Type |
-  "(" commaSep<NamedType> ")"
+  "(" commaSep<NamedType> ")" |
+  "stream" "<" Type ">" |
+  "stream" "<" "(" commaSep<NamedType> ")" ">"
 }
 
 NamedType {
@@ -95,7 +97,7 @@ Type {
 @tokens {
   whitespace { $[ \t\n\f]+ }
 
-  LineComment { 
+  LineComment {
     "//" ![\n]* |
     "///" ![\n]*
   }
@@ -119,7 +121,7 @@ Type {
   "{" "}"
   "="
   "->" ":" "_" ","
-  "interface" "type" "record" "flags" "variant" "enum" "union" "resource" "func"
+  "interface" "type" "record" "flags" "variant" "enum" "union" "resource" "func" "stream"
 }
 
 @detectDelim
