@@ -116,39 +116,36 @@ export async function constructorB () {
 
 export class A {
             #id;
-            
-/**
+            /**
 */
 async f1 () {
-const out = []
-serializeU32(out, this.#id);
+    const out = []
+    serializeU32(out, this.#id);
+    
 
-
-await fetch('ipc://localhost/resources::resource::a/f1', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+    await fetch('ipc://localhost/resources::resource::a/f1', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
 }
-
 /**
 * @param {number} a 
 */
 async f2 (a) {
-const out = []
-serializeU32(out, this.#id);
-serializeU32(out, a)
+    const out = []
+    serializeU32(out, this.#id);
+    serializeU32(out, a)
 
-await fetch('ipc://localhost/resources::resource::a/f2', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+    await fetch('ipc://localhost/resources::resource::a/f2', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
 }
-
 /**
 * @param {number} a 
 * @param {number} b 
 */
 async f3 (a, b) {
-const out = []
-serializeU32(out, this.#id);
-serializeU32(out, a);
+    const out = []
+    serializeU32(out, this.#id);
+    serializeU32(out, a);
 serializeU32(out, b)
 
-await fetch('ipc://localhost/resources::resource::a/f3', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+    await fetch('ipc://localhost/resources::resource::a/f3', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
 }
 
             static deserialize(de) {
@@ -159,16 +156,15 @@ await fetch('ipc://localhost/resources::resource::a/f3', { method: "POST", body:
         }
 export class B {
             #id;
-            
-/**
+            /**
 * @returns {Promise<A>} 
 */
 async f1 () {
-const out = []
-serializeU32(out, this.#id);
+    const out = []
+    serializeU32(out, this.#id);
+    
 
-
-await fetch('ipc://localhost/resources::resource::b/f1', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+    await fetch('ipc://localhost/resources::resource::b/f1', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
@@ -176,17 +172,16 @@ await fetch('ipc://localhost/resources::resource::b/f1', { method: "POST", body:
             return A.deserialize(de)
         })
 }
-
 /**
 * @param {A} x 
 * @returns {Promise<Result<number, _>>} 
 */
 async f2 (x) {
-const out = []
-serializeU32(out, this.#id);
-x.serialize(out)
+    const out = []
+    serializeU32(out, this.#id);
+    x.serialize(out)
 
-await fetch('ipc://localhost/resources::resource::b/f2', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+    await fetch('ipc://localhost/resources::resource::b/f2', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))
@@ -194,17 +189,16 @@ await fetch('ipc://localhost/resources::resource::b/f2', { method: "POST", body:
             return deserializeResult(de, (de) => deserializeU32(de), () => {})
         })
 }
-
 /**
 * @param {A[] | null} x 
 * @returns {Promise<Result<A, _>>} 
 */
 async f3 (x) {
-const out = []
-serializeU32(out, this.#id);
-serializeOption(out, (out, v) => serializeList(out, (out, v) => v.serialize(out), v), x)
+    const out = []
+    serializeU32(out, this.#id);
+    serializeOption(out, (out, v) => serializeList(out, (out, v) => v.serialize(out), v), x)
 
-await fetch('ipc://localhost/resources::resource::b/f3', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
+    await fetch('ipc://localhost/resources::resource::b/f3', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
         .then(r => r.arrayBuffer())
         .then(bytes => {
             const de = new Deserializer(new Uint8Array(bytes))

@@ -111,14 +111,13 @@ export async function {ident} ({params}) {{
                     .join(";\n");
 
                 format!(
-                    r#"
-{docs}
+                    r#"{docs}
 async {ident} ({params}) {{
-const out = []
-serializeU32(out, this.#id);
-{serialize_params}
+    const out = []
+    serializeU32(out, this.#id);
+    {serialize_params}
 
-await fetch('ipc://localhost/{mod_ident}::resource::{resource_ident}/{ident}', {{ method: "POST", body: Uint8Array.from(out), headers: {{ 'Content-Type': 'application/octet-stream' }} }}){deserialize_result}
+    await fetch('ipc://localhost/{mod_ident}::resource::{resource_ident}/{ident}', {{ method: "POST", body: Uint8Array.from(out), headers: {{ 'Content-Type': 'application/octet-stream' }} }}){deserialize_result}
 }}
 "#
                 )
