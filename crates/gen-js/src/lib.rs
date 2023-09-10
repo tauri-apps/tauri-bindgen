@@ -752,7 +752,9 @@ impl SerdeUtils {
                     wit_parser::Int::U128 => SerdeUtils::U128,
                 };
             }
-            TypeDefKind::Resource(_) => {}
+            TypeDefKind::Resource(_) => {
+                info |= SerdeUtils::U32;
+            }
         }
 
         log::debug!("collected info for {:?}: {:?}", typedefs[id].ident, info,);

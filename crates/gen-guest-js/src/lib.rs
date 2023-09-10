@@ -80,6 +80,7 @@ export async function {ident} ({params}) {{
 
     fn print_resource(
         &self,
+        mod_ident: &str,
         docs: &str,
         ident: &str,
         functions: &[Function],
@@ -91,13 +92,33 @@ export async function {ident} ({params}) {{
             .iter()
             .map(|func| {
                 let docs = self.print_docs(func);
+                let mod_ident = mod_ident.to_snake_case();
+                let resource_ident = ident.to_snake_case();
                 let ident = func.ident.to_lower_camel_case();
                 let params = print_function_params(&func.params);
+
+                let deserialize_result = func
+                    .result
+                    .as_ref()
+                    .map(|res| self.print_deserialize_function_result(res))
+                    .unwrap_or_default();
+
+                let serialize_params = func
+                    .params
+                    .iter()
+                    .map(|(ident, ty)| self.print_serialize_ty(&ident.to_lower_camel_case(), ty))
+                    .collect::<Vec<_>>()
+                    .join(";\n");
 
                 format!(
                     r#"
 {docs}
 async {ident} ({params}) {{
+const out = []
+serializeU32(out, this.#id);
+{serialize_params}
+
+await fetch('ipc://localhost/{mod_ident}::resource::{resource_ident}/{ident}', {{ method: "POST", body: Uint8Array.from(out), headers: {{ 'Content-Type': 'application/octet-stream' }} }}){deserialize_result}
 }}
 "#
                 )
@@ -106,9 +127,9 @@ async {ident} ({params}) {{
 
         let deserialize = if info.contains(TypeInfo::RESULT) {
             format!(
-                "deserialize(de) {{
+                "static deserialize(de) {{
     const self = new {ident}();
-    self.#id = deserializeU64(de);
+    self.#id = deserializeU32(de);
     return self
 }}"
             )
@@ -117,7 +138,7 @@ async {ident} ({params}) {{
         };
 
         format!(
-            "{docs}\nclass {ident} {{
+            "{docs}\nexport class {ident} {{
             #id;
             {functions}
             {deserialize}
@@ -292,7 +313,13 @@ impl Generate for JavaScript {
             .filter_map(|(id, typedef)| {
                 let info = self.infos[id];
                 if let TypeDefKind::Resource(functions) = &typedef.kind {
-                    Some(self.print_resource(&typedef.docs, &typedef.ident, functions, info))
+                    Some(self.print_resource(
+                        &self.interface.ident,
+                        &typedef.docs,
+                        &typedef.ident,
+                        functions,
+                        info,
+                    ))
                 } else {
                     None
                 }

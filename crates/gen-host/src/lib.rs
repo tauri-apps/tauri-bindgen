@@ -5,6 +5,7 @@
     clippy::unused_self
 )]
 
+use std::borrow::Cow;
 use std::collections::HashSet;
 use std::path::PathBuf;
 
@@ -293,6 +294,7 @@ impl Host {
         &self,
         mod_ident: &str,
         functions: impl Iterator<Item = &'a Function>,
+        methods: impl Iterator<Item = (&'a str, &'a Function)>,
     ) -> TokenStream {
         let trait_ident = format_ident!("{}", mod_ident.to_upper_camel_case());
 
@@ -343,6 +345,61 @@ impl Host {
             }
         });
 
+        let methods = methods.map(|(resource_name, method)| {
+            let func_name = method.ident.to_snake_case();
+            let func_ident = format_ident!("{}", func_name);
+
+            let params = self.print_function_params(&method.params, &BorrowMode::Owned);
+
+            let param_idents = method
+                .params
+                .iter()
+                .map(|(ident, _)| format_ident!("{}", ident));
+
+            let result = match method.result.as_ref() {
+                Some(FunctionResult::Anon(ty)) => {
+                    let ty = self.print_ty(ty, &BorrowMode::Owned);
+
+                    quote! { #ty }
+                }
+                Some(FunctionResult::Named(types)) if types.len() == 1 => {
+                    let (_, ty) = &types[0];
+                    let ty = self.print_ty(ty, &BorrowMode::Owned);
+
+                    quote! { #ty }
+                }
+                Some(FunctionResult::Named(types)) => {
+                    let types = types
+                        .iter()
+                        .map(|(_, ty)| self.print_ty(ty, &BorrowMode::Owned));
+
+                    quote! { (#(#types),*) }
+                }
+                _ => quote! { () },
+            };
+
+            let mod_name = format!("{}::resource::{}", mod_name, resource_name);
+            let get_r_ident = format_ident!("get_{}", resource_name.to_snake_case());
+
+            quote! {
+                let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+                router.func_wrap(
+                    #mod_name,
+                    #func_name,
+                    move |
+                        ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                        this_rid: ::tauri_bindgen_host::ResourceId,
+                        #params
+                    | -> ::tauri_bindgen_host::anyhow::Result<#result> {
+                        let ctx = get_cx(ctx.data());
+                        let r = ctx.#get_r_ident(this_rid)?;
+
+                        Ok(r.#func_ident(#(#param_idents),*))
+                    },
+                )?;
+            }
+        });
+
         quote! {
             pub fn add_to_router<T, U>(
                 router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
@@ -354,6 +411,7 @@ impl Host {
                 let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
 
                 #( #functions )*
+                #( #methods )*
 
                 Ok(())
             }
@@ -365,22 +423,36 @@ impl Generate for Host {
     fn to_tokens(&mut self) -> TokenStream {
         let docs = self.print_docs(&self.interface.docs);
 
-        let ident = format_ident!("{}", self.interface.ident.to_snake_case());
+        let iface_name = self.interface.ident.to_snake_case();
+        let ident = format_ident!("{}", iface_name);
 
         let typedefs = self.print_typedefs(
             self.interface.typedefs.iter().map(|(id, _)| id),
             &BorrowMode::Owned,
         );
 
+        let methods = self
+            .interface()
+            .typedefs
+            .iter()
+            .filter_map(|(_, typedef)| {
+                if let TypeDefKind::Resource(methods) = &typedef.kind {
+                    Some(std::iter::repeat(typedef.ident.as_str()).zip(methods.iter()))
+                } else {
+                    None
+                }
+            })
+            .flatten();
+
         let resources = self.interface.typedefs.iter().filter_map(|(_, typedef)| {
             if let TypeDefKind::Resource(_) = &typedef.kind {
                 let ident = format_ident!("{}", typedef.ident.to_upper_camel_case());
-                let func_ident = format_ident!("get_{}_mut", typedef.ident.to_snake_case());
+                let func_ident = format_ident!("get_{}", typedef.ident.to_snake_case());
 
                 Some(quote! {
-                    type #ident: #ident;
+                    type #ident: #ident + Send + Sync;
 
-                    fn #func_ident(&mut self, id: ::tauri_bindgen_host::ResourceId) -> &mut Self::#ident;
+                    fn #func_ident(&self, id: ::tauri_bindgen_host::ResourceId) -> ::tauri_bindgen_host::Result<::std::sync::Arc<Self::#ident>>;
                 })
             } else {
                 None
@@ -394,8 +466,11 @@ impl Generate for Host {
             true,
         );
 
-        let add_to_router =
-            self.print_add_to_router(&self.interface.ident, self.interface.functions.iter());
+        let add_to_router = self.print_add_to_router(
+            &self.interface.ident,
+            self.interface.functions.iter(),
+            methods,
+        );
 
         quote! {
             #docs
