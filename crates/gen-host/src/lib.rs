@@ -223,6 +223,14 @@ impl RustGenerator for Host {
             }
         }
     }
+
+    fn print_streaming_result(&self, func: &Function, _: TokenStream) -> TokenStream {
+        let ident = format_ident!("{}Stream", func.ident.to_upper_camel_case());
+
+        quote! {
+            Self::#ident
+        }
+    }
 }
 
 impl Host {
@@ -241,12 +249,23 @@ impl Host {
                 unsafe_: false,
                 private: true,
                 self_arg: Some(quote!(&self)),
+
                 func,
+            };
+
+            let stream = if func.streaming {
+                let stream_ident = format_ident!("{}Stream", func.ident.to_upper_camel_case());
+                let res =
+                    self.print_function_result(func.result.as_ref().unwrap(), &BorrowMode::Owned);
+
+                Some(quote! { type #stream_ident: ::tauri_bindgen_host::Stream<Item = #res> + Send + 'static; })
+            } else {
+                None
             };
 
             let sig = self.print_function_signature(&sig, &BorrowMode::Owned, &BorrowMode::Owned);
 
-            quote! { #sig; }
+            quote! { #stream #sig; }
         });
 
         let sized = sized.then_some(quote!(: Sized));

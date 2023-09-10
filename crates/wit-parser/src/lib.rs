@@ -165,6 +165,7 @@ pub struct Function {
     pub ident: String,
     pub params: NamedTypeList,
     pub result: Option<FunctionResult>,
+    pub streaming: bool,
 }
 
 impl Function {

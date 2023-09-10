@@ -1,4 +1,5 @@
 mod app;
+mod greet2;
 
 use app::App;
 
@@ -6,7 +7,8 @@ use app::App;
 fn main() {
     console_error_panic_hook::set_once();
 
-    tracing_wasm::set_as_global_default();
+    wasm_logger::init(wasm_logger::Config::default());
+    // tracing_wasm::set_as_global_default();
 
     sycamore::hydrate(App);
 }
@@ -15,7 +17,8 @@ fn main() {
 fn main() {
     console_error_panic_hook::set_once();
 
-    tracing_wasm::set_as_global_default();
+    wasm_logger::init(wasm_logger::Config::default());
+    // tracing_wasm::set_as_global_default();
 
     sycamore::render(App);
 }

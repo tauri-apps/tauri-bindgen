@@ -294,6 +294,7 @@ impl<'a> Resolver<'a> {
             ident,
             params,
             result,
+            streaming: func.streaming,
         })
     }
 

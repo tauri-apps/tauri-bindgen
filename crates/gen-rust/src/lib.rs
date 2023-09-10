@@ -24,6 +24,7 @@ pub trait RustGenerator {
         functions: &[Function],
         info: TypeInfo,
     ) -> TokenStream;
+    fn print_streaming_result(&self, func: &Function, inner: TokenStream) -> TokenStream;
 
     fn print_typedefs(
         &self,
@@ -392,11 +393,19 @@ pub trait RustGenerator {
 
         let params = self.print_function_params(&sig.func.params, param_mode);
 
-        let result = sig
-            .func
-            .result
-            .as_ref()
-            .map(|result| self.print_function_result(result, results_mode));
+        let result = sig.func.result.as_ref().map(|result| {
+            let mut res = self.print_function_result(result, results_mode);
+
+            if res.is_empty() {
+                return quote!();
+            }
+
+            if sig.func.streaming {
+                res = self.print_streaming_result(sig.func, res);
+            }
+
+            quote! { -> #res }
+        });
 
         quote! {
             #docs
@@ -420,19 +429,19 @@ pub trait RustGenerator {
             FunctionResult::Anon(ty) => {
                 let ty = self.print_ty(ty, mode);
 
-                quote! { -> #ty }
+                quote! { #ty }
             }
             FunctionResult::Named(types) if types.is_empty() => quote! {},
             FunctionResult::Named(types) if types.len() == 1 => {
                 let (_, ty) = &types[0];
                 let ty = self.print_ty(ty, mode);
 
-                quote! { -> #ty }
+                quote! { #ty }
             }
             FunctionResult::Named(types) => {
                 let types = types.iter().map(|(_, ty)| self.print_ty(ty, mode));
 
-                quote! { -> (#(#types),*) }
+                quote! { (#(#types),*) }
             }
         }
     }

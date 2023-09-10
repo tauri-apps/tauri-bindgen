@@ -1,0 +1,4 @@
+interface streams {
+  /// A function that returns a stream of strings
+  func string_stream() -> stream<string>
+}

@@ -1,0 +1,3 @@
+interface greet {
+  func greet(my_name: string) -> stream<list<u8>>
+}

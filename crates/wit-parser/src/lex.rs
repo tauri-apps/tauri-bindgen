@@ -137,6 +137,8 @@ pub enum Token {
     Interface,
     #[token("tuple")]
     Tuple,
+    #[token("stream")]
+    Stream,
 
     // reserved but currently unused
     #[token("use")]
@@ -160,7 +162,7 @@ impl Token {
         Token::Variant,
         Token::Resource,
     ];
-    pub const TYPE_KEYWORD: [Token; 20] = [
+    pub const TYPE_KEYWORD: [Token; 21] = [
         Token::U8,
         Token::U16,
         Token::U32,
@@ -181,6 +183,7 @@ impl Token {
         Token::List,
         Token::Tuple,
         Token::Ident,
+        Token::Stream,
     ];
     pub fn as_str(&self) -> &str {
         match self {
@@ -228,6 +231,7 @@ impl Token {
             Token::List => "'list'",
             Token::Interface => "'interface'",
             Token::Tuple => "'tuple'",
+            Token::Stream => "'stream'",
             Token::Use => "'use'",
             Token::As => "'as'",
             Token::From => "'from'",
