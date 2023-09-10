@@ -387,7 +387,8 @@ pub trait JavaScriptGenerator {
                 format!(
                     "if ({prop_access}) {{
     serializeU32(out, {tag});
-    return {inner}
+    {inner}
+    return
 }}
 "
                 )

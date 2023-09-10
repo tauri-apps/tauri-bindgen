@@ -336,15 +336,18 @@ serializeS64(out, val.c4)
 }function serializeOtherVariant(out, val) {
     if (val.A) {
     serializeU32(out, 0);
-    return 
+    
+    return
 }
 if (val.B) {
     serializeU32(out, 1);
-    return serializeU32(out, val.B)
+    serializeU32(out, val.B)
+    return
 }
 if (val.C) {
     serializeU32(out, 2);
-    return serializeString(out, val.C)
+    serializeString(out, val.C)
+    return
 }
 
 
@@ -352,19 +355,23 @@ if (val.C) {
 }function serializeSomeVariant(out, val) {
     if (val.A) {
     serializeU32(out, 0);
-    return serializeString(out, val.A)
+    serializeString(out, val.A)
+    return
 }
 if (val.B) {
     serializeU32(out, 1);
-    return 
+    
+    return
 }
 if (val.C) {
     serializeU32(out, 2);
-    return serializeU32(out, val.C)
+    serializeU32(out, val.C)
+    return
 }
 if (val.D) {
     serializeU32(out, 3);
-    return serializeList(out, (out, v) => serializeOtherVariant(out, v), val.D)
+    serializeList(out, (out, v) => serializeOtherVariant(out, v), val.D)
+    return
 }
 
 
