@@ -209,8 +209,8 @@ pub trait BuilderExt {
 impl<R: Runtime> BuilderExt for tauri::Builder<R> {
     fn ipc_router<U: Send + Sync + 'static>(self, router: Router<U>) -> Self {
         self.manage(Mutex::new(router))
-                let res = uri_scheme_handler_inner::<U, _>(app, req);
             .register_asynchronous_uri_scheme_protocol("ipc", |app, req, responder| {
+                let res = uri_scheme_handler_inner::<U, _>(app, req);
 
                 log::debug!("call result {:?}", res);
 
