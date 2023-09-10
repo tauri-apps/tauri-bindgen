@@ -314,8 +314,7 @@ export async function {ident} ({params}) : {result} {{
                 let result = func
                     .result
                     .as_ref()
-                    .map(|result| self.print_function_result(result))
-                    .unwrap_or("void".to_string());
+                    .map_or("void".to_string(), |result| self.print_function_result(result));
 
                 let deserialize_result = func
                     .result

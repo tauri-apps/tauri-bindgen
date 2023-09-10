@@ -741,7 +741,7 @@ impl SerdeUtils {
                     info |= Self::collect_type_info(typedefs, &case.ty);
                 }
             }
-            TypeDefKind::Enum(_) => {
+            TypeDefKind::Enum(_) | TypeDefKind::Resource(_) => {
                 info |= SerdeUtils::U32;
             }
             TypeDefKind::Flags(fields) => {
@@ -752,9 +752,6 @@ impl SerdeUtils {
                     wit_parser::Int::U64 => SerdeUtils::U64,
                     wit_parser::Int::U128 => SerdeUtils::U128,
                 };
-            }
-            TypeDefKind::Resource(_) => {
-                info |= SerdeUtils::U32;
             }
         }
 

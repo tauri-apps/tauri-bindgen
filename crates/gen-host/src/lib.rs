@@ -5,15 +5,13 @@
     clippy::unused_self
 )]
 
-use std::borrow::Cow;
-use std::collections::HashSet;
-use std::path::PathBuf;
-
 use heck::ToKebabCase;
 use heck::{ToSnakeCase, ToUpperCamelCase};
 use proc_macro2::TokenStream;
 use quote::format_ident;
 use quote::quote;
+use std::collections::HashSet;
+use std::path::PathBuf;
 use tauri_bindgen_core::{Generate, GeneratorBuilder, TypeInfo, TypeInfos};
 use tauri_bindgen_gen_rust::{print_generics, BorrowMode, FnSig, RustGenerator};
 use wit_parser::{Function, FunctionResult, Interface, Type, TypeDefKind};
@@ -378,7 +376,7 @@ impl Host {
                 _ => quote! { () },
             };
 
-            let mod_name = format!("{}::resource::{}", mod_name, resource_name);
+            let mod_name = format!("{mod_name}::resource::{resource_name}");
             let get_r_ident = format_ident!("get_{}", resource_name.to_snake_case());
 
             quote! {
