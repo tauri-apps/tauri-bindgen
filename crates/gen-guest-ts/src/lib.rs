@@ -31,7 +31,22 @@ pub struct Builder {
 
 impl GeneratorBuilder for Builder {
     fn build(self, interface: Interface) -> Box<dyn Generate> {
-        let infos = TypeInfos::collect_from_functions(&interface.typedefs, &interface.functions);
+        let methods = interface
+            .typedefs
+            .iter()
+            .filter_map(|(_, typedef)| {
+                if let TypeDefKind::Resource(methods) = &typedef.kind {
+                    Some(methods.iter())
+                } else {
+                    None
+                }
+            })
+            .flatten();
+
+        let infos = TypeInfos::collect_from_functions(
+            &interface.typedefs,
+            interface.functions.iter().chain(methods),
+        );
 
         let serde_utils =
             SerdeUtils::collect_from_functions(&interface.typedefs, &interface.functions);
