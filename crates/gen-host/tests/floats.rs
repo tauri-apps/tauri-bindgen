@@ -9,8 +9,8 @@ pub mod floats {
         fn float32_result(&self) -> f32;
         fn float64_result(&self) -> f64;
     }
-    pub fn add_to_router<T, U>(
-        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
+    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
@@ -23,7 +23,7 @@ pub mod floats {
                 "floats",
                 "float32_param",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: f32,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
@@ -36,7 +36,7 @@ pub mod floats {
                 "floats",
                 "float64_param",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: f64,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
@@ -49,7 +49,7 @@ pub mod floats {
                 "floats",
                 "float32_result",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<f32> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.float32_result())
@@ -61,7 +61,7 @@ pub mod floats {
                 "floats",
                 "float64_result",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<f64> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.float64_result())

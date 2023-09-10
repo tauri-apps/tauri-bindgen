@@ -55,8 +55,8 @@ All of the fields are bool*/
         fn aggregate_result(&self) -> Aggregates;
         fn typedef_inout(&self, e: TupleTypedef2) -> i32;
     }
-    pub fn add_to_router<T, U>(
-        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
+    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
@@ -69,7 +69,7 @@ All of the fields are bool*/
                 "records",
                 "tuple_arg",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: (char, u32),
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
@@ -82,7 +82,7 @@ All of the fields are bool*/
                 "records",
                 "tuple_result",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<(char, u32)> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.tuple_result())
@@ -94,7 +94,7 @@ All of the fields are bool*/
                 "records",
                 "empty_arg",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: Empty,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
@@ -107,7 +107,7 @@ All of the fields are bool*/
                 "records",
                 "empty_result",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Empty> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.empty_result())
@@ -119,7 +119,7 @@ All of the fields are bool*/
                 "records",
                 "scalar_arg",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: Scalars,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
@@ -132,7 +132,7 @@ All of the fields are bool*/
                 "records",
                 "scalar_result",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Scalars> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.scalar_result())
@@ -144,7 +144,7 @@ All of the fields are bool*/
                 "records",
                 "flags_arg",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: ReallyFlags,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
@@ -157,7 +157,7 @@ All of the fields are bool*/
                 "records",
                 "flags_result",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<ReallyFlags> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.flags_result())
@@ -169,7 +169,7 @@ All of the fields are bool*/
                 "records",
                 "aggregate_arg",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: Aggregates,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
@@ -182,7 +182,7 @@ All of the fields are bool*/
                 "records",
                 "aggregate_result",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Aggregates> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.aggregate_result())
@@ -194,7 +194,7 @@ All of the fields are bool*/
                 "records",
                 "typedef_inout",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     e: TupleTypedef2,
                 | -> ::tauri_bindgen_host::anyhow::Result<i32> {
                     let ctx = get_cx(ctx.data());

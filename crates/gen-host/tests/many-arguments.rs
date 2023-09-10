@@ -49,8 +49,8 @@ pub mod many_arguments {
         );
         fn big_argument(&self, x: BigStruct);
     }
-    pub fn add_to_router<T, U>(
-        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
+    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
@@ -63,7 +63,7 @@ pub mod many_arguments {
                 "many_arguments",
                 "many_args",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     a1: u64,
                     a2: u64,
                     a3: u64,
@@ -111,7 +111,7 @@ pub mod many_arguments {
                 "many_arguments",
                 "big_argument",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: BigStruct,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());

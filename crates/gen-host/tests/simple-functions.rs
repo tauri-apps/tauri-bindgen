@@ -11,8 +11,8 @@ pub mod simple_functions {
         fn f5(&self) -> (u32, u32);
         fn f6(&self, a: u32, b: u32, c: u32) -> (u32, u32, u32);
     }
-    pub fn add_to_router<T, U>(
-        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
+    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
@@ -25,7 +25,7 @@ pub mod simple_functions {
                 "simple_functions",
                 "f1",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.f1())
@@ -37,7 +37,7 @@ pub mod simple_functions {
                 "simple_functions",
                 "f2",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     a: u32,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
@@ -50,7 +50,7 @@ pub mod simple_functions {
                 "simple_functions",
                 "f3",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     a: u32,
                     b: u32,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
@@ -64,7 +64,7 @@ pub mod simple_functions {
                 "simple_functions",
                 "f4",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<u32> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.f4())
@@ -76,7 +76,7 @@ pub mod simple_functions {
                 "simple_functions",
                 "f5",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<(u32, u32)> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.f5())
@@ -88,7 +88,7 @@ pub mod simple_functions {
                 "simple_functions",
                 "f6",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     a: u32,
                     b: u32,
                     c: u32,

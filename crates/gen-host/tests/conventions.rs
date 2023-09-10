@@ -23,8 +23,8 @@ pub mod conventions {
         fn explicit_snake(&self);
         fn bool(&self);
     }
-    pub fn add_to_router<T, U>(
-        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
+    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
@@ -37,7 +37,7 @@ pub mod conventions {
                 "conventions",
                 "kebab_case",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.kebab_case())
@@ -49,7 +49,7 @@ pub mod conventions {
                 "conventions",
                 "foo",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: LudicrousSpeed,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
@@ -62,7 +62,7 @@ pub mod conventions {
                 "conventions",
                 "function_with_underscores",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.function_with_underscores())
@@ -74,7 +74,7 @@ pub mod conventions {
                 "conventions",
                 "function_with_no_weird_characters",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.function_with_no_weird_characters())
@@ -86,7 +86,7 @@ pub mod conventions {
                 "conventions",
                 "apple",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.apple())
@@ -98,7 +98,7 @@ pub mod conventions {
                 "conventions",
                 "apple_pear",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.apple_pear())
@@ -110,7 +110,7 @@ pub mod conventions {
                 "conventions",
                 "apple_pear_grape",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.apple_pear_grape())
@@ -122,7 +122,7 @@ pub mod conventions {
                 "conventions",
                 "a0",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.a0())
@@ -134,7 +134,7 @@ pub mod conventions {
                 "conventions",
                 "is_xml",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.is_xml())
@@ -146,7 +146,7 @@ pub mod conventions {
                 "conventions",
                 "explicit",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.explicit())
@@ -158,7 +158,7 @@ pub mod conventions {
                 "conventions",
                 "explicit_snake",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.explicit_snake())
@@ -170,7 +170,7 @@ pub mod conventions {
                 "conventions",
                 "bool",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.bool())

@@ -8,8 +8,8 @@ pub mod strings {
         fn b(&self) -> String;
         fn c(&self, a: String, b: String) -> String;
     }
-    pub fn add_to_router<T, U>(
-        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
+    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
@@ -22,7 +22,7 @@ pub mod strings {
                 "strings",
                 "a",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: String,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
@@ -35,7 +35,7 @@ pub mod strings {
                 "strings",
                 "b",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<String> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.b())
@@ -47,7 +47,7 @@ pub mod strings {
                 "strings",
                 "c",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     a: String,
                     b: String,
                 | -> ::tauri_bindgen_host::anyhow::Result<String> {

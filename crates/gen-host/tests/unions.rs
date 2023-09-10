@@ -65,8 +65,8 @@ and is treated that way in some languages*/
         ) -> DistinguishableNum;
         fn identify_distinguishable_num(&self, num: DistinguishableNum) -> u8;
     }
-    pub fn add_to_router<T, U>(
-        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
+    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
@@ -79,7 +79,7 @@ and is treated that way in some languages*/
                 "unions",
                 "add_one_integer",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     num: AllIntegers,
                 | -> ::tauri_bindgen_host::anyhow::Result<AllIntegers> {
                     let ctx = get_cx(ctx.data());
@@ -92,7 +92,7 @@ and is treated that way in some languages*/
                 "unions",
                 "add_one_float",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     num: AllFloats,
                 | -> ::tauri_bindgen_host::anyhow::Result<AllFloats> {
                     let ctx = get_cx(ctx.data());
@@ -105,7 +105,7 @@ and is treated that way in some languages*/
                 "unions",
                 "replace_first_char",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     text: AllText,
                     letter: char,
                 | -> ::tauri_bindgen_host::anyhow::Result<AllText> {
@@ -119,7 +119,7 @@ and is treated that way in some languages*/
                 "unions",
                 "identify_integer",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     num: AllIntegers,
                 | -> ::tauri_bindgen_host::anyhow::Result<u8> {
                     let ctx = get_cx(ctx.data());
@@ -132,7 +132,7 @@ and is treated that way in some languages*/
                 "unions",
                 "identify_float",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     num: AllFloats,
                 | -> ::tauri_bindgen_host::anyhow::Result<u8> {
                     let ctx = get_cx(ctx.data());
@@ -145,7 +145,7 @@ and is treated that way in some languages*/
                 "unions",
                 "identify_text",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     text: AllText,
                 | -> ::tauri_bindgen_host::anyhow::Result<u8> {
                     let ctx = get_cx(ctx.data());
@@ -158,7 +158,7 @@ and is treated that way in some languages*/
                 "unions",
                 "add_one_duplicated",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     num: DuplicatedS32,
                 | -> ::tauri_bindgen_host::anyhow::Result<DuplicatedS32> {
                     let ctx = get_cx(ctx.data());
@@ -171,7 +171,7 @@ and is treated that way in some languages*/
                 "unions",
                 "identify_duplicated",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     num: DuplicatedS32,
                 | -> ::tauri_bindgen_host::anyhow::Result<u8> {
                     let ctx = get_cx(ctx.data());
@@ -184,7 +184,7 @@ and is treated that way in some languages*/
                 "unions",
                 "add_one_distinguishable_num",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     num: DistinguishableNum,
                 | -> ::tauri_bindgen_host::anyhow::Result<DistinguishableNum> {
                     let ctx = get_cx(ctx.data());
@@ -197,7 +197,7 @@ and is treated that way in some languages*/
                 "unions",
                 "identify_distinguishable_num",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     num: DistinguishableNum,
                 | -> ::tauri_bindgen_host::anyhow::Result<u8> {
                     let ctx = get_cx(ctx.data());

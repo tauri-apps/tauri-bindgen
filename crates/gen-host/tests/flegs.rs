@@ -67,8 +67,8 @@ pub mod flegs {
         fn roundtrip_flag32(&self, x: Flag32) -> Flag32;
         fn roundtrip_flag64(&self, x: Flag64) -> Flag64;
     }
-    pub fn add_to_router<T, U>(
-        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
+    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
@@ -81,7 +81,7 @@ pub mod flegs {
                 "flegs",
                 "roundtrip_flag1",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: Flag1,
                 | -> ::tauri_bindgen_host::anyhow::Result<Flag1> {
                     let ctx = get_cx(ctx.data());
@@ -94,7 +94,7 @@ pub mod flegs {
                 "flegs",
                 "roundtrip_flag2",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: Flag2,
                 | -> ::tauri_bindgen_host::anyhow::Result<Flag2> {
                     let ctx = get_cx(ctx.data());
@@ -107,7 +107,7 @@ pub mod flegs {
                 "flegs",
                 "roundtrip_flag4",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: Flag4,
                 | -> ::tauri_bindgen_host::anyhow::Result<Flag4> {
                     let ctx = get_cx(ctx.data());
@@ -120,7 +120,7 @@ pub mod flegs {
                 "flegs",
                 "roundtrip_flag8",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: Flag8,
                 | -> ::tauri_bindgen_host::anyhow::Result<Flag8> {
                     let ctx = get_cx(ctx.data());
@@ -133,7 +133,7 @@ pub mod flegs {
                 "flegs",
                 "roundtrip_flag16",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: Flag16,
                 | -> ::tauri_bindgen_host::anyhow::Result<Flag16> {
                     let ctx = get_cx(ctx.data());
@@ -146,7 +146,7 @@ pub mod flegs {
                 "flegs",
                 "roundtrip_flag32",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: Flag32,
                 | -> ::tauri_bindgen_host::anyhow::Result<Flag32> {
                     let ctx = get_cx(ctx.data());
@@ -159,7 +159,7 @@ pub mod flegs {
                 "flegs",
                 "roundtrip_flag64",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                     x: Flag64,
                 | -> ::tauri_bindgen_host::anyhow::Result<Flag64> {
                     let ctx = get_cx(ctx.data());

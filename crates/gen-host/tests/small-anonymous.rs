@@ -12,8 +12,8 @@ pub mod small_anonymous {
     pub trait SmallAnonymous: Sized {
         fn option_test(&self) -> Result<Option<String>, Error>;
     }
-    pub fn add_to_router<T, U>(
-        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
+    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
@@ -26,7 +26,7 @@ pub mod small_anonymous {
                 "small_anonymous",
                 "option_test",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<Result<Option<String>, Error>> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.option_test())

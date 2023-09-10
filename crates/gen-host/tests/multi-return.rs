@@ -10,8 +10,8 @@ pub mod multi_return {
         fn mrd(&self) -> u32;
         fn mre(&self) -> (u32, f32);
     }
-    pub fn add_to_router<T, U>(
-        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
+    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
@@ -24,7 +24,7 @@ pub mod multi_return {
                 "multi_return",
                 "mra",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.mra())
@@ -36,7 +36,7 @@ pub mod multi_return {
                 "multi_return",
                 "mrb",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<()> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.mrb())
@@ -48,7 +48,7 @@ pub mod multi_return {
                 "multi_return",
                 "mrc",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<u32> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.mrc())
@@ -60,7 +60,7 @@ pub mod multi_return {
                 "multi_return",
                 "mrd",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<u32> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.mrd())
@@ -72,7 +72,7 @@ pub mod multi_return {
                 "multi_return",
                 "mre",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
                 | -> ::tauri_bindgen_host::anyhow::Result<(u32, f32)> {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.mre())

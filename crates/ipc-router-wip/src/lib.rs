@@ -4,30 +4,41 @@ pub use anyhow::Error;
 use anyhow::{bail, Result};
 use std::{
     collections::{hash_map::Entry, HashMap},
-    sync::{mpsc::Sender, Arc, Mutex},
+    sync::Arc,
 };
-use tauri::{AppHandle, Manager, Runtime};
-use url::Url;
+use tauri::{
+    http::{header::CONTENT_TYPE, Request, Response, StatusCode},
+    AppHandle, Runtime,
+};
+use tokio::sync::{
+    mpsc,
+    oneshot::{self, Sender},
+};
 
 #[derive(Default)]
-pub struct Router<T> {
+pub struct Router<T, R: Runtime> {
     data: Arc<T>,
     string2idx: HashMap<Arc<str>, usize>,
     strings: Vec<Arc<str>>,
-    map: HashMap<ImportKey, Definition<T>>,
+    map: HashMap<ImportKey, Definition<T, R>>,
 }
 
-pub type Definition<T> =
-    Box<dyn Fn(Caller<T>, &[u8], Sender<Vec<u8>>) -> anyhow::Result<()> + Send + Sync>;
+pub type Definition<T, R> =
+    Box<dyn Fn(Caller<T, R>, &[u8], Sender<Vec<u8>>) -> anyhow::Result<()> + Send + Sync>;
 
-pub struct Caller<'a, T> {
+pub struct Caller<'a, T, R: Runtime> {
     data: &'a T,
+    app_handle: AppHandle<R>,
 }
 
-impl<'a, T> Caller<'a, T> {
+impl<'a, T, R: Runtime> Caller<'a, T, R> {
     #[must_use]
     pub fn data(&self) -> &T {
         self.data
+    }
+    #[must_use]
+    pub fn app_handle(&self) -> &AppHandle<R> {
+        &self.app_handle
     }
 }
 
@@ -37,7 +48,7 @@ struct ImportKey {
     name: usize,
 }
 
-impl<U> Router<U> {
+impl<U, R: Runtime> Router<U, R> {
     #[must_use]
     pub fn new(data: U) -> Self {
         Self {
@@ -52,7 +63,7 @@ impl<U> Router<U> {
         &mut self,
         module: &str,
         name: &str,
-        func: impl IntoFunc<U, Params, Args>,
+        func: impl IntoFunc<U, Params, Args, R>,
     ) -> Result<&mut Self> {
         let func = func.into_func();
 
@@ -67,7 +78,8 @@ impl<U> Router<U> {
         module: Option<impl AsRef<str>>,
         name: impl AsRef<str>,
         params: &[u8],
-        res_tx: Sender<Vec<u8>>,
+        app_handle: AppHandle<R>,
+        tx: Sender<Vec<u8>>,
     ) -> anyhow::Result<()> {
         let key = self.import_key(module, name.as_ref());
 
@@ -76,14 +88,17 @@ impl<U> Router<U> {
             .get(&key)
             .ok_or(anyhow::anyhow!("method not found"))?;
 
-        let caller = Caller { data: &*self.data };
+        let caller = Caller {
+            data: &*self.data,
+            app_handle,
+        };
 
-        handler(caller, params, res_tx)?;
+        handler(caller, params, tx)?;
 
         Ok(())
     }
 
-    fn insert(&mut self, key: ImportKey, item: Definition<U>) -> Result<()> {
+    fn insert(&mut self, key: ImportKey, item: Definition<U, R>) -> Result<()> {
         match self.map.entry(key) {
             Entry::Occupied(_) => {
                 let module = &self.strings[key.module];
@@ -119,9 +134,9 @@ impl<U> Router<U> {
     }
 }
 
-pub trait IntoFunc<U, Params, Results>: Send + Sync {
+pub trait IntoFunc<U, Params, Results, R: Runtime>: Send + Sync {
     #[doc(hidden)]
-    fn into_func(self) -> Definition<U>;
+    fn into_func(self) -> Definition<U, R>;
 }
 
 macro_rules! impl_into_func {
@@ -130,14 +145,14 @@ macro_rules! impl_into_func {
         // delegating to the implementation below which does have the leading
         // `Caller` parameter.
         #[allow(non_snake_case)]
-        impl<T, F, $($params,)* R> IntoFunc<T, ($($params,)*), R> for F
+        impl<T, F, $($params,)* R, Rt: Runtime> IntoFunc<T, ($($params,)*), R, Rt> for F
         where
             F: Fn($($params),*) -> anyhow::Result<R> + Send + Sync + 'static,
             $($params: serde::de::DeserializeOwned,)*
-            R: serde::Serialize
+            R: serde::Serialize,
         {
-            fn into_func(self) -> Definition<T> {
-                let f = move |_: Caller<T>, $($params:$params),*| {
+            fn into_func(self) -> Definition<T, Rt> {
+                let f = move |_: Caller<T, Rt>, $($params:$params),*| {
                     self($($params),*)
                 };
 
@@ -146,13 +161,13 @@ macro_rules! impl_into_func {
         }
 
         #[allow(non_snake_case)]
-        impl<T, F, $($params,)* R> IntoFunc<T, (Caller<'_, T>, $($params,)*), R> for F
+        impl<T, F, $($params,)* R, Rt: Runtime> IntoFunc<T, (Caller<'_, T, Rt>, $($params,)*), R, Rt> for F
         where
-            F: Fn(Caller<T>, $($params),*) -> anyhow::Result<R> + Send + Sync + 'static,
+            F: Fn(Caller<T, Rt>, $($params),*) -> anyhow::Result<R> + Send + Sync + 'static,
             $($params: serde::de::DeserializeOwned,)*
-            R: serde::Serialize
+            R: serde::Serialize,
         {
-            fn into_func(self) -> Definition<T> {
+            fn into_func(self) -> Definition<T, Rt> {
                 Box::new(move |caller, params, tx| {
                     log::debug!("Deserializing parameters...");
                     let ($($params,)*) = postcard::from_bytes(params)?;
@@ -163,7 +178,7 @@ macro_rules! impl_into_func {
                     log::debug!("Serializing response...");
                     let out = postcard::to_allocvec(&out)?;
 
-                    tx.send(out)?;
+                    tx.send(out).unwrap();
 
                     Ok(())
                 })
@@ -196,66 +211,87 @@ macro_rules! for_each_function_signature {
 
 for_each_function_signature!(impl_into_func);
 
-pub trait BuilderExt {
+pub trait BuilderExt<R: Runtime> {
     #[must_use]
-    fn ipc_router<U: Send + Sync + 'static>(self, router: Router<U>) -> Self;
+    fn ipc_router<U: Send + Sync + 'static>(self, router: Router<U, R>) -> Self;
 }
 
-impl<R: Runtime> BuilderExt for tauri::Builder<R> {
-    fn ipc_router<U: Send + Sync + 'static>(self, router: Router<U>) -> Self {
-        self.manage(Mutex::new(router))
-            .register_uri_scheme_protocol("ipc", |app, req| {
-                let res = uri_scheme_handler_inner::<U, _>(app, req);
+impl<R: Runtime> BuilderExt<R> for tauri::Builder<R> {
+    fn ipc_router<U: Send + Sync + 'static>(self, mut router: Router<U, R>) -> Self {
+        let (tx, mut rx) = mpsc::channel::<(AppHandle<R>, Request<Vec<u8>>, _)>(250);
+
+        let this =
+            self.register_asynchronous_uri_scheme_protocol("ipc", move |app, req, responder| {
+                tx.try_send((app.clone(), req, responder)).unwrap();
+            });
+
+        tauri::async_runtime::handle().spawn(async move {
+            while let Some((app, req, responder)) = rx.recv().await {
+                let path = req.uri().path().strip_prefix('/').unwrap();
+
+                let (module, method) = path
+                    .split_once('/')
+                    .map_or((None, path), |(module, method)| (Some(module), method));
+
+                log::debug!("ipc request for {:?}::{}", module, method);
+
+                let (tx, rx) = oneshot::channel();
+                router
+                    .handle_request(module, method, req.body(), app, tx)
+                    .unwrap();
+                let res = rx.await;
 
                 log::debug!("call result {:?}", res);
 
-                let mut resp = match res {
+                let mut response = match res {
                     Ok(val) => {
-                        let mut resp = tauri::http::Response::new(val);
-                        resp.set_status(tauri::http::status::StatusCode::OK);
-                        resp.set_mimetype(Some("application/octet-stream".to_string()));
-                        resp
+                        let mut resp = Response::builder().status(StatusCode::OK);
+                        resp.headers_mut().unwrap().insert(
+                            CONTENT_TYPE,
+                            tauri::http::header::HeaderValue::from_static(
+                                "application/octet-stream",
+                            ),
+                        );
+                        resp.body(val).unwrap()
                     }
-                    Err(err) => {
-                        let mut resp = tauri::http::Response::new(err.to_string().into_bytes());
-                        resp.set_status(tauri::http::status::StatusCode::BAD_REQUEST);
-                        resp
-                    }
+                    Err(err) => Response::builder()
+                        .status(StatusCode::BAD_REQUEST)
+                        .body(err.to_string().into_bytes())
+                        .unwrap(),
                 };
 
-                resp.headers_mut().insert(
+                response.headers_mut().insert(
                     tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN,
                     tauri::http::header::HeaderValue::from_static("*"),
                 );
 
-                log::trace!("sending response {:?}", resp);
+                responder.respond(response);
+            }
+        });
 
-                Ok(resp)
-            })
+        this
     }
 }
 
-fn uri_scheme_handler_inner<U: Send + Sync + 'static, R: Runtime>(
-    app: &AppHandle<R>,
-    req: &tauri::http::Request,
-) -> anyhow::Result<Vec<u8>> {
-    let url = Url::parse(req.uri())?;
+// async fn uri_scheme_handler_inner<U: Send + Sync + 'static, R: Runtime>(
+//     app: &AppHandle<R>,
+//     req: &tauri::http::Request<Vec<u8>>,
+// ) -> anyhow::Result<Vec<u8>> {
+//     let path = req.uri().path().strip_prefix('/').unwrap();
 
-    let path = url.path().strip_prefix('/').unwrap();
+//     let (module, method) = path
+//         .split_once('/')
+//         .map_or((None, path), |(module, method)| (Some(module), method));
 
-    let (module, method) = path
-        .split_once('/')
-        .map_or((None, path), |(module, method)| (Some(module), method));
+//     log::debug!("ipc request for {:?}::{}", module, method);
 
-    log::debug!("ipc request for {:?}::{}", module, method);
+//     let (res_tx, res_rx) = oneshot::channel();
 
-    let (res_tx, res_rx) = std::sync::mpsc::channel();
+//     let router = app.state::<Mutex<Router<U>>>();
+//     let mut router = router.lock().unwrap();
 
-    let router = app.state::<Mutex<Router<U>>>();
-    let mut router = router.lock().unwrap();
+//     // this is terrible we should not clone here
+//     router.handle_request(module, method, req.body(), res_tx)?;
 
-    // this is terrible we should not clone here
-    router.handle_request(module, method, req.body(), res_tx)?;
-
-    Ok(res_rx.recv()?)
-}
+//     Ok(res_rx.await?)
+// }

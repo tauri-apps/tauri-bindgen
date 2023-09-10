@@ -334,7 +334,7 @@ impl Host {
                 router.func_wrap(
                     #mod_name,
                     #func_name,
-                    move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, #params| -> ::tauri_bindgen_host::anyhow::Result<#result> {
+                    move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>, #params| -> ::tauri_bindgen_host::anyhow::Result<#result> {
                         let ctx = get_cx(ctx.data());
 
                         Ok(ctx.#func_ident(#(#param_idents),*))
@@ -344,8 +344,8 @@ impl Host {
         });
 
         quote! {
-            pub fn add_to_router<T, U>(
-                router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
+            pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+                router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
                 get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
             ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
             where
