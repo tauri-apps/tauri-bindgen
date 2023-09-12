@@ -19,7 +19,7 @@ rust-version = "1.70"
 thiserror = "1.0.48"
 bitflags = { version = "2.4.0", features = ["serde"] }
 heck =  { version = "0.4", features = ["unicode"] }
-clap = { version = "4.4.2", features = ["derive"] }
+clap = { version = "4.4.3", features = ["derive"] }
 tauri-bindgen-core = { path = "crates/core" }
 tauri-bindgen-gen-host = { path = "crates/gen-host", features = ['cli'] }
 tauri-bindgen-gen-markdown = { path = "crates/gen-markdown", features = ['cli'] }
@@ -32,7 +32,7 @@ log = { version = "0.4.20", features = [ "kv_unstable", "kv_unstable_std" ] }
 serde = "1.0.188"
 quote = "1.0.33"
 proc-macro2 = "1.0.66"
-syn = "2.0.31"
+syn = "2.0.32"
 tauri = { git = "https://github.com/tauri-apps/tauri" }
 
 [dependencies]
