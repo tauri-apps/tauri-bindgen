@@ -23,155 +23,135 @@ pub mod conventions {
         fn explicit_snake(&self);
         fn bool(&self);
     }
-    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+    pub fn add_to_router<T, U, R>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
+        T: Send + Sync + 'static,
         U: Conventions + Send + Sync + 'static,
+        R: ::tauri_bindgen_host::tauri::Runtime,
     {
         let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "conventions",
                 "kebab_case",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.kebab_case())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "conventions",
                 "foo",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: LudicrousSpeed,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    p: LudicrousSpeed|
+                {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.foo(x))
+                    Ok(ctx.foo(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "conventions",
                 "function_with_underscores",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.function_with_underscores())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "conventions",
                 "function_with_no_weird_characters",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.function_with_no_weird_characters())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "conventions",
                 "apple",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.apple())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "conventions",
                 "apple_pear",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.apple_pear())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "conventions",
                 "apple_pear_grape",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.apple_pear_grape())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "conventions",
                 "a0",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.a0())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "conventions",
                 "is_xml",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.is_xml())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "conventions",
                 "explicit",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.explicit())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "conventions",
                 "explicit_snake",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.explicit_snake())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "conventions",
                 "bool",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.bool())
                 },

@@ -39,294 +39,235 @@ pub mod integers {
         fn r10(&self) -> i128;
         fn pair_ret(&self) -> (i64, u8);
     }
-    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+    pub fn add_to_router<T, U, R>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
+        T: Send + Sync + 'static,
         U: Integers + Send + Sync + 'static,
+        R: ::tauri_bindgen_host::tauri::Runtime,
     {
         let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "a1",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: u8,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: u8| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.a1(x))
+                    Ok(ctx.a1(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "a2",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: i8,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: i8| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.a2(x))
+                    Ok(ctx.a2(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "a3",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: u16,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: u16| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.a3(x))
+                    Ok(ctx.a3(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "a4",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: i16,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: i16| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.a4(x))
+                    Ok(ctx.a4(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "a5",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: u32,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: u32| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.a5(x))
+                    Ok(ctx.a5(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "a6",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: i32,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: i32| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.a6(x))
+                    Ok(ctx.a6(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "a7",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: u64,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: u64| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.a7(x))
+                    Ok(ctx.a7(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "a8",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: i64,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: i64| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.a8(x))
+                    Ok(ctx.a8(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "a9",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: u128,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: u128| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.a9(x))
+                    Ok(ctx.a9(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "a10",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: i128,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: i128| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.a10(x))
+                    Ok(ctx.a10(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "a11",
                 move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    p1: u8,
-                    p2: i8,
-                    p3: u16,
-                    p4: i16,
-                    p5: u32,
-                    p6: i32,
-                    p7: u64,
-                    p8: i64,
-                    p9: u128,
-                    p10: i128,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    p: (u8, i8, u16, i16, u32, i32, u64, i64, u128, i128)|
+                {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.a11(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10))
+                    Ok(ctx.a11(p.0, p.1, p.2, p.3, p.4, p.5, p.6, p.7, p.8, p.9))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "r1",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<u8> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.r1())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "r2",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<i8> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.r2())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "r3",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<u16> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.r3())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "r4",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<i16> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.r4())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "r5",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<u32> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.r5())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "r6",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<i32> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.r6())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "r7",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<u64> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.r7())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "r8",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<i64> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.r8())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "r9",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<u128> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.r9())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "r10",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<i128> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.r10())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "integers",
                 "pair_ret",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<(i64, u8)> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.pair_ret())
                 },

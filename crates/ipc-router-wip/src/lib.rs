@@ -1,44 +1,34 @@
 #![allow(clippy::missing_panics_doc, clippy::missing_errors_doc)]
 
 pub use anyhow::Error;
-use anyhow::{bail, Result};
+
+use futures_util::FutureExt;
+use serde::{de::DeserializeOwned, Serialize};
 use std::{
     collections::{hash_map::Entry, HashMap},
+    future::Future,
+    marker::PhantomData,
+    pin::Pin,
     sync::Arc,
 };
-use tauri::{
-    http::{header::CONTENT_TYPE, Request, Response, StatusCode},
-    AppHandle, Runtime,
-};
-use tokio::sync::{
-    mpsc,
-    oneshot::{self, Sender},
-};
+use tauri::http::{header::CONTENT_TYPE, Request, Response, StatusCode};
 
-#[derive(Default)]
-pub struct Router<T, R: Runtime> {
+type Definition<T> =
+    Box<dyn Fn(Caller<T>, &[u8]) -> anyhow::Result<CallResult> + Send + Sync + 'static>;
+
+enum CallResult {
+    Value(Vec<u8>),
+    Future(Pin<Box<dyn Future<Output = anyhow::Result<Vec<u8>>> + Send + 'static>>),
+}
+
+pub struct Caller<T> {
     data: Arc<T>,
-    string2idx: HashMap<Arc<str>, usize>,
-    strings: Vec<Arc<str>>,
-    map: HashMap<ImportKey, Definition<T, R>>,
 }
 
-pub type Definition<T, R> =
-    Box<dyn Fn(Caller<T, R>, &[u8], Sender<Vec<u8>>) -> anyhow::Result<()> + Send + Sync>;
-
-pub struct Caller<'a, T, R: Runtime> {
-    data: &'a T,
-    app_handle: AppHandle<R>,
-}
-
-impl<'a, T, R: Runtime> Caller<'a, T, R> {
+impl<T> Caller<T> {
     #[must_use]
     pub fn data(&self) -> &T {
-        self.data
-    }
-    #[must_use]
-    pub fn app_handle(&self) -> &AppHandle<R> {
-        &self.app_handle
+        &self.data
     }
 }
 
@@ -48,40 +38,84 @@ struct ImportKey {
     name: usize,
 }
 
-impl<U, R: Runtime> Router<U, R> {
-    #[must_use]
-    pub fn new(data: U) -> Self {
+pub struct Router<T> {
+    data: Arc<T>,
+    _m: PhantomData<T>,
+    string2idx: HashMap<Arc<str>, usize>,
+    strings: Vec<Arc<str>>,
+    map: HashMap<ImportKey, Definition<T>>,
+}
+
+impl<T> Router<T> {
+    pub fn new(data: T) -> Self {
         Self {
+            data: Arc::new(data),
+            _m: PhantomData,
             string2idx: HashMap::new(),
             strings: Vec::new(),
             map: HashMap::new(),
-            data: Arc::new(data),
         }
     }
 
-    pub fn func_wrap<Params, Args>(
+    pub fn define<F, P, R>(&mut self, module: &str, name: &str, func: F) -> anyhow::Result<()>
+    where
+        F: Fn(Caller<T>, P) -> anyhow::Result<R> + Send + Sync + 'static,
+        P: DeserializeOwned,
+        R: Serialize,
+    {
+        let key = self.import_key(Some(module), name);
+
+        self.insert(
+            key,
+            Box::new(move |caller, params| {
+                let params = postcard::from_bytes(params)?;
+
+                let res = func(caller, params)?;
+
+                Ok(CallResult::Value(postcard::to_allocvec(&res).unwrap()))
+            }),
+        )?;
+
+        Ok(())
+    }
+
+    pub fn define_async<F, P, R, RV>(
         &mut self,
         module: &str,
         name: &str,
-        func: impl IntoFunc<U, Params, Args, R>,
-    ) -> Result<&mut Self> {
-        let func = func.into_func();
-
+        func: F,
+    ) -> anyhow::Result<()>
+    where
+        F: Fn(Caller<T>, P) -> Pin<Box<R>> + Send + Sync + 'static,
+        P: DeserializeOwned,
+        R: Future<Output = anyhow::Result<RV>> + Send + 'static,
+        RV: Serialize,
+    {
         let key = self.import_key(Some(module), name);
-        self.insert(key, func)?;
 
-        Ok(self)
+        self.insert(
+            key,
+            Box::new(move |caller, params| {
+                let params = postcard::from_bytes(params)?;
+
+                let fut = func(caller, params)
+                    .map(|res| postcard::to_allocvec(&res?).map_err(Into::into))
+                    .boxed();
+
+                Ok(CallResult::Future(fut))
+            }),
+        )?;
+
+        Ok(())
     }
 
-    pub fn handle_request(
-        &mut self,
-        module: Option<impl AsRef<str>>,
-        name: impl AsRef<str>,
+    async fn call(
+        &self,
+        module: Option<&str>,
+        name: &str,
         params: &[u8],
-        app_handle: AppHandle<R>,
-        tx: Sender<Vec<u8>>,
-    ) -> anyhow::Result<()> {
-        let key = self.import_key(module, name.as_ref());
+    ) -> anyhow::Result<Vec<u8>> {
+        let key = self.import_key_read_only(module, name)?;
 
         let handler = self
             .map
@@ -89,16 +123,16 @@ impl<U, R: Runtime> Router<U, R> {
             .ok_or(anyhow::anyhow!("method not found"))?;
 
         let caller = Caller {
-            data: &*self.data,
-            app_handle,
+            data: self.data.clone(),
         };
 
-        handler(caller, params, tx)?;
-
-        Ok(())
+        match handler(caller, params)? {
+            CallResult::Value(val) => Ok(val),
+            CallResult::Future(fut) => Ok(fut.await?),
+        }
     }
 
-    fn insert(&mut self, key: ImportKey, item: Definition<U, R>) -> Result<()> {
+    fn insert(&mut self, key: ImportKey, item: Definition<T>) -> anyhow::Result<()> {
         match self.map.entry(key) {
             Entry::Occupied(_) => {
                 let module = &self.strings[key.module];
@@ -106,7 +140,7 @@ impl<U, R: Runtime> Router<U, R> {
                     Some(name) => format!("{module}::{name}"),
                     None => module.to_string(),
                 };
-                bail!("import of `{}` defined twice", desc)
+                anyhow::bail!("import of `{}` defined twice", desc)
             }
             Entry::Vacant(v) => {
                 v.insert(item);
@@ -122,6 +156,24 @@ impl<U, R: Runtime> Router<U, R> {
         }
     }
 
+    fn import_key_read_only(&self, module: Option<&str>, name: &str) -> anyhow::Result<ImportKey> {
+        let module = if let Some(module) = module {
+            *self
+                .string2idx
+                .get(module)
+                .ok_or(anyhow::anyhow!("unknown module"))?
+        } else {
+            usize::MAX
+        };
+
+        let name = *self
+            .string2idx
+            .get(name)
+            .ok_or(anyhow::anyhow!("unknown function"))?;
+
+        Ok(ImportKey { module, name })
+    }
+
     fn intern_str(&mut self, string: &str) -> usize {
         if let Some(idx) = self.string2idx.get(string) {
             return *idx;
@@ -134,126 +186,21 @@ impl<U, R: Runtime> Router<U, R> {
     }
 }
 
-pub trait IntoFunc<U, Params, Results, R: Runtime>: Send + Sync {
-    #[doc(hidden)]
-    fn into_func(self) -> Definition<U, R>;
-}
-
-macro_rules! impl_into_func {
-    ($num:tt $($params:ident)*) => {
-        // Implement for functions without a leading `&Caller` parameter,
-        // delegating to the implementation below which does have the leading
-        // `Caller` parameter.
-        #[allow(non_snake_case)]
-        impl<T, F, $($params,)* R, Rt: Runtime> IntoFunc<T, ($($params,)*), R, Rt> for F
-        where
-            F: Fn($($params),*) -> anyhow::Result<R> + Send + Sync + 'static,
-            $($params: serde::de::DeserializeOwned,)*
-            R: serde::Serialize,
-        {
-            fn into_func(self) -> Definition<T, Rt> {
-                let f = move |_: Caller<T, Rt>, $($params:$params),*| {
-                    self($($params),*)
-                };
-
-                f.into_func()
-            }
-        }
-
-        #[allow(non_snake_case)]
-        impl<T, F, $($params,)* R, Rt: Runtime> IntoFunc<T, (Caller<'_, T, Rt>, $($params,)*), R, Rt> for F
-        where
-            F: Fn(Caller<T, Rt>, $($params),*) -> anyhow::Result<R> + Send + Sync + 'static,
-            $($params: serde::de::DeserializeOwned,)*
-            R: serde::Serialize,
-        {
-            fn into_func(self) -> Definition<T, Rt> {
-                Box::new(move |caller, params, tx| {
-                    log::debug!("Deserializing parameters...");
-                    let ($($params,)*) = postcard::from_bytes(params)?;
-
-                    log::debug!("Calling handler...");
-                    let out = self(caller, $($params),*)?;
-
-                    log::debug!("Serializing response...");
-                    let out = postcard::to_allocvec(&out)?;
-
-                    tx.send(out).unwrap();
-
-                    Ok(())
-                })
-            }
-        }
-    }
-}
-
-macro_rules! for_each_function_signature {
-    ($mac:ident) => {
-        $mac!(0);
-        $mac!(1 A1);
-        $mac!(2 A1 A2);
-        $mac!(3 A1 A2 A3);
-        $mac!(4 A1 A2 A3 A4);
-        $mac!(5 A1 A2 A3 A4 A5);
-        $mac!(6 A1 A2 A3 A4 A5 A6);
-        $mac!(7 A1 A2 A3 A4 A5 A6 A7);
-        $mac!(8 A1 A2 A3 A4 A5 A6 A7 A8);
-        $mac!(9 A1 A2 A3 A4 A5 A6 A7 A8 A9);
-        $mac!(10 A1 A2 A3 A4 A5 A6 A7 A8 A9 A10);
-        $mac!(11 A1 A2 A3 A4 A5 A6 A7 A8 A9 A10 A11);
-        $mac!(12 A1 A2 A3 A4 A5 A6 A7 A8 A9 A10 A11 A12);
-        $mac!(13 A1 A2 A3 A4 A5 A6 A7 A8 A9 A10 A11 A12 A13);
-        $mac!(14 A1 A2 A3 A4 A5 A6 A7 A8 A9 A10 A11 A12 A13 A14);
-        $mac!(15 A1 A2 A3 A4 A5 A6 A7 A8 A9 A10 A11 A12 A13 A14 A15);
-        $mac!(16 A1 A2 A3 A4 A5 A6 A7 A8 A9 A10 A11 A12 A13 A14 A15 A16);
-    };
-}
-
-for_each_function_signature!(impl_into_func);
-
-pub trait BuilderExt<R: Runtime> {
+pub trait BuilderExt {
     #[must_use]
-    fn ipc_router<U: Send + Sync + 'static>(self, router: Router<U, R>) -> Self;
+    fn ipc_router<U: Send + Sync + 'static>(self, router: Router<U>) -> Self;
 }
 
-impl<R: Runtime> BuilderExt<R> for tauri::Builder<R> {
-    fn ipc_router<U: Send + Sync + 'static>(self, mut router: Router<U, R>) -> Self {
-        let (tx, mut rx) = mpsc::channel::<(AppHandle<R>, Request<Vec<u8>>, _)>(250);
+impl<R: tauri::Runtime> BuilderExt for tauri::Builder<R> {
+    fn ipc_router<U: Send + Sync + 'static>(self, router: Router<U>) -> Self {
+        let router = Arc::new(router);
 
-        let this =
-            self.register_asynchronous_uri_scheme_protocol("ipc", move |app, req, responder| {
-                tx.try_send((app.clone(), req, responder)).unwrap();
-            });
+        self.register_asynchronous_uri_scheme_protocol("ipc", move |_app, req, responder| {
+            let router = router.clone();
 
-        tauri::async_runtime::handle().spawn(async move {
-            while let Some((app, req, responder)) = rx.recv().await {
-                let path = req.uri().path().strip_prefix('/').unwrap();
-
-                let (module, method) = path
-                    .split_once('/')
-                    .map_or((None, path), |(module, method)| (Some(module), method));
-
-                log::debug!("ipc request for {:?}::{}", module, method);
-
-                let (tx, rx) = oneshot::channel();
-                router
-                    .handle_request(module, method, req.body(), app, tx)
-                    .unwrap();
-                let res = rx.await;
-
-                log::debug!("call result {:?}", res);
-
-                let mut response = match res {
-                    Ok(val) => {
-                        let mut resp = Response::builder().status(StatusCode::OK);
-                        resp.headers_mut().unwrap().insert(
-                            CONTENT_TYPE,
-                            tauri::http::header::HeaderValue::from_static(
-                                "application/octet-stream",
-                            ),
-                        );
-                        resp.body(val).unwrap()
-                    }
+            tauri::async_runtime::spawn(async move {
+                let mut response = match uri_scheme_inner(&router, req).await {
+                    Ok(res) => res,
                     Err(err) => Response::builder()
                         .status(StatusCode::BAD_REQUEST)
                         .body(err.to_string().into_bytes())
@@ -266,32 +213,33 @@ impl<R: Runtime> BuilderExt<R> for tauri::Builder<R> {
                 );
 
                 responder.respond(response);
-            }
-        });
-
-        this
+            });
+        })
     }
 }
 
-// async fn uri_scheme_handler_inner<U: Send + Sync + 'static, R: Runtime>(
-//     app: &AppHandle<R>,
-//     req: &tauri::http::Request<Vec<u8>>,
-// ) -> anyhow::Result<Vec<u8>> {
-//     let path = req.uri().path().strip_prefix('/').unwrap();
+#[inline(always)]
+async fn uri_scheme_inner<T>(
+    router: &Router<T>,
+    request: Request<Vec<u8>>,
+) -> anyhow::Result<Response<Vec<u8>>> {
+    let path = request.uri().path().strip_prefix('/').unwrap();
 
-//     let (module, method) = path
-//         .split_once('/')
-//         .map_or((None, path), |(module, method)| (Some(module), method));
+    let (module, method) = path
+        .split_once('/')
+        .map_or((None, path), |(module, method)| (Some(module), method));
 
-//     log::debug!("ipc request for {:?}::{}", module, method);
+    log::debug!("ipc request for {:?}::{}", module, method);
 
-//     let (res_tx, res_rx) = oneshot::channel();
+    let response = router.call(module, method, request.body()).await?;
 
-//     let router = app.state::<Mutex<Router<U>>>();
-//     let mut router = router.lock().unwrap();
+    log::debug!("call result {:?}", response);
 
-//     // this is terrible we should not clone here
-//     router.handle_request(module, method, req.body(), res_tx)?;
+    let mut resp = Response::builder().status(StatusCode::OK);
+    resp.headers_mut().unwrap().insert(
+        CONTENT_TYPE,
+        tauri::http::header::HeaderValue::from_static("application/octet-stream"),
+    );
 
-//     Ok(res_rx.await?)
-// }
+    Ok(resp.body(response)?)
+}

@@ -67,103 +67,84 @@ pub mod flegs {
         fn roundtrip_flag32(&self, x: Flag32) -> Flag32;
         fn roundtrip_flag64(&self, x: Flag64) -> Flag64;
     }
-    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+    pub fn add_to_router<T, U, R>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
+        T: Send + Sync + 'static,
         U: Flegs + Send + Sync + 'static,
+        R: ::tauri_bindgen_host::tauri::Runtime,
     {
         let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "flegs",
                 "roundtrip_flag1",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: Flag1,
-                | -> ::tauri_bindgen_host::anyhow::Result<Flag1> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: Flag1| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.roundtrip_flag1(x))
+                    Ok(ctx.roundtrip_flag1(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "flegs",
                 "roundtrip_flag2",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: Flag2,
-                | -> ::tauri_bindgen_host::anyhow::Result<Flag2> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: Flag2| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.roundtrip_flag2(x))
+                    Ok(ctx.roundtrip_flag2(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "flegs",
                 "roundtrip_flag4",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: Flag4,
-                | -> ::tauri_bindgen_host::anyhow::Result<Flag4> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: Flag4| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.roundtrip_flag4(x))
+                    Ok(ctx.roundtrip_flag4(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "flegs",
                 "roundtrip_flag8",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: Flag8,
-                | -> ::tauri_bindgen_host::anyhow::Result<Flag8> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: Flag8| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.roundtrip_flag8(x))
+                    Ok(ctx.roundtrip_flag8(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "flegs",
                 "roundtrip_flag16",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: Flag16,
-                | -> ::tauri_bindgen_host::anyhow::Result<Flag16> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: Flag16| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.roundtrip_flag16(x))
+                    Ok(ctx.roundtrip_flag16(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "flegs",
                 "roundtrip_flag32",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: Flag32,
-                | -> ::tauri_bindgen_host::anyhow::Result<Flag32> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: Flag32| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.roundtrip_flag32(x))
+                    Ok(ctx.roundtrip_flag32(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "flegs",
                 "roundtrip_flag64",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: Flag64,
-                | -> ::tauri_bindgen_host::anyhow::Result<Flag64> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: Flag64| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.roundtrip_flag64(x))
+                    Ok(ctx.roundtrip_flag64(p))
                 },
             )?;
         Ok(())

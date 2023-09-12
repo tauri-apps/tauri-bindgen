@@ -9,35 +9,32 @@ pub mod chars {
         ///A function that returns a character
         fn return_char(&self) -> char;
     }
-    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+    pub fn add_to_router<T, U, R>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
+        T: Send + Sync + 'static,
         U: Chars + Send + Sync + 'static,
+        R: ::tauri_bindgen_host::tauri::Runtime,
     {
         let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "chars",
                 "take_char",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                    x: char,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: char| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.take_char(x))
+                    Ok(ctx.take_char(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "chars",
                 "return_char",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<char> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.return_char())
                 },

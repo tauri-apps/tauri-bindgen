@@ -14,3 +14,4 @@ log.workspace = true
 postcard = { version = "1.0.7", features = ["alloc"] }
 tauri.workspace = true
 tokio = { version = "1.32.0", features = ["sync", "macros"] }
+futures-util = "0.3.28"

@@ -10,70 +10,62 @@ pub mod multi_return {
         fn mrd(&self) -> u32;
         fn mre(&self) -> (u32, f32);
     }
-    pub fn add_to_router<T, U, R: ::tauri_bindgen_host::tauri::Runtime>(
+    pub fn add_to_router<T, U, R>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
+        T: Send + Sync + 'static,
         U: MultiReturn + Send + Sync + 'static,
+        R: ::tauri_bindgen_host::tauri::Runtime,
     {
         let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "multi_return",
                 "mra",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.mra())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "multi_return",
                 "mrb",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.mrb())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "multi_return",
                 "mrc",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<u32> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.mrc())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "multi_return",
                 "mrd",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<u32> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.mrd())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "multi_return",
                 "mre",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T, R>,
-                | -> ::tauri_bindgen_host::anyhow::Result<(u32, f32)> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.mre())
                 },
