@@ -218,7 +218,7 @@ impl<R: tauri::Runtime> BuilderExt for tauri::Builder<R> {
     }
 }
 
-#[inline(always)]
+#[inline]
 async fn uri_scheme_inner<T>(
     router: &Router<T>,
     request: Request<Vec<u8>>,
