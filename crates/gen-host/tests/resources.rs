@@ -18,10 +18,16 @@ pub mod resources {
         ) -> Result<::tauri_bindgen_host::ResourceId, ()>;
     }
     pub trait Resources: Sized {
-        type A: A;
-        fn get_a_mut(&mut self, id: ::tauri_bindgen_host::ResourceId) -> &mut Self::A;
-        type B: B;
-        fn get_b_mut(&mut self, id: ::tauri_bindgen_host::ResourceId) -> &mut Self::B;
+        type A: A + Send + Sync;
+        fn get_a(
+            &self,
+            id: ::tauri_bindgen_host::ResourceId,
+        ) -> ::tauri_bindgen_host::Result<::std::sync::Arc<Self::A>>;
+        type B: B + Send + Sync;
+        fn get_b(
+            &self,
+            id: ::tauri_bindgen_host::ResourceId,
+        ) -> ::tauri_bindgen_host::Result<::std::sync::Arc<Self::B>>;
         fn constructor_a(&self) -> ::tauri_bindgen_host::ResourceId;
         fn constructor_b(&self) -> ::tauri_bindgen_host::ResourceId;
     }
@@ -59,6 +65,99 @@ pub mod resources {
                 > {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.constructor_b())
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "resources::resource::a",
+                "f1",
+                move |
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    this_rid: ::tauri_bindgen_host::ResourceId,
+                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                    let ctx = get_cx(ctx.data());
+                    let r = ctx.get_a(this_rid)?;
+                    Ok(r.f1())
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "resources::resource::a",
+                "f2",
+                move |
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    this_rid: ::tauri_bindgen_host::ResourceId,
+                    a: u32,
+                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                    let ctx = get_cx(ctx.data());
+                    let r = ctx.get_a(this_rid)?;
+                    Ok(r.f2(a))
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "resources::resource::a",
+                "f3",
+                move |
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    this_rid: ::tauri_bindgen_host::ResourceId,
+                    a: u32,
+                    b: u32,
+                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                    let ctx = get_cx(ctx.data());
+                    let r = ctx.get_a(this_rid)?;
+                    Ok(r.f3(a, b))
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "resources::resource::b",
+                "f1",
+                move |
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    this_rid: ::tauri_bindgen_host::ResourceId,
+                | -> ::tauri_bindgen_host::anyhow::Result<
+                    ::tauri_bindgen_host::ResourceId,
+                > {
+                    let ctx = get_cx(ctx.data());
+                    let r = ctx.get_b(this_rid)?;
+                    Ok(r.f1())
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "resources::resource::b",
+                "f2",
+                move |
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    this_rid: ::tauri_bindgen_host::ResourceId,
+                    x: ::tauri_bindgen_host::ResourceId,
+                | -> ::tauri_bindgen_host::anyhow::Result<Result<u32, ()>> {
+                    let ctx = get_cx(ctx.data());
+                    let r = ctx.get_b(this_rid)?;
+                    Ok(r.f2(x))
+                },
+            )?;
+        let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+        router
+            .func_wrap(
+                "resources::resource::b",
+                "f3",
+                move |
+                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                    this_rid: ::tauri_bindgen_host::ResourceId,
+                    x: Option<Vec<::tauri_bindgen_host::ResourceId>>,
+                | -> ::tauri_bindgen_host::anyhow::Result<
+                    Result<::tauri_bindgen_host::ResourceId, ()>,
+                > {
+                    let ctx = get_cx(ctx.data());
+                    let r = ctx.get_b(this_rid)?;
+                    Ok(r.f3(x))
                 },
             )?;
         Ok(())
