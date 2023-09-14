@@ -7,7 +7,6 @@ use clap::{ArgAction, Parser};
 use miette::{bail, IntoDiagnostic, Result, WrapErr};
 use std::{
     collections::HashSet,
-    io::Write,
     path::{Path, PathBuf},
     time::Instant,
 };
