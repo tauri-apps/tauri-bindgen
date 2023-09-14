@@ -13,46 +13,41 @@ pub mod strings {
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
+        T: Send + Sync + 'static,
         U: Strings + Send + Sync + 'static,
     {
         let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "strings",
                 "a",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    x: String,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: String| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.a(x))
+                    Ok(ctx.a(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "strings",
                 "b",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                | -> ::tauri_bindgen_host::anyhow::Result<String> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.b())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "strings",
                 "c",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    a: String,
-                    b: String,
-                | -> ::tauri_bindgen_host::anyhow::Result<String> {
+                    p: (String, String)|
+                {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.c(a, b))
+                    Ok(ctx.c(p.0, p.1))
                 },
             )?;
         Ok(())

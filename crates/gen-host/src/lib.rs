@@ -7,14 +7,14 @@
 
 use heck::ToKebabCase;
 use heck::{ToSnakeCase, ToUpperCamelCase};
-use proc_macro2::TokenStream;
+use proc_macro2::{Literal, TokenStream};
 use quote::format_ident;
 use quote::quote;
 use std::collections::HashSet;
 use std::path::PathBuf;
 use tauri_bindgen_core::{Generate, GeneratorBuilder, TypeInfo, TypeInfos};
 use tauri_bindgen_gen_rust::{print_generics, BorrowMode, FnSig, RustGenerator};
-use wit_parser::{Function, FunctionResult, Interface, Type, TypeDefKind};
+use wit_parser::{Function, Interface, Type, TypeDefKind};
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "clap", derive(clap::Args))]
@@ -252,7 +252,7 @@ impl Host {
 
         let functions = functions.map(|func| {
             let sig = FnSig {
-                async_: false,
+                async_: self.opts.async_,
                 unsafe_: false,
                 private: true,
                 self_arg: Some(quote!(&self)),
@@ -266,7 +266,13 @@ impl Host {
 
         let sized = sized.then_some(quote!(: Sized));
 
+        let async_trait = self
+            .opts
+            .async_
+            .then_some(quote! { #[::tauri_bindgen_host::async_trait] });
+
         quote! {
+            #async_trait
             pub trait #ident #sized {
                 #(#additional_items)*
                 #(#functions)*
@@ -304,6 +310,131 @@ impl Host {
         }
     }
 
+    fn print_router_fn_definition(&self, mod_name: &str, func: &Function) -> TokenStream {
+        let func_name = func.ident.to_snake_case();
+        let func_ident = format_ident!("{}", func_name);
+
+        let param_decl = match func.params.len() {
+            0 => quote! { () },
+            1 => {
+                let ty = &func.params.first().unwrap().1;
+                let ty = self.print_ty(ty, &BorrowMode::Owned);
+                quote! { #ty }
+            }
+            _ => {
+                let tys = func
+                    .params
+                    .iter()
+                    .map(|(_, ty)| self.print_ty(ty, &BorrowMode::Owned));
+                quote! { (#(#tys),*) }
+            }
+        };
+
+        let param_acc = match func.params.len() {
+            0 => quote! {},
+            1 => quote! { p },
+            _ => {
+                let ids = func.params.iter().enumerate().map(|(i, _)| {
+                    let i = Literal::usize_unsuffixed(i);
+                    quote! { p.#i }
+                });
+                quote! { #(#ids),* }
+            }
+        };
+
+        if self.opts.async_ {
+            quote! {
+                let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+                router.define_async(
+                    #mod_name,
+                    #func_name,
+                    move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: #param_decl| {
+                        let get_cx = get_cx.clone();
+                        Box::pin(async move {
+                            let ctx = get_cx(ctx.data());
+                            Ok(ctx.#func_ident(#param_acc).await)
+                        })
+                    })?;
+            }
+        } else {
+            quote! {
+                let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+                router.define(
+                    #mod_name,
+                    #func_name,
+                    move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: #param_decl| {
+                        let ctx = get_cx(ctx.data());
+
+                        Ok(ctx.#func_ident(#param_acc))
+                    },
+                )?;
+            }
+        }
+    }
+
+    fn print_router_method_definition(
+        &self,
+        mod_name: &str,
+        resource_name: &str,
+        method: &Function,
+    ) -> TokenStream {
+        let func_name = method.ident.to_snake_case();
+        let func_ident = format_ident!("{}", func_name);
+
+        let param_decl = method
+            .params
+            .iter()
+            .map(|(_, ty)| self.print_ty(ty, &BorrowMode::Owned));
+
+        let param_acc = match method.params.len() {
+            0 => quote! {},
+            1 => quote! { p.1 },
+            _ => {
+                let ids = method.params.iter().enumerate().map(|(i, _)| {
+                    let i = Literal::usize_unsuffixed(i + 1);
+                    quote! { p.#i }
+                });
+                quote! { #(#ids),* }
+            }
+        };
+
+        let mod_name = format!("{mod_name}::resource::{resource_name}");
+        let get_r_ident = format_ident!("get_{}", resource_name.to_snake_case());
+
+        if self.opts.async_ {
+            quote! {
+                let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+                router.define_async(
+                    #mod_name,
+                    #func_name,
+                    move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: (::tauri_bindgen_host::ResourceId, #(#param_decl),*)| {
+                        let get_cx = get_cx.clone();
+                        Box::pin(async move {
+                            let ctx = get_cx(ctx.data());
+                            let r = ctx.#get_r_ident(p.0)?;
+                            Ok(r.#func_ident(#param_acc).await)
+                        })
+                    })?;
+            }
+        } else {
+            quote! {
+                let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
+                router.define(
+                    #mod_name,
+                    #func_name,
+                    move |
+                        ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
+                        p: (::tauri_bindgen_host::ResourceId, #(#param_decl),*)
+                    | {
+                        let ctx = get_cx(ctx.data());
+                        let r = ctx.#get_r_ident(p.0)?;
+                        Ok(r.#func_ident(#param_acc))
+                    },
+                )?;
+            }
+        }
+    }
+
     fn print_add_to_router<'a>(
         &self,
         mod_ident: &str,
@@ -314,104 +445,10 @@ impl Host {
 
         let mod_name = mod_ident.to_snake_case();
 
-        let functions = functions.map(|func| {
-            let func_name = func.ident.to_snake_case();
-            let func_ident = format_ident!("{}", func_name);
-
-            let params = self.print_function_params(&func.params, &BorrowMode::Owned);
-
-            let param_idents = func
-                .params
-                .iter()
-                .map(|(ident, _)| { format_ident!("{}", ident) });
-
-            let result = match func.result.as_ref() {
-                Some(FunctionResult::Anon(ty)) => {
-                    let ty = self.print_ty(ty, &BorrowMode::Owned);
-
-                    quote! { #ty }
-                }
-                Some(FunctionResult::Named(types)) if types.len() == 1 => {
-                    let (_, ty) = &types[0];
-                    let ty = self.print_ty(ty, &BorrowMode::Owned);
-
-                    quote! { #ty }
-                }
-                Some(FunctionResult::Named(types)) => {
-                    let types = types.iter().map(|(_, ty)| self.print_ty(ty, &BorrowMode::Owned));
-
-                    quote! { (#(#types),*) }
-                }
-                _ => quote! { () },
-            };
-
-            quote! {
-                let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
-                router.func_wrap(
-                    #mod_name,
-                    #func_name,
-                    move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, #params| -> ::tauri_bindgen_host::anyhow::Result<#result> {
-                        let ctx = get_cx(ctx.data());
-
-                        Ok(ctx.#func_ident(#(#param_idents),*))
-                    },
-                )?;
-            }
-        });
+        let functions = functions.map(|func| self.print_router_fn_definition(&mod_name, func));
 
         let methods = methods.map(|(resource_name, method)| {
-            let func_name = method.ident.to_snake_case();
-            let func_ident = format_ident!("{}", func_name);
-
-            let params = self.print_function_params(&method.params, &BorrowMode::Owned);
-
-            let param_idents = method
-                .params
-                .iter()
-                .map(|(ident, _)| format_ident!("{}", ident));
-
-            let result = match method.result.as_ref() {
-                Some(FunctionResult::Anon(ty)) => {
-                    let ty = self.print_ty(ty, &BorrowMode::Owned);
-
-                    quote! { #ty }
-                }
-                Some(FunctionResult::Named(types)) if types.len() == 1 => {
-                    let (_, ty) = &types[0];
-                    let ty = self.print_ty(ty, &BorrowMode::Owned);
-
-                    quote! { #ty }
-                }
-                Some(FunctionResult::Named(types)) => {
-                    let types = types
-                        .iter()
-                        .map(|(_, ty)| self.print_ty(ty, &BorrowMode::Owned));
-
-                    quote! { (#(#types),*) }
-                }
-                _ => quote! { () },
-            };
-
-            let mod_name = format!("{mod_name}::resource::{resource_name}");
-            let get_r_ident = format_ident!("get_{}", resource_name.to_snake_case());
-
-            quote! {
-                let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
-                router.func_wrap(
-                    #mod_name,
-                    #func_name,
-                    move |
-                        ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                        this_rid: ::tauri_bindgen_host::ResourceId,
-                        #params
-                    | -> ::tauri_bindgen_host::anyhow::Result<#result> {
-                        let ctx = get_cx(ctx.data());
-                        let r = ctx.#get_r_ident(this_rid)?;
-
-                        Ok(r.#func_ident(#(#param_idents),*))
-                    },
-                )?;
-            }
+            self.print_router_method_definition(&mod_name, resource_name, method)
         });
 
         quote! {
@@ -420,6 +457,7 @@ impl Host {
                 get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
             ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
             where
+                T: Send + Sync + 'static,
                 U: #trait_ident + Send + Sync + 'static,
             {
                 let wrapped_get_cx = ::std::sync::Arc::new(get_cx);

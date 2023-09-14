@@ -14,59 +14,54 @@ pub mod simple_lists {
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
+        T: Send + Sync + 'static,
         U: SimpleLists + Send + Sync + 'static,
     {
         let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "simple_lists",
                 "simple_list1",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    l: Vec<u32>,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: Vec<u32>| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.simple_list1(l))
+                    Ok(ctx.simple_list1(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "simple_lists",
                 "simple_list2",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                | -> ::tauri_bindgen_host::anyhow::Result<Vec<u32>> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: ()| {
                     let ctx = get_cx(ctx.data());
                     Ok(ctx.simple_list2())
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "simple_lists",
                 "simple_list3",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    a: Vec<u32>,
-                    b: Vec<u32>,
-                | -> ::tauri_bindgen_host::anyhow::Result<(Vec<u32>, Vec<u32>)> {
+                    p: (Vec<u32>, Vec<u32>)|
+                {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.simple_list3(a, b))
+                    Ok(ctx.simple_list3(p.0, p.1))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "simple_lists",
                 "simple_list4",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    l: Vec<Vec<u32>>,
-                | -> ::tauri_bindgen_host::anyhow::Result<Vec<Vec<u32>>> {
+                    p: Vec<Vec<u32>>|
+                {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.simple_list4(l))
+                    Ok(ctx.simple_list4(p))
                 },
             )?;
         Ok(())

@@ -148,7 +148,7 @@ fn run() -> Result<()> {
         Command::Markdown { builder, world } => {
             let (path, contents) = gen_interface(builder, world)?;
 
-            write_file(&out_dir, &path, &contents)?;
+            write_file(out_dir, &path, &contents)?;
         }
     };
 

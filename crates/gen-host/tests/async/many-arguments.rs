@@ -27,8 +27,9 @@ pub mod many_arguments {
         pub a19: String,
         pub a20: String,
     }
+    #[::tauri_bindgen_host::async_trait]
     pub trait ManyArguments: Sized {
-        fn many_args(
+        async fn many_args(
             &self,
             a1: u64,
             a2: u64,
@@ -47,75 +48,85 @@ pub mod many_arguments {
             a15: u64,
             a16: u64,
         );
-        fn big_argument(&self, x: BigStruct);
+        async fn big_argument(&self, x: BigStruct);
     }
     pub fn add_to_router<T, U>(
         router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
+        T: Send + Sync + 'static,
         U: ManyArguments + Send + Sync + 'static,
     {
         let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define_async(
                 "many_arguments",
                 "many_args",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    a1: u64,
-                    a2: u64,
-                    a3: u64,
-                    a4: u64,
-                    a5: u64,
-                    a6: u64,
-                    a7: u64,
-                    a8: u64,
-                    a9: u64,
-                    a10: u64,
-                    a11: u64,
-                    a12: u64,
-                    a13: u64,
-                    a14: u64,
-                    a15: u64,
-                    a16: u64,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data());
-                    Ok(
-                        ctx
-                            .many_args(
-                                a1,
-                                a2,
-                                a3,
-                                a4,
-                                a5,
-                                a6,
-                                a7,
-                                a8,
-                                a9,
-                                a10,
-                                a11,
-                                a12,
-                                a13,
-                                a14,
-                                a15,
-                                a16,
-                            ),
-                    )
+                    p: (
+                        u64,
+                        u64,
+                        u64,
+                        u64,
+                        u64,
+                        u64,
+                        u64,
+                        u64,
+                        u64,
+                        u64,
+                        u64,
+                        u64,
+                        u64,
+                        u64,
+                        u64,
+                        u64,
+                    )|
+                {
+                    let get_cx = get_cx.clone();
+                    Box::pin(async move {
+                        let ctx = get_cx(ctx.data());
+                        Ok(
+                            ctx
+                                .many_args(
+                                    p.0,
+                                    p.1,
+                                    p.2,
+                                    p.3,
+                                    p.4,
+                                    p.5,
+                                    p.6,
+                                    p.7,
+                                    p.8,
+                                    p.9,
+                                    p.10,
+                                    p.11,
+                                    p.12,
+                                    p.13,
+                                    p.14,
+                                    p.15,
+                                )
+                                .await,
+                        )
+                    })
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define_async(
                 "many_arguments",
                 "big_argument",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    x: BigStruct,
-                | -> ::tauri_bindgen_host::anyhow::Result<()> {
-                    let ctx = get_cx(ctx.data());
-                    Ok(ctx.big_argument(x))
+                    p: BigStruct|
+                {
+                    let get_cx = get_cx.clone();
+                    Box::pin(async move {
+                        let ctx = get_cx(ctx.data());
+                        Ok(ctx.big_argument(p).await)
+                    })
                 },
             )?;
         Ok(())
