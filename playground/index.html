@@ -19,6 +19,7 @@
         <input id="iguest-rust" type="radio" name="tabs" />
         <input id="iguest-js" type="radio" name="tabs" />
         <input id="iguest-ts" type="radio" name="tabs" />
+        <input id="imarkdown" type="radio" name="tabs" />
 
         <nav>
             <label for="iinfo">Info</label>
@@ -27,16 +28,19 @@
             <label for="iguest-rust">Guest Rust</label>
             <label for="iguest-js">Guest JavaScript</label>
             <label for="iguest-ts">Guest TypeScript</label>
+            <label for="imarkdown">Markdown</label>
         </nav>
 
         <figure>
             <section id="info">
                 <h1>Welcome</h1>
 
-                <p>This is the tauri-bindgen playground. You can enter any .wit interface definition file and inspect the generated code.</p>
+                <p>This is the tauri-bindgen playground. You can enter any .wit interface definition file and inspect
+                    the generated code.</p>
                 <p>For more info see <a href="https://github.com/tauri-apps/tauri-bindgen">the repo</a>. </p>
             </section>
             <section id="errors"></section>
+            <section id="markdown"></section>
             <section id="host"></section>
             <section id="guest_rust"></section>
             <section id="guest_js"></section>
@@ -55,6 +59,7 @@
         grid-template-rows: 50vh 50vh;
         font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
     }
+
     main {
         width: 100%;
         height: 100%;
@@ -62,6 +67,7 @@
         padding: 5px;
         box-sizing: border-box;
     }
+
     aside figure {
         display: block;
         margin-left: 0;
@@ -86,6 +92,7 @@
 
     #iinfo:checked~figure #info,
     #ierrors:checked~figure #errors,
+    #imarkdown:checked~figure #markdown,
     #ihost:checked~figure #host,
     #iguest-rust:checked~figure #guest_rust,
     #iguest-js:checked~figure #guest_js,
@@ -116,6 +123,7 @@
 
     #iinfo:checked~nav label[for="iinfo"],
     #ierrors:checked~nav label[for="ierrors"],
+    #imarkdown:checked~nav label[for="imarkdown"],
     #ihost:checked~nav label[for="ihost"],
     #iguest-rust:checked~nav label[for="iguest-rust"],
     #iguest-js:checked~nav label[for="iguest-js"],
@@ -128,6 +136,7 @@
 
     #iinfo:checked~nav label[for="iinfo"]::after,
     #ierrors:checked~nav label[for="ierrors"]::after,
+    #imarkdown:checked~nav label[for="imarkdown"]::after,
     #ihost:checked~nav label[for="ihost"]::after,
     #iguest-rust:checked~nav label[for="iguest-rust"]::after,
     #iguest-js:checked~nav label[for="iguest-js"]::after,
@@ -140,6 +149,588 @@
         background: white;
         left: 0;
         bottom: -1px;
+    }
+
+    #markdown {
+        color-scheme: dark;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;
+        margin: 0;
+        line-height: 1.5;
+        word-wrap: break-word;
+    }
+
+    #markdown details,
+    #markdown figcaption,
+    #markdown figure {
+        display: block;
+    }
+
+    #markdown summary {
+        display: list-item;
+    }
+
+    #markdown [hidden] {
+        display: none !important;
+    }
+
+    #markdown abbr[title] {
+        border-bottom: none;
+        text-decoration: underline dotted;
+    }
+
+    #markdown b,
+    #markdown strong {
+        font-weight: 600;
+    }
+
+    #markdown dfn {
+        font-style: italic;
+    }
+
+    #markdown h1 {
+        margin: .67em 0;
+        font-weight: 600;
+        padding-bottom: .3em;
+        font-size: 2em;
+        /* border-bottom: 1px solid $white; */
+    }
+
+    #markdown mark {
+        /* background-color: rgba($bright-yellow, 0.5); */
+        color: #c9d1d9;
+    }
+
+    #markdown small {
+        font-size: 90%;
+    }
+
+    #markdown sub,
+    #markdown sup {
+        font-size: 75%;
+        line-height: 0;
+        position: relative;
+        vertical-align: baseline;
+    }
+
+    #markdown sub {
+        bottom: -0.25em;
+    }
+
+    #markdown sup {
+        top: -0.5em;
+    }
+
+    #markdown img {
+        border-style: none;
+        max-width: 35%;
+        box-sizing: content-box;
+        /* background-color: $black; */
+    }
+
+    #markdown code,
+    #markdown kbd,
+    #markdown pre,
+    #markdown samp {
+        font-family: monospace;
+        font-size: 1em;
+    }
+
+    #markdown figure {
+        margin: 1em 40px;
+    }
+
+    #markdown hr {
+        box-sizing: content-box;
+        overflow: hidden;
+        background: transparent;
+        /* border-bottom: 1px solid darken(grayscale($white), 10%); */
+        height: .25em;
+        padding: 0;
+        margin: 24px 0;
+        /* background-color: darken(grayscale($white), 10%); */
+        border: 0;
+    }
+
+    #markdown input {
+        font: inherit;
+        margin: 0;
+        overflow: visible;
+        font-family: inherit;
+        font-size: inherit;
+        line-height: inherit;
+    }
+
+    #markdown [type=button],
+    #markdown [type=reset],
+    #markdown [type=submit] {
+        appearance: button;
+        -webkit-appearance: button;
+    }
+
+    #markdown [type=checkbox],
+    #markdown [type=radio] {
+        box-sizing: border-box;
+        padding: 0;
+    }
+
+    #markdown [type=number]::-webkit-inner-spin-button,
+    #markdown [type=number]::-webkit-outer-spin-button {
+        height: auto;
+    }
+
+    #markdown [type=search]::-webkit-search-cancel-button,
+    #markdown [type=search]::-webkit-search-decoration {
+        -webkit-appearance: none;
+    }
+
+    #markdown ::-webkit-input-placeholder {
+        color: inherit;
+        opacity: .54;
+    }
+
+    #markdown ::-webkit-file-upload-button {
+        -webkit-appearance: button;
+        font: inherit;
+    }
+
+    #markdown ::placeholder {
+        color: #6e7681;
+        opacity: 1;
+    }
+
+    #markdown hr::before {
+        display: table;
+        content: "";
+    }
+
+    #markdown hr::after {
+        display: table;
+        clear: both;
+        content: "";
+    }
+
+    #markdown table {
+        border-spacing: 0;
+        border-collapse: collapse;
+        display: block;
+        width: max-content;
+        max-width: 100%;
+        overflow: auto;
+    }
+
+    #markdown td,
+    #markdown th {
+        padding: 0;
+    }
+
+    #markdown details summary {
+        cursor: pointer;
+    }
+
+    #markdown details:not([open])>*:not(summary) {
+        display: none !important;
+    }
+
+    #markdown a:focus,
+    #markdown [role=button]:focus,
+    #markdown input[type=radio]:focus,
+    #markdown input[type=checkbox]:focus {
+        outline: 2px solid #58a6ff;
+        outline-offset: -2px;
+        box-shadow: none;
+    }
+
+    #markdown a:focus:not(:focus-visible),
+    #markdown [role=button]:focus:not(:focus-visible),
+    #markdown input[type=radio]:focus:not(:focus-visible),
+    #markdown input[type=checkbox]:focus:not(:focus-visible) {
+        outline: solid 1px transparent;
+    }
+
+    #markdown a:focus-visible,
+    #markdown [role=button]:focus-visible,
+    #markdown input[type=radio]:focus-visible,
+    #markdown input[type=checkbox]:focus-visible {
+        outline: 2px solid #58a6ff;
+        outline-offset: -2px;
+        box-shadow: none;
+    }
+
+    #markdown a:not([class]):focus,
+    #markdown a:not([class]):focus-visible,
+    #markdown input[type=radio]:focus,
+    #markdown input[type=radio]:focus-visible,
+    #markdown input[type=checkbox]:focus,
+    #markdown input[type=checkbox]:focus-visible {
+        outline-offset: 0;
+    }
+
+    #markdown kbd {
+        display: inline-block;
+        padding: 3px 5px;
+        /* font: 80% $font-mono; */
+        line-height: 10px;
+        color: #c9d1d9;
+        vertical-align: middle;
+        /* background-color: $code-bg; */
+        /* border: solid 1px grayscale(darken($white, 60%)); */
+        /* border-bottom-color: grayscale(darken($white, 60%)); */
+        border-radius: 6px;
+        /* box-shadow: inset 0 -1px 0 grayscale(darken($white, 60%)); */
+    }
+
+    #markdown h1,
+    #markdown h2,
+    #markdown h3,
+    #markdown h4,
+    #markdown h5,
+    #markdown h6 {
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+        line-height: 1.25;
+    }
+
+    #markdown h2 {
+        font-weight: 600;
+        padding-bottom: .3em;
+        font-size: 1.5em;
+        /* border-bottom: 1px solid grayscale(darken($white, 25%)); */
+    }
+
+    #markdown h3 {
+        font-weight: 600;
+        font-size: 1.25em;
+    }
+
+    #markdown h4 {
+        font-weight: 600;
+        font-size: 1em;
+    }
+
+    #markdown h5 {
+        font-weight: 600;
+        font-size: .875em;
+    }
+
+    #markdown h6 {
+        font-weight: 600;
+        font-size: .85em;
+        /* color: grayscale(darken($white, 30%)); */
+    }
+
+    #markdown p {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+
+    #markdown blockquote {
+        margin: 0;
+        padding: 0 1em;
+        /* color: grayscale(darken($white, 30%)); */
+        /* border-left: .25em solid grayscale(lighten($code-bg, 5%)); */
+    }
+
+    #markdown ul,
+    #markdown ol {
+        margin-top: 0;
+        margin-bottom: 0;
+        padding-left: 2em;
+    }
+
+    #markdown ol ol,
+    #markdown ul ol {
+        list-style-type: lower-roman;
+    }
+
+    #markdown ul ul ol,
+    #markdown ul ol ol,
+    #markdown ol ul ol,
+    #markdown ol ol ol {
+        list-style-type: lower-alpha;
+    }
+
+    #markdown dd {
+        margin-left: 0;
+    }
+
+    #markdown pre {
+        margin-top: 0;
+        margin-bottom: 0;
+        word-wrap: normal;
+        padding: 0.75rem;
+    }
+
+    #markdown input::-webkit-outer-spin-button,
+    #markdown input::-webkit-inner-spin-button {
+        margin: 0;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    #markdown a:not([href]) {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    #markdown p,
+    #markdown blockquote,
+    #markdown ul,
+    #markdown ol,
+    #markdown dl,
+    #markdown table,
+    #markdown pre,
+    #markdown details {
+        margin-top: 0;
+        margin-bottom: 16px;
+    }
+
+    #markdown blockquote>:first-child {
+        margin-top: 0;
+    }
+
+    #markdown blockquote>:last-child {
+        margin-bottom: 0;
+    }
+
+    #markdown h1 tt,
+    #markdown h1 code,
+    #markdown h2 tt,
+    #markdown h2 code,
+    #markdown h3 tt,
+    #markdown h3 code,
+    #markdown h4 tt,
+    #markdown h4 code,
+    #markdown h5 tt,
+    #markdown h5 code,
+    #markdown h6 tt,
+    #markdown h6 code {
+        padding: 0 .2em;
+        font-size: inherit;
+    }
+
+    #markdown summary h1,
+    #markdown summary h2,
+    #markdown summary h3,
+    #markdown summary h4,
+    #markdown summary h5,
+    #markdown summary h6 {
+        display: inline-block;
+    }
+
+    #markdown summary h1,
+    #markdown summary h2 {
+        padding-bottom: 0;
+        border-bottom: 0;
+    }
+
+    #markdown ol[type=a] {
+        list-style-type: lower-alpha;
+    }
+
+    #markdown ol[type=A] {
+        list-style-type: upper-alpha;
+    }
+
+    #markdown ol[type=i] {
+        list-style-type: lower-roman;
+    }
+
+    #markdown ol[type=I] {
+        list-style-type: upper-roman;
+    }
+
+    #markdown ol[type="1"] {
+        list-style-type: decimal;
+    }
+
+    #markdown div>ol:not([type]) {
+        list-style-type: decimal;
+    }
+
+    #markdown ul ul,
+    #markdown ul ol,
+    #markdown ol ol,
+    #markdown ol ul {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    #markdown li>p {
+        margin-top: 16px;
+    }
+
+    #markdown li+li {
+        margin-top: .25em;
+    }
+
+    #markdown dl {
+        padding: 0;
+    }
+
+    #markdown dl dt {
+        padding: 0;
+        margin-top: 16px;
+        font-size: 1em;
+        font-style: italic;
+        font-weight: 600;
+    }
+
+    #markdown dl dd {
+        padding: 0 16px;
+        margin-bottom: 16px;
+    }
+
+    #markdown table th {
+        font-weight: 600;
+    }
+
+    #markdown table th,
+    #markdown table td {
+        padding: 6px 13px;
+        /* border: 1px solid grayscale(darken($white, 60%)); */
+    }
+
+    /* #markdown table tr {
+        background-color: $code-bg;
+    } */
+
+    /* #markdown table tr:nth-child(2n) {
+        background-color: lighten($code-bg, 5%);
+    } */
+
+    #markdown table img {
+        background-color: transparent;
+    }
+
+    #markdown code br,
+    #markdown tt br {
+        display: none;
+    }
+
+    #markdown del code {
+        text-decoration: inherit;
+    }
+
+    #markdown samp {
+        font-size: 85%;
+    }
+
+    #markdown pre code {
+        font-size: 100%;
+    }
+
+    #markdown pre>code {
+        padding: 0;
+        margin: 0;
+        word-break: normal;
+        white-space: pre;
+        background: transparent;
+        border: 0;
+    }
+
+    #markdown pre code,
+    #markdown pre tt {
+        display: inline;
+        max-width: auto;
+        padding: 0;
+        margin: 0;
+        overflow: visible;
+        line-height: inherit;
+        word-wrap: normal;
+        background-color: transparent;
+        border: 0;
+    }
+
+    #markdown [data-footnote-ref]::before {
+        content: "[";
+    }
+
+    #markdown [data-footnote-ref]::after {
+        content: "]";
+    }
+
+    #markdown .footnotes {
+        font-size: 12px;
+        /* color: grayscale(darken($white, 15%)); */
+        /* border-top: 1px solid $white; */
+    }
+
+    #markdown .footnotes ol {
+        padding-left: 16px;
+    }
+
+    #markdown .footnotes ol ul {
+        display: inline-block;
+        padding-left: 16px;
+        margin-top: 16px;
+    }
+
+    #markdown .footnotes li {
+        position: relative;
+    }
+
+    #markdown .footnotes li:target::before {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        bottom: -8px;
+        left: -24px;
+        pointer-events: none;
+        content: "";
+        /* border: 2px solid $bright-yellow; */
+        border-radius: 6px;
+    }
+
+    /* #markdown .footnotes li:target {
+        color: $white;
+    }
+
+    #markdown .footnotes .data-footnote-backref g-emoji {
+        font-family: $font-mono;
+    } */
+
+    #markdown .task-list-item {
+        list-style-type: none;
+    }
+
+    #markdown .task-list-item label {
+        font-weight: 400;
+    }
+
+    #markdown .task-list-item.enabled label {
+        cursor: pointer;
+    }
+
+    #markdown .task-list-item+.task-list-item {
+        margin-top: 4px;
+    }
+
+    #markdown .task-list-item .handle {
+        display: none;
+    }
+
+    #markdown .task-list-item-checkbox {
+        margin: 0 .2em .25em -1.4em;
+        vertical-align: middle;
+    }
+
+    #markdown .contains-task-list:dir(rtl) .task-list-item-checkbox {
+        margin: 0 -1.6em .25em .2em;
+    }
+
+    #markdown .contains-task-list {
+        position: relative;
+    }
+
+    #markdown .contains-task-list:hover .task-list-item-convert-container,
+    #markdown .contains-task-list:focus-within .task-list-item-convert-container {
+        display: block;
+        width: auto;
+        height: 24px;
+        overflow: visible;
+        clip: auto;
     }
 </style>
 
