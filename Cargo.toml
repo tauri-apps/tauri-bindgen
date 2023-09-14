@@ -33,7 +33,7 @@ serde = "1.0.188"
 quote = "1.0.33"
 proc-macro2 = "1.0.67"
 syn = "2.0.33"
-tauri = { git = "https://github.com/tauri-apps/tauri" }
+tauri = "2.0.0-alpha.14"
 
 [dependencies]
 clap.workspace = true

@@ -340,26 +340,6 @@ impl Host {
                 }
             };
 
-            // let result = match func.result.as_ref() {
-            //     Some(FunctionResult::Anon(ty)) => {
-            //         let ty = self.print_ty(ty, &BorrowMode::Owned);
-
-            //         quote! { #ty }
-            //     }
-            //     Some(FunctionResult::Named(types)) if types.len() == 1 => {
-            //         let (_, ty) = &types[0];
-            //         let ty = self.print_ty(ty, &BorrowMode::Owned);
-
-            //         quote! { #ty }
-            //     }
-            //     Some(FunctionResult::Named(types)) => {
-            //         let types = types.iter().map(|(_, ty)| self.print_ty(ty, &BorrowMode::Owned));
-
-            //         quote! { (#(#types),*) }
-            //     }
-            //     _ => quote! { () },
-            // };
-
             if self.opts.async_ {
                 quote! {
                     let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
