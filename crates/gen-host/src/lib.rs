@@ -311,7 +311,7 @@ impl Host {
     }
 
     fn print_router_fn_definition(&self, mod_name: &str, func: &Function) -> TokenStream {
-        let func_name = func.ident.to_snake_case();
+        let func_name = func.id.to_snake_case();
         let func_ident = format_ident!("{}", func_name);
 
         let param_decl = match func.params.len() {
@@ -378,7 +378,7 @@ impl Host {
         resource_name: &str,
         method: &Function,
     ) -> TokenStream {
-        let func_name = method.ident.to_snake_case();
+        let func_name = method.id.to_snake_case();
         let func_ident = format_ident!("{}", func_name);
 
         let param_decl = method
