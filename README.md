@@ -34,7 +34,7 @@ Here are a few reasons why that is cool:
 
 - **Compile-time Checks**
 
-When using strongly typed languages, such as Rust, TypeScript or ReScript the generated code will automatically ensure that you are calling the API correctly, as long as it passes the type checking youre golden. This is especially neat **when working in a team**, so your colleagues can't just change command signatures and pull the rug out from under you.
+When using strongly typed languages, such as Rust, TypeScript or ReScript the generated code will automatically ensure that you are calling the API correctly, as long as it passes the type checking your golden. This is especially neat **when working in a team**, so your colleagues can't just change command signatures and pull the rug out from under you.
 
 - **Easily auditable**
 

@@ -29,7 +29,7 @@ struct Cli {
 
 #[derive(Debug, Parser)]
 enum Command {
-    /// Check a defintion file for errors.
+    /// Check a definition file for errors.
     Check {
         #[clap(flatten)]
         world: WorldOpt,
