@@ -398,7 +398,6 @@ impl Host {
             where
                 T: Send + Sync + 'static,
                 U: #trait_ident + Send + Sync + 'static,
-                R: ::tauri_bindgen_host::tauri::Runtime
             {
                 let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
 

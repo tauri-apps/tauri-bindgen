@@ -13,14 +13,13 @@ pub mod small_anonymous {
     pub trait SmallAnonymous: Sized {
         async fn option_test(&self) -> Result<Option<String>, Error>;
     }
-    pub fn add_to_router<T, U, R>(
-        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
+    pub fn add_to_router<T, U>(
+        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
         T: Send + Sync + 'static,
         U: SmallAnonymous + Send + Sync + 'static,
-        R: ::tauri_bindgen_host::tauri::Runtime,
     {
         let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);

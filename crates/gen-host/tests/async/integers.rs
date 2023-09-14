@@ -40,14 +40,13 @@ pub mod integers {
         async fn r10(&self) -> i128;
         async fn pair_ret(&self) -> (i64, u8);
     }
-    pub fn add_to_router<T, U, R>(
-        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
+    pub fn add_to_router<T, U>(
+        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
         T: Send + Sync + 'static,
         U: Integers + Send + Sync + 'static,
-        R: ::tauri_bindgen_host::tauri::Runtime,
     {
         let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);

@@ -10,14 +10,13 @@ pub mod simple_lists {
         async fn simple_list3(&self, a: Vec<u32>, b: Vec<u32>) -> (Vec<u32>, Vec<u32>);
         async fn simple_list4(&self, l: Vec<Vec<u32>>) -> Vec<Vec<u32>>;
     }
-    pub fn add_to_router<T, U, R>(
-        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T, R>,
+    pub fn add_to_router<T, U>(
+        router: &mut ::tauri_bindgen_host::ipc_router_wip::Router<T>,
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
         T: Send + Sync + 'static,
         U: SimpleLists + Send + Sync + 'static,
-        R: ::tauri_bindgen_host::tauri::Runtime,
     {
         let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
