@@ -73,7 +73,10 @@ pub struct TypeInfos {
 
 impl TypeInfos {
     #[must_use]
-    pub fn collect_from_functions(typedefs: &TypeDefArena, functions: &[Function]) -> Self {
+    pub fn collect_from_functions<'a>(
+        typedefs: &TypeDefArena,
+        functions: impl Iterator<Item = &'a Function>,
+    ) -> Self {
         let mut this = Self::default();
 
         for func in functions {

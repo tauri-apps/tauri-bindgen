@@ -14,6 +14,7 @@ use tauri_bindgen_core::TypeInfo;
 use tauri_bindgen_core::TypeInfos;
 use tauri_bindgen_gen_rust::FnSig;
 use tauri_bindgen_gen_rust::{BorrowMode, RustGenerator};
+use wit_parser::TypeDefKind;
 use wit_parser::{Function, Interface};
 
 #[derive(Default, Debug, Clone)]
@@ -35,7 +36,22 @@ pub struct Builder {
 
 impl GeneratorBuilder for Builder {
     fn build(self, interface: Interface) -> Box<dyn Generate> {
-        let infos = TypeInfos::collect_from_functions(&interface.typedefs, &interface.functions);
+        let methods = interface
+            .typedefs
+            .iter()
+            .filter_map(|(_, typedef)| {
+                if let TypeDefKind::Resource(methods) = &typedef.kind {
+                    Some(methods.iter())
+                } else {
+                    None
+                }
+            })
+            .flatten();
+
+        let infos = TypeInfos::collect_from_functions(
+            &interface.typedefs,
+            interface.functions.iter().chain(methods),
+        );
 
         Box::new(RustWasm {
             opts: self,
@@ -117,6 +133,7 @@ impl RustGenerator for RustWasm {
 
     fn print_resource(
         &self,
+        mod_ident: &str,
         docs: &str,
         ident: &proc_macro2::Ident,
         functions: &[Function],
@@ -139,9 +156,17 @@ impl RustGenerator for RustWasm {
                 &BorrowMode::Owned,
             );
 
+            let mod_ident = format!("{mod_ident}::resource::{}", ident.to_string().to_snake_case());
+            let ident = func.ident.to_snake_case();
+
+            let param_idents = func
+                .params
+                .iter()
+                .map(|(ident, _)| format_ident!("{}", ident));
+
             quote! {
                 #sig {
-                    todo!()
+                    ::tauri_bindgen_guest_rust::invoke(#mod_ident, #ident, &(self.0, #(#param_idents),*)).await.unwrap()
                 }
             }
         });
@@ -149,9 +174,7 @@ impl RustGenerator for RustWasm {
         quote! {
             #docs
             #additional_attrs
-            pub struct #ident {
-                id: u64
-            }
+            pub struct #ident(u32);
 
             impl #ident {
                 #(#functions)*

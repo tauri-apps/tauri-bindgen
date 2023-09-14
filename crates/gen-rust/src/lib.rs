@@ -19,6 +19,7 @@ pub trait RustGenerator {
     fn default_param_mode(&self) -> BorrowMode;
     fn print_resource(
         &self,
+        print_resource: &str,
         docs: &str,
         ident: &Ident,
         functions: &[Function],
@@ -63,7 +64,7 @@ pub trait RustGenerator {
                         self.print_union(docs, &ident, cases, info, &borrow_mode)
                     }
                     TypeDefKind::Resource(functions) => {
-                        self.print_resource(docs, &ident, functions, info)
+                        self.print_resource(&self.interface().ident, docs, &ident, functions, info)
                     }
                 };
 
