@@ -20,7 +20,7 @@ log.workspace = true
 [dev-dependencies]
 wasm-bindgen = { version = "0.2.87", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4.37"
-serde-wasm-bindgen = "0.5.0"
+serde-wasm-bindgen = "0.6.0"
 js-sys = "0.3.64" 
 tauri-bindgen-guest-rust = { path = "../guest-rust" }
 serde = { version = "1.0.188", features = ["derive"] }
