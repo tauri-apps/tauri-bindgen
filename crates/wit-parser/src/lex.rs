@@ -38,16 +38,16 @@ fn block_comment(lex: &mut Lexer<Token>) -> FilterResult<(), Error> {
 #[derive(Logos, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[logos(error = Error)]
 pub enum Token {
-    #[regex(r"[ \t\n\f]+", logos::skip)]
+    #[regex(r"[ \t\r\n\f]+", logos::skip)]
     Whitespace,
-    #[regex("(//[^\n]*)", logos::skip)]
+    #[regex("(//[^\r\n]*)", logos::skip)]
     Comment,
     #[regex(r#"/\*"#, |lex| match block_comment(lex) {
         FilterResult::Emit(_) => FilterResult::Skip,
         v => v
     })]
     BlockComment,
-    #[regex("(///[^\n]*)")]
+    #[regex("(///[^\r\n]*)")]
     DocComment,
     #[regex(r#"/\*\*"#, block_comment)]
     BlockDocComment,
