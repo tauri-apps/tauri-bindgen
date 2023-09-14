@@ -22,13 +22,13 @@ fn chars() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) = gen_interface(opts, "chars", include_str!("../../../wit/chars.wit"));
 
     assert_eq!(filename, "chars.rs");
-    assert_eq!(contents, include_str!("./chars.rs"));
+    assert_eq!(contents, include_str!("./async/chars.rs"));
 }
 
 #[test]
@@ -36,7 +36,7 @@ fn convention() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) = gen_interface(
@@ -46,7 +46,7 @@ fn convention() {
     );
 
     assert_eq!(filename, "conventions.rs");
-    assert_eq!(contents, include_str!("./conventions.rs"));
+    assert_eq!(contents, include_str!("./async/conventions.rs"));
 }
 
 #[test]
@@ -54,13 +54,13 @@ fn empty() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) = gen_interface(opts, "empty", include_str!("../../../wit/empty.wit"));
 
     assert_eq!(filename, "empty.rs");
-    assert_eq!(contents, include_str!("./empty.rs"));
+    assert_eq!(contents, include_str!("./async/empty.rs"));
 }
 
 #[test]
@@ -68,13 +68,13 @@ fn flags() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) = gen_interface(opts, "flegs", include_str!("../../../wit/flags.wit"));
 
     assert_eq!(filename, "flegs.rs");
-    assert_eq!(contents, include_str!("./flegs.rs"));
+    assert_eq!(contents, include_str!("./async/flegs.rs"));
 }
 
 #[test]
@@ -82,14 +82,14 @@ fn floats() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) =
         gen_interface(opts, "floats", include_str!("../../../wit/floats.wit"));
 
     assert_eq!(filename, "floats.rs");
-    assert_eq!(contents, include_str!("./floats.rs"));
+    assert_eq!(contents, include_str!("./async/floats.rs"));
 }
 
 #[test]
@@ -97,14 +97,14 @@ fn integers() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) =
         gen_interface(opts, "integers", include_str!("../../../wit/integers.wit"));
 
     assert_eq!(filename, "integers.rs");
-    assert_eq!(contents, include_str!("./integers.rs"));
+    assert_eq!(contents, include_str!("./async/integers.rs"));
 }
 
 #[test]
@@ -112,13 +112,13 @@ fn lists() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) = gen_interface(opts, "lists", include_str!("../../../wit/lists.wit"));
 
     assert_eq!(filename, "lists.rs");
-    assert_eq!(contents, include_str!("./lists.rs"));
+    assert_eq!(contents, include_str!("./async/lists.rs"));
 }
 
 #[test]
@@ -126,7 +126,7 @@ fn many_arguments() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) = gen_interface(
@@ -136,7 +136,7 @@ fn many_arguments() {
     );
 
     assert_eq!(filename, "many-arguments.rs");
-    assert_eq!(contents, include_str!("./many-arguments.rs"));
+    assert_eq!(contents, include_str!("./async/many-arguments.rs"));
 }
 
 #[test]
@@ -144,7 +144,7 @@ fn multi_return() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) = gen_interface(
@@ -154,7 +154,7 @@ fn multi_return() {
     );
 
     assert_eq!(filename, "multi-return.rs");
-    assert_eq!(contents, include_str!("./multi-return.rs"));
+    assert_eq!(contents, include_str!("./async/multi-return.rs"));
 }
 
 #[test]
@@ -162,14 +162,14 @@ fn records() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) =
         gen_interface(opts, "records", include_str!("../../../wit/records.wit"));
 
     assert_eq!(filename, "records.rs");
-    assert_eq!(contents, include_str!("./records.rs"));
+    assert_eq!(contents, include_str!("./async/records.rs"));
 }
 
 #[test]
@@ -177,7 +177,7 @@ fn simple_functions() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) = gen_interface(
@@ -187,7 +187,7 @@ fn simple_functions() {
     );
 
     assert_eq!(filename, "simple-functions.rs");
-    assert_eq!(contents, include_str!("./simple-functions.rs"));
+    assert_eq!(contents, include_str!("./async/simple-functions.rs"));
 }
 
 #[test]
@@ -195,7 +195,7 @@ fn simple_lists() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) = gen_interface(
@@ -205,7 +205,7 @@ fn simple_lists() {
     );
 
     assert_eq!(filename, "simple-lists.rs");
-    assert_eq!(contents, include_str!("./simple-lists.rs"));
+    assert_eq!(contents, include_str!("./async/simple-lists.rs"));
 }
 
 #[test]
@@ -213,7 +213,7 @@ fn small_anonymous() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) = gen_interface(
@@ -223,7 +223,7 @@ fn small_anonymous() {
     );
 
     assert_eq!(filename, "small-anonymous.rs");
-    assert_eq!(contents, include_str!("./small-anonymous.rs"));
+    assert_eq!(contents, include_str!("./async/small-anonymous.rs"));
 }
 
 #[test]
@@ -231,14 +231,14 @@ fn strings() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) =
         gen_interface(opts, "strings", include_str!("../../../wit/strings.wit"));
 
     assert_eq!(filename, "strings.rs");
-    assert_eq!(contents, include_str!("./strings.rs"));
+    assert_eq!(contents, include_str!("./async/strings.rs"));
 }
 
 #[test]
@@ -246,14 +246,14 @@ fn unions() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) =
         gen_interface(opts, "unions", include_str!("../../../wit/unions.wit"));
 
     assert_eq!(filename, "unions.rs");
-    assert_eq!(contents, include_str!("./unions.rs"));
+    assert_eq!(contents, include_str!("./async/unions.rs"));
 }
 
 #[test]
@@ -261,12 +261,12 @@ fn variants() {
     let opts = Builder {
         fmt: true,
         tracing: true,
-        async_: false,
+        async_: true,
     };
 
     let (filename, contents) =
         gen_interface(opts, "variants", include_str!("../../../wit/variants.wit"));
 
     assert_eq!(filename, "variants.rs");
-    assert_eq!(contents, include_str!("./variants.rs"));
+    assert_eq!(contents, include_str!("./async/variants.rs"));
 }

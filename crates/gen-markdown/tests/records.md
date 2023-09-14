@@ -81,55 +81,55 @@ All of the fields are bool
 
 ### Function tuple_arg
 
-`func tuple_arg (x: tuple<char, u32>)`
+` func tuple_arg (x: tuple<char, u32>)`
 
 
 ### Function tuple_result
 
-`func tuple_result () -> tuple<char, u32>`
+` func tuple_result () -> tuple<char, u32>`
 
 
 ### Function empty_arg
 
-`func empty_arg (x: [empty](#empty))`
+` func empty_arg (x: [empty](#empty))`
 
 
 ### Function empty_result
 
-`func empty_result () -> [empty](#empty)`
+` func empty_result () -> [empty](#empty)`
 
 
 ### Function scalar_arg
 
-`func scalar_arg (x: [scalars](#scalars))`
+` func scalar_arg (x: [scalars](#scalars))`
 
 
 ### Function scalar_result
 
-`func scalar_result () -> [scalars](#scalars)`
+` func scalar_result () -> [scalars](#scalars)`
 
 
 ### Function flags_arg
 
-`func flags_arg (x: [really_flags](#really_flags))`
+` func flags_arg (x: [really_flags](#really_flags))`
 
 
 ### Function flags_result
 
-`func flags_result () -> [really_flags](#really_flags)`
+` func flags_result () -> [really_flags](#really_flags)`
 
 
 ### Function aggregate_arg
 
-`func aggregate_arg (x: [aggregates](#aggregates))`
+` func aggregate_arg (x: [aggregates](#aggregates))`
 
 
 ### Function aggregate_result
 
-`func aggregate_result () -> [aggregates](#aggregates)`
+` func aggregate_result () -> [aggregates](#aggregates)`
 
 
 ### Function typedef_inout
 
-`func typedef_inout (e: [tuple_typedef2](#tuple_typedef2)) -> s32`
+` func typedef_inout (e: [tuple_typedef2](#tuple_typedef2)) -> s32`
 
