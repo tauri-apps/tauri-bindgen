@@ -156,7 +156,7 @@ fn run() -> Result<()> {
         Command::Markdown { builder, world } => {
             let (path, contents) = gen_interface(builder, world)?;
 
-            write_file(&out_dir, &path, &contents)?;
+            write_file(out_dir, &path, &contents)?;
         }
         #[cfg(feature = "unstable")]
         Command::Json { world, pretty } => {
@@ -169,7 +169,7 @@ fn run() -> Result<()> {
 
             let iface = wit_parser::parse_and_resolve_file(&world.wit, |t| skipset.contains(t))?;
 
-            let mut stdout = std::io::stdout().lock();
+            let stdout = std::io::stdout().lock();
             if pretty {
                 serde_json::to_writer_pretty(stdout, &iface).into_diagnostic()?;
             } else {
