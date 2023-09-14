@@ -312,35 +312,35 @@
 
 ### Function roundtrip_flag1
 
-`func roundtrip_flag1 (x: [flag1](#flag1)) -> [flag1](#flag1)`
+` func roundtrip_flag1 (x: [flag1](#flag1)) -> [flag1](#flag1)`
 
 
 ### Function roundtrip_flag2
 
-`func roundtrip_flag2 (x: [flag2](#flag2)) -> [flag2](#flag2)`
+` func roundtrip_flag2 (x: [flag2](#flag2)) -> [flag2](#flag2)`
 
 
 ### Function roundtrip_flag4
 
-`func roundtrip_flag4 (x: [flag4](#flag4)) -> [flag4](#flag4)`
+` func roundtrip_flag4 (x: [flag4](#flag4)) -> [flag4](#flag4)`
 
 
 ### Function roundtrip_flag8
 
-`func roundtrip_flag8 (x: [flag8](#flag8)) -> [flag8](#flag8)`
+` func roundtrip_flag8 (x: [flag8](#flag8)) -> [flag8](#flag8)`
 
 
 ### Function roundtrip_flag16
 
-`func roundtrip_flag16 (x: [flag16](#flag16)) -> [flag16](#flag16)`
+` func roundtrip_flag16 (x: [flag16](#flag16)) -> [flag16](#flag16)`
 
 
 ### Function roundtrip_flag32
 
-`func roundtrip_flag32 (x: [flag32](#flag32)) -> [flag32](#flag32)`
+` func roundtrip_flag32 (x: [flag32](#flag32)) -> [flag32](#flag32)`
 
 
 ### Function roundtrip_flag64
 
-`func roundtrip_flag64 (x: [flag64](#flag64)) -> [flag64](#flag64)`
+` func roundtrip_flag64 (x: [flag64](#flag64)) -> [flag64](#flag64)`
 

@@ -143,120 +143,120 @@
 
 ### Function e1_arg
 
-`func e1_arg (x: [e1](#e1))`
+` func e1_arg (x: [e1](#e1))`
 
 
 ### Function e1_result
 
-`func e1_result () -> [e1](#e1)`
+` func e1_result () -> [e1](#e1)`
 
 
 ### Function u1_arg
 
-`func u1_arg (x: [u1](#u1))`
+` func u1_arg (x: [u1](#u1))`
 
 
 ### Function u1_result
 
-`func u1_result () -> [u1](#u1)`
+` func u1_result () -> [u1](#u1)`
 
 
 ### Function v1_arg
 
-`func v1_arg (x: [v1](#v1))`
+` func v1_arg (x: [v1](#v1))`
 
 
 ### Function v1_result
 
-`func v1_result () -> [v1](#v1)`
+` func v1_result () -> [v1](#v1)`
 
 
 ### Function bool_arg
 
-`func bool_arg (x: bool)`
+` func bool_arg (x: bool)`
 
 
 ### Function bool_result
 
-`func bool_result () -> bool`
+` func bool_result () -> bool`
 
 
 ### Function option_arg
 
-`func option_arg (a: option<bool>, b: option<tuple<>>, c: option<u32>, d: option<[e1](#e1)>, e: option<float32>, f: option<[u1](#u1)>, g: option<option<bool>>)`
+` func option_arg (a: option<bool>, b: option<tuple<>>, c: option<u32>, d: option<[e1](#e1)>, e: option<float32>, f: option<[u1](#u1)>, g: option<option<bool>>)`
 
 
 ### Function option_result
 
-`func option_result () -> tuple<option<bool>, option<tuple<>>, option<u32>, option<[e1](#e1)>, option<float32>, option<[u1](#u1)>, option<option<bool>>>`
+` func option_result () -> tuple<option<bool>, option<tuple<>>, option<u32>, option<[e1](#e1)>, option<float32>, option<[u1](#u1)>, option<option<bool>>>`
 
 
 ### Function casts
 
-`func casts (a: [casts1](#casts1), b: [casts2](#casts2), c: [casts3](#casts3), d: [casts4](#casts4), e: [casts5](#casts5), f: [casts6](#casts6)) -> tuple<[casts1](#casts1), [casts2](#casts2), [casts3](#casts3), [casts4](#casts4), [casts5](#casts5), [casts6](#casts6)>`
+` func casts (a: [casts1](#casts1), b: [casts2](#casts2), c: [casts3](#casts3), d: [casts4](#casts4), e: [casts5](#casts5), f: [casts6](#casts6)) -> tuple<[casts1](#casts1), [casts2](#casts2), [casts3](#casts3), [casts4](#casts4), [casts5](#casts5), [casts6](#casts6)>`
 
 
 ### Function result_arg
 
-`func result_arg (a: result<_, _>, b: result<_, [e1](#e1)>, c: result<[e1](#e1), _>, d: result<tuple<>, tuple<>>, e: result<u32, [v1](#v1)>, f: result<string, list<u8>>)`
+` func result_arg (a: result<_, _>, b: result<_, [e1](#e1)>, c: result<[e1](#e1), _>, d: result<tuple<>, tuple<>>, e: result<u32, [v1](#v1)>, f: result<string, list<u8>>)`
 
 
 ### Function result_result
 
-`func result_result () -> tuple<result<_, _>, result<_, [e1](#e1)>, result<[e1](#e1), _>, result<tuple<>, tuple<>>, result<u32, [v1](#v1)>, result<string, list<u8>>>`
+` func result_result () -> tuple<result<_, _>, result<_, [e1](#e1)>, result<[e1](#e1), _>, result<tuple<>, tuple<>>, result<u32, [v1](#v1)>, result<string, list<u8>>>`
 
 
 ### Function return_result_sugar
 
-`func return_result_sugar () -> result<s32, [my_errno](#my_errno)>`
+` func return_result_sugar () -> result<s32, [my_errno](#my_errno)>`
 
 
 ### Function return_result_sugar2
 
-`func return_result_sugar2 () -> result<_, [my_errno](#my_errno)>`
+` func return_result_sugar2 () -> result<_, [my_errno](#my_errno)>`
 
 
 ### Function return_result_sugar3
 
-`func return_result_sugar3 () -> result<[my_errno](#my_errno), [my_errno](#my_errno)>`
+` func return_result_sugar3 () -> result<[my_errno](#my_errno), [my_errno](#my_errno)>`
 
 
 ### Function return_result_sugar4
 
-`func return_result_sugar4 () -> result<tuple<s32, u32>, [my_errno](#my_errno)>`
+` func return_result_sugar4 () -> result<tuple<s32, u32>, [my_errno](#my_errno)>`
 
 
 ### Function return_option_sugar
 
-`func return_option_sugar () -> option<s32>`
+` func return_option_sugar () -> option<s32>`
 
 
 ### Function return_option_sugar2
 
-`func return_option_sugar2 () -> option<[my_errno](#my_errno)>`
+` func return_option_sugar2 () -> option<[my_errno](#my_errno)>`
 
 
 ### Function result_simple
 
-`func result_simple () -> result<u32, s32>`
+` func result_simple () -> result<u32, s32>`
 
 
 ### Function is_clone_arg
 
-`func is_clone_arg (a: [is_clone](#is_clone))`
+` func is_clone_arg (a: [is_clone](#is_clone))`
 
 
 ### Function is_clone_return
 
-`func is_clone_return () -> [is_clone](#is_clone)`
+` func is_clone_return () -> [is_clone](#is_clone)`
 
 
 ### Function return_named_option
 
-`func return_named_option () -> (a: option<u8>)`
+` func return_named_option () -> (a: option<u8>)`
 
 
 ### Function return_named_result
 
-`func return_named_result () -> (a: result<u8, [my_errno](#my_errno)>)`
+` func return_named_result () -> (a: result<u8, [my_errno](#my_errno)>)`
 

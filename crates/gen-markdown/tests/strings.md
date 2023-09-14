@@ -10,15 +10,15 @@
 
 ### Function a
 
-`func a (x: string)`
+` func a (x: string)`
 
 
 ### Function b
 
-`func b () -> string`
+` func b () -> string`
 
 
 ### Function c
 
-`func c (a: string, b: string) -> string`
+` func c (a: string, b: string) -> string`
 

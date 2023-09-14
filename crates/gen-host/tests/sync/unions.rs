@@ -70,138 +70,135 @@ and is treated that way in some languages*/
         get_cx: impl Fn(&T) -> &U + Send + Sync + 'static,
     ) -> Result<(), ::tauri_bindgen_host::ipc_router_wip::Error>
     where
+        T: Send + Sync + 'static,
         U: Unions + Send + Sync + 'static,
     {
         let wrapped_get_cx = ::std::sync::Arc::new(get_cx);
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "unions",
                 "add_one_integer",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    num: AllIntegers,
-                | -> ::tauri_bindgen_host::anyhow::Result<AllIntegers> {
+                    p: AllIntegers|
+                {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.add_one_integer(num))
+                    Ok(ctx.add_one_integer(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "unions",
                 "add_one_float",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    num: AllFloats,
-                | -> ::tauri_bindgen_host::anyhow::Result<AllFloats> {
+                    p: AllFloats|
+                {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.add_one_float(num))
+                    Ok(ctx.add_one_float(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "unions",
                 "replace_first_char",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    text: AllText,
-                    letter: char,
-                | -> ::tauri_bindgen_host::anyhow::Result<AllText> {
+                    p: (AllText, char)|
+                {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.replace_first_char(text, letter))
+                    Ok(ctx.replace_first_char(p.0, p.1))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "unions",
                 "identify_integer",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    num: AllIntegers,
-                | -> ::tauri_bindgen_host::anyhow::Result<u8> {
+                    p: AllIntegers|
+                {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.identify_integer(num))
+                    Ok(ctx.identify_integer(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "unions",
                 "identify_float",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    num: AllFloats,
-                | -> ::tauri_bindgen_host::anyhow::Result<u8> {
+                    p: AllFloats|
+                {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.identify_float(num))
+                    Ok(ctx.identify_float(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "unions",
                 "identify_text",
-                move |
-                    ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    text: AllText,
-                | -> ::tauri_bindgen_host::anyhow::Result<u8> {
+                move |ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>, p: AllText| {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.identify_text(text))
+                    Ok(ctx.identify_text(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "unions",
                 "add_one_duplicated",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    num: DuplicatedS32,
-                | -> ::tauri_bindgen_host::anyhow::Result<DuplicatedS32> {
+                    p: DuplicatedS32|
+                {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.add_one_duplicated(num))
+                    Ok(ctx.add_one_duplicated(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "unions",
                 "identify_duplicated",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    num: DuplicatedS32,
-                | -> ::tauri_bindgen_host::anyhow::Result<u8> {
+                    p: DuplicatedS32|
+                {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.identify_duplicated(num))
+                    Ok(ctx.identify_duplicated(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "unions",
                 "add_one_distinguishable_num",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    num: DistinguishableNum,
-                | -> ::tauri_bindgen_host::anyhow::Result<DistinguishableNum> {
+                    p: DistinguishableNum|
+                {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.add_one_distinguishable_num(num))
+                    Ok(ctx.add_one_distinguishable_num(p))
                 },
             )?;
         let get_cx = ::std::sync::Arc::clone(&wrapped_get_cx);
         router
-            .func_wrap(
+            .define(
                 "unions",
                 "identify_distinguishable_num",
                 move |
                     ctx: ::tauri_bindgen_host::ipc_router_wip::Caller<T>,
-                    num: DistinguishableNum,
-                | -> ::tauri_bindgen_host::anyhow::Result<u8> {
+                    p: DistinguishableNum|
+                {
                     let ctx = get_cx(ctx.data());
-                    Ok(ctx.identify_distinguishable_num(num))
+                    Ok(ctx.identify_distinguishable_num(p))
                 },
             )?;
         Ok(())

@@ -76,7 +76,7 @@ pub enum Error {
         #[label("cannot be defined twice")]
         location: Span,
     },
-    /// Types can't recursively refer to themselves as that would make then possibly infinitly-sized.
+    /// Types can't recursively refer to themselves as that would make then possibly infinitely-sized.
     /// In Rust the compiler would force you to use heap indirection, however such a thing doesn't exist in out type system.
     ///
     /// This wouldn't be a problem with the current JSON format, but a custom binary one would have this limitation so for future proofing we deny recursive types.

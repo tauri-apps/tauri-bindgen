@@ -47,10 +47,10 @@
 
 ### Function constructor_a
 
-`func constructor_a () -> [a](#a)`
+` func constructor_a () -> [a](#a)`
 
 
 ### Function constructor_b
 
-`func constructor_b () -> [b](#b)`
+` func constructor_b () -> [b](#b)`
 

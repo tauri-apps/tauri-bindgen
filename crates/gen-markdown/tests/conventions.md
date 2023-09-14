@@ -20,60 +20,60 @@
 
 ### Function kebab_case
 
-`func kebab_case ()`
+` func kebab_case ()`
 
 
 ### Function foo
 
-`func foo (x: [ludicrous_speed](#ludicrous_speed))`
+` func foo (x: [ludicrous_speed](#ludicrous_speed))`
 
 
 ### Function function_with_underscores
 
-`func function_with_underscores ()`
+` func function_with_underscores ()`
 
 
 ### Function function_with_no_weird_characters
 
-`func function_with_no_weird_characters ()`
+` func function_with_no_weird_characters ()`
 
 
 ### Function apple
 
-`func apple ()`
+` func apple ()`
 
 
 ### Function apple_pear
 
-`func apple_pear ()`
+` func apple_pear ()`
 
 
 ### Function apple_pear_grape
 
-`func apple_pear_grape ()`
+` func apple_pear_grape ()`
 
 
 ### Function a0
 
-`func a0 ()`
+` func a0 ()`
 
 
 ### Function is_XML
 
-`func is_XML ()`
+` func is_XML ()`
 
 
 ### Function explicit
 
-`func explicit ()`
+` func explicit ()`
 
 
 ### Function explicit_snake
 
-`func explicit_snake ()`
+` func explicit_snake ()`
 
 
 ### Function bool
 
-`func bool ()`
+` func bool ()`
 

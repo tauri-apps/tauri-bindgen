@@ -8,15 +8,16 @@ use tracing_subscriber;
 
 tauri_bindgen_host::generate!({
     path: "../greet.wit",
-    async: false,
+    async: true,
     tracing: true
 });
 
 #[derive(Clone, Copy)]
 struct GreetCtx;
 
+#[::tauri_bindgen_host::async_trait]
 impl greet::Greet for GreetCtx {
-    fn greet(&self, name: String) -> String {
+    async fn greet(&self, name: String) -> String {
         format!(
             "Hello, {}! You've been greeted from code-generated Rust!",
             name
