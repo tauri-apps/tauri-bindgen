@@ -69,7 +69,7 @@ impl<'a> Resolver<'a> {
             .map(|span| {
                 let str = self.read_span(span);
                 let str = str.strip_prefix("///").unwrap_or(str);
-                let str = str.strip_prefix("//*").unwrap_or(str);
+                let str = str.strip_prefix("/**").unwrap_or(str);
                 let str = str.trim();
 
                 str

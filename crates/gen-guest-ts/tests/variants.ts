@@ -433,31 +433,38 @@ case 1:
 }function serializeV1(out, val) {
     if (val.A) {
     serializeU32(out, 0);
-    return 
+    
+    return
 }
 if (val.B) {
     serializeU32(out, 1);
-    return serializeU1(out, val.B)
+    serializeU1(out, val.B)
+    return
 }
 if (val.C) {
     serializeU32(out, 2);
-    return serializeE1(out, val.C)
+    serializeE1(out, val.C)
+    return
 }
 if (val.D) {
     serializeU32(out, 3);
-    return serializeString(out, val.D)
+    serializeString(out, val.D)
+    return
 }
 if (val.E) {
     serializeU32(out, 4);
-    return serializeEmpty(out, val.E)
+    serializeEmpty(out, val.E)
+    return
 }
 if (val.F) {
     serializeU32(out, 5);
-    return 
+    
+    return
 }
 if (val.G) {
     serializeU32(out, 6);
-    return serializeU32(out, val.G)
+    serializeU32(out, val.G)
+    return
 }
 
 
@@ -465,11 +472,13 @@ if (val.G) {
 }function serializeCasts1(out, val) {
     if (val.A) {
     serializeU32(out, 0);
-    return serializeS32(out, val.A)
+    serializeS32(out, val.A)
+    return
 }
 if (val.B) {
     serializeU32(out, 1);
-    return serializeF32(out, val.B)
+    serializeF32(out, val.B)
+    return
 }
 
 
@@ -477,11 +486,13 @@ if (val.B) {
 }function serializeCasts2(out, val) {
     if (val.A) {
     serializeU32(out, 0);
-    return serializeF64(out, val.A)
+    serializeF64(out, val.A)
+    return
 }
 if (val.B) {
     serializeU32(out, 1);
-    return serializeF32(out, val.B)
+    serializeF32(out, val.B)
+    return
 }
 
 
@@ -489,11 +500,13 @@ if (val.B) {
 }function serializeCasts3(out, val) {
     if (val.A) {
     serializeU32(out, 0);
-    return serializeF64(out, val.A)
+    serializeF64(out, val.A)
+    return
 }
 if (val.B) {
     serializeU32(out, 1);
-    return serializeU64(out, val.B)
+    serializeU64(out, val.B)
+    return
 }
 
 
@@ -501,11 +514,13 @@ if (val.B) {
 }function serializeCasts4(out, val) {
     if (val.A) {
     serializeU32(out, 0);
-    return serializeU32(out, val.A)
+    serializeU32(out, val.A)
+    return
 }
 if (val.B) {
     serializeU32(out, 1);
-    return serializeS64(out, val.B)
+    serializeS64(out, val.B)
+    return
 }
 
 
@@ -513,11 +528,13 @@ if (val.B) {
 }function serializeCasts5(out, val) {
     if (val.A) {
     serializeU32(out, 0);
-    return serializeF32(out, val.A)
+    serializeF32(out, val.A)
+    return
 }
 if (val.B) {
     serializeU32(out, 1);
-    return serializeS64(out, val.B)
+    serializeS64(out, val.B)
+    return
 }
 
 
@@ -525,11 +542,13 @@ if (val.B) {
 }function serializeCasts6(out, val) {
     if (val.A) {
     serializeU32(out, 0);
-    return {serializeF32(out, val.A[0]);serializeU32(out, val.A[1])}
+    {serializeF32(out, val.A[0]);serializeU32(out, val.A[1])}
+    return
 }
 if (val.B) {
     serializeU32(out, 1);
-    return {serializeU32(out, val.B[0]);serializeU32(out, val.B[1])}
+    {serializeU32(out, val.B[0]);serializeU32(out, val.B[1])}
+    return
 }
 
 

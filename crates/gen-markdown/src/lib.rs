@@ -183,7 +183,7 @@ impl Markdown {
 
     fn print_function(&self, func: &Function) -> String {
         format!(
-            "### Function {ident}\n\n`func {ident} ({params}){result}`\n\n{docs}",
+            "### Function {ident}\n\n` func {ident} ({params}){result}`\n\n{docs}",
             ident = func.ident,
             params = self.print_named_types(&func.params),
             result = func

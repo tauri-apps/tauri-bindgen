@@ -111,7 +111,7 @@ func greet(name: string) -> string
 At the top-level of each `wit` document lives the `interface` definition, file must contain exactly one such definition. 
 The name you give to an interface will dictate the name of the generated module and printed debug output.
 
-An interface may contain function declarations and type defintions. The order of declaration doesn't matter so you are free to define types after you have used them for example.
+An interface may contain function declarations and type definitions. The order of declaration doesn't matter so you are free to define types after you have used them for example.
 
 ```wit
 interface empty {}

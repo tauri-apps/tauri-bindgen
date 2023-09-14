@@ -31,7 +31,22 @@ pub struct Builder {
 
 impl GeneratorBuilder for Builder {
     fn build(self, interface: Interface) -> Box<dyn Generate> {
-        let infos = TypeInfos::collect_from_functions(&interface.typedefs, &interface.functions);
+        let methods = interface
+            .typedefs
+            .iter()
+            .filter_map(|(_, typedef)| {
+                if let TypeDefKind::Resource(methods) = &typedef.kind {
+                    Some(methods.iter())
+                } else {
+                    None
+                }
+            })
+            .flatten();
+
+        let infos = TypeInfos::collect_from_functions(
+            &interface.typedefs,
+            interface.functions.iter().chain(methods),
+        );
 
         let serde_utils =
             SerdeUtils::collect_from_functions(&interface.typedefs, &interface.functions);
@@ -189,7 +204,9 @@ export async function {ident} ({params}) : {result} {{
             TypeDefKind::Variant(cases) => self.print_variant(&docs, ident, cases),
             TypeDefKind::Enum(cases) => self.print_enum(&docs, ident, cases),
             TypeDefKind::Union(cases) => self.print_union(&docs, ident, cases),
-            TypeDefKind::Resource(functions) => self.print_resource(&docs, ident, functions),
+            TypeDefKind::Resource(functions) => {
+                self.print_resource(&self.interface.ident, &docs, ident, functions)
+            }
         }
     }
 
@@ -293,25 +310,48 @@ export async function {ident} ({params}) : {result} {{
         format!("{docs}\nexport type {ident} = {cases};\n")
     }
 
-    fn print_resource(&self, docs: &str, ident: &str, functions: &[Function]) -> String {
+    fn print_resource(
+        &self,
+        mod_ident: &str,
+        docs: &str,
+        ident: &str,
+        functions: &[Function],
+    ) -> String {
         let functions: String = functions
             .iter()
             .map(|func| {
                 let docs = print_docs(&func.docs);
-
+                let mod_ident = mod_ident.to_snake_case();
+                let resource_ident = ident.to_snake_case();
                 let ident = func.ident.to_lower_camel_case();
 
                 let params = self.print_function_params(&func.params);
                 let result = func
                     .result
                     .as_ref()
-                    .map(|result| self.print_function_result(result))
+                    .map_or("void".to_string(), |result| self.print_function_result(result));
+
+                let deserialize_result = func
+                    .result
+                    .as_ref()
+                    .map(|res| self.print_deserialize_function_result(res))
                     .unwrap_or_default();
 
+                let serialize_params = func
+                    .params
+                    .iter()
+                    .map(|(ident, ty)| self.print_serialize_ty(&ident.to_lower_camel_case(), ty))
+                    .collect::<Vec<_>>()
+                    .join(";\n");
+
                 format!(
-                    r#"
-{docs}
-async {ident} ({params}) {result} {{
+                    r#"{docs}
+async {ident} ({params}) : {result} {{
+    const out = []
+    serializeU32(out, this.#id);
+    {serialize_params}
+
+    await fetch('ipc://localhost/{mod_ident}::resource::{resource_ident}/{ident}', {{ method: "POST", body: Uint8Array.from(out), headers: {{ 'Content-Type': 'application/octet-stream' }} }}){deserialize_result}
 }}
 "#
                 )
@@ -319,7 +359,7 @@ async {ident} ({params}) {result} {{
             .collect();
 
         format!(
-            "{docs}\nclass {ident} {{
+            "{docs}\nexport class {ident} {{
     #id: number;
 
     {functions}
