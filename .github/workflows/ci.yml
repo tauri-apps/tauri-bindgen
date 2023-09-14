@@ -34,7 +34,7 @@ jobs:
       - name: install native dependecies
         run: |
           sudo apt-get update
-          sudo apt-get install -y webkit2gtk-4.0 libgtk-3-dev
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{matrix.rust}}
@@ -54,7 +54,7 @@ jobs:
       - name: install native dependecies
         run: |
           sudo apt-get update
-          sudo apt-get install -y webkit2gtk-4.0 libgtk-3-dev
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev
       - uses: dtolnay/rust-toolchain@1.70.0
       - uses: Swatinem/rust-cache@v2
       - run: cargo check --workspace --tests
@@ -69,7 +69,7 @@ jobs:
       - name: install native dependecies
         run: |
           sudo apt-get update
-          sudo apt-get install -y webkit2gtk-4.0 libgtk-3-dev
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
