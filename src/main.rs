@@ -51,7 +51,7 @@ enum Command {
     },
     #[cfg(feature = "unstable")]
     Json {
-        /// Wether to prettify the generated JSON.
+        /// Whether to prettify the generated JSON.
         #[clap(short, long)]
         pretty: bool,
         #[clap(flatten)]
