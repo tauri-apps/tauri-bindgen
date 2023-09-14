@@ -360,7 +360,7 @@ impl Host {
         });
 
         let methods = methods.map(|(resource_name, method)| {
-            let func_name = method.ident.to_snake_case();
+            let func_name = method.id.to_snake_case();
             let func_ident = format_ident!("{}", func_name);
 
             let params = self.print_function_params(&method.params, &BorrowMode::Owned);
