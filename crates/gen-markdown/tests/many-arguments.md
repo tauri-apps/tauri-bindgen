@@ -56,10 +56,10 @@
 
 ### Function many_args
 
-`func many_args (a1: u64, a2: u64, a3: u64, a4: u64, a5: u64, a6: u64, a7: u64, a8: u64, a9: u64, a10: u64, a11: u64, a12: u64, a13: u64, a14: u64, a15: u64, a16: u64)`
+` func many_args (a1: u64, a2: u64, a3: u64, a4: u64, a5: u64, a6: u64, a7: u64, a8: u64, a9: u64, a10: u64, a11: u64, a12: u64, a13: u64, a14: u64, a15: u64, a16: u64)`
 
 
 ### Function big_argument
 
-`func big_argument (x: [big_struct](#big_struct))`
+` func big_argument (x: [big_struct](#big_struct))`
 

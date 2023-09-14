@@ -20,5 +20,5 @@
 
 ### Function option_test
 
-`func option_test () -> result<option<string>, [error](#error)>`
+` func option_test () -> result<option<string>, [error](#error)>`
 

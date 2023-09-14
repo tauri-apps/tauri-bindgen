@@ -81,50 +81,50 @@ A Signed Integer
 
 ### Function add_one_integer
 
-`func add_one_integer (num: [all_integers](#all_integers)) -> [all_integers](#all_integers)`
+` func add_one_integer (num: [all_integers](#all_integers)) -> [all_integers](#all_integers)`
 
 
 ### Function add_one_float
 
-`func add_one_float (num: [all_floats](#all_floats)) -> [all_floats](#all_floats)`
+` func add_one_float (num: [all_floats](#all_floats)) -> [all_floats](#all_floats)`
 
 
 ### Function replace_first_char
 
-`func replace_first_char (text: [all_text](#all_text), letter: char) -> [all_text](#all_text)`
+` func replace_first_char (text: [all_text](#all_text), letter: char) -> [all_text](#all_text)`
 
 
 ### Function identify_integer
 
-`func identify_integer (num: [all_integers](#all_integers)) -> u8`
+` func identify_integer (num: [all_integers](#all_integers)) -> u8`
 
 
 ### Function identify_float
 
-`func identify_float (num: [all_floats](#all_floats)) -> u8`
+` func identify_float (num: [all_floats](#all_floats)) -> u8`
 
 
 ### Function identify_text
 
-`func identify_text (text: [all_text](#all_text)) -> u8`
+` func identify_text (text: [all_text](#all_text)) -> u8`
 
 
 ### Function add_one_duplicated
 
-`func add_one_duplicated (num: [duplicated_s32](#duplicated_s32)) -> [duplicated_s32](#duplicated_s32)`
+` func add_one_duplicated (num: [duplicated_s32](#duplicated_s32)) -> [duplicated_s32](#duplicated_s32)`
 
 
 ### Function identify_duplicated
 
-`func identify_duplicated (num: [duplicated_s32](#duplicated_s32)) -> u8`
+` func identify_duplicated (num: [duplicated_s32](#duplicated_s32)) -> u8`
 
 
 ### Function add_one_distinguishable_num
 
-`func add_one_distinguishable_num (num: [distinguishable_num](#distinguishable_num)) -> [distinguishable_num](#distinguishable_num)`
+` func add_one_distinguishable_num (num: [distinguishable_num](#distinguishable_num)) -> [distinguishable_num](#distinguishable_num)`
 
 
 ### Function identify_distinguishable_num
 
-`func identify_distinguishable_num (num: [distinguishable_num](#distinguishable_num)) -> u8`
+` func identify_distinguishable_num (num: [distinguishable_num](#distinguishable_num)) -> u8`
 
