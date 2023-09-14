@@ -67,7 +67,7 @@ impl RustWasm {
             &BorrowMode::Owned,
         );
 
-        let ident = func.ident.to_snake_case();
+        let ident = func.id.to_snake_case();
 
         let param_idents = func
             .params

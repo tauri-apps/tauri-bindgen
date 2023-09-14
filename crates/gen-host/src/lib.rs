@@ -299,7 +299,7 @@ impl Host {
         let mod_name = mod_ident.to_snake_case();
 
         let functions = functions.map(|func| {
-            let func_name = func.ident.to_snake_case();
+            let func_name = func.id.to_snake_case();
             let func_ident = format_ident!("{}", func_name);
 
             let params = self.print_function_params(&func.params, &BorrowMode::Owned);

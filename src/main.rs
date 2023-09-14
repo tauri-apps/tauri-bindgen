@@ -7,6 +7,7 @@ use clap::{ArgAction, Parser};
 use miette::{bail, IntoDiagnostic, Result, WrapErr};
 use std::{
     collections::HashSet,
+    io::Write,
     path::{Path, PathBuf},
     time::Instant,
 };
@@ -46,6 +47,14 @@ enum Command {
     Markdown {
         #[clap(flatten)]
         builder: tauri_bindgen_gen_markdown::Builder,
+        #[clap(flatten)]
+        world: WorldOpt,
+    },
+    #[cfg(feature = "unstable")]
+    Json {
+        /// Wether to prettify the generated JSON.
+        #[clap(short, long)]
+        pretty: bool,
         #[clap(flatten)]
         world: WorldOpt,
     },
@@ -149,6 +158,25 @@ fn run() -> Result<()> {
             let (path, contents) = gen_interface(builder, world)?;
 
             write_file(&out_dir, &path, &contents)?;
+        }
+        #[cfg(feature = "unstable")]
+        Command::Json { world, pretty } => {
+            if !world.wit.is_file() {
+                bail!("wit file `{}` does not exist", world.wit.display());
+            }
+
+            let skipset: HashSet<String, std::collections::hash_map::RandomState> =
+                world.skip.into_iter().collect();
+
+            let iface = wit_parser::parse_and_resolve_file(&world.wit, |t| skipset.contains(t))?;
+
+            let mut stdout = std::io::stdout().lock();
+            if pretty {
+                serde_json::to_writer_pretty(stdout, &iface).into_diagnostic()?;
+            } else {
+                serde_json::to_writer(stdout, &iface).into_diagnostic()?;
+            }
+            println!(); // print a newline for formatting
         }
     };
 

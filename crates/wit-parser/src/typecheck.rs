@@ -101,7 +101,11 @@ impl<'a> Resolver<'a> {
                         let ident = self.resolve_ident(&field.ident).to_string();
                         let ty = self.resolve_type(&field.ty)?;
 
-                        Ok(RecordField { docs, ident, ty })
+                        Ok(RecordField {
+                            docs,
+                            id: ident,
+                            ty,
+                        })
                     })
                     .partition_result::<_, Error>()?;
 
@@ -112,7 +116,7 @@ impl<'a> Resolver<'a> {
                     let docs = self.resolve_docs(&field.docs);
                     let ident = self.resolve_ident(&field.ident).to_string();
 
-                    FlagsField { docs, ident }
+                    FlagsField { docs, id: ident }
                 });
 
                 TypeDefKind::Flags(fields.collect())
@@ -129,7 +133,11 @@ impl<'a> Resolver<'a> {
                             .map(|ty| self.resolve_type(ty))
                             .transpose()?;
 
-                        Ok(VariantCase { docs, ident, ty })
+                        Ok(VariantCase {
+                            docs,
+                            id: ident,
+                            ty,
+                        })
                     })
                     .partition_result::<_, Error>()?;
 
@@ -140,7 +148,7 @@ impl<'a> Resolver<'a> {
                     let docs = self.resolve_docs(&case.docs);
                     let ident = self.resolve_ident(&case.ident).to_string();
 
-                    EnumCase { docs, ident }
+                    EnumCase { docs, id: ident }
                 });
 
                 TypeDefKind::Enum(cases.collect())
@@ -291,7 +299,7 @@ impl<'a> Resolver<'a> {
 
         Ok(Function {
             docs,
-            ident,
+            id: ident,
             params,
             result,
         })

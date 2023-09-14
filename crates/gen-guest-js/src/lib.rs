@@ -48,8 +48,8 @@ pub struct JavaScript {
 impl JavaScript {
     fn print_function(&self, intf_name: &str, func: &Function) -> String {
         let docs = self.print_docs(func);
-        let ident = func.ident.to_lower_camel_case();
-        let name = func.ident.to_snake_case();
+        let ident = func.id.to_lower_camel_case();
+        let name = func.id.to_snake_case();
         let params = print_function_params(&func.params);
 
         let deserialize_result = func
@@ -91,7 +91,7 @@ export async function {ident} ({params}) {{
             .iter()
             .map(|func| {
                 let docs = self.print_docs(func);
-                let ident = func.ident.to_lower_camel_case();
+                let ident = func.id.to_lower_camel_case();
                 let params = print_function_params(&func.params);
 
                 format!(

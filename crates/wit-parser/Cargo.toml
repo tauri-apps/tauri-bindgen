@@ -13,6 +13,8 @@ id-arena = "2.2.1"
 miette.workspace = true
 distance = "0.4.0"
 log.workspace = true
+serde = { workspace = true, features = ["derive"] }
+schemars.workspace = true
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"

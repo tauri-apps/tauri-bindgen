@@ -16,6 +16,8 @@ use id_arena::{Arena, Id};
 use logos::Logos;
 use miette::{ErrReport, IntoDiagnostic, NamedSource};
 use parse::FromTokens;
+use schemars::JsonSchema;
+use serde::{ser::SerializeSeq, Serialize};
 use std::path::Path;
 use typecheck::Resolver;
 use util::detect_invalid_input;
@@ -74,15 +76,19 @@ pub enum Int {
     U128,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
 pub struct Interface {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
     pub ident: String,
+    #[serde(serialize_with = "serialize_typedefs")]
+    #[schemars(with = "Vec<TypeDef>")]
     pub typedefs: Arena<TypeDef>,
     pub functions: Vec<Function>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+#[serde(rename_all = "lowercase", tag = "type", content = "value")]
 pub enum Type {
     Bool,
     U8,
@@ -106,17 +112,22 @@ pub enum Type {
         ok: Option<Box<Type>>,
         err: Option<Box<Type>>,
     },
+    #[serde(serialize_with = "serialize_id")]
+    #[schemars(with = "u32")]
     Id(Id<TypeDef>),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
 pub struct TypeDef {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
     pub ident: String,
+    #[serde(flatten)]
     pub kind: TypeDefKind,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+#[serde(rename_all = "lowercase", tag = "type", content = "value")]
 pub enum TypeDefKind {
     Alias(Type),
     Record(Vec<RecordField>),
@@ -127,42 +138,50 @@ pub enum TypeDefKind {
     Resource(Vec<Function>),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
 pub struct RecordField {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
-    pub ident: String,
+    pub id: String,
     pub ty: Type,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
 pub struct FlagsField {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
-    pub ident: String,
+    pub id: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
 pub struct VariantCase {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
-    pub ident: String,
+    pub id: String,
     pub ty: Option<Type>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
 pub struct EnumCase {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
-    pub ident: String,
+    pub id: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
 pub struct UnionCase {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
     pub ty: Type,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
 pub struct Function {
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub docs: String,
-    pub ident: String,
+    pub id: String,
+    #[serde(serialize_with = "serialize_named_type_list")]
+    #[schemars(with = "Vec<NamedType>")]
     pub params: NamedTypeList,
     pub result: Option<FunctionResult>,
 }
@@ -180,9 +199,12 @@ impl Function {
 
 pub type NamedTypeList = Vec<(String, Type)>;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+#[serde(untagged)]
 pub enum FunctionResult {
     Anon(Type),
+    #[serde(serialize_with = "serialize_named_type_list")]
+    #[schemars(with = "Vec<NamedType>")]
     Named(NamedTypeList),
 }
 
@@ -222,4 +244,46 @@ impl<'a> Iterator for ResultsTypeIter<'a> {
             ResultsTypeIter::Named(iter) => iter.next().map(|pair| &pair.1),
         }
     }
+}
+
+fn serialize_typedefs<S>(typedefs: &Arena<TypeDef>, s: S) -> std::result::Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    let mut s = s.serialize_seq(Some(typedefs.len()))?;
+
+    for (_, typedef) in typedefs {
+        s.serialize_element(typedef)?;
+    }
+
+    s.end()
+}
+
+fn serialize_id<S>(id: &Id<TypeDef>, serializer: S) -> std::result::Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    serializer.serialize_u32(u32::try_from(id.index()).unwrap())
+}
+#[derive(Serialize, JsonSchema)]
+struct NamedType<'a> {
+    id: &'a str,
+    #[serde(flatten)]
+    r#type: &'a Type,
+}
+
+fn serialize_named_type_list<S>(
+    named_types: &Vec<(String, Type)>,
+    s: S,
+) -> std::result::Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    let mut s = s.serialize_seq(Some(named_types.len()))?;
+
+    for (id, r#type) in named_types {
+        s.serialize_element(&NamedType { id, r#type })?;
+    }
+
+    s.end()
 }
