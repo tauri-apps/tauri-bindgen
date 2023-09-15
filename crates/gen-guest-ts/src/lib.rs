@@ -72,8 +72,8 @@ impl TypeScript {
     pub fn print_function(&self, intf_name: &str, func: &Function) -> String {
         let docs = print_docs(&func.docs);
 
-        let ident = func.ident.to_lower_camel_case();
-        let name = func.ident.to_snake_case();
+        let ident = func.id.to_lower_camel_case();
+        let name = func.id.to_snake_case();
 
         let params = self.print_function_params(&func.params);
 
@@ -221,7 +221,7 @@ export async function {ident} ({params}) : {result} {{
             .iter()
             .map(|field| {
                 let docs = print_docs(&field.docs);
-                let ident = field.ident.to_lower_camel_case();
+                let ident = field.id.to_lower_camel_case();
                 let ty = self.print_type(&field.ty);
 
                 format!("{docs}\n{ident}: {ty},\n")
@@ -237,7 +237,7 @@ export async function {ident} ({params}) : {result} {{
             .enumerate()
             .map(|(i, field)| {
                 let docs = print_docs(&field.docs);
-                let ident = field.ident.to_upper_camel_case();
+                let ident = field.id.to_upper_camel_case();
                 let value: u64 = 2 << i;
 
                 format!("{docs}\n{ident} = {value},\n")
@@ -253,7 +253,7 @@ export async function {ident} ({params}) : {result} {{
             .enumerate()
             .map(|(i, case)| {
                 let docs = print_docs(&case.docs);
-                let case_ident = case.ident.to_upper_camel_case();
+                let case_ident = case.id.to_upper_camel_case();
                 let value = case
                     .ty
                     .as_ref()
@@ -271,7 +271,7 @@ export async function {ident} ({params}) : {result} {{
             .iter()
             .map(|case| {
                 let docs = print_docs(&case.docs);
-                let case_ident = case.ident.to_upper_camel_case();
+                let case_ident = case.id.to_upper_camel_case();
 
                 format!("{docs}\n{ident}{case_ident}")
             })
@@ -286,7 +286,7 @@ export async function {ident} ({params}) : {result} {{
             .iter()
             .map(|case| {
                 let docs = print_docs(&case.docs);
-                let ident = case.ident.to_upper_camel_case();
+                let ident = case.id.to_upper_camel_case();
 
                 format!("{docs}\n{ident},\n")
             })
@@ -321,9 +321,10 @@ export async function {ident} ({params}) : {result} {{
             .iter()
             .map(|func| {
                 let docs = print_docs(&func.docs);
+
                 let mod_ident = mod_ident.to_snake_case();
                 let resource_ident = ident.to_snake_case();
-                let ident = func.ident.to_lower_camel_case();
+                let ident = func.id.to_lower_camel_case();
 
                 let params = self.print_function_params(&func.params);
                 let result = func

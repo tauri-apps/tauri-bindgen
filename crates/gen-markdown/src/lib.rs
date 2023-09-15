@@ -88,7 +88,7 @@ impl Markdown {
                     .map(|field| {
                         format!(
                             "#### {ident}: `{ty}`\n{docs}\n",
-                            ident = field.ident,
+                            ident = field.id,
                             ty = self.print_ty(&field.ty),
                             docs = field.docs
                         )
@@ -103,7 +103,7 @@ impl Markdown {
                     .map(|field| {
                         format!(
                             "#### {ident}\n{docs}\n",
-                            ident = field.ident,
+                            ident = field.id,
                             docs = field.docs
                         )
                     })
@@ -117,7 +117,7 @@ impl Markdown {
                     .map(|case| {
                         format!(
                             "#### {ident}{ty}\n{docs}\n",
-                            ident = case.ident,
+                            ident = case.id,
                             ty = case
                                 .ty
                                 .as_ref()
@@ -134,11 +134,7 @@ impl Markdown {
                 let cases = cases
                     .iter()
                     .map(|case| {
-                        format!(
-                            "#### {ident}\n{docs}\n",
-                            ident = case.ident,
-                            docs = case.docs
-                        )
+                        format!("#### {ident}\n{docs}\n", ident = case.id, docs = case.docs)
                     })
                     .collect::<String>();
 
@@ -164,7 +160,7 @@ impl Markdown {
                     .map(|func| {
                         format!(
                             "### Method {ident}\n\n`func {ident} ({params}){result}`\n\n{docs}",
-                            ident = func.ident,
+                            ident = func.id,
                             params = self.print_named_types(&func.params),
                             result = func
                                 .result
@@ -184,7 +180,7 @@ impl Markdown {
     fn print_function(&self, func: &Function) -> String {
         format!(
             "### Function {ident}\n\n` func {ident} ({params}){result}`\n\n{docs}",
-            ident = func.ident,
+            ident = func.id,
             params = self.print_named_types(&func.params),
             result = func
                 .result

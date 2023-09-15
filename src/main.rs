@@ -49,6 +49,14 @@ enum Command {
         #[clap(flatten)]
         world: WorldOpt,
     },
+    #[cfg(feature = "unstable")]
+    Json {
+        /// Whether to prettify the generated JSON.
+        #[clap(short, long)]
+        pretty: bool,
+        #[clap(flatten)]
+        world: WorldOpt,
+    },
 }
 
 #[derive(Debug, Parser)]
@@ -149,6 +157,25 @@ fn run() -> Result<()> {
             let (path, contents) = gen_interface(builder, world)?;
 
             write_file(out_dir, &path, &contents)?;
+        }
+        #[cfg(feature = "unstable")]
+        Command::Json { world, pretty } => {
+            if !world.wit.is_file() {
+                bail!("wit file `{}` does not exist", world.wit.display());
+            }
+
+            let skipset: HashSet<String, std::collections::hash_map::RandomState> =
+                world.skip.into_iter().collect();
+
+            let iface = wit_parser::parse_and_resolve_file(&world.wit, |t| skipset.contains(t))?;
+
+            let stdout = std::io::stdout().lock();
+            if pretty {
+                serde_json::to_writer_pretty(stdout, &iface).into_diagnostic()?;
+            } else {
+                serde_json::to_writer(stdout, &iface).into_diagnostic()?;
+            }
+            println!(); // print a newline for formatting
         }
     };
 

@@ -135,7 +135,7 @@ pub trait JavaScriptGenerator {
         let fields = fields
             .iter()
             .map(|field| {
-                let ident = field.ident.to_lower_camel_case();
+                let ident = field.id.to_lower_camel_case();
 
                 format!("{ident}: {}", self.print_deserialize_ty(&field.ty))
             })
@@ -177,7 +177,7 @@ pub trait JavaScriptGenerator {
                     .as_ref()
                     .map_or("null".to_string(), |ty| self.print_deserialize_ty(ty));
 
-                let ident = case.ident.to_upper_camel_case();
+                let ident = case.id.to_upper_camel_case();
 
                 format!(
                     "case {tag}:
@@ -205,7 +205,7 @@ pub trait JavaScriptGenerator {
             .iter()
             .enumerate()
             .map(|(tag, case)| {
-                let ident = case.ident.to_upper_camel_case();
+                let ident = case.id.to_upper_camel_case();
                 format!(
                     "case {tag}:
     return \"{ident}\"
@@ -346,7 +346,7 @@ pub trait JavaScriptGenerator {
     fn print_serialize_record(&self, ident: &str, fields: &[RecordField]) -> String {
         let inner = fields
             .iter()
-            .map(|field| self.print_serialize_ty(&format!("val.{}", field.ident), &field.ty))
+            .map(|field| self.print_serialize_ty(&format!("val.{}", field.id), &field.ty))
             .collect::<Vec<_>>()
             .join(",\n");
 
@@ -378,7 +378,7 @@ pub trait JavaScriptGenerator {
             .iter()
             .enumerate()
             .map(|(tag, case)| {
-                let prop_access = format!("val.{}", case.ident.to_upper_camel_case());
+                let prop_access = format!("val.{}", case.id.to_upper_camel_case());
 
                 let inner = case.ty.as_ref().map_or(String::new(), |ty| {
                     self.print_serialize_ty(&prop_access, ty)
@@ -409,7 +409,7 @@ pub trait JavaScriptGenerator {
             .iter()
             .enumerate()
             .map(|(tag, case)| {
-                let ident = case.ident.to_upper_camel_case();
+                let ident = case.id.to_upper_camel_case();
                 format!(
                     "case \"{ident}\":
     serializeU32(out, {tag})
