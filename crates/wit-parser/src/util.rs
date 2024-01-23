@@ -3,39 +3,39 @@ use std::fmt::Write;
 
 use crate::Error;
 
-pub trait IteratorExt<T, E> {
-    fn partition_result<FromT, FromE>(self) -> Result<FromT, FromE>
+pub trait IteratorExt {
+    fn transponse_result<A, B, T, E>(self) -> Result<A, B>
     where
-        FromT: FromIterator<T>,
-        FromE: FromIterator<E>;
+        Self: Iterator<Item = Result<T, E>> + Sized,
+        A: Default + Extend<T>,
+        B: Default + Extend<E>;
 }
 
-impl<T, E, I> IteratorExt<T, E> for I
-where
-    I: Iterator<Item = Result<T, E>>,
-{
-    fn partition_result<FromT, FromE>(self) -> Result<FromT, FromE>
+impl<I: Iterator> IteratorExt for I {
+    fn transponse_result<A, B, T, E>(self) -> Result<A, B>
     where
-        FromT: FromIterator<T>,
-        FromE: FromIterator<E>,
+        Self: Iterator<Item = Result<T, E>> + Sized,
+        A: Default + Extend<T>,
+        B: Default + Extend<E>,
     {
-        let (types, errors): (Vec<_>, Vec<_>) = self.partition(Result::is_ok);
-
-        if errors.is_empty() {
-            let results: FromT = types
-                .into_iter()
-                .map(|v| unsafe { v.unwrap_unchecked() })
-                .collect();
-
-            Ok(results)
-        } else {
-            let errors: FromE = errors
-                .into_iter()
-                .map(|v| unsafe { v.unwrap_err_unchecked() })
-                .collect();
-
-            Err(errors)
-        }
+        self.fold(Ok(A::default()), |acc, res| {
+            match (acc, res) {
+                (Ok(mut left), Ok(val)) => {
+                    left.extend(Some(val));
+                    Ok(left)
+                }
+                (Err(mut right), Err(err)) => {
+                    right.extend(Some(err));
+                    Err(right)
+                }
+                (Ok(_), Err(err)) => {
+                    let mut right = B::default();
+                    right.extend(Some(err));
+                    Err(right)
+                }
+                (acc, _) => acc, // do nothing
+            }
+        })
     }
 }
 
