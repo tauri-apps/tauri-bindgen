@@ -4,19 +4,17 @@ use std::fmt::Write;
 use crate::Error;
 
 pub trait IteratorExt {
-    fn transponse_result<A, B, T, E>(self) -> Result<A, B>
+    fn transponse_result<A, T>(self) -> crate::Result<A>
     where
-        Self: Iterator<Item = Result<T, E>> + Sized,
-        A: Default + Extend<T>,
-        B: Default + Extend<E>;
+        Self: Iterator<Item = crate::Result<T>> + Sized,
+        A: Default + Extend<T>;
 }
 
 impl<I: Iterator> IteratorExt for I {
-    fn transponse_result<A, B, T, E>(self) -> Result<A, B>
+    fn transponse_result<A, T>(self) -> crate::Result<A>
     where
-        Self: Iterator<Item = Result<T, E>> + Sized,
+        Self: Iterator<Item = crate::Result<T>> + Sized,
         A: Default + Extend<T>,
-        B: Default + Extend<E>,
     {
         // This is fine, we're not actually implementing try_fold here.
         #[allow(clippy::manual_try_fold)]
@@ -27,14 +25,12 @@ impl<I: Iterator> IteratorExt for I {
                     Ok(left)
                 }
                 (Err(mut right), Err(err)) => {
-                    right.extend(Some(err));
+                    if let Error::Multi { errors } = &mut right {
+                        errors.push(err);
+                    }
                     Err(right)
                 }
-                (Ok(_), Err(err)) => {
-                    let mut right = B::default();
-                    right.extend(Some(err));
-                    Err(right)
-                }
+                (Ok(_), Err(err)) => Err(Error::Multi { errors: vec![err] }),
                 (acc, _) => acc, // do nothing
             }
         })

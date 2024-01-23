@@ -107,7 +107,7 @@ impl<'a> Resolver<'a> {
                             ty,
                         })
                     })
-                    .transponse_result::<_, Vec<_>, _, _>()?;
+                    .transponse_result::<Vec<_>, _>()?;
 
                 TypeDefKind::Record(inner)
             }
@@ -139,7 +139,7 @@ impl<'a> Resolver<'a> {
                             ty,
                         })
                     })
-                    .transponse_result::<_, Vec<_>, _, _>()?;
+                    .transponse_result::<Vec<_>, _>()?;
 
                 TypeDefKind::Variant(inner)
             }
@@ -162,7 +162,7 @@ impl<'a> Resolver<'a> {
 
                         Ok(UnionCase { docs, ty })
                     })
-                    .transponse_result::<_, Vec<_>, _, _>()?;
+                    .transponse_result::<Vec<_>, _>()?;
 
                 TypeDefKind::Union(inner)
             }
@@ -170,7 +170,7 @@ impl<'a> Resolver<'a> {
                 let functions = methods
                     .iter()
                     .map(|method| self.resolve_func(&method.docs, &method.ident, &method.inner))
-                    .transponse_result::<_, Vec<_>, _, _>()?;
+                    .transponse_result::<Vec<_>, _>()?;
 
                 TypeDefKind::Resource(functions)
             }
@@ -211,7 +211,7 @@ impl<'a> Resolver<'a> {
                 let types = types
                     .iter()
                     .map(|ty| self.resolve_type(ty))
-                    .transponse_result::<_, Vec<_>, _, _>()?;
+                    .transponse_result::<Vec<_>, _>()?;
 
                 Type::Tuple(types)
             }
@@ -271,7 +271,7 @@ impl<'a> Resolver<'a> {
 
                 Ok((ident, ty))
             })
-            .transponse_result::<_, Vec<_>, _, _>()
+            .transponse_result::<Vec<_>, _>()
             .map_err(Into::into)
     }
 
@@ -408,7 +408,7 @@ impl<'a> Resolver<'a> {
             self.iface_typedefs
                 .values()
                 .map(|item| Err(Error::unused_type(item.ident.clone())))
-                .transponse_result::<_, Vec<_>, _, _>()?;
+                .transponse_result::<Vec<_>, &parse::InterfaceItem>()?;
         }
 
         Ok(Interface {
