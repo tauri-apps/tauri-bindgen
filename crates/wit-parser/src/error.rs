@@ -99,11 +99,9 @@ pub enum Error {
     },
 }
 
-impl FromIterator<Error> for Error {
-    fn from_iter<T: IntoIterator<Item = Error>>(iter: T) -> Self {
-        Self::Multi {
-            errors: iter.into_iter().collect(),
-        }
+impl From<Vec<Error>> for Error {
+    fn from(errors: Vec<Error>) -> Self {
+        Self::Multi { errors }
     }
 }
 
