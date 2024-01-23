@@ -18,6 +18,8 @@ impl<I: Iterator> IteratorExt for I {
         A: Default + Extend<T>,
         B: Default + Extend<E>,
     {
+        // This is fine, we're not actually implementing try_fold here.
+        #[allow(clippy::manual_try_fold)]
         self.fold(Ok(A::default()), |acc, res| {
             match (acc, res) {
                 (Ok(mut left), Ok(val)) => {
