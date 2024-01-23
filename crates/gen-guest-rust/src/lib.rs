@@ -204,6 +204,7 @@ impl tauri_bindgen_core::Generate for RustWasm {
             #docs
             #[allow(unused_imports, unused_variables, dead_code)]
             #[rustfmt::skip]
+            #[allow(clippy::all)]
             pub mod #ident {
                 use ::tauri_bindgen_guest_rust::serde;
                 use ::tauri_bindgen_guest_rust::bitflags;
