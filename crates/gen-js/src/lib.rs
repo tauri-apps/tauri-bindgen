@@ -1,4 +1,6 @@
+use fmt::Write;
 use heck::{ToLowerCamelCase, ToUpperCamelCase};
+use std::fmt;
 use tauri_bindgen_core::{flags_repr, union_case_names, TypeInfos};
 use wit_parser::{
     EnumCase, FlagsField, Function, FunctionResult, Interface, RecordField, Type, TypeDefArena,
@@ -171,7 +173,7 @@ pub trait JavaScriptGenerator {
         let cases = cases
             .iter()
             .enumerate()
-            .map(|(tag, case)| {
+            .fold(String::new(), |mut str, (tag, case)| {
                 let inner = case
                     .ty
                     .as_ref()
@@ -179,13 +181,15 @@ pub trait JavaScriptGenerator {
 
                 let ident = case.id.to_upper_camel_case();
 
-                format!(
+                let _ = write!(
+                    str,
                     "case {tag}:
     return {{ {ident}: {inner} }}
 "
-                )
-            })
-            .collect::<String>();
+                );
+
+                str
+            });
 
         format!(
             r#"function deserialize{ident}(de) {{
@@ -204,15 +208,18 @@ pub trait JavaScriptGenerator {
         let cases = cases
             .iter()
             .enumerate()
-            .map(|(tag, case)| {
+            .fold(String::new(), |mut str, (tag, case)| {
                 let ident = case.id.to_upper_camel_case();
-                format!(
+
+                let _ = write!(
+                    str,
                     "case {tag}:
     return \"{ident}\"
 "
-                )
-            })
-            .collect::<String>();
+                );
+
+                str
+            });
 
         format!(
             r#"function deserialize{ident}(de) {{
@@ -228,20 +235,22 @@ pub trait JavaScriptGenerator {
     }
 
     fn print_deserialize_union(&self, ident: &str, cases: &[UnionCase]) -> String {
-        let cases: String = union_case_names(&self.interface().typedefs, cases)
+        let cases = union_case_names(&self.interface().typedefs, cases)
             .into_iter()
             .zip(cases)
             .enumerate()
-            .map(|(tag, (name, case))| {
+            .fold(String::new(), |mut str, (tag, (name, case))| {
                 let inner = self.print_deserialize_ty(&case.ty);
 
-                format!(
+                let _ = write!(
+                    str,
                     "case {tag}:
     return {{ {name}: {inner} }}
 "
-                )
-            })
-            .collect();
+                );
+
+                str
+            });
 
         format!(
             r#"function deserialize{ident}(de) {{
@@ -377,23 +386,25 @@ pub trait JavaScriptGenerator {
         let cases = cases
             .iter()
             .enumerate()
-            .map(|(tag, case)| {
+            .fold(String::new(), |mut str, (tag, case)| {
                 let prop_access = format!("val.{}", case.id.to_upper_camel_case());
 
                 let inner = case.ty.as_ref().map_or(String::new(), |ty| {
                     self.print_serialize_ty(&prop_access, ty)
                 });
 
-                format!(
+                let _ = write!(
+                    str,
                     "if ({prop_access}) {{
     serializeU32(out, {tag});
     {inner}
     return
 }}
 "
-                )
-            })
-            .collect::<String>();
+                );
+
+                str
+            });
 
         format!(
             r#"function serialize{ident}(out, val) {{
@@ -408,16 +419,19 @@ pub trait JavaScriptGenerator {
         let cases = cases
             .iter()
             .enumerate()
-            .map(|(tag, case)| {
+            .fold(String::new(), |mut str, (tag, case)| {
                 let ident = case.id.to_upper_camel_case();
-                format!(
+
+                let _ = write!(
+                    str,
                     "case \"{ident}\":
     serializeU32(out, {tag})
     return
 "
-                )
-            })
-            .collect::<String>();
+                );
+
+                str
+            });
 
         format!(
             r#"function serialize{ident}(out, val) {{
@@ -431,23 +445,25 @@ pub trait JavaScriptGenerator {
     }
 
     fn print_serialize_union(&self, ident: &str, cases: &[UnionCase]) -> String {
-        let cases: String = union_case_names(&self.interface().typedefs, cases)
+        let cases = union_case_names(&self.interface().typedefs, cases)
             .into_iter()
             .zip(cases)
             .enumerate()
-            .map(|(tag, (name, case))| {
+            .fold(String::new(), |mut str, (tag, (name, case))| {
                 let prop_access = format!("val.{name}");
                 let inner = self.print_serialize_ty(&prop_access, &case.ty);
 
-                format!(
+                let _ = write!(
+                    str,
                     "if ({prop_access}) {{
     serializeU32(out, {tag});
     return {inner}
 }}
                 "
-                )
-            })
-            .collect();
+                );
+
+                str
+            });
 
         format!(
             r#"function serialize{ident}(out, val) {{

@@ -6,6 +6,7 @@
 )]
 
 use heck::{ToKebabCase, ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
+use std::fmt::Write;
 use std::path::PathBuf;
 use tauri_bindgen_core::{postprocess, Generate, GeneratorBuilder, TypeInfo, TypeInfos};
 use tauri_bindgen_gen_js::{JavaScriptGenerator, SerdeUtils};
@@ -217,55 +218,60 @@ export async function {ident} ({params}) : {result} {{
     }
 
     fn print_record(&self, docs: &str, ident: &str, fields: &[RecordField]) -> String {
-        let fields: String = fields
-            .iter()
-            .map(|field| {
-                let docs = print_docs(&field.docs);
-                let ident = field.id.to_lower_camel_case();
-                let ty = self.print_type(&field.ty);
+        let fields = fields.iter().fold(String::new(), |mut str, field| {
+            let docs = print_docs(&field.docs);
+            let ident = field.id.to_lower_camel_case();
+            let ty = self.print_type(&field.ty);
 
-                format!("{docs}\n{ident}: {ty},\n")
-            })
-            .collect();
+            let _ = write!(str, "{docs}\n{ident}: {ty},\n");
+
+            str
+        });
 
         format!("{docs}\nexport interface {ident} {{ {fields} }}\n")
     }
 
     fn print_flags(&self, docs: &str, ident: &str, fields: &[FlagsField]) -> String {
-        let fields: String = fields
+        let fields = fields
             .iter()
             .enumerate()
-            .map(|(i, field)| {
+            .fold(String::new(), |mut str, (i, field)| {
                 let docs = print_docs(&field.docs);
                 let ident = field.id.to_upper_camel_case();
                 let value: u64 = 2 << i;
 
-                format!("{docs}\n{ident} = {value},\n")
-            })
-            .collect();
+                let _ = write!(str, "{docs}\n{ident} = {value},\n");
+
+                str
+            });
 
         format!("{docs}\nexport enum {ident} {{ {fields} }}\n")
     }
 
     fn print_variant(&self, docs: &str, ident: &str, cases: &[VariantCase]) -> String {
-        let interfaces: String = cases
-            .iter()
-            .enumerate()
-            .map(|(i, case)| {
-                let docs = print_docs(&case.docs);
-                let case_ident = case.id.to_upper_camel_case();
-                let value = case
-                    .ty
-                    .as_ref()
-                    .map(|ty| {
-                        let ty = self.print_type(ty);
-                        format!(", value: {ty}")
-                    })
-                    .unwrap_or_default();
+        let interfaces: String =
+            cases
+                .iter()
+                .enumerate()
+                .fold(String::new(), |mut str, (i, case)| {
+                    let docs = print_docs(&case.docs);
+                    let case_ident = case.id.to_upper_camel_case();
+                    let value = case
+                        .ty
+                        .as_ref()
+                        .map(|ty| {
+                            let ty = self.print_type(ty);
+                            format!(", value: {ty}")
+                        })
+                        .unwrap_or_default();
 
-                format!("{docs}\nexport interface {ident}{case_ident} {{ tag: {i}{value} }}\n")
-            })
-            .collect();
+                    let _ = write!(
+                        str,
+                        "{docs}\nexport interface {ident}{case_ident} {{ tag: {i}{value} }}\n"
+                    );
+
+                    str
+                });
 
         let cases: String = cases
             .iter()
@@ -282,15 +288,14 @@ export async function {ident} ({params}) : {result} {{
     }
 
     fn print_enum(&self, docs: &str, ident: &str, cases: &[EnumCase]) -> String {
-        let cases: String = cases
-            .iter()
-            .map(|case| {
-                let docs = print_docs(&case.docs);
-                let ident = case.id.to_upper_camel_case();
+        let cases = cases.iter().fold(String::new(), |mut str, case| {
+            let docs = print_docs(&case.docs);
+            let ident = case.id.to_upper_camel_case();
 
-                format!("{docs}\n{ident},\n")
-            })
-            .collect();
+            let _ = write!(str, "{docs}\n{ident},\n");
+
+            str
+        });
 
         format!("{docs}\nexport enum {ident} {{ {cases} }}\n")
     }
@@ -319,7 +324,7 @@ export async function {ident} ({params}) : {result} {{
     ) -> String {
         let functions: String = functions
             .iter()
-            .map(|func| {
+            .fold(String::new(),|mut str, func| {
                 let docs = print_docs(&func.docs);
 
                 let mod_ident = mod_ident.to_snake_case();
@@ -345,7 +350,7 @@ export async function {ident} ({params}) : {result} {{
                     .collect::<Vec<_>>()
                     .join(";\n");
 
-                format!(
+                let _ = write!(str,
                     r#"{docs}
 async {ident} ({params}) : {result} {{
     const out = []
@@ -355,9 +360,10 @@ async {ident} ({params}) : {result} {{
     await fetch('ipc://localhost/{mod_ident}::resource::{resource_ident}/{ident}', {{ method: "POST", body: Uint8Array.from(out), headers: {{ 'Content-Type': 'application/octet-stream' }} }}){deserialize_result}
 }}
 "#
-                )
-            })
-            .collect();
+                );
+
+                str
+            });
 
         format!(
             "{docs}\nexport class {ident} {{
@@ -402,10 +408,10 @@ fn print_docs(docs: &str) -> String {
         return String::new();
     }
 
-    let docs = docs
-        .lines()
-        .map(|line| format!(" * {line} \n"))
-        .collect::<String>();
+    let docs = docs.lines().fold(String::new(), |mut str, line| {
+        let _ = writeln!(str, " * {line}");
+        str
+    });
 
     format!("/**\n{docs}*/")
 }

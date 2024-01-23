@@ -1,6 +1,7 @@
 #![allow(clippy::must_use_candidate, clippy::unused_self)]
 
 use heck::{ToKebabCase, ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
+use std::fmt::Write;
 use std::path::PathBuf;
 use tauri_bindgen_core::{postprocess, Generate, GeneratorBuilder, TypeInfo, TypeInfos};
 use tauri_bindgen_gen_js::{JavaScriptGenerator, SerdeUtils};
@@ -105,7 +106,7 @@ export async function {ident} ({params}) {{
 
         let functions: String = functions
             .iter()
-            .map(|func| {
+            .fold(String::new(), |mut str, func| {
                 let docs = self.print_docs(func);
                 let mod_ident = mod_ident.to_snake_case();
                 let resource_ident = ident.to_snake_case();
@@ -126,7 +127,7 @@ export async function {ident} ({params}) {{
                     .collect::<Vec<_>>()
                     .join(";\n");
 
-                format!(
+                let _ = write!(str,
                     r#"{docs}
 async {ident} ({params}) {{
     const out = []
@@ -136,9 +137,10 @@ async {ident} ({params}) {{
     await fetch('ipc://localhost/{mod_ident}::resource::{resource_ident}/{ident}', {{ method: "POST", body: Uint8Array.from(out), headers: {{ 'Content-Type': 'application/octet-stream' }} }}){deserialize_result}
 }}
 "#
-                )
-            })
-            .collect();
+                );
+
+                str
+            });
 
         let deserialize = if info.contains(TypeInfo::RESULT) {
             format!(
@@ -162,22 +164,22 @@ async {ident} ({params}) {{
     }
 
     fn print_docs(&self, func: &Function) -> String {
-        let docs = func
-            .docs
-            .lines()
-            .map(|line| format!(" * {line} \n"))
-            .collect::<String>();
+        let docs = func.docs.lines().fold(String::new(), |mut str, line| {
+            let _ = writeln!(str, " * {line} \n");
+            str
+        });
 
         let param_docs = func
             .params
             .iter()
-            .map(|(name, ty)| {
+            .fold(String::new(), |mut str, (name, ty)| {
                 let ident = &name.to_lower_camel_case();
                 let ty = self.print_ty(ty);
 
-                format!("* @param {{{ty}}} {ident} \n")
-            })
-            .collect::<String>();
+                let _ = writeln!(str, "* @param {{{ty}}} {ident}");
+
+                str
+            });
 
         let result_docs = func
             .result
