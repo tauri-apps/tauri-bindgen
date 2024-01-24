@@ -59,6 +59,7 @@
       matchCurrentVersion: '>=1.0.0',
       matchUpdateTypes: [
         'minor',
+        'patch'
       ],
       enabled: false,
     },
