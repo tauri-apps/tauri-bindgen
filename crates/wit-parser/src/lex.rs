@@ -43,7 +43,7 @@ pub enum Token {
     #[regex("(//[^\r\n]*)", logos::skip)]
     Comment,
     #[regex(r#"/\*"#, |lex| match block_comment(lex) {
-        FilterResult::Emit(_) => FilterResult::Skip,
+        FilterResult::Emit(()) => FilterResult::Skip,
         v => v
     })]
     BlockComment,

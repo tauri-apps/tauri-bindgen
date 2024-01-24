@@ -237,7 +237,7 @@ serializeReallyFlags(out, val.e)
 }
 
 /**
-* @param {[string, number]} x 
+* @param {[string, number]} x
 */
 export async function tupleArg (x) {
     const out = []
@@ -263,7 +263,7 @@ export async function tupleResult () {
 }
 
 /**
-* @param {Empty} x 
+* @param {Empty} x
 */
 export async function emptyArg (x) {
     const out = []
@@ -289,7 +289,7 @@ export async function emptyResult () {
 }
 
 /**
-* @param {Scalars} x 
+* @param {Scalars} x
 */
 export async function scalarArg (x) {
     const out = []
@@ -315,7 +315,7 @@ export async function scalarResult () {
 }
 
 /**
-* @param {ReallyFlags} x 
+* @param {ReallyFlags} x
 */
 export async function flagsArg (x) {
     const out = []
@@ -341,7 +341,7 @@ export async function flagsResult () {
 }
 
 /**
-* @param {Aggregates} x 
+* @param {Aggregates} x
 */
 export async function aggregateArg (x) {
     const out = []
@@ -367,7 +367,7 @@ export async function aggregateResult () {
 }
 
 /**
-* @param {TupleTypedef2} e 
+* @param {TupleTypedef2} e
 * @returns {Promise<number>} 
 */
 export async function typedefInout (e) {

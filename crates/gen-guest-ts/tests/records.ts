@@ -239,21 +239,21 @@ serializeReallyFlags(out, val.e)
 
 export interface Empty {  }
 /**
- * A record containing two scalar fields 
- * that both have the same type 
+ * A record containing two scalar fields
+ * that both have the same type
 */
 export interface Scalars { /**
- * The first field, named a 
+ * The first field, named a
 */
 a: number,
 /**
- * The second field, named b 
+ * The second field, named b
 */
 b: number,
  }
 /**
- * A record that is really just flags 
- * All of the fields are bool 
+ * A record that is really just flags
+ * All of the fields are bool
 */
 export interface ReallyFlags { 
 a: boolean,

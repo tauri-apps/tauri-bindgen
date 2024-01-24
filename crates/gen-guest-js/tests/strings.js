@@ -134,7 +134,7 @@ const __text_encoder = new TextEncoder();
 
 
 /**
-* @param {string} x 
+* @param {string} x
 */
 export async function a (x) {
     const out = []
@@ -160,8 +160,8 @@ export async function b () {
 }
 
 /**
-* @param {string} a 
-* @param {string} b 
+* @param {string} a
+* @param {string} b
 * @returns {Promise<string>} 
 */
 export async function c (a, b) {

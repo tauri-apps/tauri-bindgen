@@ -56,7 +56,7 @@ function serializeF64(out, val) {
 
 
 /**
-* @param {number} x 
+* @param {number} x
 */
 export async function float32Param (x) {
     const out = []
@@ -66,7 +66,7 @@ export async function float32Param (x) {
 }
 
 /**
-* @param {number} x 
+* @param {number} x
 */
 export async function float64Param (x) {
     const out = []

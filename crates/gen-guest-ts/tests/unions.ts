@@ -418,11 +418,11 @@ case 1:
     throw new Error("unknown union case")
 }
 /**
- * A union of all of the integral types 
+ * A union of all of the integral types
 */
 export type AllIntegers = /**
- * Bool is equivalent to a 1 bit integer 
- * and is treated that way in some languages 
+ * Bool is equivalent to a 1 bit integer
+ * and is treated that way in some languages
 */
 boolean
  | 
@@ -456,27 +456,27 @@ string
 ;
 
 export type DuplicatedS32 = /**
- * The first s32 
+ * The first s32
 */
 number
  | /**
- * The second s32 
+ * The second s32
 */
 number
  | /**
- * The third s32 
+ * The third s32
 */
 number
 ;
 /**
- * A type containing numeric types that are distinct in most languages 
+ * A type containing numeric types that are distinct in most languages
 */
 export type DistinguishableNum = /**
- * A Floating Point Number 
+ * A Floating Point Number
 */
 number
  | /**
- * A Signed Integer 
+ * A Signed Integer
 */
 bigint
 ;

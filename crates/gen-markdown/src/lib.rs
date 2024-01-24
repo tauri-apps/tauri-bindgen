@@ -1,4 +1,5 @@
 use heck::{ToKebabCase, ToSnakeCase};
+use std::fmt::Write;
 use std::path::PathBuf;
 use tauri_bindgen_core::{Generate, GeneratorBuilder};
 use wit_parser::{Function, FunctionResult, Interface, Type, TypeDefId};
@@ -83,94 +84,96 @@ impl Markdown {
                 format!("## Alias {ident}\n\n`{ty}`\n\n{docs}")
             }
             wit_parser::TypeDefKind::Record(fields) => {
-                let fields = fields
-                    .iter()
-                    .map(|field| {
-                        format!(
-                            "#### {ident}: `{ty}`\n{docs}\n",
-                            ident = field.id,
-                            ty = self.print_ty(&field.ty),
-                            docs = field.docs
-                        )
-                    })
-                    .collect::<String>();
+                let fields = fields.iter().fold(String::new(), |mut str, field| {
+                    let _ = write!(
+                        str,
+                        "#### {ident}: `{ty}`\n{docs}\n",
+                        ident = field.id,
+                        ty = self.print_ty(&field.ty),
+                        docs = field.docs
+                    );
+
+                    str
+                });
 
                 format!("## Struct {ident}\n\n{docs}\n\n### Fields\n\n{fields}")
             }
             wit_parser::TypeDefKind::Flags(fields) => {
-                let fields = fields
-                    .iter()
-                    .map(|field| {
-                        format!(
-                            "#### {ident}\n{docs}\n",
-                            ident = field.id,
-                            docs = field.docs
-                        )
-                    })
-                    .collect::<String>();
+                let fields = fields.iter().fold(String::new(), |mut str, field| {
+                    let _ = write!(
+                        str,
+                        "#### {ident}\n{docs}\n",
+                        ident = field.id,
+                        docs = field.docs
+                    );
+
+                    str
+                });
 
                 format!("## Flags {ident}\n\n{docs}\n\n### Fields\n\n{fields}")
             }
             wit_parser::TypeDefKind::Variant(cases) => {
-                let cases = cases
-                    .iter()
-                    .map(|case| {
-                        format!(
-                            "#### {ident}{ty}\n{docs}\n",
-                            ident = case.id,
-                            ty = case
-                                .ty
-                                .as_ref()
-                                .map(|ty| format!(": `{}`", self.print_ty(ty)))
-                                .unwrap_or_default(),
-                            docs = case.docs
-                        )
-                    })
-                    .collect::<String>();
+                let cases = cases.iter().fold(String::new(), |mut str, case| {
+                    let _ = write!(
+                        str,
+                        "#### {ident}{ty}\n{docs}\n",
+                        ident = case.id,
+                        ty = case
+                            .ty
+                            .as_ref()
+                            .map(|ty| format!(": `{}`", self.print_ty(ty)))
+                            .unwrap_or_default(),
+                        docs = case.docs
+                    );
+
+                    str
+                });
 
                 format!("## Variant {ident}\n\n{docs}\n\n### Cases\n\n{cases}")
             }
             wit_parser::TypeDefKind::Enum(cases) => {
-                let cases = cases
-                    .iter()
-                    .map(|case| {
-                        format!("#### {ident}\n{docs}\n", ident = case.id, docs = case.docs)
-                    })
-                    .collect::<String>();
+                let cases = cases.iter().fold(String::new(), |mut str, case| {
+                    let _ = write!(
+                        str,
+                        "#### {ident}\n{docs}\n",
+                        ident = case.id,
+                        docs = case.docs
+                    );
+                    str
+                });
 
                 format!("## Enum {ident}\n\n{docs}\n\n### Cases\n\n{cases}")
             }
             wit_parser::TypeDefKind::Union(cases) => {
-                let cases = cases
-                    .iter()
-                    .map(|case| {
-                        format!(
-                            "#### `{ty}`\n{docs}\n",
-                            ty = self.print_ty(&case.ty),
-                            docs = case.docs
-                        )
-                    })
-                    .collect::<String>();
+                let cases = cases.iter().fold(String::new(), |mut str, case| {
+                    let _ = write!(
+                        str,
+                        "#### `{ty}`\n{docs}\n",
+                        ty = self.print_ty(&case.ty),
+                        docs = case.docs
+                    );
+                    str
+                });
 
                 format!("## Union {ident}\n\n{docs}\n\n### Cases\n\n{cases}")
             }
             wit_parser::TypeDefKind::Resource(functions) => {
-                let functions: String = functions
-                    .iter()
-                    .map(|func| {
-                        format!(
-                            "### Method {ident}\n\n`func {ident} ({params}){result}`\n\n{docs}",
-                            ident = func.id,
-                            params = self.print_named_types(&func.params),
-                            result = func
-                                .result
-                                .as_ref()
-                                .map(|result| self.print_result(result))
-                                .unwrap_or_default(),
-                            docs = func.docs
-                        )
-                    })
-                    .collect();
+                let functions = functions.iter().fold(String::new(), |mut str, func| {
+                    let _ = write!(
+                        str,
+                        "### Method {ident}\n\n`func {ident} ({params}){result}`\n\n{docs}",
+                        ident = func.id,
+                        params = self.print_named_types(&func.params),
+                        result = func
+                            .result
+                            .as_ref()
+                            .map(|result| self.print_result(result))
+                            .unwrap_or_default(),
+                        docs = func.docs
+                    );
+
+                    str
+                });
 
                 format!("## Resource {ident}\n\n{docs}\n\n### Methods\n\n{functions}")
             }

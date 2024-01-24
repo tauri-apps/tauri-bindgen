@@ -3,39 +3,37 @@ use std::fmt::Write;
 
 use crate::Error;
 
-pub trait IteratorExt<T, E> {
-    fn partition_result<FromT, FromE>(self) -> Result<FromT, FromE>
+pub trait IteratorExt {
+    fn transponse_result<A, T>(self) -> crate::Result<A>
     where
-        FromT: FromIterator<T>,
-        FromE: FromIterator<E>;
+        Self: Iterator<Item = crate::Result<T>> + Sized,
+        A: Default + Extend<T>;
 }
 
-impl<T, E, I> IteratorExt<T, E> for I
-where
-    I: Iterator<Item = Result<T, E>>,
-{
-    fn partition_result<FromT, FromE>(self) -> Result<FromT, FromE>
+impl<I: Iterator> IteratorExt for I {
+    fn transponse_result<A, T>(self) -> crate::Result<A>
     where
-        FromT: FromIterator<T>,
-        FromE: FromIterator<E>,
+        Self: Iterator<Item = crate::Result<T>> + Sized,
+        A: Default + Extend<T>,
     {
-        let (types, errors): (Vec<_>, Vec<_>) = self.partition(Result::is_ok);
-
-        if errors.is_empty() {
-            let results: FromT = types
-                .into_iter()
-                .map(|v| unsafe { v.unwrap_unchecked() })
-                .collect();
-
-            Ok(results)
-        } else {
-            let errors: FromE = errors
-                .into_iter()
-                .map(|v| unsafe { v.unwrap_err_unchecked() })
-                .collect();
-
-            Err(errors)
-        }
+        // This is fine, we're not actually implementing try_fold here.
+        #[allow(clippy::manual_try_fold)]
+        self.fold(Ok(A::default()), |acc, res| {
+            match (acc, res) {
+                (Ok(mut left), Ok(val)) => {
+                    left.extend(Some(val));
+                    Ok(left)
+                }
+                (Err(mut right), Err(err)) => {
+                    if let Error::Multi { errors } = &mut right {
+                        errors.push(err);
+                    }
+                    Err(right)
+                }
+                (Ok(_), Err(err)) => Err(Error::Multi { errors: vec![err] }),
+                (acc, _) => acc, // do nothing
+            }
+        })
     }
 }
 
