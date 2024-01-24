@@ -30,7 +30,7 @@ wit-parser = { path = "crates/wit-parser" }
 miette = { version = "5.10.0", features = ["fancy"] }
 log = { version = "0.4.20", features = [ "kv_unstable", "kv_unstable_std" ] }
 serde = "1.0.195"
-quote = "1.0.33"
+quote = "1.0.35"
 proc-macro2 = "1.0.78"
 syn = "2.0.36"
 schemars = "0.8.16"
