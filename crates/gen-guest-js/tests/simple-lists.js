@@ -143,7 +143,7 @@ function serializeList(out, inner, val) {
 
 
 /**
-* @param {Uint32Array[]} l 
+* @param {Uint32Array[]} l
 */
 export async function simpleList1 (l) {
     const out = []
@@ -169,8 +169,8 @@ export async function simpleList2 () {
 }
 
 /**
-* @param {Uint32Array[]} a 
-* @param {Uint32Array[]} b 
+* @param {Uint32Array[]} a
+* @param {Uint32Array[]} b
 * @returns {Promise<[Uint32Array[], Uint32Array[]]>} 
 */
 export async function simpleList3 (a, b) {
@@ -188,7 +188,7 @@ serializeList(out, (out, v) => serializeU32(out, v), b)
 }
 
 /**
-* @param {Uint32Array[][]} l 
+* @param {Uint32Array[][]} l
 * @returns {Promise<Uint32Array[][]>} 
 */
 export async function simpleList4 (l) {

@@ -380,7 +380,7 @@ if (val.D) {
 }
 
 /**
-* @param {Uint8Array[]} x 
+* @param {Uint8Array[]} x
 */
 export async function listU8Param (x) {
     const out = []
@@ -390,7 +390,7 @@ export async function listU8Param (x) {
 }
 
 /**
-* @param {Uint16Array[]} x 
+* @param {Uint16Array[]} x
 */
 export async function listU16Param (x) {
     const out = []
@@ -400,7 +400,7 @@ export async function listU16Param (x) {
 }
 
 /**
-* @param {Uint32Array[]} x 
+* @param {Uint32Array[]} x
 */
 export async function listU32Param (x) {
     const out = []
@@ -410,7 +410,7 @@ export async function listU32Param (x) {
 }
 
 /**
-* @param {BigUint64Array[]} x 
+* @param {BigUint64Array[]} x
 */
 export async function listU64Param (x) {
     const out = []
@@ -420,7 +420,7 @@ export async function listU64Param (x) {
 }
 
 /**
-* @param {bigint[]} x 
+* @param {bigint[]} x
 */
 export async function listU128Param (x) {
     const out = []
@@ -430,7 +430,7 @@ export async function listU128Param (x) {
 }
 
 /**
-* @param {Int8Array[]} x 
+* @param {Int8Array[]} x
 */
 export async function listS8Param (x) {
     const out = []
@@ -440,7 +440,7 @@ export async function listS8Param (x) {
 }
 
 /**
-* @param {Int16Array[]} x 
+* @param {Int16Array[]} x
 */
 export async function listS16Param (x) {
     const out = []
@@ -450,7 +450,7 @@ export async function listS16Param (x) {
 }
 
 /**
-* @param {Int32Array[]} x 
+* @param {Int32Array[]} x
 */
 export async function listS32Param (x) {
     const out = []
@@ -460,7 +460,7 @@ export async function listS32Param (x) {
 }
 
 /**
-* @param {BigInt64Array[]} x 
+* @param {BigInt64Array[]} x
 */
 export async function listS64Param (x) {
     const out = []
@@ -470,7 +470,7 @@ export async function listS64Param (x) {
 }
 
 /**
-* @param {bigint[]} x 
+* @param {bigint[]} x
 */
 export async function listS128Param (x) {
     const out = []
@@ -480,7 +480,7 @@ export async function listS128Param (x) {
 }
 
 /**
-* @param {Float32Array[]} x 
+* @param {Float32Array[]} x
 */
 export async function listFloat32Param (x) {
     const out = []
@@ -490,7 +490,7 @@ export async function listFloat32Param (x) {
 }
 
 /**
-* @param {Float64Array[]} x 
+* @param {Float64Array[]} x
 */
 export async function listFloat64Param (x) {
     const out = []
@@ -692,7 +692,7 @@ export async function listFloat64Ret () {
 }
 
 /**
-* @param {[number, number][]} x 
+* @param {[number, number][]} x
 * @returns {Promise<[bigint, number][]>} 
 */
 export async function tupleList (x) {
@@ -709,7 +709,7 @@ export async function tupleList (x) {
 }
 
 /**
-* @param {string[]} a 
+* @param {string[]} a
 */
 export async function stringListArg (a) {
     const out = []
@@ -735,7 +735,7 @@ export async function stringListRet () {
 }
 
 /**
-* @param {[number, string][]} x 
+* @param {[number, string][]} x
 * @returns {Promise<[string, number][]>} 
 */
 export async function tupleStringList (x) {
@@ -752,7 +752,7 @@ export async function tupleStringList (x) {
 }
 
 /**
-* @param {string[]} x 
+* @param {string[]} x
 * @returns {Promise<string[]>} 
 */
 export async function stringList (x) {
@@ -769,7 +769,7 @@ export async function stringList (x) {
 }
 
 /**
-* @param {SomeRecord[]} x 
+* @param {SomeRecord[]} x
 * @returns {Promise<OtherRecord[]>} 
 */
 export async function recordList (x) {
@@ -786,7 +786,7 @@ export async function recordList (x) {
 }
 
 /**
-* @param {OtherRecord[]} x 
+* @param {OtherRecord[]} x
 * @returns {Promise<SomeRecord[]>} 
 */
 export async function recordListReverse (x) {
@@ -803,7 +803,7 @@ export async function recordListReverse (x) {
 }
 
 /**
-* @param {SomeVariant[]} x 
+* @param {SomeVariant[]} x
 * @returns {Promise<OtherVariant[]>} 
 */
 export async function variantList (x) {
@@ -820,7 +820,7 @@ export async function variantList (x) {
 }
 
 /**
-* @param {LoadStoreAllSizes} a 
+* @param {LoadStoreAllSizes} a
 * @returns {Promise<LoadStoreAllSizes>} 
 */
 export async function loadStoreEverything (a) {

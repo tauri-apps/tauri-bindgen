@@ -556,7 +556,7 @@ if (val.B) {
 }
 
 /**
-* @param {E1} x 
+* @param {E1} x
 */
 export async function e1Arg (x) {
     const out = []
@@ -582,7 +582,7 @@ export async function e1Result () {
 }
 
 /**
-* @param {U1} x 
+* @param {U1} x
 */
 export async function u1Arg (x) {
     const out = []
@@ -608,7 +608,7 @@ export async function u1Result () {
 }
 
 /**
-* @param {V1} x 
+* @param {V1} x
 */
 export async function v1Arg (x) {
     const out = []
@@ -634,7 +634,7 @@ export async function v1Result () {
 }
 
 /**
-* @param {boolean} x 
+* @param {boolean} x
 */
 export async function boolArg (x) {
     const out = []
@@ -660,13 +660,13 @@ export async function boolResult () {
 }
 
 /**
-* @param {boolean | null} a 
-* @param {[] | null} b 
-* @param {number | null} c 
-* @param {E1 | null} d 
-* @param {number | null} e 
-* @param {U1 | null} f 
-* @param {boolean | null | null} g 
+* @param {boolean | null} a
+* @param {[] | null} b
+* @param {number | null} c
+* @param {E1 | null} d
+* @param {number | null} e
+* @param {U1 | null} f
+* @param {boolean | null | null} g
 */
 export async function optionArg (a, b, c, d, e, f, g) {
     const out = []
@@ -698,12 +698,12 @@ export async function optionResult () {
 }
 
 /**
-* @param {Casts1} a 
-* @param {Casts2} b 
-* @param {Casts3} c 
-* @param {Casts4} d 
-* @param {Casts5} e 
-* @param {Casts6} f 
+* @param {Casts1} a
+* @param {Casts2} b
+* @param {Casts3} c
+* @param {Casts4} d
+* @param {Casts5} e
+* @param {Casts6} f
 * @returns {Promise<[Casts1, Casts2, Casts3, Casts4, Casts5, Casts6]>} 
 */
 export async function casts (a, b, c, d, e, f) {
@@ -725,12 +725,12 @@ serializeCasts6(out, f)
 }
 
 /**
-* @param {Result<_, _>} a 
-* @param {Result<_, E1>} b 
-* @param {Result<E1, _>} c 
-* @param {Result<[], []>} d 
-* @param {Result<number, V1>} e 
-* @param {Result<string, Uint8Array[]>} f 
+* @param {Result<_, _>} a
+* @param {Result<_, E1>} b
+* @param {Result<E1, _>} c
+* @param {Result<[], []>} d
+* @param {Result<number, V1>} e
+* @param {Result<string, Uint8Array[]>} f
 */
 export async function resultArg (a, b, c, d, e, f) {
     const out = []
@@ -873,7 +873,7 @@ export async function resultSimple () {
 }
 
 /**
-* @param {IsClone} a 
+* @param {IsClone} a
 */
 export async function isCloneArg (a) {
     const out = []

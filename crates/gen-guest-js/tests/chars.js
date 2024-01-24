@@ -141,7 +141,8 @@ const __text_encoder = new TextEncoder();
 
 /**
  * A function that accepts a character 
-* @param {string} x 
+
+* @param {string} x
 */
 export async function takeChar (x) {
     const out = []
@@ -152,6 +153,7 @@ export async function takeChar (x) {
 
 /**
  * A function that returns a character 
+
 * @returns {Promise<string>} 
 */
 export async function returnChar () {

@@ -129,7 +129,7 @@ export async function f1 () {
 }
 
 /**
-* @param {number} a 
+* @param {number} a
 */
 export async function f2 (a) {
     const out = []
@@ -139,8 +139,8 @@ export async function f2 (a) {
 }
 
 /**
-* @param {number} a 
-* @param {number} b 
+* @param {number} a
+* @param {number} b
 */
 export async function f3 (a, b) {
     const out = []
@@ -183,9 +183,9 @@ export async function f5 () {
 }
 
 /**
-* @param {number} a 
-* @param {number} b 
-* @param {number} c 
+* @param {number} a
+* @param {number} b
+* @param {number} c
 * @returns {Promise<[number, number, number]>} 
 */
 export async function f6 (a, b, c) {

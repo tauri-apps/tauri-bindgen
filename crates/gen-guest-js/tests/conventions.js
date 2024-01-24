@@ -88,7 +88,7 @@ export async function kebabCase () {
 }
 
 /**
-* @param {LudicrousSpeed} x 
+* @param {LudicrousSpeed} x
 */
 export async function foo (x) {
     const out = []

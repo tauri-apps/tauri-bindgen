@@ -126,7 +126,7 @@ async f1 () {
     await fetch('ipc://localhost/resources::resource::a/f1', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
 }
 /**
-* @param {number} a 
+* @param {number} a
 */
 async f2 (a) {
     const out = []
@@ -136,8 +136,8 @@ async f2 (a) {
     await fetch('ipc://localhost/resources::resource::a/f2', { method: "POST", body: Uint8Array.from(out), headers: { 'Content-Type': 'application/octet-stream' } })
 }
 /**
-* @param {number} a 
-* @param {number} b 
+* @param {number} a
+* @param {number} b
 */
 async f3 (a, b) {
     const out = []
@@ -173,7 +173,7 @@ async f1 () {
         })
 }
 /**
-* @param {A} x 
+* @param {A} x
 * @returns {Promise<Result<number, _>>} 
 */
 async f2 (x) {
@@ -190,7 +190,7 @@ async f2 (x) {
         })
 }
 /**
-* @param {A[] | null} x 
+* @param {A[] | null} x
 * @returns {Promise<Result<A, _>>} 
 */
 async f3 (x) {

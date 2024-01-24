@@ -189,7 +189,7 @@ function serializeS128(out, val) {
 
 
 /**
-* @param {number} x 
+* @param {number} x
 */
 export async function a1 (x) {
     const out = []
@@ -199,7 +199,7 @@ export async function a1 (x) {
 }
 
 /**
-* @param {number} x 
+* @param {number} x
 */
 export async function a2 (x) {
     const out = []
@@ -209,7 +209,7 @@ export async function a2 (x) {
 }
 
 /**
-* @param {number} x 
+* @param {number} x
 */
 export async function a3 (x) {
     const out = []
@@ -219,7 +219,7 @@ export async function a3 (x) {
 }
 
 /**
-* @param {number} x 
+* @param {number} x
 */
 export async function a4 (x) {
     const out = []
@@ -229,7 +229,7 @@ export async function a4 (x) {
 }
 
 /**
-* @param {number} x 
+* @param {number} x
 */
 export async function a5 (x) {
     const out = []
@@ -239,7 +239,7 @@ export async function a5 (x) {
 }
 
 /**
-* @param {number} x 
+* @param {number} x
 */
 export async function a6 (x) {
     const out = []
@@ -249,7 +249,7 @@ export async function a6 (x) {
 }
 
 /**
-* @param {bigint} x 
+* @param {bigint} x
 */
 export async function a7 (x) {
     const out = []
@@ -259,7 +259,7 @@ export async function a7 (x) {
 }
 
 /**
-* @param {bigint} x 
+* @param {bigint} x
 */
 export async function a8 (x) {
     const out = []
@@ -269,7 +269,7 @@ export async function a8 (x) {
 }
 
 /**
-* @param {bigint} x 
+* @param {bigint} x
 */
 export async function a9 (x) {
     const out = []
@@ -279,7 +279,7 @@ export async function a9 (x) {
 }
 
 /**
-* @param {bigint} x 
+* @param {bigint} x
 */
 export async function a10 (x) {
     const out = []
@@ -289,16 +289,16 @@ export async function a10 (x) {
 }
 
 /**
-* @param {number} p1 
-* @param {number} p2 
-* @param {number} p3 
-* @param {number} p4 
-* @param {number} p5 
-* @param {number} p6 
-* @param {bigint} p7 
-* @param {bigint} p8 
-* @param {bigint} p9 
-* @param {bigint} p10 
+* @param {number} p1
+* @param {number} p2
+* @param {number} p3
+* @param {number} p4
+* @param {number} p5
+* @param {number} p6
+* @param {bigint} p7
+* @param {bigint} p8
+* @param {bigint} p9
+* @param {bigint} p10
 */
 export async function a11 (p1, p2, p3, p4, p5, p6, p7, p8, p9, p10) {
     const out = []
