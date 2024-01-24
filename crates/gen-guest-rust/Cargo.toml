@@ -18,12 +18,12 @@ prettyplease = "0.2.15"
 log.workspace = true
 
 [dev-dependencies]
-wasm-bindgen = { version = "0.2.87", features = ["serde-serialize"] }
-wasm-bindgen-futures = "0.4.37"
-serde-wasm-bindgen = "0.6.0"
-js-sys = "0.3.64" 
+wasm-bindgen = { version = "0.2.90", features = ["serde-serialize"] }
+wasm-bindgen-futures = "0.4.40"
+serde-wasm-bindgen = "0.6.3"
+js-sys = "0.3.67" 
 tauri-bindgen-guest-rust = { path = "../guest-rust" }
-serde = { version = "1.0.188", features = ["derive"] }
+serde = { version = "1.0.195", features = ["derive"] }
 pretty_assertions = "1.4.0"
 
 [features]
