@@ -29,7 +29,7 @@ tauri-bindgen-gen-guest-js = { path = "crates/gen-guest-js", features = ['cli'] 
 wit-parser = { path = "crates/wit-parser" }
 miette = { version = "5.10.0", features = ["fancy"] }
 log = { version = "0.4.20", features = [ "kv_unstable", "kv_unstable_std" ] }
-serde = "1.0.195"
+serde = "1.0.196"
 quote = "1.0.35"
 proc-macro2 = "1.0.78"
 syn = "2.0.36"
