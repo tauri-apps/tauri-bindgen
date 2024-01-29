@@ -23,7 +23,7 @@ wasm-bindgen-futures = "0.4.40"
 serde-wasm-bindgen = "0.6.3"
 js-sys = "0.3.67" 
 tauri-bindgen-guest-rust = { path = "../guest-rust" }
-serde = { version = "1.0.195", features = ["derive"] }
+serde = { version = "1.0.196", features = ["derive"] }
 pretty_assertions = "1.4.0"
 
 [features]
