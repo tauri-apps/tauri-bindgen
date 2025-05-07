@@ -5,13 +5,13 @@
   customManagers: [
     {
       customType: 'regex',
-      fileMatch: [
-        '^rust-toolchain\\.toml$',
-        'Cargo.toml$',
-        'clippy.toml$',
-        '\\.clippy.toml$',
-        '^\\.github/workflows/ci.yml$',
-        '^\\.github/workflows/rust-next.yml$',
+      managerFilePatterns: [
+        '/^rust-toolchain\\.toml$/',
+        '/Cargo.toml$/',
+        '/clippy.toml$/',
+        '/\\.clippy.toml$/',
+        '/^\\.github/workflows/ci.yml$/',
+        '/^\\.github/workflows/rust-next.yml$/',
       ],
       matchStrings: [
         'MSRV.*?(?<currentValue>\\d+\\.\\d+(\\.\\d+)?)',
@@ -41,7 +41,7 @@
       matchDepTypes: [
         'build-dependencies',
         'dependencies',
-        'workspace.dependencies'
+        'workspace.dependencies',
       ],
       matchCurrentVersion: '>=0.1.0',
       matchUpdateTypes: [
@@ -56,12 +56,12 @@
       matchDepTypes: [
         'build-dependencies',
         'dependencies',
-        'workspace.dependencies'
+        'workspace.dependencies',
       ],
       matchCurrentVersion: '>=1.0.0',
       matchUpdateTypes: [
         'minor',
-        'patch'
+        'patch',
       ],
       enabled: false,
     },
@@ -89,7 +89,7 @@
       matchCurrentVersion: '>=1.0.0',
       matchUpdateTypes: [
         'minor',
-        'patch'
+        'patch',
       ],
       automerge: true,
       groupName: 'compatible (dev)',
