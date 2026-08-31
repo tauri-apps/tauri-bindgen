@@ -5,7 +5,7 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-sycamore = { git = "https://github.com/sycamore-rs/sycamore", rev = "abd556cbc02047042dad2ebd04405e455a9b11b2", features = ["suspense"] }
+sycamore = { git = "https://github.com/sycamore-rs/sycamore", rev = "48e55bb7e699ab4975b3d49401ec93cd9dca58b1", features = ["suspense"] }
 anyhow = "1.0.66"
 console_error_panic_hook = "0.1.7"
 wasm-bindgen-futures = "0.4.32"
